@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener with Analytics - Free Link Shortener | ToolPipe</title>
+    <meta name="description" content="Free URL shortener with click analytics. Shorten links, track clicks, see referrers and daily stats. No signup required.">
+    <meta name="keywords" content="url shortener, link shortener, shorten url, short link, bitly alternative, free url shortener with analytics">
+    <meta property="og:title" content="Free URL Shortener with Analytics">
+    <meta property="og:description" content="Shorten URLs and track clicks with free analytics. No signup required.">
+    <link rel="canonical" href="/short">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 3rem 2rem; text-align: center; }
+        .header h1 { font-size: 2.2rem; color: #fff; margin-bottom: 0.5rem; }
+        .header p { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto; }
+        .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
+        .shorten-form { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+        .input-group { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+        .input-group input { flex: 1; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.75rem 1rem; border-radius: 8px; font-size: 1rem; }
+        .input-group input:focus { outline: none; border-color: #3b82f6; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.85rem; }
+        .custom-code { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .custom-code label { color: #64748b; font-size: 0.85rem; }
+        .custom-code input { background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.9rem; width: 150px; }
+        .result-box { background: #1a2e1a; border: 1px solid #22c55e; border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem; display: none; }
+        .result-box.active { display: block; }
+        .result-url { display: flex; align-items: center; gap: 0.75rem; }
+        .result-url a { color: #22c55e; font-size: 1.1rem; font-weight: 600; word-break: break-all; }
+        .btn-copy { background: #374151; padding: 0.4rem 1rem; border-radius: 6px; color: #e0e0e0; border: none; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+        .stats-section { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; display: none; }
+        .stats-section.active { display: block; }
+        .stats-section h2 { color: #fff; font-size: 1.2rem; margin-bottom: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #111; border-radius: 8px; padding: 1rem; text-align: center; }
+        .stat-card .number { font-size: 1.8rem; font-weight: 700; color: #3b82f6; }
+        .stat-card .label { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
+        .chart-bar { display: flex; align-items: flex-end; gap: 4px; height: 100px; margin: 1rem 0; }
+        .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .chart-col .bar { width: 100%; background: #3b82f6; border-radius: 4px 4px 0 0; min-height: 2px; transition: height 0.3s; }
+        .chart-col .day-label { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
+        .click-list { max-height: 300px; overflow-y: auto; }
+        .click-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #1a1a1a; font-size: 0.85rem; }
+        .click-item .time { color: #64748b; }
+        .click-item .ref { color: #94a3b8; }
+        .lookup-form { display: flex; gap: 0.75rem; margin: 2rem 0; }
+        .lookup-form input { flex: 1; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.9rem; }
+        .recent-links { margin-top: 2rem; }
+        .recent-links h3 { color: #fff; font-size: 1rem; margin-bottom: 0.75rem; }
+        .link-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #1a1a1a; }
+        .link-item a { color: #3b82f6; text-decoration: none; font-size: 0.9rem; }
+        .link-item .clicks { color: #64748b; font-size: 0.85rem; }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+        .seo { max-width: 700px; margin: 2rem auto; padding: 0 2rem; }
+        .seo h2 { color: #fff; margin: 2rem 0 0.5rem; font-size: 1.2rem; }
+        .seo p { color: #94a3b8; line-height: 1.7; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>URL Shortener</h1>
+        <p>Shorten URLs and track clicks with free analytics. No signup required.</p>
+    </div>
+
+    <div class="container">
+        <div class="shorten-form">
+            <div class="input-group">
+                <input type="url" id="longUrl" placeholder="Paste your long URL here..." autofocus>
+                <button class="btn" onclick="shortenUrl()">Shorten</button>
+            </div>
+            <div class="custom-code">
+                <label>Custom alias (optional):</label>
+                <input type="text" id="customCode" placeholder="my-link" maxlength="20" pattern="[a-zA-Z0-9_-]+">
+            </div>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <div class="result-url">
+                <a id="shortUrl" href="#" target="_blank"></a>
+                <button class="btn-copy" onclick="copyShortUrl()">Copy</button>
+                <button class="btn btn-sm" onclick="showStats(currentCode)">Stats</button>
+            </div>
+            <p style="color:#64748b; font-size:0.85rem; margin-top:0.5rem;" id="resultMeta"></p>
+        </div>
+
+        <div class="stats-section" id="statsSection">
+            <h2>Link Analytics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="statClicks">0</div>
+                    <div class="label">Total Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="statCreated">-</div>
+                    <div class="label">Created</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="statReferers">0</div>
+                    <div class="label">Referrers</div>
+                </div>
+            </div>
+            <h3 style="color:#94a3b8; font-size:0.9rem; margin-bottom:0.5rem;">Clicks (Last 7 Days)</h3>
+            <div class="chart-bar" id="dailyChart"></div>
+            <h3 style="color:#94a3b8; font-size:0.9rem; margin: 1rem 0 0.5rem;">Recent Clicks</h3>
+            <div class="click-list" id="clickList"></div>
+        </div>
+
+        <div class="lookup-form">
+            <input type="text" id="lookupCode" placeholder="Enter a short code to view stats...">
+            <button class="btn btn-sm" onclick="showStats(document.getElementById('lookupCode').value)">View Stats</button>
+        </div>
+    </div>
+
+    <div class="seo">
+        <h2>Free URL Shortener with Analytics</h2>
+        <p>ToolPipe URL Shortener creates short, shareable links with built-in click tracking. See how many people click your links, where they come from, and when they visit. All for free, no account needed.</p>
+        <h2>Features</h2>
+        <p><strong>Custom aliases:</strong> Choose your own short code instead of a random string. Make links memorable and branded.</p>
+        <p><strong>Click analytics:</strong> Track total clicks, daily trends, and referrer sources. Know exactly how your links perform.</p>
+        <p><strong>No signup:</strong> Create short links instantly. No email, no account, no friction.</p>
+        <p><strong>API access:</strong> Programmatically create and manage short URLs via our REST API.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pdf">PDF Tools</a> | <a href="/docs">API Docs</a></p>
+    </footer>
+
+    <script>
+    let currentCode = null;
+
+    async function shortenUrl() {
+        const url = document.getElementById('longUrl').value.trim();
+        if (!url) return;
+        const custom = document.getElementById('customCode').value.trim();
+        const body = { url };
+        if (custom) body.custom_code = custom;
+
+        try {
+            const resp = await fetch('/s/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            const data = await resp.json();
+            if (!resp.ok) { alert(data.detail || 'Error'); return; }
+
+            currentCode = data.short_code;
+            const shortUrl = window.location.origin + '/s/' + data.short_code;
+            document.getElementById('shortUrl').href = shortUrl;
+            document.getElementById('shortUrl').textContent = shortUrl;
+            document.getElementById('resultMeta').textContent = 'Original: ' + url;
+            document.getElementById('resultBox').classList.add('active');
+        } catch (e) {
+            alert('Error: ' + e.message);
+        }
+    }
+
+    function copyShortUrl() {
+        const url = document.getElementById('shortUrl').textContent;
+        navigator.clipboard.writeText(url);
+        const btns = document.querySelectorAll('.btn-copy');
+        btns[0].textContent = 'Copied!';
+        setTimeout(() => btns[0].textContent = 'Copy', 2000);
+    }
+
+    async function showStats(code) {
+        if (!code) return;
+        try {
+            const resp = await fetch('/s/' + code + '/stats');
+            if (!resp.ok) { alert('Link not found'); return; }
+            const data = await resp.json();
+
+            document.getElementById('statClicks').textContent = data.url.click_count;
+            document.getElementById('statCreated').textContent = data.url.created_at.split('T')[0] || data.url.created_at.split(' ')[0];
+            document.getElementById('statReferers').textContent = data.top_referers.length;
+
+            // Daily chart
+            const chart = document.getElementById('dailyChart');
+            const daily = data.daily_clicks;
+            const maxCount = Math.max(...daily.map(d => d.count), 1);
+            chart.innerHTML = daily.map(d => {
+                const h = Math.max(2, (d.count / maxCount) * 80);
+                return '<div class="chart-col"><div class="bar" style="height:' + h + 'px"></div><div class="day-label">' + d.day.slice(5) + '</div></div>';
+            }).join('') || '<p style="color:#64748b;font-size:0.85rem;">No clicks yet</p>';
+
+            // Recent clicks
+            const list = document.getElementById('clickList');
+            list.innerHTML = data.recent_clicks.map(c =>
+                '<div class="click-item"><span class="time">' + esc(c.clicked_at) + '</span><span class="ref">' + esc(c.referer || 'Direct') + '</span></div>'
+            ).join('') || '<p style="color:#64748b;font-size:0.85rem;">No clicks yet</p>';
+
+            document.getElementById('statsSection').classList.add('active');
+        } catch (e) {
+            alert('Error loading stats');
+        }
+    }
+
+    function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    document.getElementById('longUrl').addEventListener('keydown', e => { if (e.key === 'Enter') shortenUrl(); });
+    </script>
+</body>
+</html>

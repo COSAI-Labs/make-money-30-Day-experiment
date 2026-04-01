@@ -81,10 +81,13 @@ INVOICE_HTML = Path(__file__).parent.parent / "invoice-generator" / "index.html"
 MONITOR_HTML = Path(__file__).parent.parent / "uptime-monitor" / "index.html"
 PDF_HTML = Path(__file__).parent.parent / "pdf-tools" / "index.html"
 WEBHOOK_HTML = Path(__file__).parent.parent / "webhook-tester" / "index.html"
+SHORTENER_HTML = Path(__file__).parent.parent / "url-shortener" / "index.html"
 SEO_PAGES_DIR = Path(__file__).parent.parent / "seo-pages"
 
-# Import monitor module
+# Import external modules
 import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "url-shortener"))
+import db as url_db
 sys.path.insert(0, str(Path(__file__).parent.parent / "uptime-monitor"))
 import monitor as uptime_monitor
 
@@ -785,7 +788,7 @@ async def analyze_seo(url: str = Query(...)):
 async def sitemap():
     base = "http://187.77.213.192:8081"
     urls = [
-        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/docs",
+        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/docs",
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
         "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
     ]
@@ -1152,6 +1155,69 @@ async def webhook_capture(bin_id: str, request: Request):
         bin_data["requests"] = bin_data["requests"][-WEBHOOK_MAX_REQUESTS:]
 
     return {"status": "captured", "request_id": req_data["id"]}
+
+
+# --- URL Shortener ---
+
+@app.get("/short", response_class=HTMLResponse)
+async def shortener_page():
+    if SHORTENER_HTML.exists():
+        return HTMLResponse(SHORTENER_HTML.read_text())
+    return HTMLResponse("<h1>URL Shortener coming soon</h1>")
+
+
+class ShortenRequest(BaseModel):
+    url: str
+    custom_code: Optional[str] = None
+
+
+@app.post("/s/create")
+async def create_short_url(req: ShortenRequest, request: Request):
+    # Validate URL
+    if not req.url.startswith(("http://", "https://")):
+        req.url = "https://" + req.url
+    parsed = urlparse(req.url)
+    if not parsed.netloc:
+        raise HTTPException(status_code=400, detail="Invalid URL.")
+
+    # Custom code validation
+    if req.custom_code:
+        if len(req.custom_code) < 2 or len(req.custom_code) > 20:
+            raise HTTPException(status_code=400, detail="Custom code must be 2-20 characters.")
+        if not re.match(r'^[a-zA-Z0-9_-]+$', req.custom_code):
+            raise HTTPException(status_code=400, detail="Custom code can only contain letters, numbers, hyphens, and underscores.")
+        existing = url_db.get_url(req.custom_code)
+        if existing:
+            raise HTTPException(status_code=409, detail="Custom code already taken.")
+
+    client_ip = request.client.host if request.client else None
+    code = url_db.create_short_url(req.url, creator_ip=client_ip, custom_code=req.custom_code)
+    return {"short_code": code, "short_url": f"/s/{code}", "long_url": req.url}
+
+
+@app.get("/s/{short_code}/stats")
+async def get_url_stats(short_code: str):
+    stats = url_db.get_url_stats(short_code)
+    if not stats:
+        raise HTTPException(status_code=404, detail="Short URL not found.")
+    return stats
+
+
+@app.get("/s/{short_code}")
+async def redirect_short_url(short_code: str, request: Request):
+    from fastapi.responses import RedirectResponse
+    url_data = url_db.get_url(short_code)
+    if not url_data:
+        raise HTTPException(status_code=404, detail="Short URL not found.")
+
+    # Record click asynchronously
+    url_db.record_click(
+        url_data["id"],
+        ip=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent", ""),
+        referer=request.headers.get("referer", ""),
+    )
+    return RedirectResponse(url=url_data["long_url"], status_code=302)
 
 
 # --- SEO Pages (catch-all for static content pages) ---
