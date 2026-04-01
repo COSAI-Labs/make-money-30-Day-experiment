@@ -35,8 +35,11 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="Developer utility APIs: QR codes, screenshots, metadata extraction, markdown conversion, image processing, and more.",
-    version="1.0.0",
+    description="112+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID generation, DNS lookup, regex testing, JWT decoding, IP geolocation, password checking, code analysis, web scraping, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
+    version="1.6.0",
+    contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
+    license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+    servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
 )
 
 app.add_middleware(
@@ -78,34 +81,285 @@ except Exception as e:
     print(f"x402 init skipped: {e}. All endpoints free.")
 
 # Premium pricing info endpoint
-@app.get("/pricing")
-async def pricing_info():
+@app.get("/api/pricing")
+async def pricing_info_json():
     return {
         "payment_protocol": "x402",
         "enabled": X402_ENABLED,
         "wallet": WALLET_ADDRESS,
         "network": "base-sepolia",
         "asset": "USDC",
-        "free_endpoints": [
-            "/health", "/api", "/tools", "/qr/generate", "/hash/generate",
-            "/uuid/generate", "/base64/encode", "/base64/decode",
-            "/url/encode", "/url/decode", "/text/analyze",
-            "/json/format", "/json/validate", "/markdown/to-html",
-        ],
-        "premium_endpoints": {
-            "/seo/analyze": "$0.01 per analysis",
-            "/pdf/merge": "$0.005 per merge",
-            "/pdf/split": "$0.005 per split",
-            "/pdf/compress": "$0.005 per compress",
-            "/pdf/protect": "$0.005 per protect",
-            "/pdf/watermark": "$0.005 per watermark",
-            "/api/text/summarize": "$0.005 per summary",
-            "/api/code/format": "$0.002 per format",
-            "/meta/extract": "$0.002 per extraction",
-            "/image/resize": "$0.002 per resize",
-        },
-        "how_to_pay": "Send USDC on Base Sepolia to the wallet address. Include X-PAYMENT header with payment proof. See x402 protocol docs at https://docs.cdp.coinbase.com/x402/welcome",
+        "tiers": PRICING_TIERS,
+        "free_tier": {"daily_limit": 100, "endpoints": "all"},
+        "how_to_pay": "POST /payments/create with email and tier, then pay via crypto. Or send directly to the wallet and verify via /payments/verify-tx.",
     }
+
+
+@app.get("/pricing", response_class=HTMLResponse)
+async def pricing_page():
+    return HTMLResponse(inject_snippet("""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ToolPipe Pricing - API Plans for Developers and AI Agents</title>
+<meta name="description" content="ToolPipe API pricing. Free tier with 100 calls/day. Pro $9.99/mo for 10,000 calls/day. Enterprise $49.99/mo for 100,000 calls/day. Pay with crypto, no KYC.">
+<link rel="canonical" href="https://toolpipe.dev/pricing">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0}
+.container{max-width:1000px;margin:0 auto;padding:40px 20px}
+h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
+.subtitle{text-align:center;color:#94a3b8;font-size:1.1rem;margin-bottom:48px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px}
+.plan{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:16px;padding:32px 24px;position:relative;transition:all 0.2s}
+.plan:hover{border-color:#6c63ff;transform:translateY(-4px)}
+.plan.featured{border-color:#6c63ff;background:#1a1a2e}
+.plan.featured::before{content:"MOST POPULAR";position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6c63ff;color:#fff;padding:4px 16px;border-radius:12px;font-size:0.75rem;font-weight:700;letter-spacing:0.5px}
+.plan-name{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:4px}
+.plan-price{font-size:2.5rem;font-weight:800;color:#fff;margin:16px 0 4px}
+.plan-price span{font-size:0.9rem;font-weight:400;color:#64748b}
+.plan-desc{color:#94a3b8;font-size:0.9rem;margin-bottom:24px}
+.plan-features{list-style:none;margin-bottom:32px}
+.plan-features li{padding:8px 0;color:#cbd5e1;font-size:0.95rem;border-bottom:1px solid #1e1e2e}
+.plan-features li::before{content:"\\2713 ";color:#22c55e;font-weight:700;margin-right:6px}
+.plan-btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s}
+.btn-free{background:#2a2a2a;color:#fff}.btn-free:hover{background:#3a3a3a}
+.btn-pro{background:#6c63ff;color:#fff}.btn-pro:hover{background:#5b52e0}
+.btn-ent{background:linear-gradient(135deg,#6c63ff,#3b82f6);color:#fff}.btn-ent:hover{opacity:0.9}
+.how{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:32px;margin-bottom:32px}
+.how h2{color:#fff;font-size:1.5rem;margin-bottom:20px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step{text-align:center;padding:16px}
+.step-num{width:40px;height:40px;background:#6c63ff;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;margin-bottom:12px}
+.step h3{color:#fff;font-size:1rem;margin-bottom:8px}
+.step p{color:#94a3b8;font-size:0.9rem;line-height:1.5}
+.faq{margin-top:48px}
+.faq h2{color:#fff;font-size:1.5rem;margin-bottom:24px;text-align:center}
+.faq-item{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;margin-bottom:12px;overflow:hidden}
+.faq-q{padding:16px 20px;font-weight:600;color:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-q::after{content:"+";font-size:1.2rem;color:#6c63ff}
+.faq-a{padding:0 20px 16px;color:#94a3b8;font-size:0.95rem;line-height:1.6;display:none}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-q::after{content:"\\2212"}
+.agent-box{background:linear-gradient(135deg,#1a1a2e,#0f172a);border:1px solid #3b82f6;border-radius:16px;padding:32px;margin:32px 0;text-align:center}
+.agent-box h2{color:#fff;font-size:1.5rem;margin-bottom:12px}
+.agent-box p{color:#94a3b8;font-size:1rem;margin-bottom:16px;line-height:1.6}
+.agent-box code{background:#111;color:#22c55e;padding:8px 16px;border-radius:8px;font-size:0.9rem;display:block;margin:12px auto;max-width:500px;text-align:left;white-space:pre-wrap}
+@media(max-width:700px){.plans{grid-template-columns:1fr}.steps{grid-template-columns:1fr}}
+</style></head><body>
+<div class="container">
+<h1>Simple, Transparent Pricing</h1>
+<p class="subtitle">112+ API endpoints. Pay with crypto. No KYC required.</p>
+
+<div class="plans">
+<div class="plan">
+<div class="plan-name">Free</div>
+<div class="plan-price">$0<span>/forever</span></div>
+<div class="plan-desc">Perfect for testing and personal projects</div>
+<ul class="plan-features">
+<li>100 API calls per day</li>
+<li>All 112+ endpoints</li>
+<li>No credit card needed</li>
+<li>Email support</li>
+<li>Rate limited (100 req/min)</li>
+</ul>
+<a href="/api-keys" class="plan-btn btn-free">Get Free API Key</a>
+</div>
+
+<div class="plan featured">
+<div class="plan-name">Pro</div>
+<div class="plan-price">$9.99<span>/month</span></div>
+<div class="plan-desc">For developers and small teams shipping products</div>
+<ul class="plan-features">
+<li>10,000 API calls per day</li>
+<li>All 112+ endpoints</li>
+<li>Priority rate limits</li>
+<li>Pay with any crypto</li>
+<li>Priority support</li>
+</ul>
+<button class="plan-btn btn-pro" onclick="startCheckout('pro')">Get Pro Access</button>
+</div>
+
+<div class="plan">
+<div class="plan-name">Enterprise</div>
+<div class="plan-price">$49.99<span>/month</span></div>
+<div class="plan-desc">For teams and AI agents needing high throughput</div>
+<ul class="plan-features">
+<li>100,000 API calls per day</li>
+<li>All 112+ endpoints</li>
+<li>Unlimited rate limits</li>
+<li>Pay with any crypto</li>
+<li>Dedicated support</li>
+</ul>
+<button class="plan-btn btn-ent" onclick="startCheckout('enterprise')">Get Enterprise Access</button>
+</div>
+</div>
+
+<div class="agent-box">
+<h2>Built for AI Agents</h2>
+<p>ToolPipe is an MCP server that any AI agent (Claude, GPT, Gemini) can use directly. Install via npm and your agent gets 69 tools instantly.</p>
+<code>npx @cosai-labs/toolpipe-mcp-server</code>
+<p style="margin-top:16px;font-size:0.9rem;">Agents can self-serve: register API keys, create payment orders, and verify transactions. All via API, zero human needed.</p>
+</div>
+
+<div class="how">
+<h2>How Payment Works</h2>
+<div class="steps">
+<div class="step">
+<div class="step-num">1</div>
+<h3>Choose a Plan</h3>
+<p>Select Pro or Enterprise. Enter your email to get an API key.</p>
+</div>
+<div class="step">
+<div class="step-num">2</div>
+<h3>Pay with Crypto</h3>
+<p>Send ETH, USDC, USDT, or any ERC-20 token to our wallet on Ethereum, Polygon, Arbitrum, Base, or Optimism.</p>
+</div>
+<div class="step">
+<div class="step-num">3</div>
+<h3>Verify & Activate</h3>
+<p>Submit your transaction hash and your API key is instantly upgraded. Fully automated, on-chain verification.</p>
+</div>
+</div>
+</div>
+
+<div class="faq">
+<h2>FAQ</h2>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What cryptocurrencies do you accept?</div><div class="faq-a">We accept ETH, USDC, USDT, DAI, WETH, and any ERC-20 token on Ethereum mainnet, Polygon, Arbitrum, Base, and Optimism. All payments go to the same wallet address.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need KYC or identity verification?</div><div class="faq-a">No. We accept crypto payments with no identity verification required. Just an email address for your API key.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How is payment verified?</div><div class="faq-a">After sending payment, submit your transaction hash via our /payments/verify-tx endpoint. We verify the transaction on-chain across all supported networks automatically. Your API key is upgraded instantly upon verification.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can AI agents pay for themselves?</div><div class="faq-a">Yes. Our entire payment flow is API-first. An AI agent can POST to /payments/create, send crypto, then POST to /payments/verify-tx with the tx hash. Fully automated, zero human interaction needed.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What happens if I exceed my daily limit?</div><div class="faq-a">Requests beyond your daily limit return HTTP 429. Your counter resets at midnight UTC. Upgrade to a higher tier for more capacity.</div></div>
+</div>
+</div>
+
+<!-- Checkout Modal -->
+<div id="checkout-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:10000;display:none;align-items:center;justify-content:center">
+<div style="background:#1a1a1a;border:2px solid #6c63ff;border-radius:16px;padding:40px;max-width:520px;width:90%;position:relative;max-height:90vh;overflow-y:auto">
+<button onclick="closeCheckout()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer">x</button>
+<h2 style="color:#fff;font-size:1.5rem;margin-bottom:8px" id="checkout-title">Upgrade to Pro</h2>
+<p style="color:#94a3b8;margin-bottom:24px" id="checkout-price">$9.99/month - 10,000 API calls/day</p>
+
+<div id="checkout-step1">
+<label style="color:#cbd5e1;display:block;margin-bottom:8px;font-weight:600">Email Address</label>
+<input type="email" id="checkout-email" placeholder="you@email.com" style="width:100%;padding:12px 16px;background:#111;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-size:1rem;margin-bottom:16px">
+<button onclick="createOrder()" id="checkout-btn" style="width:100%;padding:14px;background:#6c63ff;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer">Create Payment Order</button>
+</div>
+
+<div id="checkout-step2" style="display:none">
+<div style="background:#111;border:1px solid #22c55e;border-radius:12px;padding:20px;margin-bottom:16px">
+<p style="color:#22c55e;font-weight:700;margin-bottom:8px">Send crypto to this address:</p>
+<code style="color:#22c55e;font-size:0.85rem;word-break:break-all;display:block;margin-bottom:8px">0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6</code>
+<button onclick="navigator.clipboard.writeText('0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',2000)" style="background:#22c55e;color:#000;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600">Copy Address</button>
+</div>
+<p style="color:#94a3b8;font-size:0.9rem;margin-bottom:4px">Amount: <strong style="color:#fff" id="checkout-amount">$9.99</strong> in any supported crypto</p>
+<p style="color:#64748b;font-size:0.85rem;margin-bottom:16px">Networks: Ethereum, Polygon, Arbitrum, Base, Optimism</p>
+<p style="color:#64748b;font-size:0.85rem;margin-bottom:16px">Order ID: <code id="checkout-order-id" style="color:#6c63ff"></code></p>
+
+<label style="color:#cbd5e1;display:block;margin-bottom:8px;font-weight:600;margin-top:16px">Paste Transaction Hash</label>
+<input type="text" id="checkout-txhash" placeholder="0x..." style="width:100%;padding:12px 16px;background:#111;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-size:0.9rem;font-family:monospace;margin-bottom:16px">
+<button onclick="verifyPayment()" id="verify-btn" style="width:100%;padding:14px;background:#22c55e;color:#000;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer">Verify Payment On-Chain</button>
+<p id="verify-status" style="margin-top:12px;font-size:0.9rem;text-align:center"></p>
+</div>
+
+<div id="checkout-step3" style="display:none;text-align:center">
+<div style="font-size:3rem;margin-bottom:16px">&#10003;</div>
+<h3 style="color:#22c55e;font-size:1.3rem;margin-bottom:8px">Payment Verified!</h3>
+<p style="color:#cbd5e1;margin-bottom:16px">Your API key has been upgraded.</p>
+<p style="color:#fff;font-weight:700;margin-bottom:4px">API Key:</p>
+<code id="checkout-apikey" style="color:#22c55e;font-size:1rem;display:block;margin-bottom:24px;word-break:break-all"></code>
+<a href="/api-keys" style="display:inline-block;padding:12px 32px;background:#6c63ff;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">View Dashboard</a>
+</div>
+</div>
+</div>
+
+<script>
+let checkoutTier = 'pro';
+let checkoutOrderId = '';
+
+function startCheckout(tier) {
+    checkoutTier = tier;
+    const info = tier === 'enterprise'
+        ? {name:'Enterprise',price:'$49.99/month',desc:'$49.99/month - 100,000 API calls/day'}
+        : {name:'Pro',price:'$9.99/month',desc:'$9.99/month - 10,000 API calls/day'};
+    document.getElementById('checkout-title').textContent = 'Upgrade to ' + info.name;
+    document.getElementById('checkout-price').textContent = info.desc;
+    document.getElementById('checkout-amount').textContent = info.price.replace('/month','');
+    document.getElementById('checkout-step1').style.display = 'block';
+    document.getElementById('checkout-step2').style.display = 'none';
+    document.getElementById('checkout-step3').style.display = 'none';
+    document.getElementById('checkout-modal').style.display = 'flex';
+}
+function closeCheckout() { document.getElementById('checkout-modal').style.display = 'none'; }
+
+async function createOrder() {
+    const email = document.getElementById('checkout-email').value.trim();
+    if (!email || !email.includes('@')) { alert('Enter a valid email.'); return; }
+    const btn = document.getElementById('checkout-btn');
+    btn.textContent = 'Creating order...';
+    btn.disabled = true;
+    try {
+        const res = await fetch('/payments/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, tier: checkoutTier})
+        });
+        const data = await res.json();
+        if (data.order_id) {
+            checkoutOrderId = data.order_id;
+            document.getElementById('checkout-order-id').textContent = data.order_id;
+            document.getElementById('checkout-step1').style.display = 'none';
+            document.getElementById('checkout-step2').style.display = 'block';
+        } else {
+            alert('Error creating order: ' + JSON.stringify(data));
+        }
+    } catch(e) { alert('Network error. Try again.'); }
+    btn.textContent = 'Create Payment Order';
+    btn.disabled = false;
+}
+
+async function verifyPayment() {
+    const txHash = document.getElementById('checkout-txhash').value.trim();
+    if (!txHash || !txHash.startsWith('0x') || txHash.length !== 66) {
+        alert('Enter a valid transaction hash (0x + 64 hex characters).');
+        return;
+    }
+    const btn = document.getElementById('verify-btn');
+    const status = document.getElementById('verify-status');
+    btn.textContent = 'Verifying on-chain...';
+    btn.disabled = true;
+    status.style.color = '#94a3b8';
+    status.textContent = 'Checking transaction across all supported networks...';
+    try {
+        const res = await fetch('/payments/verify-tx', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({order_id: checkoutOrderId, tx_hash: txHash})
+        });
+        const data = await res.json();
+        if (data.status === 'verified' || data.status === 'already_paid') {
+            document.getElementById('checkout-step2').style.display = 'none';
+            document.getElementById('checkout-step3').style.display = 'block';
+            document.getElementById('checkout-apikey').textContent = data.api_key || 'Check /api-keys dashboard';
+        } else if (data.status === 'unverified') {
+            status.style.color = '#f59e0b';
+            status.textContent = 'Transaction not confirmed yet. Wait a few minutes and try again.';
+        } else if (data.status === 'underpaid') {
+            status.style.color = '#ef4444';
+            status.textContent = 'Underpaid: received $' + (data.received||0).toFixed(2) + ' of $' + (data.expected||0).toFixed(2) + '. Send the remaining amount.';
+        } else {
+            status.style.color = '#ef4444';
+            status.textContent = data.message || 'Verification failed. Check the tx hash.';
+        }
+    } catch(e) {
+        status.style.color = '#ef4444';
+        status.textContent = 'Network error. Try again.';
+    }
+    btn.textContent = 'Verify Payment On-Chain';
+    btn.disabled = false;
+}
+
+document.querySelectorAll('.faq-q').forEach(q => q.addEventListener('click', () => q.parentElement.classList.toggle('open')));
+</script>
+</body></html>"""))
 
 # Rate limiting (simple in-memory)
 rate_limits: dict[str, list[float]] = {}
@@ -440,17 +694,115 @@ def serve_html(path: Path, track_path: str = "") -> HTMLResponse:
     return HTMLResponse("<h1>Page not found</h1>", status_code=404)
 
 
+# Paths that don't need API key auth (free for everyone)
+FREE_PATHS = {
+    "/", "/docs", "/openapi.json", "/pricing", "/api-keys", "/donate",
+    "/health", "/tools", "/favicon.ico", "/analytics/track", "/analytics/dashboard",
+    "/payments/create", "/payments/webhook", "/payments/success", "/payments/verify-tx",
+    "/payments/verify", "/payments/pending", "/payments/status",
+    "/api-keys/register", "/apis.json", "/sitemap.xml", "/robots.txt",
+}
+# API paths that are always free (no key needed, but rate limited by IP)
+FREE_API_PATHS = {
+    "/qr/generate", "/hash/generate", "/uuid/generate",
+    "/base64/encode", "/base64/decode", "/url/encode", "/url/decode",
+    "/text/analyze", "/json/format", "/json/validate", "/markdown/to-html",
+    "/api/pricing",
+}
+# Premium API paths that require paid tier
+PREMIUM_API_PATHS = {
+    "/seo/analyze", "/pdf/merge", "/pdf/split", "/pdf/compress",
+    "/pdf/protect", "/pdf/watermark", "/api/text/summarize",
+    "/api/code/format", "/meta/extract", "/image/resize",
+    "/api/web/extract", "/api/code/analyze", "/api/schema/generate",
+    "/api/prompt/build", "/api/test/endpoint",
+}
+
+
+def _reset_daily_counts():
+    """Reset daily request counts at midnight UTC."""
+    try:
+        with _keys_lock:
+            conn = sqlite3.connect(str(API_KEYS_DB))
+            conn.execute("UPDATE api_keys SET requests_today = 0")
+            conn.commit()
+            conn.close()
+    except Exception:
+        pass
+
+
+_last_reset_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
+    global _last_reset_date
     client_ip = request.client.host if request.client else "unknown"
+    path = str(request.url.path)
+
+    # Reset daily counts at midnight UTC
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if today != _last_reset_date:
+        _reset_daily_counts()
+        _last_reset_date = today
+
+    # IP-based rate limiting for all requests
     if not check_rate_limit(client_ip):
         return JSONResponse(
             status_code=429,
-            content={"error": "Rate limit exceeded. Max 100 requests per minute."},
+            content={
+                "error": "Rate limit exceeded. Max 100 requests per minute.",
+                "upgrade": "Get an API key at /api-keys or upgrade at /pricing for higher limits.",
+            },
         )
 
+    # For API endpoints, check API key and enforce daily limits
+    is_api_path = path.startswith("/api/") or path in PREMIUM_API_PATHS or any(path.startswith(p) for p in ("/qr/", "/hash/", "/uuid/", "/base64/", "/url/", "/text/", "/json/", "/seo/", "/pdf/", "/meta/", "/image/", "/markdown/"))
+    is_free_path = path in FREE_PATHS or path in FREE_API_PATHS or not is_api_path
+
+    if is_api_path and not is_free_path:
+        api_key = request.headers.get("x-api-key", "") or request.query_params.get("api_key", "")
+        is_premium = path in PREMIUM_API_PATHS
+
+        if api_key:
+            key_info = check_api_key(api_key)
+            if not key_info:
+                return JSONResponse(
+                    status_code=401,
+                    content={"error": "Invalid API key.", "get_key": "Register at /api-keys/register"},
+                )
+            if key_info["requests_today"] >= key_info["daily_limit"]:
+                return JSONResponse(
+                    status_code=429,
+                    content={
+                        "error": f"Daily limit reached ({key_info['daily_limit']} calls/day for {key_info['tier']} tier).",
+                        "upgrade": "Upgrade at /pricing for higher limits.",
+                        "tier": key_info["tier"],
+                    },
+                )
+            if is_premium and key_info["tier"] == "free":
+                return JSONResponse(
+                    status_code=402,
+                    content={
+                        "error": "This endpoint requires a Pro or Enterprise plan.",
+                        "endpoint": path,
+                        "upgrade": "Upgrade at /pricing. Pay with crypto, no KYC needed.",
+                        "pricing": {"pro": "$9.99/mo (10K calls/day)", "enterprise": "$49.99/mo (100K calls/day)"},
+                    },
+                )
+        else:
+            # No API key provided: allow free-tier endpoints, block premium
+            if is_premium:
+                return JSONResponse(
+                    status_code=402,
+                    content={
+                        "error": "API key required for premium endpoints.",
+                        "get_key": "Get a free key at /api-keys/register (100 calls/day). Upgrade at /pricing.",
+                        "endpoint": path,
+                    },
+                )
+
     # Track pageviews for page requests
-    path = str(request.url.path)
     if not path.startswith("/analytics") and not path.startswith("/health"):
         ua = request.headers.get("user-agent", "")
         ref = request.headers.get("referer", "")
@@ -2091,7 +2443,7 @@ a{color:#6c63ff;text-decoration:none}
 <li>Bulk operations</li>
 <li>Webhooks</li>
 </ul>
-<a href="mailto:toolpipe-project@sharebot.net?subject=ToolPipe Pro" style="display:block;background:#6c63ff;color:#fff;text-align:center;padding:10px;border-radius:8px;margin-top:12px;font-weight:600;">Upgrade to Pro</a>
+<a href="/pricing" style="display:block;background:#6c63ff;color:#fff;text-align:center;padding:10px;border-radius:8px;margin-top:12px;font-weight:600;">Upgrade to Pro</a>
 </div>
 </div>
 
@@ -2125,6 +2477,42 @@ function getKey(e){
 }
 </script>
 </body></html>""")
+
+
+# --- API Key Usage Endpoint ---
+
+@app.get("/api-keys/usage")
+async def api_key_usage(api_key: str = "", email: str = ""):
+    """Check API key usage and limits. AI agents can use this to monitor their consumption."""
+    if not api_key and not email:
+        raise HTTPException(status_code=400, detail="Provide api_key or email parameter")
+    with _keys_lock:
+        conn = sqlite3.connect(str(API_KEYS_DB))
+        if api_key:
+            row = conn.execute(
+                "SELECT email, api_key, tier, requests_today, requests_total, daily_limit, created_at, last_used FROM api_keys WHERE api_key = ?",
+                (api_key,)
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT email, api_key, tier, requests_today, requests_total, daily_limit, created_at, last_used FROM api_keys WHERE email = ?",
+                (email.strip().lower(),)
+            ).fetchone()
+        conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="API key not found")
+    return {
+        "email": row[0],
+        "api_key": row[1][:8] + "..." if api_key else row[1],
+        "tier": row[2],
+        "requests_today": row[3],
+        "requests_total": row[4],
+        "daily_limit": row[5],
+        "remaining_today": max(0, row[5] - row[3]),
+        "created_at": row[6],
+        "last_used": row[7],
+        "upgrade_url": "/pricing" if row[2] == "free" else None,
+    }
 
 
 # --- Waitlist ---

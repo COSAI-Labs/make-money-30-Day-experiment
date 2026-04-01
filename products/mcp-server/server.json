@@ -1,16 +1,16 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "69 dev tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, web scraping, code analysis, more",
+  "description": "74 dev tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, web scraping, code analysis, API key management, crypto payments, more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.5.0",
+  "version": "1.6.0",
   "remoteEndpoints": [
     {
-      "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp",
+      "url": "https://toolpipe.dev/mcp",
       "transport": {
         "type": "streamable-http"
       }
@@ -78,6 +78,11 @@
     {"name": "password_check", "description": "Check password strength with entropy and crack time estimates"},
     {"name": "color_palette", "description": "Generate color palettes (complementary, analogous, triadic, monochromatic)"},
     {"name": "slug_generate", "description": "Generate URL-friendly slugs from text"},
-    {"name": "markdown_strip", "description": "Strip markdown formatting to plain text"}
+    {"name": "markdown_strip", "description": "Strip markdown formatting to plain text"},
+    {"name": "register_api_key", "description": "Register a free API key for ToolPipe (100 calls/day)"},
+    {"name": "check_api_usage", "description": "Check API key usage, remaining quota, and tier info"},
+    {"name": "create_payment", "description": "Create crypto payment order for Pro or Enterprise plan"},
+    {"name": "verify_payment", "description": "Verify crypto payment on-chain and upgrade API key"},
+    {"name": "get_pricing", "description": "Get API pricing tiers and payment information"}
   ]
 }

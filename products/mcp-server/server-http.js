@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.5.0" },
+    { name: "toolpipe", version: "1.6.0" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 110+ developer utility APIs as 51 HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT decoding, IP geolocation, cron parsing, password checking, color palettes, text diffing, timestamp conversion, and more.",
@@ -126,6 +126,13 @@ function createServer() {
   server.tool("slug_generate", "Generate URL-friendly slugs.", { text: z.string(), separator: z.string().optional() }, async ({ text, separator }) => textResult(await apiCall("/api/slug/generate", { method: "POST", body: JSON.stringify({ text, separator: separator || "-" }) })));
   server.tool("markdown_strip", "Strip markdown formatting to plain text.", { markdown: z.string() }, async ({ markdown }) => textResult(await apiCall("/api/markdown/strip", { method: "POST", body: JSON.stringify({ markdown }) })));
 
+  // API Key & Payment Management (self-service for AI agents)
+  server.tool("register_api_key", "Register a free API key (100 calls/day).", { email: z.string() }, async ({ email }) => textResult(await apiCall("/api-keys/register", { method: "POST", body: JSON.stringify({ email }) })));
+  server.tool("check_api_usage", "Check API key usage and remaining quota.", { api_key: z.string().optional(), email: z.string().optional() }, async ({ api_key, email }) => { const p = new URLSearchParams(); if (api_key) p.set("api_key", api_key); if (email) p.set("email", email); return textResult(await apiCall(`/api-keys/usage?${p.toString()}`)); });
+  server.tool("create_payment", "Create crypto payment order for Pro ($9.99) or Enterprise ($49.99).", { email: z.string(), tier: z.enum(["pro", "enterprise"]) }, async ({ email, tier }) => textResult(await apiCall("/payments/create", { method: "POST", body: JSON.stringify({ email, tier }) })));
+  server.tool("verify_payment", "Verify crypto payment on-chain and upgrade API key.", { order_id: z.string(), tx_hash: z.string() }, async ({ order_id, tx_hash }) => textResult(await apiCall("/payments/verify-tx", { method: "POST", body: JSON.stringify({ order_id, tx_hash }) })));
+  server.tool("get_pricing", "Get API pricing tiers and payment info.", {}, async () => textResult(await apiCall("/api/pricing")));
+
   return server;
 }
 
@@ -146,10 +153,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.5.0",
+    version: "1.6.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 51,
+    tools: 56,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -180,5 +187,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`51 tools available. API backend: ${API_BASE}`);
+  console.log(`56 tools available. API backend: ${API_BASE}`);
 });

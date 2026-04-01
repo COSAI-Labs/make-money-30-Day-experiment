@@ -50,7 +50,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.5.0" },
+  { name: "toolpipe", version: "1.6.0" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 110+ developer utility APIs as 69 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, text analysis, fake data, Dockerfile/gitignore generation, IP geolocation, cron parsing, JWT decoding, regex testing, password checking, color palettes, text diffing, timestamp conversion, HTTP header analysis, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
@@ -1075,6 +1075,81 @@ server.tool(
       method: "POST",
       body: JSON.stringify({ markdown }),
     });
+    return textResult(result);
+  }
+);
+
+// --- API Key & Payment Management (for AI agent self-service) ---
+
+server.tool(
+  "register_api_key",
+  "Register a free API key for ToolPipe (100 calls/day). Returns the API key immediately.",
+  {
+    email: z.string().email().describe("Email address for the API key"),
+  },
+  async ({ email }) => {
+    const result = await apiCall("/api-keys/register", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "check_api_usage",
+  "Check API key usage, remaining quota, and tier info. Use to monitor consumption.",
+  {
+    api_key: z.string().optional().describe("API key to check (or use email)"),
+    email: z.string().optional().describe("Email to look up (or use api_key)"),
+  },
+  async ({ api_key, email }) => {
+    const params = new URLSearchParams();
+    if (api_key) params.set("api_key", api_key);
+    if (email) params.set("email", email);
+    const result = await apiCall(`/api-keys/usage?${params.toString()}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "create_payment",
+  "Create a crypto payment order to upgrade API key to Pro ($9.99/mo) or Enterprise ($49.99/mo).",
+  {
+    email: z.string().email().describe("Email associated with the API key"),
+    tier: z.enum(["pro", "enterprise"]).describe("Plan tier to purchase"),
+  },
+  async ({ email, tier }) => {
+    const result = await apiCall("/payments/create", {
+      method: "POST",
+      body: JSON.stringify({ email, tier }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "verify_payment",
+  "Verify a crypto payment on-chain using transaction hash. Automatically upgrades the API key.",
+  {
+    order_id: z.string().describe("Order ID from create_payment"),
+    tx_hash: z.string().describe("Transaction hash (0x + 64 hex chars)"),
+  },
+  async ({ order_id, tx_hash }) => {
+    const result = await apiCall("/payments/verify-tx", {
+      method: "POST",
+      body: JSON.stringify({ order_id, tx_hash }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "get_pricing",
+  "Get ToolPipe API pricing information and available tiers.",
+  {},
+  async () => {
+    const result = await apiCall("/api/pricing");
     return textResult(result);
   }
 );

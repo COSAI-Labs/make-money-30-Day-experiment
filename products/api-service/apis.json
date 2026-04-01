@@ -1,29 +1,33 @@
 {
   "name": "ToolPipe",
-  "description": "50+ free developer tools and 80+ REST API endpoints. JSON formatter, QR codes, UUID generator, hash functions, DNS lookup, PDF tools, regex tester, JWT decoder, crypto prices, and more.",
-  "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com",
+  "description": "112+ free developer utility APIs and tools. JSON formatting, QR codes, PDF processing, UUID generation, hashing, DNS lookup, regex testing, JWT decoding, IP geolocation, password checking, code analysis, and more. MCP server for AI agents included.",
+  "url": "https://toolpipe.dev",
   "created": "2026-04-01",
   "modified": "2026-04-01",
   "specificationVersion": "0.18",
   "apis": [
     {
       "name": "ToolPipe Developer API",
-      "description": "80+ REST API endpoints for developer utilities including QR code generation, JSON formatting, UUID generation, hashing, DNS lookup, text analysis, and more.",
-      "humanURL": "https://assessing-scoop-authorities-sheet.trycloudflare.com/docs",
-      "baseURL": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api",
-      "tags": ["developer-tools", "api", "json", "qr-code", "uuid", "hash", "dns", "pdf", "regex", "jwt"],
+      "description": "112+ REST API endpoints for developer utilities. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
+      "humanURL": "https://toolpipe.dev/docs",
+      "baseURL": "https://toolpipe.dev/api",
+      "tags": ["developer-tools", "api", "json", "qr-code", "uuid", "hash", "dns", "pdf", "regex", "jwt", "mcp", "ai-tools", "crypto-payments"],
       "properties": [
         {
           "type": "Documentation",
-          "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/docs"
+          "url": "https://toolpipe.dev/docs"
         },
         {
           "type": "OpenAPI",
-          "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/openapi.json"
+          "url": "https://toolpipe.dev/openapi.json"
         },
         {
           "type": "Pricing",
-          "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/pricing"
+          "url": "https://toolpipe.dev/pricing"
+        },
+        {
+          "type": "Signup",
+          "url": "https://toolpipe.dev/api-keys"
         }
       ],
       "contact": [
@@ -37,7 +41,8 @@
   "maintainers": [
     {
       "FN": "COSAI Labs",
-      "email": "toolpipe-ads@sharebot.net"
+      "email": "toolpipe-ads@sharebot.net",
+      "url": "https://github.com/COSAI-Labs"
     }
   ]
 }
