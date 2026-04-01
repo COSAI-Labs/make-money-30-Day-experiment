@@ -64,6 +64,8 @@ async def favicon():
 # Premium endpoints return HTTP 402 with payment instructions
 # AI agents and developers pay per-call via USDC
 WALLET_ADDRESS = "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6"
+SOLANA_WALLET = os.environ.get("SOLANA_WALLET", "2guKDsPScRpCCKuVEGKBPFvodSNtZF4ArYeSC6oy6pf6")
+SOLANA_RPC = "https://api.mainnet-beta.solana.com"
 X402_ENABLED = False
 try:
     from fastapi_x402 import init_x402, pay
@@ -223,7 +225,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 
 <div class="faq">
 <h2>FAQ</h2>
-<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What cryptocurrencies do you accept?</div><div class="faq-a">We accept ETH, USDC, USDT, DAI, WETH, and any ERC-20 token on Ethereum mainnet, Polygon, Arbitrum, Base, and Optimism. All payments go to the same wallet address.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What cryptocurrencies do you accept?</div><div class="faq-a">We accept ETH, USDC, USDT, DAI, WETH on Ethereum, Polygon, Arbitrum, Base, and Optimism. We also accept SOL and USDC-SPL on Solana. Recommended: USDC on Base (lowest fees, ~$0.01 per tx).</div></div>
 <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need KYC or identity verification?</div><div class="faq-a">No. We accept crypto payments with no identity verification required. Just an email address for your API key.</div></div>
 <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How is payment verified?</div><div class="faq-a">After sending payment, submit your transaction hash via our /payments/verify-tx endpoint. We verify the transaction on-chain across all supported networks automatically. Your API key is upgraded instantly upon verification.</div></div>
 <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can AI agents pay for themselves?</div><div class="faq-a">Yes. Our entire payment flow is API-first. An AI agent can POST to /payments/create, send crypto, then POST to /payments/verify-tx with the tx hash. Fully automated, zero human interaction needed.</div></div>
@@ -547,7 +549,8 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
 
     now = datetime.now(timezone.utc).isoformat()
     crypto_addresses = {
-        "ETH/ERC-20 (Ethereum, Polygon, Arbitrum, Base, Optimism)": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
+        "ETH/ERC-20 (Ethereum, Polygon, Arbitrum, Base, Optimism)": WALLET_ADDRESS,
+        "Solana (SOL, USDC-SPL)": SOLANA_WALLET,
     }
 
     # Try OxaPay first
@@ -581,19 +584,23 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
         )
         conn.commit()
         conn.close()
-    return {
+    result = {
         "success": True,
         "payment_method": "crypto_direct",
         "crypto_addresses": crypto_addresses,
-        "primary_address": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
-        "accepted": ["ETH", "USDC", "USDT", "DAI", "WETH", "any ERC-20"],
-        "networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism"],
+        "evm_address": WALLET_ADDRESS,
+        "accepted_evm": ["ETH", "USDC", "USDT", "DAI", "WETH", "any ERC-20"],
+        "evm_networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism"],
         "amount_usd": amount,
         "order_id": order_id,
-        "qr_code_url": f"/qr/generate?text=ethereum:0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6&size=300",
-        "instructions": f"Send ${amount} worth of crypto to the address above, then email toolpipe-ads@sharebot.net with your tx hash and order ID ({order_id}) to activate your {tier} plan.",
-        "verification_email": "toolpipe-ads@sharebot.net",
+        "qr_code_url": f"/qr/generate?text=ethereum:{WALLET_ADDRESS}&size=300",
+        "verify_endpoint": "POST /payments/verify-tx with {order_id, tx_hash}",
+        "instructions": f"Send ${amount} worth of crypto to any address above. Then POST /payments/verify-tx with your tx_hash and order_id ({order_id}). Your API key upgrades instantly on verification.",
     }
+    if SOLANA_WALLET:
+        result["solana_address"] = SOLANA_WALLET
+        result["accepted_solana"] = ["SOL", "USDC-SPL"]
+    return result
 
 
 def record_pageview(path: str, ip: str, user_agent: str, referrer: str):
@@ -700,7 +707,8 @@ FREE_PATHS = {
     "/", "/docs", "/openapi.json", "/pricing", "/api-keys", "/donate",
     "/health", "/tools", "/favicon.ico", "/analytics/track", "/analytics/dashboard",
     "/payments/create", "/payments/webhook", "/payments/success", "/payments/verify-tx",
-    "/payments/verify", "/payments/pending", "/payments/status",
+    "/payments/verify", "/payments/pending", "/payments/status", "/payments/agent-pay",
+    "/api-for-ai-agents", "/free-api-tools",
     "/api-keys/register", "/apis.json", "/sitemap.xml", "/robots.txt",
     "/.well-known/mcp.json", "/.well-known/ai-plugin.json", "/quickstart",
 }
@@ -3890,8 +3898,13 @@ class SelfVerifyRequest(BaseModel):
 @app.post("/payments/verify-tx")
 async def self_verify_payment(req: SelfVerifyRequest):
     """Self-service payment verification. Submit your tx hash and we verify on-chain."""
-    if not req.tx_hash or len(req.tx_hash) != 66 or not req.tx_hash.startswith("0x"):
-        raise HTTPException(status_code=400, detail="Invalid transaction hash. Must be 0x followed by 64 hex characters.")
+    if not req.tx_hash or len(req.tx_hash) < 32:
+        raise HTTPException(status_code=400, detail="Invalid transaction hash.")
+    # EVM hashes: 0x + 64 hex chars. Solana hashes: 43-88 base58 chars.
+    is_evm_hash = req.tx_hash.startswith("0x") and len(req.tx_hash) == 66
+    is_solana_hash = not req.tx_hash.startswith("0x") and 43 <= len(req.tx_hash) <= 88
+    if not is_evm_hash and not is_solana_hash:
+        raise HTTPException(status_code=400, detail="Invalid transaction hash. EVM: 0x + 64 hex chars. Solana: 43-88 base58 chars.")
 
     # Check order exists and is pending
     with _payments_lock:
@@ -4034,6 +4047,173 @@ async def payment_status(order_id: str = "", track_id: str = ""):
         "order_id": row[0], "email": row[1], "tier": row[2],
         "amount": row[3], "status": row[4], "created_at": row[5], "paid_at": row[6]
     }
+
+
+# --- Solana Transaction Verification ---
+
+async def verify_solana_tx(tx_hash: str) -> dict:
+    """Verify a Solana transaction to our wallet."""
+    if not SOLANA_WALLET:
+        return {"verified": False, "error": "Solana wallet not configured"}
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(SOLANA_RPC, json={
+                "jsonrpc": "2.0", "id": 1,
+                "method": "getTransaction",
+                "params": [tx_hash, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+            })
+            data = resp.json()
+            result = data.get("result")
+            if not result:
+                return {"verified": False, "error": "Transaction not found on Solana"}
+
+            meta = result.get("meta", {})
+            if meta.get("err") is not None:
+                return {"verified": False, "error": "Transaction failed on-chain"}
+
+            our_wallet_lower = SOLANA_WALLET.lower()
+            # Check SOL transfers via balance changes
+            pre_balances = meta.get("preBalances", [])
+            post_balances = meta.get("postBalances", [])
+            account_keys = result.get("transaction", {}).get("message", {}).get("accountKeys", [])
+
+            for i, key_info in enumerate(account_keys):
+                pubkey = key_info.get("pubkey", key_info) if isinstance(key_info, dict) else str(key_info)
+                if str(pubkey).lower() == our_wallet_lower and i < len(pre_balances) and i < len(post_balances):
+                    diff_lamports = post_balances[i] - pre_balances[i]
+                    if diff_lamports > 0:
+                        sol_amount = diff_lamports / 1e9
+                        return {
+                            "verified": True,
+                            "chain": "solana",
+                            "type": "native_transfer",
+                            "token": "SOL",
+                            "amount": sol_amount,
+                            "tx_hash": tx_hash,
+                        }
+
+            # Check SPL token transfers (USDC on Solana)
+            for ix in (result.get("transaction", {}).get("message", {}).get("instructions", []) +
+                       meta.get("innerInstructions", [{}])):
+                parsed = ix.get("parsed", {}) if isinstance(ix, dict) else {}
+                if isinstance(parsed, dict) and parsed.get("type") in ("transfer", "transferChecked"):
+                    info = parsed.get("info", {})
+                    dest = info.get("destination", "")
+                    if str(dest).lower() == our_wallet_lower:
+                        amount = float(info.get("amount", info.get("tokenAmount", {}).get("uiAmount", 0)))
+                        return {
+                            "verified": True,
+                            "chain": "solana",
+                            "type": "token_transfer",
+                            "token": "USDC-SPL",
+                            "amount": amount,
+                            "tx_hash": tx_hash,
+                        }
+
+    except Exception:
+        pass
+    return {"verified": False, "error": "Could not verify Solana transaction"}
+
+
+# --- Agent-Optimized Payment Flow ---
+# Single endpoint for AI agents: create order + get payment instructions in one call
+
+class AgentPayRequest(BaseModel):
+    email: str
+    tier: str = "pro"
+    preferred_chain: str = "base"  # base, polygon, arbitrum, ethereum, optimism, solana
+
+
+@app.post("/payments/agent-pay")
+async def agent_pay(req: AgentPayRequest, request: Request):
+    """
+    Agent-optimized payment endpoint. Returns everything an AI agent needs
+    to pay for API access in a single call. Designed for MCP tool use.
+
+    Flow: 1) Call this endpoint -> 2) Send crypto -> 3) POST /payments/verify-tx
+    """
+    email = req.email.strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email required")
+    tier = req.tier.lower()
+    if tier not in PRICING_TIERS:
+        raise HTTPException(status_code=400, detail=f"Invalid tier: {', '.join(PRICING_TIERS.keys())}")
+
+    tier_info = PRICING_TIERS[tier]
+    order_id = f"tp-{tier}-{uuid.uuid4().hex[:12]}"
+    amount = tier_info["amount"]
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Record the order
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        conn.execute(
+            "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, created_at) VALUES (?, ?, ?, ?, ?, 'awaiting_direct', ?)",
+            (order_id, order_id, email, tier, amount, now)
+        )
+        conn.commit()
+        conn.close()
+
+    chain = req.preferred_chain.lower()
+
+    # Get current ETH price for amount calculation
+    eth_price = await get_eth_price_usd()
+    eth_amount = round(amount / eth_price, 6) if eth_price > 0 else None
+
+    response = {
+        "order_id": order_id,
+        "amount_usd": amount,
+        "tier": tier,
+        "daily_limit": tier_info["daily_limit"],
+        "payment_instructions": {
+            "evm": {
+                "address": WALLET_ADDRESS,
+                "networks": ["ethereum", "polygon", "arbitrum", "base", "optimism"],
+                "recommended_network": chain if chain != "solana" else "base",
+                "accepted_tokens": ["USDC", "USDT", "DAI", "ETH", "WETH"],
+                "recommended_token": "USDC",
+                "stablecoin_amount": amount,
+            },
+        },
+        "verification": {
+            "endpoint": "POST /payments/verify-tx",
+            "body": {"order_id": order_id, "tx_hash": "<your_tx_hash>"},
+            "result": "API key returned instantly on successful verification",
+        },
+        "notes": "Send any supported token on any supported network. USDC on Base has lowest gas fees (~$0.01). After sending, POST your tx_hash to /payments/verify-tx for instant upgrade.",
+    }
+
+    if eth_amount:
+        response["payment_instructions"]["evm"]["eth_amount"] = eth_amount
+        response["payment_instructions"]["evm"]["eth_price_usd"] = eth_price
+
+    if SOLANA_WALLET:
+        response["payment_instructions"]["solana"] = {
+            "address": SOLANA_WALLET,
+            "accepted_tokens": ["SOL", "USDC-SPL"],
+            "stablecoin_amount": amount,
+        }
+
+    return response
+
+
+# Update verify-tx to also check Solana
+_original_verify_tx_onchain = verify_tx_onchain
+
+async def verify_tx_onchain_multi(tx_hash: str) -> dict:
+    """Verify a transaction on EVM chains or Solana."""
+    # Try EVM first
+    result = await _original_verify_tx_onchain(tx_hash)
+    if result.get("verified"):
+        return result
+    # Try Solana (Solana tx hashes are base58, not 0x-prefixed)
+    if not tx_hash.startswith("0x") and SOLANA_WALLET:
+        sol_result = await verify_solana_tx(tx_hash)
+        if sol_result.get("verified"):
+            return sol_result
+    return result
+
+verify_tx_onchain = verify_tx_onchain_multi
 
 
 # --- Pricing Page ---

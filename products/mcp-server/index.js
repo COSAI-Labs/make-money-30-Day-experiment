@@ -3,7 +3,7 @@
 /**
  * ToolPipe MCP Server
  *
- * Exposes 20+ developer utility tools via Model Context Protocol.
+ * Exposes 89 developer utility tools via Model Context Protocol.
  * AI agents can discover and use these tools for JSON formatting,
  * QR code generation, hashing, UUID generation, DNS lookup, and more.
  *
@@ -1229,6 +1229,23 @@ server.tool(
   {},
   async () => {
     const result = await apiCall("/api/pricing");
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "agent_pay",
+  "Agent-optimized payment: get crypto payment instructions to upgrade API key. Returns wallet addresses, supported tokens/chains, and verification instructions. Recommended: USDC on Base (lowest fees).",
+  {
+    email: z.string().describe("Email for API key"),
+    tier: z.enum(["pro", "enterprise"]).optional().describe("Plan tier: pro ($9.99/mo) or enterprise ($49.99/mo)"),
+    preferred_chain: z.enum(["base", "polygon", "arbitrum", "ethereum", "optimism", "solana"]).optional().describe("Preferred blockchain (default: base)"),
+  },
+  async ({ email, tier, preferred_chain }) => {
+    const result = await apiCall("/payments/agent-pay", {
+      method: "POST",
+      body: JSON.stringify({ email, tier: tier ?? "pro", preferred_chain: preferred_chain ?? "base" }),
+    });
     return textResult(result);
   }
 );

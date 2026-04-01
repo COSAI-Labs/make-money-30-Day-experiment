@@ -16,3 +16,4 @@ products/mcp-server/.npmrc
 products/mcp-server/mcp-publisher
 products/mcp-server/.mcpregistry_*
 mcp-publisher
+secrets/

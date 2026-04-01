@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>50+ Free API Tools for Developers - No Signup | ToolPipe</title>
+<meta name="description" content="50+ free developer API tools: JSON formatter, QR code generator, PDF merger, hash generator, UUID, DNS lookup, regex tester, JWT decoder, and more. No signup needed.">
+<meta name="keywords" content="free api tools, developer tools, json formatter api, qr code api, hash api, uuid api, free developer api, no signup api">
+<meta property="og:title" content="50+ Free API Tools for Developers - No Signup | ToolPipe">
+<meta property="og:description" content="50+ free developer API tools with no signup. JSON, QR, PDF, hash, UUID, DNS, regex, JWT, SQL, and more.">
+<link rel="canonical" href="https://toolpipe.dev/free-api-tools">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+h1{font-size:2.2rem;margin-bottom:8px;background:linear-gradient(135deg,#6c63ff,#00d2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#94a3b8;font-size:1.1rem;margin-bottom:32px}
+h2{color:#6c63ff;font-size:1.3rem;margin:28px 0 12px}
+pre{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px;overflow-x:auto;font-size:0.85rem;line-height:1.5;margin:8px 0 16px}
+code{font-family:'SF Mono','Fira Code',monospace;color:#a5d6ff}
+p{color:#c0c0c0;margin-bottom:10px}
+a{color:#6c63ff;text-decoration:none}
+.tool{background:#111;border:1px solid #1e1e2e;border-radius:10px;padding:20px;margin:12px 0}
+.tool h3{color:#e0e0e0;font-size:1rem;margin-bottom:4px}
+.tool .desc{color:#94a3b8;font-size:0.85rem;margin-bottom:8px}
+.badge{display:inline-block;background:#0a2e1a;color:#22c55e;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:600;margin-right:4px}
+.badge-blue{background:#0a1e3e;color:#60a5fa}
+.cta{background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;display:inline-block;padding:12px 28px;border-radius:8px;font-weight:600;margin:8px 4px}
+</style>
+</head>
+<body>
+<div class="container">
+<p><a href="/">ToolPipe</a> / Free API Tools</p>
+<h1>50+ Free API Tools for Developers</h1>
+<p class="subtitle">Every tool works with a single curl command. No signup, no API key, no rate limits on basic usage. Just call the endpoint.</p>
+
+<a href="/api-keys" class="cta">Get API Key (Optional, Higher Limits)</a>
+
+<h2>Data Transformation</h2>
+
+<div class="tool">
+<h3>JSON Formatter / Validator</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Format, validate, and prettify JSON. Returns formatted output with syntax validation.</p>
+<pre><code>curl -X POST https://toolpipe.dev/json/format \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"name\":\"John\",\"age\":30}"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>Base64 Encode / Decode</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Encode or decode Base64 strings.</p>
+<pre><code>curl -X POST https://toolpipe.dev/base64/encode \
+  -d '{"text": "Hello World"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>JSON to YAML / YAML to JSON</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert between JSON and YAML formats.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/json-to-yaml \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"name\": \"test\"}"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>CSV to JSON</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert CSV data to JSON array.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/csv-to-json \
+  -d '{"csv_string": "name,age\nJohn,30\nJane,25"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>XML to JSON / JSON to XML</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert between XML and JSON.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/xml-to-json \
+  -d '{"xml_string": "&lt;root&gt;&lt;name&gt;test&lt;/name&gt;&lt;/root&gt;"}'</code></pre>
+</div>
+
+<h2>Security & Cryptography</h2>
+
+<div class="tool">
+<h3>Hash Generator</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Generate MD5, SHA1, SHA256, SHA512 hashes.</p>
+<pre><code>curl -X POST https://toolpipe.dev/hash/generate \
+  -d '{"text": "hello world", "algorithm": "sha256"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>UUID Generator</h3>
+<span class="badge">GET</span><span class="badge-blue badge">Free</span>
+<p class="desc">Generate UUID v4 strings.</p>
+<pre><code>curl https://toolpipe.dev/uuid/generate</code></pre>
+</div>
+
+<div class="tool">
+<h3>Password Generator</h3>
+<span class="badge">GET</span><span class="badge-blue badge">Free</span>
+<p class="desc">Generate secure random passwords.</p>
+<pre><code>curl "https://toolpipe.dev/password/generate?length=32&symbols=true"</code></pre>
+</div>
+
+<h2>Code Tools</h2>
+
+<div class="tool">
+<h3>SQL Formatter</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Format and prettify SQL queries with proper indentation.</p>
+<pre><code>curl -X POST https://toolpipe.dev/sql/format \
+  -d '{"sql": "SELECT * FROM users WHERE id=1 ORDER BY name"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>Regex Tester</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Test regex patterns against strings with match highlighting.</p>
+<pre><code>curl -X POST https://toolpipe.dev/regex/test \
+  -d '{"pattern": "\\d+", "test_string": "abc 123 def 456"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>JWT Decoder</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Decode JWT tokens without verification. Shows header, payload, expiration.</p>
+<pre><code>curl -X POST https://toolpipe.dev/jwt/decode \
+  -d '{"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"}'</code></pre>
+</div>
+
+<h2>Web Tools</h2>
+
+<div class="tool">
+<h3>Web Scraper</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Extract text, links, and metadata from any webpage.</p>
+<pre><code>curl -X POST https://toolpipe.dev/scrape/extract \
+  -d '{"url": "https://example.com"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>DNS Lookup</h3>
+<span class="badge">GET</span><span class="badge-blue badge">Free</span>
+<p class="desc">Query DNS records for any domain.</p>
+<pre><code>curl "https://toolpipe.dev/dns/lookup?domain=example.com&type=A"</code></pre>
+</div>
+
+<div class="tool">
+<h3>QR Code Generator</h3>
+<span class="badge">GET</span><span class="badge-blue badge">Free</span>
+<p class="desc">Generate QR code images from any text or URL.</p>
+<pre><code>curl "https://toolpipe.dev/qr/generate?text=https://example.com&size=300" -o qr.png</code></pre>
+</div>
+
+<h2>File Tools</h2>
+
+<div class="tool">
+<h3>PDF Merge</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Merge multiple PDF files into one.</p>
+<pre><code>curl -X POST https://toolpipe.dev/pdf/merge \
+  -F "files=@doc1.pdf" -F "files=@doc2.pdf" -o merged.pdf</code></pre>
+</div>
+
+<div class="tool">
+<h3>Markdown to HTML</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert Markdown to HTML.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/markdown-to-html \
+  -d '{"markdown": "# Hello\n\nThis is **bold**."}'</code></pre>
+</div>
+
+<h2>And 30+ More...</h2>
+<p>CSS minifier, JS minifier, image resize, color converter, WHOIS lookup, SSL checker, HTTP headers, IP geolocation, cron parser, .env parser, text stats, lorem ipsum generator, timestamp converter, URL shortener, diff checker, HTML stripper, number formatter, and more.</p>
+
+<p>Full interactive documentation: <a href="/docs">/docs</a></p>
+
+<div style="text-align:center;margin:40px 0">
+<a href="/docs" class="cta">API Documentation</a>
+<a href="/api-keys" class="cta" style="background:#22c55e">Get Free API Key</a>
+<a href="/mcp-server" class="cta" style="background:#333">MCP Server</a>
+</div>
+
+</div>
+</body>
+</html>

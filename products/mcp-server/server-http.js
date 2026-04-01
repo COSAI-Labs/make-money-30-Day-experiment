@@ -150,6 +150,7 @@ function createServer() {
   server.tool("create_payment", "Create crypto payment order for Pro ($9.99) or Enterprise ($49.99).", { email: z.string(), tier: z.enum(["pro", "enterprise"]) }, async ({ email, tier }) => textResult(await apiCall("/payments/create", { method: "POST", body: JSON.stringify({ email, tier }) })));
   server.tool("verify_payment", "Verify crypto payment on-chain and upgrade API key.", { order_id: z.string(), tx_hash: z.string() }, async ({ order_id, tx_hash }) => textResult(await apiCall("/payments/verify-tx", { method: "POST", body: JSON.stringify({ order_id, tx_hash }) })));
   server.tool("get_pricing", "Get API pricing tiers and payment info.", {}, async () => textResult(await apiCall("/api/pricing")));
+  server.tool("agent_pay", "Agent-optimized payment: get crypto addresses and instructions to upgrade API key. Recommended: USDC on Base.", { email: z.string(), tier: z.enum(["pro", "enterprise"]).optional(), preferred_chain: z.enum(["base", "polygon", "arbitrum", "ethereum", "optimism", "solana"]).optional() }, async ({ email, tier, preferred_chain }) => textResult(await apiCall("/payments/agent-pay", { method: "POST", body: JSON.stringify({ email, tier: tier ?? "pro", preferred_chain: preferred_chain ?? "base" }) })));
 
   return server;
 }
