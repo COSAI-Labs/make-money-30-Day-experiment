@@ -130,7 +130,7 @@
                     <li>Dedicated API key</li>
                     <li>Priority email support</li>
                 </ul>
-                <a href="#waitlist" class="btn primary" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Join Pro Waitlist</a>
+                <a href="#crypto-pay" class="btn primary" onclick="document.getElementById('crypto-pay').scrollIntoView({behavior:'smooth'}); return false;">Pay with Crypto</a>
             </div>
 
             <div class="plan">
@@ -154,14 +154,31 @@
             </div>
         </div>
 
-        <div class="waitlist" id="waitlist">
-            <h3>Join the Waitlist for Early Access</h3>
-            <p>Be the first to know when paid plans launch. Early waitlist members get a 50% discount for the first 3 months.</p>
+        <div class="waitlist" id="crypto-pay" style="border-color:#22c55e">
+            <h3>Pay with Crypto (Instant Access)</h3>
+            <p>Send the exact amount in ETH, USDC, USDT, or DAI to the address below. Then email your transaction hash to activate your plan.</p>
+            <div style="background:#0a0a0a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin:16px auto;max-width:520px;text-align:left">
+                <div style="font-weight:600;color:#fff;margin-bottom:8px;">ETH / ERC-20 Address:</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <code style="color:#22c55e;font-size:0.8rem;word-break:break-all;flex:1">0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6</code>
+                    <button onclick="navigator.clipboard.writeText('0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)" style="background:#6c63ff;color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem">Copy</button>
+                </div>
+                <p style="color:#64748b;font-size:0.8rem;margin-top:8px;">Accepts: Ethereum mainnet, Polygon, Arbitrum, Base, Optimism</p>
+            </div>
+            <div style="background:#0a0a0a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin:12px auto;max-width:520px;text-align:left">
+                <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:4px;">Pro: $29/mo | Enterprise: $199/mo</p>
+                <p style="color:#94a3b8;font-size:0.85rem;">After payment, email <a href="mailto:toolpipe-ads@sharebot.net" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with your tx hash and desired plan. You will receive your Pro API key within minutes.</p>
+            </div>
+        </div>
+
+        <div class="waitlist" id="waitlist" style="margin-top:1.5rem">
+            <h3>Or Join the Card Payment Waitlist</h3>
+            <p>Get notified when Stripe card payments go live. Early waitlist members get 50% off for 3 months.</p>
             <div class="waitlist-form">
                 <input type="email" id="waitlistEmail" placeholder="your@email.com">
                 <button onclick="joinWaitlist()">Join Waitlist</button>
             </div>
-            <div class="success-msg" id="successMsg">You are on the list. We will email you when paid plans launch.</div>
+            <div class="success-msg" id="successMsg">You are on the list. We will email you when card payments launch.</div>
             <div class="error-msg" id="errorMsg">Something went wrong. Please try again.</div>
         </div>
 
@@ -198,7 +215,7 @@
             </div>
             <div class="faq-item">
                 <h4>Can I pay with cryptocurrency?</h4>
-                <p>Crypto payment support is coming soon. Visit our <a href="/donate" style="color:#6c63ff;">donate page</a> to join the crypto waitlist.</p>
+                <p>Yes. We accept ETH, USDC, USDT, DAI, and other ERC-20 tokens. Scroll up to the crypto payment section or visit our <a href="/donate" style="color:#6c63ff;">donate page</a> for the wallet address.</p>
             </div>
             <div class="faq-item">
                 <h4>What happens if I exceed my daily API limit?</h4>
