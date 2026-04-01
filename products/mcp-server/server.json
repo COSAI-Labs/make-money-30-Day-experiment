@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
+  "description": "22 developer utility tools via MCP: JSON format, QR codes, UUID generation, DNS lookup, hashing (SHA-256/MD5), Base64, text analysis, CSS/JS minification, color conversion, URL shortening, crypto prices, SEO analysis, and more. Free tier: 100 calls/day.",
+  "repository": {
+    "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
+    "source": "github",
+    "subfolder": "products/mcp-server"
+  },
+  "version": "1.0.2",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@cosai-labs/toolpipe-mcp-server",
+      "version": "1.0.2",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "ToolPipe API key for authenticated access (optional, get free key at /api-keys)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true,
+          "name": "TOOLPIPE_API_KEY"
+        },
+        {
+          "description": "Custom API base URL (default: https://assessing-scoop-authorities-sheet.trycloudflare.com)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "TOOLPIPE_BASE_URL"
+        }
+      ]
+    }
+  ]
+}

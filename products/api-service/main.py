@@ -3354,6 +3354,61 @@ async def json_validate(request: Request):
         return JSONResponse(status_code=400, content={"valid": False, "error": str(e)})
 
 
+# --- MCP Server Proxy ---
+
+@app.api_route("/mcp", methods=["GET", "POST", "DELETE", "OPTIONS"])
+async def mcp_proxy(request: Request):
+    """Proxy MCP requests to the dedicated MCP HTTP server on port 8090."""
+    method = request.method
+    body = await request.body()
+    headers = dict(request.headers)
+    headers.pop("host", None)
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.request(
+                method=method,
+                url=f"http://localhost:8090/mcp",
+                content=body,
+                headers=headers,
+            )
+        response_headers = dict(resp.headers)
+        response_headers.pop("transfer-encoding", None)
+        response_headers.pop("content-encoding", None)
+        return Response(
+            content=resp.content,
+            status_code=resp.status_code,
+            headers=response_headers,
+            media_type=resp.headers.get("content-type"),
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=502,
+            content={"error": f"MCP server unavailable: {e}"}
+        )
+
+
+@app.get("/mcp-info")
+async def mcp_info():
+    """Information about the MCP server endpoint."""
+    return {
+        "name": "ToolPipe MCP Server",
+        "version": "1.1.0",
+        "protocol": "MCP (Model Context Protocol)",
+        "transport": "Streamable HTTP",
+        "tools": 34,
+        "endpoint": "/mcp",
+        "setup": {
+            "claude_desktop": {
+                "mcpServers": {
+                    "toolpipe": {
+                        "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
+                    }
+                }
+            }
+        }
+    }
+
+
 # --- SEO Pages (catch-all for static content pages) ---
 
 @app.get("/{page_name}", response_class=HTMLResponse)

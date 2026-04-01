@@ -17,7 +17,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const BASE_URL = process.env.TOOLPIPE_BASE_URL || "https://assessing-scoop-authorities-sheet.trycloudflare.com";
+const BASE_URL = process.env.TOOLPIPE_BASE_URL || "https://toolpipe.dev";
 const API_KEY = process.env.TOOLPIPE_API_KEY || "";
 
 async function apiCall(path, options = {}) {
