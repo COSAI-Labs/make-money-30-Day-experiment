@@ -49,6 +49,34 @@ Date: 2026-04-01
 - **Section**: Development
 - **Status**: Open
 
+### 10. n0shake/Public-APIs
+- **PR**: https://github.com/n0shake/Public-APIs/pull/704
+- **Section**: Miscellaneous
+- **Status**: Open
+
+### 11. marmelab/awesome-rest
+- **PR**: https://github.com/marmelab/awesome-rest/pull/184
+- **Section**: Public REST APIs To Use In Tests
+- **Status**: Open
+
+### 12. dspinellis/awesome-rest-apis
+- **PR**: https://github.com/dspinellis/awesome-rest-apis/pull/9
+- **Section**: Software Development
+- **Status**: Open
+
+### 13. public-apis-dev/public-apis (marcelscruz/public-apis)
+- **PR**: https://github.com/marcelscruz/public-apis/pull/807
+- **Section**: Development
+- **Status**: Open
+
+### 14. jixserver/free-for-dev
+- **PR**: https://github.com/jixserver/free-for-dev/pull/39
+- **Section**: APIs, Data and ML
+- **Status**: Open
+
+### SKIPPED: TonnyL/Awesome_APIs
+- **Reason**: Repository is archived (read-only), cannot accept PRs
+
 ### SKIPPED: t18n/awesome-dev-tools
 - **Reason**: Repository is archived (read-only), cannot accept PRs
 
