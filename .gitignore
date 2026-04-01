@@ -11,3 +11,4 @@ products/uptime-monitor/data/
 products/api-service/waitlist.txt
 .env
 .env.*
+data/wallet.json

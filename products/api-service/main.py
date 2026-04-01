@@ -2452,15 +2452,19 @@ h2{font-size:1.3rem;color:#fff;margin:40px 0 16px;text-align:center}
 </div>
 
 <div class="section">
-<div class="section-title">Pay with Crypto <span class="coming-badge">Coming Soon</span></div>
-<p style="color:#94a3b8;font-size:0.95rem;margin-bottom:8px;">We are setting up crypto wallets to accept donations directly. The following currencies will be supported:</p>
-<div class="crypto-grid">
-<div class="crypto-item"><div class="name">Bitcoin (BTC)</div><div class="status">Wallet being configured</div></div>
-<div class="crypto-item"><div class="name">Ethereum (ETH)</div><div class="status">Wallet being configured</div></div>
-<div class="crypto-item"><div class="name">USDC (ERC-20)</div><div class="status">Wallet being configured</div></div>
-<div class="crypto-item"><div class="name">Solana (SOL)</div><div class="status">Wallet being configured</div></div>
+<div class="section-title">Pay with Crypto <span style="display:inline-block;background:#22c55e22;color:#22c55e;padding:2px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;margin-left:8px;">LIVE</span></div>
+<p style="color:#94a3b8;font-size:0.95rem;margin-bottom:16px;">Send crypto directly to our wallet. All major ERC-20 tokens accepted on the same address.</p>
+<div style="background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:16px">
+<div style="color:#fff;font-weight:600;margin-bottom:8px;">Ethereum / USDC / USDT / ERC-20 Tokens</div>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<code style="background:#0a0a0a;color:#22c55e;padding:8px 12px;border-radius:6px;font-size:0.85rem;word-break:break-all;flex:1">0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6</code>
+<button onclick="navigator.clipboard.writeText('0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)" style="background:#6c63ff;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;white-space:nowrap">Copy</button>
 </div>
-<p style="color:#64748b;font-size:0.85rem;margin-top:12px;">Join the waitlist to be notified when crypto donations are live.</p>
+<p style="color:#64748b;font-size:0.8rem;margin-top:8px;">Supports: ETH, USDC, USDT, DAI, and any ERC-20 token on Ethereum mainnet, Polygon, Arbitrum, Base, or Optimism.</p>
+</div>
+<div style="background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:16px">
+<p style="color:#94a3b8;font-size:0.9rem;">After sending, email <a href="mailto:toolpipe-ads@sharebot.net" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with your tx hash to receive Pro API access.</p>
+</div>
 </div>
 
 <div class="waitlist-box" id="waitlist-section">
