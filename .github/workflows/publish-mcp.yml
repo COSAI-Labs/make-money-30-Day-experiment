@@ -19,7 +19,8 @@ jobs:
 
       - name: Download MCP Publisher
         run: |
-          curl -L -o /tmp/mcp-publisher https://github.com/nichochar/mcp-publisher/releases/latest/download/mcp-publisher-linux-amd64
+          curl -L -o /tmp/mcp-publisher.tar.gz https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz
+          tar xzf /tmp/mcp-publisher.tar.gz -C /tmp
           chmod +x /tmp/mcp-publisher
 
       - name: Login with GitHub OIDC
