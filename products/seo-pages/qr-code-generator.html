@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free QR Code Generator - Create QR Codes Online Instantly</title>
+    <meta name="description" content="Generate QR codes for free. Create QR codes for URLs, text, WiFi, contact cards, and more. Download as PNG. No signup required.">
+    <meta name="keywords" content="qr code generator, free qr code, create qr code online, qr code maker">
+    <meta property="og:title" content="Free QR Code Generator">
+    <meta property="og:description" content="Generate QR codes instantly. No signup, no limits. Download PNG.">
+    <meta property="og:type" content="website">
+    <link rel="canonical" href="/qr-code-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 12px; }
+        input:focus { outline: none; border-color: #6c63ff; }
+        .row { display: flex; gap: 12px; }
+        .row > div { flex: 1; }
+        .btn { width: 100%; padding: 14px; background: #6c63ff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        .btn:hover { background: #5a52d5; }
+        #result { text-align: center; margin-top: 24px; }
+        #result img { max-width: 300px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+        .download-link { display: inline-block; margin-top: 12px; padding: 10px 24px; background: #27ae60; color: white; border-radius: 6px; text-decoration: none; font-weight: 500; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { margin: 12px 0 12px 24px; color: #555; }
+        .faq { margin-top: 32px; }
+        .faq details { margin-bottom: 8px; background: white; padding: 16px; border-radius: 8px; }
+        .faq summary { font-weight: 600; cursor: pointer; }
+        .faq p { margin-top: 8px; color: #666; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div>
+            <a href="/tools">All Tools</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Free QR Code Generator</h1>
+        <p class="subtitle">Create QR codes for URLs, text, WiFi, and more. Download as PNG instantly.</p>
+
+        <div class="tool-box">
+            <label>Enter URL or Text</label>
+            <input type="text" id="qr-data" placeholder="https://example.com or any text..." autofocus>
+
+            <div class="row">
+                <div>
+                    <label>Size (pixels)</label>
+                    <select id="qr-size">
+                        <option value="200">200x200</option>
+                        <option value="300" selected>300x300</option>
+                        <option value="500">500x500</option>
+                        <option value="800">800x800</option>
+                        <option value="1000">1000x1000</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Error Correction</label>
+                    <select id="qr-ec">
+                        <option value="L">Low (7%)</option>
+                        <option value="M" selected>Medium (15%)</option>
+                        <option value="Q">Quartile (25%)</option>
+                        <option value="H">High (30%)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn" onclick="generateQR()">Generate QR Code</button>
+
+            <div id="result"></div>
+        </div>
+
+        <div class="content">
+            <h2>How to Create a QR Code</h2>
+            <p>Creating a QR code is simple: enter any URL, text, or data in the box above and click Generate. Your QR code is created instantly and can be downloaded as a PNG image.</p>
+
+            <h2>What Can You Put in a QR Code?</h2>
+            <ul>
+                <li><strong>Website URLs</strong> - link to any webpage</li>
+                <li><strong>Plain text</strong> - messages, notes, instructions</li>
+                <li><strong>WiFi credentials</strong> - format: WIFI:T:WPA;S:NetworkName;P:Password;;</li>
+                <li><strong>Contact cards</strong> - vCard format for adding contacts</li>
+                <li><strong>Email addresses</strong> - mailto: links</li>
+                <li><strong>Phone numbers</strong> - tel: links for click-to-call</li>
+            </ul>
+
+            <h2>About Error Correction</h2>
+            <p>QR codes include error correction that allows them to be read even when partially damaged. Higher levels mean more redundancy (the code still works if part is obscured), but also a denser pattern. Medium (15%) is a good default for most uses.</p>
+        </div>
+
+        <div class="faq">
+            <h2>FAQ</h2>
+            <details>
+                <summary>Is this QR code generator free?</summary>
+                <p>Yes, completely free with no limits. Generate as many QR codes as you need.</p>
+            </details>
+            <details>
+                <summary>Do QR codes expire?</summary>
+                <p>No. QR codes are just encoded data. They work forever as long as the content they point to (like a URL) is still active.</p>
+            </details>
+            <details>
+                <summary>What size should I use?</summary>
+                <p>300x300 is good for digital use. For print (posters, business cards), use 800x800 or higher.</p>
+            </details>
+            <details>
+                <summary>Can I use these QR codes commercially?</summary>
+                <p>Yes. QR codes generated here are yours to use for any purpose, personal or commercial.</p>
+            </details>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/seo">SEO Analyzer</a> | <a href="/monitor">Uptime Monitor</a></p>
+    </footer>
+
+    <script>
+    function generateQR() {
+        const data = document.getElementById('qr-data').value.trim();
+        if (!data) { alert('Enter a URL or text'); return; }
+        const size = document.getElementById('qr-size').value;
+        const ec = document.getElementById('qr-ec').value;
+        const url = '/qr/generate?data=' + encodeURIComponent(data) + '&size=' + size;
+        document.getElementById('result').innerHTML = '<img src="' + url + '" alt="QR Code for ' + data.substring(0,50) + '"><br><a href="' + url + '" download="qr-code.png" class="download-link">Download PNG</a>';
+    }
+    document.getElementById('qr-data').addEventListener('keypress', function(e) { if (e.key === 'Enter') generateQR(); });
+    </script>
+</body>
+</html>

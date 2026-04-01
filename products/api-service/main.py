@@ -74,6 +74,7 @@ LANDING_HTML = Path(__file__).parent / "landing.html"
 TOOLS_HTML = Path(__file__).parent.parent / "web-tools" / "index.html"
 INVOICE_HTML = Path(__file__).parent.parent / "invoice-generator" / "index.html"
 MONITOR_HTML = Path(__file__).parent.parent / "uptime-monitor" / "index.html"
+SEO_PAGES_DIR = Path(__file__).parent.parent / "seo-pages"
 
 # Import monitor module
 import sys
@@ -769,6 +770,17 @@ async def analyze_seo(url: str = Query(...)):
             "recommendations": tech_recs,
         },
     }
+
+
+# --- SEO Pages (catch-all for static content pages) ---
+
+@app.get("/{page_name}", response_class=HTMLResponse)
+async def seo_page_handler(page_name: str):
+    # Only serve known SEO pages to avoid catching API routes
+    page_file = SEO_PAGES_DIR / f"{page_name}.html"
+    if page_file.exists():
+        return HTMLResponse(page_file.read_text())
+    raise HTTPException(status_code=404, detail="Page not found")
 
 
 if __name__ == "__main__":

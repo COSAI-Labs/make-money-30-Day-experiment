@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter & Validator - Free Online JSON Tool</title>
+    <meta name="description" content="Free online JSON formatter and validator. Beautify, minify, and validate JSON data instantly. No signup required.">
+    <meta property="og:title" content="Free JSON Formatter & Validator">
+    <meta property="og:description" content="Format, validate, and beautify JSON data online for free.">
+    <link rel="canonical" href="/json-formatter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 200px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .output textarea { background: #f8f9fa; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>JSON Formatter & Validator</h1>
+        <p class="subtitle">Paste your JSON to format, validate, and beautify it instantly</p>
+        <div class="tool-box">
+            <label style="font-weight:500;margin-bottom:6px;display:block">Input JSON</label>
+            <textarea id="input" placeholder='Paste JSON here... e.g. {"name":"test","items":[1,2,3]}'></textarea>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="formatJSON()">Format / Beautify</button>
+                <button class="btn btn-secondary" onclick="minifyJSON()">Minify</button>
+                <button class="btn btn-secondary" onclick="validateJSON()">Validate</button>
+                <button class="btn btn-secondary" onclick="copyOutput()">Copy Output</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="output">
+                <label style="font-weight:500;margin-bottom:6px;display:block">Output</label>
+                <textarea id="output" readonly placeholder="Formatted output will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>What is JSON?</h2>
+            <p>JSON (JavaScript Object Notation) is a lightweight data interchange format. It's easy for humans to read and write, and easy for machines to parse and generate. JSON is the most common format for APIs and configuration files.</p>
+            <h2>How to Use This Tool</h2>
+            <p>Paste your JSON into the input box. Click "Format" to beautify it with proper indentation, or "Minify" to compress it into a single line. Click "Validate" to check if your JSON is valid and see any syntax errors.</p>
+            <h2>Common JSON Errors</h2>
+            <p>The most frequent JSON errors include: missing commas between items, trailing commas after the last item, using single quotes instead of double quotes, and unquoted property names. This tool will show you the exact location of any syntax errors.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/seo">SEO Analyzer</a></p></footer>
+    <script>
+    function formatJSON() {
+        try {
+            const obj = JSON.parse(document.getElementById('input').value);
+            document.getElementById('output').value = JSON.stringify(obj, null, 2);
+            showStatus('Valid JSON - ' + Object.keys(obj).length + ' top-level keys', true);
+        } catch(e) { showStatus('Invalid JSON: ' + e.message, false); document.getElementById('output').value = ''; }
+    }
+    function minifyJSON() {
+        try {
+            const obj = JSON.parse(document.getElementById('input').value);
+            document.getElementById('output').value = JSON.stringify(obj);
+            showStatus('Minified: ' + document.getElementById('output').value.length + ' characters', true);
+        } catch(e) { showStatus('Invalid JSON: ' + e.message, false); }
+    }
+    function validateJSON() {
+        try {
+            JSON.parse(document.getElementById('input').value);
+            showStatus('Valid JSON', true);
+        } catch(e) { showStatus('Invalid: ' + e.message, false); }
+    }
+    function copyOutput() { navigator.clipboard.writeText(document.getElementById('output').value); }
+    function clearAll() { document.getElementById('input').value = ''; document.getElementById('output').value = ''; document.getElementById('status-bar').innerHTML = ''; }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>
