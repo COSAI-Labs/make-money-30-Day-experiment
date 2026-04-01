@@ -73,6 +73,12 @@ async def rate_limit_middleware(request: Request, call_next):
 LANDING_HTML = Path(__file__).parent / "landing.html"
 TOOLS_HTML = Path(__file__).parent.parent / "web-tools" / "index.html"
 INVOICE_HTML = Path(__file__).parent.parent / "invoice-generator" / "index.html"
+MONITOR_HTML = Path(__file__).parent.parent / "uptime-monitor" / "index.html"
+
+# Import monitor module
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "uptime-monitor"))
+import monitor as uptime_monitor
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -449,6 +455,89 @@ async def base64_convert(req: Base64Request):
     else:
         raise HTTPException(status_code=400, detail="Action must be 'encode' or 'decode'")
     return {"result": result, "action": req.action}
+
+
+# --- Uptime Monitor ---
+
+@app.get("/monitor", response_class=HTMLResponse)
+async def monitor_page():
+    if MONITOR_HTML.exists():
+        return HTMLResponse(MONITOR_HTML.read_text())
+    return HTMLResponse("<h1>PingPulse coming soon</h1>")
+
+
+class AddMonitorRequest(BaseModel):
+    name: str
+    url: str
+    interval_seconds: int = 300
+
+
+@app.post("/monitor/add")
+async def add_monitor(req: AddMonitorRequest):
+    conn = uptime_monitor.get_db()
+    # Limit to 20 monitors (free tier)
+    count = conn.execute("SELECT COUNT(*) as c FROM monitors").fetchone()["c"]
+    if count >= 20:
+        raise HTTPException(status_code=400, detail="Maximum 20 monitors on free tier")
+    cursor = conn.execute(
+        "INSERT INTO monitors (name, url, interval_seconds) VALUES (?, ?, ?)",
+        (req.name, req.url, req.interval_seconds),
+    )
+    conn.commit()
+    monitor_id = cursor.lastrowid
+    conn.close()
+    # Run first check immediately
+    await _check_single_monitor(monitor_id)
+    return {"id": monitor_id, "name": req.name, "url": req.url}
+
+
+@app.get("/monitor/list")
+async def list_monitors():
+    conn = uptime_monitor.get_db()
+    monitors = conn.execute("SELECT * FROM monitors ORDER BY id").fetchall()
+    result = []
+    for m in monitors:
+        stats = uptime_monitor.get_monitor_stats(m["id"], hours=24)
+        result.append({**dict(m), "stats": stats})
+    conn.close()
+    return {"monitors": result}
+
+
+@app.delete("/monitor/{monitor_id}")
+async def delete_monitor(monitor_id: int):
+    conn = uptime_monitor.get_db()
+    conn.execute("DELETE FROM checks WHERE monitor_id = ?", (monitor_id,))
+    conn.execute("DELETE FROM monitors WHERE id = ?", (monitor_id,))
+    conn.commit()
+    conn.close()
+    return {"deleted": True}
+
+
+@app.post("/monitor/{monitor_id}/check")
+async def check_monitor_now(monitor_id: int):
+    return await _check_single_monitor(monitor_id)
+
+
+async def _check_single_monitor(monitor_id: int):
+    conn = uptime_monitor.get_db()
+    mon = conn.execute("SELECT * FROM monitors WHERE id = ?", (monitor_id,)).fetchone()
+    if not mon:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Monitor not found")
+    result = await uptime_monitor.check_url(mon["url"], mon["expected_status"])
+    conn.execute(
+        "INSERT INTO checks (monitor_id, status_code, response_time_ms, is_up, error) VALUES (?, ?, ?, ?, ?)",
+        (monitor_id, result["status_code"], result["response_time_ms"], result["is_up"], result["error"]),
+    )
+    conn.commit()
+    conn.close()
+    return result
+
+
+@app.post("/monitor/run-all")
+async def run_all_checks():
+    count = await uptime_monitor.run_checks()
+    return {"checked": count}
 
 
 # --- SEO Analyzer ---

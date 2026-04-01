@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingPulse - Free Uptime Monitoring</title>
+    <meta name="description" content="Monitor your websites and APIs for free. Get instant alerts when your services go down. Simple, fast, reliable uptime monitoring.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a1a; color: #e0e0e0; }
+
+        nav { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a1a3e; }
+        nav h1 { font-size: 1.2rem; color: #00e676; }
+        nav .links a { color: #888; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+        nav .links a:hover { color: white; }
+
+        .hero { text-align: center; padding: 80px 20px 40px; }
+        .hero h2 { font-size: 2.5rem; color: white; margin-bottom: 12px; }
+        .hero p { color: #888; font-size: 1.1rem; margin-bottom: 32px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+        .add-monitor { background: #111130; border: 1px solid #222250; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+        .add-monitor h3 { margin-bottom: 12px; color: #00e676; }
+        .add-form { display: flex; gap: 8px; flex-wrap: wrap; }
+        .add-form input { flex: 1; min-width: 200px; padding: 10px 14px; background: #0a0a1a; border: 1px solid #333; border-radius: 6px; color: white; font-size: 0.9rem; }
+        .add-form input::placeholder { color: #555; }
+        .add-form button { padding: 10px 20px; background: #00e676; color: #0a0a1a; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .add-form button:hover { background: #00c853; }
+
+        .monitors { margin-bottom: 40px; }
+        .monitor-card { background: #111130; border: 1px solid #222250; border-radius: 10px; padding: 20px; margin-bottom: 12px; transition: border-color 0.2s; }
+        .monitor-card:hover { border-color: #333366; }
+        .monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .monitor-name { font-weight: 600; font-size: 1rem; }
+        .monitor-url { color: #666; font-size: 0.8rem; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .status-up { background: rgba(0,230,118,0.15); color: #00e676; }
+        .status-down { background: rgba(244,67,54,0.15); color: #f44336; }
+        .status-unknown { background: rgba(255,255,255,0.1); color: #888; }
+
+        .stats-row { display: flex; gap: 16px; margin-bottom: 12px; }
+        .stat { background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; flex: 1; text-align: center; }
+        .stat .val { font-size: 1.2rem; font-weight: 700; }
+        .stat .lbl { font-size: 0.7rem; color: #666; margin-top: 2px; }
+        .stat .val.green { color: #00e676; }
+        .stat .val.red { color: #f44336; }
+        .stat .val.yellow { color: #ffc107; }
+
+        .uptime-bar { display: flex; gap: 2px; height: 24px; margin-top: 8px; }
+        .uptime-bar .tick { flex: 1; border-radius: 2px; min-width: 3px; }
+        .tick-up { background: #00e676; }
+        .tick-down { background: #f44336; }
+        .tick-empty { background: #1a1a3e; }
+
+        .monitor-actions { margin-top: 8px; }
+        .monitor-actions button { padding: 4px 12px; margin-right: 4px; border: 1px solid #333; background: none; color: #888; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        .monitor-actions button:hover { color: white; border-color: #666; }
+        .monitor-actions .del:hover { color: #f44336; border-color: #f44336; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #555; }
+        .empty-state h3 { color: #888; margin-bottom: 8px; }
+
+        .pricing { padding: 60px 20px; text-align: center; }
+        .pricing h2 { color: white; margin-bottom: 32px; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .price-card { background: #111130; border: 1px solid #222250; border-radius: 10px; padding: 24px; }
+        .price-card.featured { border-color: #00e676; }
+        .price-card h4 { margin-bottom: 8px; }
+        .price-card .price { font-size: 2rem; font-weight: 700; color: #00e676; margin: 12px 0; }
+        .price-card .price span { font-size: 0.9rem; color: #666; }
+        .price-card ul { list-style: none; text-align: left; margin: 16px 0; }
+        .price-card li { padding: 6px 0; color: #aaa; font-size: 0.85rem; }
+
+        footer { text-align: center; padding: 40px; color: #444; font-size: 0.8rem; border-top: 1px solid #1a1a3e; }
+        footer a { color: #00e676; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>PingPulse</h1>
+        <div class="links">
+            <a href="#monitors">Dashboard</a>
+            <a href="#pricing">Pricing</a>
+            <a href="/">ToolPipe API</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h2>Know when your site goes down</h2>
+        <p>Free uptime monitoring for your websites and APIs. Checks every 5 minutes.</p>
+    </div>
+
+    <div class="container">
+        <div class="add-monitor">
+            <h3>Add Monitor</h3>
+            <div class="add-form">
+                <input type="text" id="add-name" placeholder="Name (e.g. My Website)">
+                <input type="text" id="add-url" placeholder="URL (e.g. https://example.com)">
+                <button onclick="addMonitor()">Add</button>
+            </div>
+        </div>
+
+        <div id="monitors" class="monitors">
+            <div class="empty-state" id="empty-state">
+                <h3>No monitors yet</h3>
+                <p>Add a URL above to start monitoring</p>
+            </div>
+        </div>
+
+        <div class="pricing" id="pricing">
+            <h2>Simple Pricing</h2>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <h4>Free</h4>
+                    <div class="price">$0<span>/mo</span></div>
+                    <ul>
+                        <li>5 monitors</li>
+                        <li>5-minute checks</li>
+                        <li>24-hour history</li>
+                        <li>Dashboard only</li>
+                    </ul>
+                </div>
+                <div class="price-card featured">
+                    <h4>Pro</h4>
+                    <div class="price">$9<span>/mo</span></div>
+                    <ul>
+                        <li>50 monitors</li>
+                        <li>1-minute checks</li>
+                        <li>90-day history</li>
+                        <li>Email alerts</li>
+                        <li>Status pages</li>
+                    </ul>
+                </div>
+                <div class="price-card">
+                    <h4>Team</h4>
+                    <div class="price">$29<span>/mo</span></div>
+                    <ul>
+                        <li>Unlimited monitors</li>
+                        <li>30-second checks</li>
+                        <li>1-year history</li>
+                        <li>Slack/webhook alerts</li>
+                        <li>Multi-user access</li>
+                        <li>API access</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>PingPulse by <a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a></p>
+    </footer>
+
+    <script>
+    const API = '';
+
+    async function loadMonitors() {
+        try {
+            const resp = await fetch(API + '/monitor/list');
+            const data = await resp.json();
+            renderMonitors(data.monitors);
+        } catch(e) { console.error(e); }
+    }
+
+    function renderMonitors(monitors) {
+        const container = document.getElementById('monitors');
+        const empty = document.getElementById('empty-state');
+
+        if (!monitors || monitors.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        let html = '';
+        monitors.forEach(m => {
+            const stats = m.stats || {};
+            const isUp = stats.last_check ? stats.last_check.is_up : null;
+            const statusClass = isUp === null ? 'status-unknown' : (isUp ? 'status-up' : 'status-down');
+            const statusText = isUp === null ? 'Pending' : (isUp ? 'Up' : 'Down');
+            const uptimePct = stats.uptime_pct !== null ? stats.uptime_pct : '-';
+            const avgResp = stats.avg_response_ms !== null ? stats.avg_response_ms : '-';
+            const uptimeColor = uptimePct >= 99 ? 'green' : (uptimePct >= 95 ? 'yellow' : 'red');
+
+            // Build uptime bar (last 50 checks)
+            let ticks = '';
+            const checks = stats.checks || [];
+            const barChecks = checks.slice(0, 50).reverse();
+            for (let i = 0; i < 50; i++) {
+                if (i < barChecks.length) {
+                    ticks += '<div class="tick ' + (barChecks[i].is_up ? 'tick-up' : 'tick-down') + '"></div>';
+                } else {
+                    ticks += '<div class="tick tick-empty"></div>';
+                }
+            }
+
+            html += `
+            <div class="monitor-card">
+                <div class="monitor-header">
+                    <div>
+                        <span class="monitor-name">${m.name}</span>
+                        <span class="monitor-url"> ${m.url}</span>
+                    </div>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="stats-row">
+                    <div class="stat"><div class="val ${uptimeColor}">${uptimePct}%</div><div class="lbl">Uptime (24h)</div></div>
+                    <div class="stat"><div class="val">${avgResp}ms</div><div class="lbl">Avg Response</div></div>
+                    <div class="stat"><div class="val">${stats.total_checks || 0}</div><div class="lbl">Checks</div></div>
+                </div>
+                <div class="uptime-bar">${ticks}</div>
+                <div class="monitor-actions">
+                    <button onclick="checkNow(${m.id})">Check Now</button>
+                    <button class="del" onclick="deleteMonitor(${m.id})">Delete</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    async function addMonitor() {
+        const name = document.getElementById('add-name').value.trim();
+        let url = document.getElementById('add-url').value.trim();
+        if (!name || !url) return alert('Name and URL required');
+        if (!url.startsWith('http')) url = 'https://' + url;
+
+        await fetch(API + '/monitor/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, url})
+        });
+        document.getElementById('add-name').value = '';
+        document.getElementById('add-url').value = '';
+        loadMonitors();
+    }
+
+    async function deleteMonitor(id) {
+        if (!confirm('Delete this monitor?')) return;
+        await fetch(API + '/monitor/' + id, {method: 'DELETE'});
+        loadMonitors();
+    }
+
+    async function checkNow(id) {
+        await fetch(API + '/monitor/' + id + '/check', {method: 'POST'});
+        loadMonitors();
+    }
+
+    loadMonitors();
+    setInterval(loadMonitors, 30000);
+    </script>
+</body>
+</html>
