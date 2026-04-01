@@ -230,47 +230,55 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
     if OXAPAY_MERCHANT_KEY == "sandbox":
         payload["sandbox"] = True
 
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(OXAPAY_API_URL, json=payload)
-            data = resp.json()
+    now = datetime.now(timezone.utc).isoformat()
+    crypto_addresses = {
+        "ETH/ERC-20 (Ethereum, Polygon, Arbitrum, Base, Optimism)": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
+    }
 
-        if data.get("status") == 200 and data.get("data"):
-            track_id = data["data"].get("track_id", "")
-            payment_url = data["data"].get("payment_url", "")
-            now = datetime.now(timezone.utc).isoformat()
-            with _payments_lock:
-                conn = sqlite3.connect(str(PAYMENTS_DB))
-                conn.execute(
-                    "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, payment_url, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
-                    (track_id, order_id, email, tier, amount, payment_url, now)
-                )
-                conn.commit()
-                conn.close()
-            return {"success": True, "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
-        return {"success": False, "error": data.get("message", "Payment creation failed"), "fallback": "crypto_direct"}
-    except Exception:
-        # OxaPay API unavailable (Cloudflare, network, etc.), record intent and show direct crypto address
-        now = datetime.now(timezone.utc).isoformat()
-        with _payments_lock:
-            conn = sqlite3.connect(str(PAYMENTS_DB))
-            conn.execute(
-                "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, created_at) VALUES (?, ?, ?, ?, ?, 'awaiting_direct', ?)",
-                (order_id, order_id, email, tier, amount, now)
-            )
-            conn.commit()
-            conn.close()
-        return {
-            "success": False,
-            "fallback": "crypto_direct",
-            "message": "Automated payment temporarily unavailable. Send crypto directly.",
-            "crypto_address": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
-            "networks": "Ethereum, Polygon, Arbitrum, Base, Optimism",
-            "accepted": "ETH, USDC, USDT, DAI, any ERC-20",
-            "amount_usd": amount,
-            "order_id": order_id,
-            "instructions": f"Send ${amount} worth of crypto to the address above, then email toolpipe-ads@sharebot.net with your tx hash and order ID ({order_id}) to activate your {tier} plan."
-        }
+    # Try OxaPay first
+    if OXAPAY_MERCHANT_KEY != "sandbox":
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.post(OXAPAY_API_URL, json=payload)
+                data = resp.json()
+
+            if data.get("status") == 200 and data.get("data"):
+                track_id = data["data"].get("track_id", "")
+                payment_url = data["data"].get("payment_url", "")
+                with _payments_lock:
+                    conn = sqlite3.connect(str(PAYMENTS_DB))
+                    conn.execute(
+                        "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, payment_url, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
+                        (track_id, order_id, email, tier, amount, payment_url, now)
+                    )
+                    conn.commit()
+                    conn.close()
+                return {"success": True, "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
+        except Exception:
+            pass
+
+    # Direct crypto payment (primary path when OxaPay unavailable)
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        conn.execute(
+            "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, created_at) VALUES (?, ?, ?, ?, ?, 'awaiting_direct', ?)",
+            (order_id, order_id, email, tier, amount, now)
+        )
+        conn.commit()
+        conn.close()
+    return {
+        "success": True,
+        "payment_method": "crypto_direct",
+        "crypto_addresses": crypto_addresses,
+        "primary_address": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
+        "accepted": ["ETH", "USDC", "USDT", "DAI", "WETH", "any ERC-20"],
+        "networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism"],
+        "amount_usd": amount,
+        "order_id": order_id,
+        "qr_code_url": f"/qr/generate?text=ethereum:0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6&size=300",
+        "instructions": f"Send ${amount} worth of crypto to the address above, then email toolpipe-ads@sharebot.net with your tx hash and order ID ({order_id}) to activate your {tier} plan.",
+        "verification_email": "toolpipe-ads@sharebot.net",
+    }
 
 
 def record_pageview(path: str, ip: str, user_agent: str, referrer: str):
@@ -3150,15 +3158,24 @@ async function submitPayment() {
         const data = await res.json();
         if (data.success && data.payment_url) {
             window.location.href = data.payment_url;
-        } else if (data.fallback === 'crypto_direct') {
-            status.innerHTML = '<strong>Send crypto directly:</strong><br>' +
-              '<code style="color:#22c55e;word-break:break-all">' + (data.crypto_address || '0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6') + '</code><br>' +
-              '<small>Amount: $' + (data.amount_usd || selectedTier === 'pro' ? '9.99' : '49.99') + ' in ETH/USDC/USDT</small><br>' +
-              '<small>Then email <a href="mailto:toolpipe-ads@sharebot.net" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with tx hash + order: ' + (data.order_id || '') + '</small>';
-            status.style.color = '#f59e0b';
+        } else if (data.success && data.payment_method === 'crypto_direct') {
+            const addr = data.primary_address;
+            const amt = data.amount_usd;
+            const oid = data.order_id;
+            const qr = data.qr_code_url;
+            status.innerHTML = '<div style="text-align:center">' +
+              '<strong style="font-size:1.1rem;color:#22c55e">Send Crypto to Complete Payment</strong><br><br>' +
+              '<img src="' + qr + '" alt="QR Code" style="width:200px;height:200px;border-radius:8px;margin:8px auto;display:block;background:#fff;padding:8px"><br>' +
+              '<code style="color:#22c55e;word-break:break-all;font-size:0.85rem;background:#111;padding:8px 12px;border-radius:6px;display:block;margin:8px 0">' + addr + '</code>' +
+              '<p style="margin:8px 0;color:#e0e0e0">Amount: <strong>$' + amt + '</strong> in ETH, USDC, USDT, or any ERC-20</p>' +
+              '<p style="color:#94a3b8;font-size:0.85rem">Networks: Ethereum, Polygon, Arbitrum, Base, Optimism</p>' +
+              '<p style="margin-top:12px;padding:12px;background:#1a1a2e;border-radius:8px;border:1px solid #6c63ff44">' +
+              'After sending, email <a href="mailto:toolpipe-ads@sharebot.net?subject=Payment%20' + oid + '&body=Order:%20' + oid + '%0ATx%20Hash:%20" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with your tx hash and order ID: <code>' + oid + '</code></p>' +
+              '</div>';
+            status.style.color = '#e0e0e0';
             status.style.display = 'block';
-            btn.textContent = 'Pay with Crypto';
-            btn.disabled = false;
+            btn.textContent = 'Payment Address Ready';
+            btn.disabled = true;
         } else {
             status.textContent = data.error || 'Payment creation failed.';
             status.style.color = '#ef4444';
