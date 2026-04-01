@@ -1350,6 +1350,93 @@ async def check_down(url: str = Query(...)):
         }
 
 
+# --- IP Lookup / Geolocation ---
+
+@app.get("/ip/lookup")
+async def ip_lookup(ip: Optional[str] = Query(None)):
+    """Look up geolocation info for an IP address. Uses ip-api.com free tier."""
+    target = ip or "check"  # "check" returns the requester's IP info
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            resp = await client.get(f"http://ip-api.com/json/{target}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query")
+        data = resp.json()
+        if data.get("status") == "fail":
+            raise HTTPException(status_code=400, detail=data.get("message", "Lookup failed"))
+        return data
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Upstream lookup failed: {str(e)}")
+
+
+@app.get("/ip/my")
+async def my_ip(request: Request):
+    """Returns the requester's IP address."""
+    client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    if not client_ip:
+        client_ip = request.client.host if request.client else "unknown"
+    return {"ip": client_ip}
+
+
+# --- User Agent Parser ---
+
+@app.get("/useragent/parse")
+async def parse_user_agent(ua: Optional[str] = Query(None), request: Request = None):
+    """Parse a user agent string into components."""
+    user_agent = ua or (request.headers.get("user-agent", "") if request else "")
+    if not user_agent:
+        raise HTTPException(status_code=400, detail="No user agent provided.")
+
+    result = {
+        "raw": user_agent,
+        "is_bot": False,
+        "browser": "Unknown",
+        "browser_version": "",
+        "os": "Unknown",
+        "device": "Desktop",
+    }
+
+    # Bot detection
+    bot_patterns = ["bot", "crawl", "spider", "slurp", "mediapartners", "facebookexternalhit", "bingpreview"]
+    ua_lower = user_agent.lower()
+    for pattern in bot_patterns:
+        if pattern in ua_lower:
+            result["is_bot"] = True
+            result["device"] = "Bot"
+            break
+
+    # Browser detection
+    if "Firefox/" in user_agent:
+        result["browser"] = "Firefox"
+        m = re.search(r"Firefox/([\d.]+)", user_agent)
+        if m: result["browser_version"] = m.group(1)
+    elif "Edg/" in user_agent:
+        result["browser"] = "Edge"
+        m = re.search(r"Edg/([\d.]+)", user_agent)
+        if m: result["browser_version"] = m.group(1)
+    elif "Chrome/" in user_agent:
+        result["browser"] = "Chrome"
+        m = re.search(r"Chrome/([\d.]+)", user_agent)
+        if m: result["browser_version"] = m.group(1)
+    elif "Safari/" in user_agent and "Chrome" not in user_agent:
+        result["browser"] = "Safari"
+        m = re.search(r"Version/([\d.]+)", user_agent)
+        if m: result["browser_version"] = m.group(1)
+
+    # OS detection
+    if "Windows" in user_agent: result["os"] = "Windows"
+    elif "Mac OS X" in user_agent: result["os"] = "macOS"
+    elif "Linux" in user_agent: result["os"] = "Linux"
+    elif "Android" in user_agent: result["os"] = "Android"
+    elif "iPhone" in user_agent or "iPad" in user_agent: result["os"] = "iOS"
+
+    # Device
+    if "Mobile" in user_agent or "Android" in user_agent:
+        result["device"] = "Mobile"
+    elif "iPad" in user_agent or "Tablet" in user_agent:
+        result["device"] = "Tablet"
+
+    return result
+
+
 # --- Waitlist ---
 
 waitlist_emails: list[str] = []
