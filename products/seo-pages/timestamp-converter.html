@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timestamp Converter - Unix/Epoch Time to Human Readable Date</title>
-    <meta name="description" content="Convert Unix timestamps to human-readable dates and vice versa. Supports seconds, milliseconds, and nanoseconds. Current timestamp, timezone conversion, relative time.">
+    <title>Unix Timestamp Converter - Convert Timestamps Online</title>
+    <meta name="description" content="Convert Unix timestamps to human-readable dates and vice versa. Supports seconds, milliseconds, ISO 8601. Free online timestamp converter.">
+    <meta property="og:title" content="Unix Timestamp Converter - Convert Timestamps Online">
+    <meta property="og:description" content="Convert between Unix timestamps, ISO 8601, and human-readable date formats instantly.">
     <link rel="canonical" href="/timestamp-converter">
     <script type="application/ld+json">
     {"@context":"https://schema.org","@type":"WebApplication","name":"Timestamp Converter","description":"Convert Unix timestamps to dates and back","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
@@ -14,26 +16,32 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
         nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
         nav a { color: #6c63ff; text-decoration: none; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
         h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 24px; }
-        .current { background: linear-gradient(135deg, #302b63, #24243e); color: white; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px; }
-        .current .label { color: #a5b4fc; font-size: 0.85rem; margin-bottom: 4px; }
-        .current .value { font-family: monospace; font-size: 1.8rem; font-weight: 700; }
-        .current .sub { color: #94a3b8; font-size: 0.9rem; margin-top: 8px; }
-        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
-        .tool-box h2 { font-size: 1.2rem; margin-bottom: 16px; color: #302b63; }
-        .input-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
-        .input-row input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 1rem; }
-        .input-row input:focus { outline: none; border-color: #6c63ff; }
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .current-time { background: #1a1a2e; color: white; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 16px; font-family: 'Courier New', monospace; }
+        .current-time .label { color: #a5b4fc; font-size: 0.8rem; margin-bottom: 4px; }
+        .current-time .value { font-size: 1.4rem; font-weight: 700; }
+        input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1rem; }
+        input[type="text"]:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: #6c63ff; color: white; }
         .btn-primary:hover { background: #5a52d5; }
-        .result { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-top: 12px; font-family: monospace; }
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .result-item { padding: 6px 0; }
-        .result-item .label { color: #666; font-size: 0.8rem; }
-        .result-item .value { font-weight: 600; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .result-card { margin-top: 16px; background: #f8f9fa; border-radius: 8px; padding: 20px; display: none; }
+        .result-card h3 { margin-bottom: 12px; font-size: 1.1rem; color: #1a1a2e; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e9ecef; align-items: center; }
+        .result-row:last-child { border-bottom: none; }
+        .result-row .label { color: #666; }
+        .result-row .value { font-weight: 600; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        .copy-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.75rem; margin-left: 8px; }
+        .copy-btn:hover { background: #eee; }
         .content { margin-top: 48px; line-height: 1.7; }
         .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
         .content p { margin-bottom: 12px; color: #555; }
@@ -43,120 +51,92 @@
     </style>
 </head>
 <body>
-<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
-<div class="container">
-    <h1>Timestamp Converter</h1>
-    <p class="subtitle">Convert between Unix timestamps and human-readable dates.</p>
-
-    <div class="current">
-        <div class="label">Current Unix Timestamp</div>
-        <div class="value" id="current-ts">---</div>
-        <div class="sub" id="current-date">---</div>
-    </div>
-
-    <div class="tool-box">
-        <h2>Timestamp to Date</h2>
-        <div class="input-row">
-            <input type="text" id="ts-input" placeholder="Enter Unix timestamp (e.g., 1712000000)">
-            <button class="btn btn-primary" onclick="tsToDate()">Convert</button>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>Unix Timestamp Converter</h1>
+        <p class="subtitle">Convert between Unix timestamps and human-readable dates</p>
+        <div class="tool-box">
+            <div class="current-time">
+                <div class="label">Current Unix Timestamp</div>
+                <div class="value" id="live-ts">Loading...</div>
+            </div>
+            <label style="font-weight:500;margin-bottom:6px;display:block">Timestamp or Date String</label>
+            <input type="text" id="ts-input" placeholder="Enter Unix timestamp (e.g. 1714500000) or date string">
+            <div class="btns">
+                <button class="btn btn-primary" onclick="convertTimestamp()">Convert</button>
+                <button class="btn btn-secondary" onclick="useCurrentTime()">Current Time</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="result-card" id="result-card">
+                <h3>Conversion Results</h3>
+                <div id="results"></div>
+            </div>
         </div>
-        <div class="result" id="ts-result" style="display:none">
-            <div class="result-grid" id="ts-grid"></div>
+
+        <div class="content">
+            <h2>What is a Unix Timestamp?</h2>
+            <p>A Unix timestamp (also called Epoch time or POSIX time) is the number of seconds that have elapsed since January 1, 1970 00:00:00 UTC. It is a widely used standard for tracking time in computing systems, databases, and APIs.</p>
+            <h2>How to Use This Converter</h2>
+            <p>Enter a Unix timestamp (in seconds or milliseconds) or a human-readable date string and click "Convert." The tool will show the equivalent value in multiple formats including Unix seconds, milliseconds, ISO 8601, UTC, and local time.</p>
+            <h2>Common Timestamp Formats</h2>
+            <p>Unix seconds (10 digits like <code>1714500000</code>), Unix milliseconds (13 digits like <code>1714500000000</code>), ISO 8601 (<code>2024-04-30T20:00:00Z</code>), and RFC 2822 are all supported input formats.</p>
         </div>
     </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/cron-expression-generator">Cron Parser</a></p></footer>
+    <script>
+    // Live timestamp
+    function updateLive() {
+        document.getElementById('live-ts').textContent = Math.floor(Date.now() / 1000);
+    }
+    updateLive();
+    setInterval(updateLive, 1000);
 
-    <div class="tool-box">
-        <h2>Date to Timestamp</h2>
-        <div class="input-row">
-            <input type="datetime-local" id="date-input">
-            <button class="btn btn-primary" onclick="dateToTs()">Convert</button>
-        </div>
-        <div class="result" id="date-result" style="display:none"></div>
-    </div>
-
-    <div class="content">
-        <h2>What is a Unix Timestamp?</h2>
-        <p>A Unix timestamp (also called Epoch time or POSIX time) is the number of seconds that have elapsed since January 1, 1970 (midnight UTC/GMT). It's a universal way to represent time in computing, used in databases, APIs, log files, and system clocks.</p>
-
-        <h2>Common Formats</h2>
-        <p><strong>Seconds:</strong> 10 digits (e.g., <code>1712000000</code>). Standard Unix timestamp.</p>
-        <p><strong>Milliseconds:</strong> 13 digits (e.g., <code>1712000000000</code>). Used in JavaScript, Java.</p>
-        <p><strong>Nanoseconds:</strong> 19 digits. Used in Go, some databases.</p>
-
-        <h2>API Access</h2>
-        <p>Get timestamps via API: <code>GET /api/timestamp</code></p>
-        <p><a href="/api-keys">Get a free API key</a> for 100 requests/day.</p>
-
-        <h2>Related Tools</h2>
-        <p><a href="/epoch-converter">Epoch Converter</a> | <a href="/cron-expression-generator">Cron Generator</a> | <a href="/api-keys">Free API Key</a></p>
-    </div>
-</div>
-
-<footer>
-    <a href="/">ToolPipe</a> | <a href="/epoch-converter">Epoch</a> | <a href="/json-formatter">JSON</a> | <a href="/api-keys">API</a>
-</footer>
-
-<script>
-function updateCurrent() {
-    const now = Math.floor(Date.now() / 1000);
-    document.getElementById('current-ts').textContent = now;
-    document.getElementById('current-date').textContent = new Date().toUTCString();
-}
-setInterval(updateCurrent, 1000);
-updateCurrent();
-
-// Set default date input to now
-document.getElementById('date-input').value = new Date().toISOString().slice(0, 16);
-
-function tsToDate() {
-    let ts = document.getElementById('ts-input').value.trim();
-    if (!ts || isNaN(ts)) return;
-
-    ts = parseInt(ts);
-    let unit = 'seconds';
-    let ms = ts;
-
-    if (ts > 1e15) { ms = ts / 1e6; unit = 'nanoseconds'; }
-    else if (ts > 1e12) { ms = ts; unit = 'milliseconds'; }
-    else { ms = ts * 1000; }
-
-    const date = new Date(ms);
-    if (isNaN(date.getTime())) return;
-
-    const grid = document.getElementById('ts-grid');
-    grid.innerHTML = `
-        <div class="result-item"><div class="label">UTC</div><div class="value">${date.toUTCString()}</div></div>
-        <div class="result-item"><div class="label">Local</div><div class="value">${date.toLocaleString()}</div></div>
-        <div class="result-item"><div class="label">ISO 8601</div><div class="value">${date.toISOString()}</div></div>
-        <div class="result-item"><div class="label">Detected</div><div class="value">${unit}</div></div>
-        <div class="result-item"><div class="label">Day of Week</div><div class="value">${date.toLocaleDateString('en', {weekday:'long'})}</div></div>
-        <div class="result-item"><div class="label">Relative</div><div class="value">${relativeTime(date)}</div></div>
-    `;
-    document.getElementById('ts-result').style.display = 'block';
-}
-
-function dateToTs() {
-    const val = document.getElementById('date-input').value;
-    if (!val) return;
-    const date = new Date(val);
-    const ts = Math.floor(date.getTime() / 1000);
-    document.getElementById('date-result').innerHTML = `
-        <div class="result-item"><div class="label">Unix (seconds)</div><div class="value">${ts}</div></div>
-        <div class="result-item"><div class="label">Unix (milliseconds)</div><div class="value">${ts * 1000}</div></div>
-        <div class="result-item"><div class="label">ISO 8601</div><div class="value">${date.toISOString()}</div></div>
-    `;
-    document.getElementById('date-result').style.display = 'block';
-}
-
-function relativeTime(date) {
-    const diff = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (diff < 0) return 'in the future';
-    if (diff < 60) return diff + ' seconds ago';
-    if (diff < 3600) return Math.floor(diff/60) + ' minutes ago';
-    if (diff < 86400) return Math.floor(diff/3600) + ' hours ago';
-    if (diff < 2592000) return Math.floor(diff/86400) + ' days ago';
-    return Math.floor(diff/2592000) + ' months ago';
-}
-</script>
+    function useCurrentTime() {
+        document.getElementById('ts-input').value = Math.floor(Date.now() / 1000);
+        convertTimestamp();
+    }
+    function convertTimestamp() {
+        var input = document.getElementById('ts-input').value.trim();
+        if (!input) { showStatus('Please enter a timestamp or date', false); return; }
+        showStatus('Converting...', true);
+        fetch('/api/time/convert?timestamp=' + encodeURIComponent(input))
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.error) { showStatus(d.error, false); return; }
+            var card = document.getElementById('result-card');
+            card.style.display = 'block';
+            var rows = '';
+            if (d.unix || d.unix_seconds) rows += resultRow('Unix (seconds)', d.unix || d.unix_seconds);
+            if (d.unix_ms || d.unix_milliseconds) rows += resultRow('Unix (milliseconds)', d.unix_ms || d.unix_milliseconds);
+            if (d.iso || d.iso8601) rows += resultRow('ISO 8601', d.iso || d.iso8601);
+            if (d.utc) rows += resultRow('UTC', d.utc);
+            if (d.local || d.human) rows += resultRow('Human Readable', d.local || d.human);
+            if (d.relative) rows += resultRow('Relative', d.relative);
+            if (d.day_of_week || d.dayOfWeek) rows += resultRow('Day of Week', d.day_of_week || d.dayOfWeek);
+            if (rows === '') {
+                // Fallback: show all keys
+                Object.keys(d).forEach(function(k) {
+                    if (k !== 'error') rows += resultRow(k, d[k]);
+                });
+            }
+            document.getElementById('results').innerHTML = rows;
+            showStatus('Converted successfully', true);
+        })
+        .catch(function() { showStatus('Conversion failed. Check your input.', false); });
+    }
+    function resultRow(label, value) {
+        return '<div class="result-row"><span class="label">' + label + '</span><span class="value">' + value + ' <button class="copy-btn" onclick="copyVal(\'' + String(value).replace(/'/g, "\\'") + '\')">copy</button></span></div>';
+    }
+    function copyVal(v) { navigator.clipboard.writeText(v); }
+    function clearAll() {
+        document.getElementById('ts-input').value = '';
+        document.getElementById('result-card').style.display = 'none';
+        document.getElementById('status-bar').innerHTML = '';
+    }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
 </body>
 </html>

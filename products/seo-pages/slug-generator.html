@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Slug Generator - SEO-Friendly URL Maker Online</title>
-    <meta name="description" content="Generate clean, SEO-friendly URL slugs from text. Removes special characters, converts spaces to hyphens. Free online tool.">
-    <meta property="og:title" content="URL Slug Generator - SEO-Friendly URL Maker Online">
-    <meta property="og:description" content="Generate clean, SEO-friendly URL slugs from text. Removes special characters, converts spaces to hyphens. Free online tool.">
+    <title>Free URL Slug Generator</title>
+    <meta name="description" content="Generate clean, SEO-friendly URL slugs from any text. Removes special characters, converts spaces to hyphens. Free online slug generator.">
+    <meta property="og:title" content="Free URL Slug Generator">
+    <meta property="og:description" content="Convert any text into a clean, SEO-friendly URL slug instantly.">
     <link rel="canonical" href="/slug-generator">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"URL Slug Generator","description":"Generate SEO-friendly URL slugs from text","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -17,53 +20,120 @@
         h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
         .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
         .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
-        textarea { min-height: 150px; resize: vertical; }
-        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        input[type="text"]:focus { outline: none; border-color: #6c63ff; }
         .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: #6c63ff; color: white; }
         .btn-primary:hover { background: #5a52d5; }
         .btn-secondary { background: #eee; color: #333; }
         .btn-secondary:hover { background: #ddd; }
-        .output { margin-top: 12px; }
-        .result { padding: 16px; background: #f0f0f0; border-radius: 8px; margin-top: 12px; font-family: monospace; word-break: break-all; min-height: 40px; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .preview-box { margin-top: 16px; display: none; }
+        .preview-box label { font-weight: 500; margin-bottom: 6px; display: block; font-size: 0.85rem; color: #666; }
+        .slug-preview { background: #1a1a2e; color: #a5b4fc; padding: 16px 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; word-break: break-all; }
+        .slug-text { flex: 1; }
+        .copy-btn { background: #6c63ff; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; margin-left: 12px; white-space: nowrap; }
+        .copy-btn:hover { background: #5a52d5; }
+        .url-preview { margin-top: 8px; font-size: 0.85rem; color: #999; word-break: break-all; }
+        .url-preview span { color: #6c63ff; }
         .content { margin-top: 48px; line-height: 1.7; }
         .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
         .content p { margin-bottom: 12px; color: #555; }
-        .content ul { margin: 0 0 12px 24px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
         footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
-        footer a { color: #6c63ff; text-decoration: none; margin: 0 8px; }
-        label { font-weight: 500; margin-bottom: 6px; display: block; }
-        .row { display: flex; gap: 12px; margin-bottom: 12px; }
-        .row > * { flex: 1; }
-        @media(max-width:600px) { .row { flex-direction: column; } }
+        footer a { color: #6c63ff; text-decoration: none; }
     </style>
 </head>
 <body>
-    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API Access</a></div></nav>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
     <div class="container">
         <h1>URL Slug Generator</h1>
-        <p class="subtitle">Create SEO-friendly URL slugs from any text</p>
+        <p class="subtitle">Convert any text into a clean, SEO-friendly URL slug</p>
         <div class="tool-box">
-            <label>Enter text</label>
-            <input type="text" id="input" oninput="gen()" placeholder="Enter title or text to convert to slug...">
-            <div style="margin-top:16px"><label>Generated Slug</label>
-            <div class="result" id="output" style="font-size:1.2rem"></div></div>
-            <div class="btns"><button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('output').textContent)">Copy Slug</button></div>
+            <label style="font-weight:500;margin-bottom:6px;display:block">Enter Text</label>
+            <input type="text" id="text-input" placeholder="e.g. My Awesome Blog Post Title!" oninput="livePreview()">
+            <div class="btns">
+                <button class="btn btn-secondary" onclick="copySlug()">Copy Slug</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="preview-box" id="preview-box">
+                <label>Generated Slug</label>
+                <div class="slug-preview">
+                    <span class="slug-text" id="slug-output"></span>
+                    <button class="copy-btn" onclick="copySlug()">Copy</button>
+                </div>
+                <div class="url-preview">https://example.com/<span id="url-slug"></span></div>
+            </div>
         </div>
+
         <div class="content">
             <h2>What is a URL Slug?</h2>
-            <p>A URL slug is the part of a URL that identifies a particular page in a human-readable form. For example, in "example.com/my-blog-post", "my-blog-post" is the slug.</p>
-            <h2>SEO Benefits</h2>
-            <p>Clean URL slugs improve SEO by making URLs readable and descriptive. Search engines prefer short, keyword-rich URLs that describe the page content.</p>
+            <p>A URL slug is the part of a web address that identifies a specific page in human-readable form. For example, in <code>example.com/my-awesome-post</code>, the slug is "my-awesome-post." Good slugs are lowercase, use hyphens to separate words, and contain no special characters.</p>
+            <h2>Why Slugs Matter for SEO</h2>
+            <p>Search engines use URL slugs to understand page content. Clean, descriptive slugs improve click-through rates from search results and make URLs easier to share. They should be concise, include relevant keywords, and avoid unnecessary words like "a," "the," and "and."</p>
+            <h2>How This Tool Works</h2>
+            <p>Type or paste any text and see the slug generated in real-time. The tool converts to lowercase, replaces spaces with hyphens, removes special characters, and trims leading/trailing hyphens. The API endpoint POST /api/slug/generate accepts a JSON body with a "text" field.</p>
         </div>
     </div>
-    <footer>
-        <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/pricing">API Pricing</a>
-    </footer>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/url-encoder">URL Encoder</a> | <a href="/text-case-converter">Text Case Converter</a></p></footer>
     <script>
-function gen(){const t=document.getElementById("input").value;document.getElementById("output").textContent=t.toLowerCase().trim().replace(/[^\w\s-]/g,"").replace(/[\s_]+/g,"-").replace(/^-+|-+$/g,"");}
+    var debounceTimer;
+    function livePreview() {
+        clearTimeout(debounceTimer);
+        var text = document.getElementById('text-input').value;
+        if (!text.trim()) {
+            document.getElementById('preview-box').style.display = 'none';
+            document.getElementById('status-bar').innerHTML = '';
+            return;
+        }
+        debounceTimer = setTimeout(function() {
+            fetch('/api/slug/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ text: text })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.error) { showStatus(d.error, false); return; }
+                var slug = d.slug || d.result || '';
+                document.getElementById('preview-box').style.display = 'block';
+                document.getElementById('slug-output').textContent = slug;
+                document.getElementById('url-slug').textContent = slug;
+                showStatus(slug.length + ' characters', true);
+            })
+            .catch(function() {
+                // Fallback: generate client-side
+                var slug = text.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+                document.getElementById('preview-box').style.display = 'block';
+                document.getElementById('slug-output').textContent = slug;
+                document.getElementById('url-slug').textContent = slug;
+                showStatus(slug.length + ' characters', true);
+            });
+        }, 200);
+    }
+    function copySlug() {
+        var slug = document.getElementById('slug-output').textContent;
+        if (slug) {
+            navigator.clipboard.writeText(slug);
+            showStatus('Copied to clipboard', true);
+        }
+    }
+    function clearAll() {
+        document.getElementById('text-input').value = '';
+        document.getElementById('preview-box').style.display = 'none';
+        document.getElementById('status-bar').innerHTML = '';
+    }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
     </script>
 </body>
 </html>

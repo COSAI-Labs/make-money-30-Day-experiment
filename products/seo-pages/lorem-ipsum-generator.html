@@ -3,172 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Lorem Ipsum Generator Online | ToolPipe</title>
-    <meta name="description" content="Generate Lorem Ipsum placeholder text instantly. Choose paragraphs, sentences, or words. Copy with one click. Free, no signup.">
-    <meta name="keywords" content="lorem ipsum generator, placeholder text, dummy text generator, lipsum, filler text">
-    <link rel="canonical" href="https://toolpipe.dev/lorem-ipsum-generator">
+    <title>Free Lorem Ipsum Generator</title>
+    <meta name="description" content="Generate Lorem Ipsum placeholder text instantly. Choose the number of paragraphs and copy with one click. Free online dummy text generator.">
+    <meta property="og:title" content="Free Lorem Ipsum Generator">
+    <meta property="og:description" content="Generate placeholder text with customizable paragraph count. Copy to clipboard instantly.">
+    <link rel="canonical" href="/lorem-ipsum-generator">
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"WebApplication","name":"Lorem Ipsum Generator","url":"https://toolpipe.dev/lorem-ipsum-generator","description":"Generate Lorem Ipsum placeholder text instantly.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Lorem Ipsum Generator","description":"Generate placeholder text instantly","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
-        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
-        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
-        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
-        .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
-        .controls label { font-weight: 600; font-size: 0.95rem; }
-        .controls select, .controls input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
-        .controls input[type=number] { width: 80px; }
-        .btn { padding: 10px 24px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; }
-        .btn:hover { background: #5a52e0; }
-        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
-        .output { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 20px; min-height: 150px; line-height: 1.8; font-size: 0.95rem; color: #444; position: relative; }
-        .output p { margin-bottom: 16px; }
-        .copy-btn { position: absolute; top: 8px; right: 8px; padding: 6px 14px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
-        .stats { display: flex; gap: 24px; margin-top: 16px; }
-        .stat { background: #f0f0ff; padding: 10px 16px; border-radius: 8px; text-align: center; }
-        .stat .num { font-size: 1.2rem; font-weight: 700; color: #302b63; }
-        .stat .label { font-size: 0.8rem; color: #888; }
-        .info { margin-top: 40px; }
-        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
-        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
-        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .controls { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; margin-bottom: 16px; }
+        .control-group { display: flex; flex-direction: column; gap: 4px; }
+        .control-group label { font-weight: 500; font-size: 0.85rem; }
+        input[type="number"] { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; width: 100px; }
+        input[type="number"]:focus { outline: none; border-color: #6c63ff; }
+        input[type="range"] { width: 200px; accent-color: #6c63ff; }
+        select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; background: white; cursor: pointer; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .output { margin-top: 16px; }
+        .output textarea { width: 100%; min-height: 250px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.9rem; resize: vertical; background: #f8f9fa; line-height: 1.6; }
+        .output textarea:focus { outline: none; border-color: #6c63ff; }
+        .word-count { text-align: right; font-size: 0.8rem; color: #999; margin-top: 4px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
         footer a { color: #6c63ff; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <h1>Lorem Ipsum Generator</h1>
-        <p>Generate placeholder text for your designs, mockups, and prototypes. Choose length, format, and style.</p>
-    </div>
-
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
     <div class="container">
-        <div class="tool-card">
+        <h1>Lorem Ipsum Generator</h1>
+        <p class="subtitle">Generate placeholder text for your designs and layouts</p>
+        <div class="tool-box">
             <div class="controls">
-                <label>Type:</label>
-                <select id="type">
-                    <option value="paragraphs">Paragraphs</option>
-                    <option value="sentences">Sentences</option>
-                    <option value="words">Words</option>
-                </select>
-                <label>Count:</label>
-                <input type="number" id="count" value="3" min="1" max="100">
-                <label>
-                    <input type="checkbox" id="startClassic" checked> Start with "Lorem ipsum..."
-                </label>
+                <div class="control-group">
+                    <label>Paragraphs</label>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <input type="range" id="para-slider" min="1" max="20" value="3" oninput="syncNum()">
+                        <input type="number" id="para-num" min="1" max="50" value="3" oninput="syncSlider()">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Format</label>
+                    <select id="format">
+                        <option value="plain">Plain Text</option>
+                        <option value="html">HTML Paragraphs</option>
+                    </select>
+                </div>
             </div>
-            <div style="display:flex;gap:12px;margin-bottom:16px;">
-                <button class="btn" onclick="generate()">Generate</button>
-                <button class="btn btn-outline" onclick="copyText()">Copy All</button>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="generateLorem()">Generate</button>
+                <button class="btn btn-secondary" onclick="copyOutput()">Copy</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
             </div>
-            <div class="output" id="output">
-                <button class="copy-btn" onclick="copyText()">Copy</button>
-            </div>
-            <div class="stats" id="stats">
-                <div class="stat"><div class="num" id="wc">0</div><div class="label">Words</div></div>
-                <div class="stat"><div class="num" id="cc">0</div><div class="label">Characters</div></div>
-                <div class="stat"><div class="num" id="pc">0</div><div class="label">Paragraphs</div></div>
+            <div id="status-bar"></div>
+            <div class="output">
+                <textarea id="output" readonly placeholder="Generated text will appear here..."></textarea>
+                <div class="word-count" id="word-count"></div>
             </div>
         </div>
 
-        <div class="info">
+        <div class="content">
             <h2>What is Lorem Ipsum?</h2>
-            <p>Lorem Ipsum is dummy text used in the printing and typesetting industry since the 1500s. It is used as placeholder text to demonstrate the visual form of a document without relying on meaningful content.</p>
-
-            <h2 style="margin-top:24px">Why Use Lorem Ipsum?</h2>
-            <p>Designers and developers use Lorem Ipsum to fill layouts with text that has a natural distribution of letters, making it more realistic than repeating "content here." It helps stakeholders focus on design rather than content during reviews.</p>
-
-            <h2 style="margin-top:24px">Origin</h2>
-            <p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. Richard McClintock, a Latin professor, discovered the source in the 1960s.</p>
+            <p>Lorem Ipsum is dummy text used in the printing and typesetting industry since the 1500s. It is used as placeholder content when the actual text is not yet available, allowing designers and developers to focus on layout and visual design without being distracted by readable content.</p>
+            <h2>How to Use This Generator</h2>
+            <p>Use the slider or number input to choose how many paragraphs you need (1 to 50). Select "Plain Text" for raw text or "HTML Paragraphs" to get text wrapped in paragraph tags. Click "Generate" and then "Copy" to paste it into your project.</p>
+            <h2>API Access</h2>
+            <p>Generate lorem ipsum programmatically: GET /api/lorem?paragraphs=5. Returns generated placeholder text in your chosen format. Perfect for automated content generation in development workflows.</p>
         </div>
     </div>
-
-    <footer>
-        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/uuid-generator">UUID Generator</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/color-picker">Color Picker</a></p>
-    </footer>
-
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/word-counter">Word Counter</a></p></footer>
     <script>
-    const WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem".split(' ');
-
-    const CLASSIC_START = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-
-    function randWord() { return WORDS[Math.floor(Math.random() * WORDS.length)]; }
-
-    function makeSentence(minWords = 6, maxWords = 16) {
-        const len = minWords + Math.floor(Math.random() * (maxWords - minWords));
-        const words = Array.from({length: len}, randWord);
-        words[0] = words[0][0].toUpperCase() + words[0].slice(1);
-        // Add comma randomly
-        if (len > 8) {
-            const commaPos = 3 + Math.floor(Math.random() * (len - 6));
-            words[commaPos] += ',';
+    function syncNum() {
+        document.getElementById('para-num').value = document.getElementById('para-slider').value;
+    }
+    function syncSlider() {
+        var val = Math.min(20, Math.max(1, document.getElementById('para-num').value));
+        document.getElementById('para-slider').value = val;
+    }
+    function generateLorem() {
+        var count = parseInt(document.getElementById('para-num').value) || 3;
+        var format = document.getElementById('format').value;
+        showStatus('Generating...', true);
+        fetch('/api/lorem?paragraphs=' + count + '&format=' + format)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.error) { showStatus(d.error, false); return; }
+            var text = d.text || d.content || d.lorem || '';
+            if (Array.isArray(text)) text = text.join('\n\n');
+            document.getElementById('output').value = text;
+            var words = text.split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+            document.getElementById('word-count').textContent = words + ' words, ' + text.length + ' characters';
+            showStatus('Generated ' + count + ' paragraph' + (count !== 1 ? 's' : ''), true);
+        })
+        .catch(function() { showStatus('Generation failed. Try again.', false); });
+    }
+    function copyOutput() {
+        var text = document.getElementById('output').value;
+        if (text) {
+            navigator.clipboard.writeText(text);
+            showStatus('Copied to clipboard', true);
         }
-        return words.join(' ') + '.';
     }
-
-    function makeParagraph(minSentences = 3, maxSentences = 7) {
-        const count = minSentences + Math.floor(Math.random() * (maxSentences - minSentences));
-        return Array.from({length: count}, () => makeSentence()).join(' ');
+    function clearAll() {
+        document.getElementById('output').value = '';
+        document.getElementById('word-count').textContent = '';
+        document.getElementById('status-bar').innerHTML = '';
     }
-
-    function generate() {
-        const type = document.getElementById('type').value;
-        const count = Math.min(parseInt(document.getElementById('count').value) || 1, 100);
-        const startClassic = document.getElementById('startClassic').checked;
-        let result = '';
-
-        if (type === 'paragraphs') {
-            const paras = [];
-            for (let i = 0; i < count; i++) {
-                if (i === 0 && startClassic) {
-                    paras.push(CLASSIC_START + ' ' + makeParagraph(2, 5));
-                } else {
-                    paras.push(makeParagraph());
-                }
-            }
-            result = paras.join('\n\n');
-            document.getElementById('output').innerHTML = '<button class="copy-btn" onclick="copyText()">Copy</button>' +
-                paras.map(p => `<p>${p}</p>`).join('');
-        } else if (type === 'sentences') {
-            const sentences = [];
-            for (let i = 0; i < count; i++) {
-                if (i === 0 && startClassic) {
-                    sentences.push(CLASSIC_START);
-                } else {
-                    sentences.push(makeSentence());
-                }
-            }
-            result = sentences.join(' ');
-            document.getElementById('output').innerHTML = '<button class="copy-btn" onclick="copyText()">Copy</button><p>' + result + '</p>';
-        } else {
-            const words = [];
-            if (startClassic) {
-                words.push('lorem', 'ipsum', 'dolor', 'sit', 'amet');
-            }
-            while (words.length < count) words.push(randWord());
-            result = words.slice(0, count).join(' ');
-            document.getElementById('output').innerHTML = '<button class="copy-btn" onclick="copyText()">Copy</button><p>' + result + '</p>';
-        }
-
-        const wordCount = result.split(/\s+/).length;
-        document.getElementById('wc').textContent = wordCount;
-        document.getElementById('cc').textContent = result.length;
-        document.getElementById('pc').textContent = type === 'paragraphs' ? count : result.split('\n\n').length;
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
     }
-
-    function copyText() {
-        const text = document.getElementById('output').innerText.replace('Copy', '').trim();
-        navigator.clipboard.writeText(text).then(() => {
-            const btn = document.querySelector('.copy-btn');
-            btn.textContent = 'Copied!';
-            setTimeout(() => btn.textContent = 'Copy', 2000);
-        });
-    }
-
-    generate();
     </script>
 </body>
 </html>
