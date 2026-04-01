@@ -92,6 +92,74 @@ def _init_analytics():
 _init_analytics()
 
 
+# --- API Key System ---
+API_KEYS_DB = Path(__file__).parent / "data" / "api_keys.db"
+_keys_lock = threading.Lock()
+
+
+def _init_keys_db():
+    conn = sqlite3.connect(str(API_KEYS_DB))
+    conn.execute("""CREATE TABLE IF NOT EXISTS api_keys (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        api_key TEXT NOT NULL UNIQUE,
+        tier TEXT DEFAULT 'free',
+        requests_today INTEGER DEFAULT 0,
+        requests_total INTEGER DEFAULT 0,
+        daily_limit INTEGER DEFAULT 100,
+        created_at TEXT NOT NULL,
+        last_used TEXT
+    )""")
+    conn.commit()
+    conn.close()
+
+_init_keys_db()
+
+
+def generate_api_key() -> str:
+    return f"tp_{uuid.uuid4().hex[:24]}"
+
+
+def register_api_key(email: str) -> dict:
+    with _keys_lock:
+        conn = sqlite3.connect(str(API_KEYS_DB))
+        existing = conn.execute("SELECT api_key, tier FROM api_keys WHERE email = ?", (email,)).fetchone()
+        if existing:
+            conn.close()
+            return {"api_key": existing[0], "tier": existing[1], "existing": True}
+        key = generate_api_key()
+        now = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            "INSERT INTO api_keys (email, api_key, tier, created_at) VALUES (?, ?, 'free', ?)",
+            (email, key, now)
+        )
+        conn.commit()
+        conn.close()
+        wl_file = Path(__file__).parent / "waitlist.txt"
+        with open(wl_file, "a") as f:
+            f.write(f"{email},{now},api_key_signup\n")
+        return {"api_key": key, "tier": "free", "daily_limit": 100, "existing": False}
+
+
+def check_api_key(key: str) -> dict | None:
+    with _keys_lock:
+        conn = sqlite3.connect(str(API_KEYS_DB))
+        row = conn.execute(
+            "SELECT email, tier, requests_today, daily_limit FROM api_keys WHERE api_key = ?", (key,)
+        ).fetchone()
+        if not row:
+            conn.close()
+            return None
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        conn.execute(
+            "UPDATE api_keys SET requests_today = requests_today + 1, requests_total = requests_total + 1, last_used = ? WHERE api_key = ?",
+            (today, key)
+        )
+        conn.commit()
+        conn.close()
+        return {"email": row[0], "tier": row[1], "requests_today": row[2], "daily_limit": row[3]}
+
+
 def record_pageview(path: str, ip: str, user_agent: str, referrer: str):
     try:
         with _analytics_lock:
@@ -114,15 +182,34 @@ def record_pageview(path: str, ip: str, user_agent: str, referrer: str):
 # Snippet injected before </body> on all HTML pages
 INJECT_SNIPPET = """
 <!-- Analytics & Monetization -->
-<div id="tp-banner" style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#302b63,#24243e);color:#fff;padding:10px 20px;text-align:center;font-family:-apple-system,sans-serif;font-size:14px;z-index:9999;display:flex;align-items:center;justify-content:center;gap:12px;">
-  <span>Love these free tools? Support development:</span>
-  <a href="/pricing" style="background:#6c63ff;color:#fff;padding:6px 16px;border-radius:6px;text-decoration:none;font-weight:600;">Get Pro Access</a>
-  <a href="/donate" style="background:#ff6b6b;color:#fff;padding:6px 16px;border-radius:6px;text-decoration:none;font-weight:600;">Buy us a coffee</a>
+<div id="tp-banner" style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#302b63,#24243e);color:#fff;padding:10px 20px;text-align:center;font-family:-apple-system,sans-serif;font-size:14px;z-index:9999;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+  <span>Get a free API key for 100+ developer endpoints:</span>
+  <form id="tp-email-form" style="display:flex;gap:6px;" onsubmit="return tpCapture(event)">
+    <input type="email" id="tp-email" placeholder="you@email.com" required style="padding:6px 12px;border:none;border-radius:6px;font-size:14px;width:200px;">
+    <button type="submit" style="background:#6c63ff;color:#fff;padding:6px 16px;border-radius:6px;border:none;font-weight:600;cursor:pointer;">Get Free Key</button>
+  </form>
+  <a href="/pricing" style="color:#aaa;text-decoration:underline;font-size:12px;margin-left:8px;">Pro plans</a>
   <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;margin-left:8px;">x</button>
 </div>
+<div id="tp-success" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#22c55e;color:#fff;padding:14px 20px;text-align:center;font-family:-apple-system,sans-serif;font-size:14px;z-index:9999;">
+  Check your dashboard! Your free API key: <strong id="tp-key-display"></strong> <a href="/api-keys" style="color:#fff;margin-left:12px;">View Dashboard</a>
+</div>
 <script>
-// Simple analytics
 fetch('/analytics/track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:location.pathname,ref:document.referrer})}).catch(()=>{});
+function tpCapture(e){
+  e.preventDefault();
+  var email=document.getElementById('tp-email').value;
+  fetch('/api-keys/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})})
+  .then(r=>r.json()).then(d=>{
+    if(d.api_key){
+      document.getElementById('tp-key-display').textContent=d.api_key;
+      document.getElementById('tp-banner').style.display='none';
+      document.getElementById('tp-success').style.display='block';
+      setTimeout(()=>{document.getElementById('tp-success').style.display='none'},15000);
+    }
+  }).catch(()=>{});
+  return false;
+}
 </script>
 """
 
@@ -883,7 +970,9 @@ async def sitemap():
         "/hash-generator", "/url-encoder", "/epoch-converter",
         "/jwt-decoder", "/markdown-preview",
         "/html-entity-encoder", "/text-diff", "/word-counter",
-        "/api-consulting",
+        "/api-consulting", "/api-keys",
+        "/css-minifier", "/javascript-minifier", "/json-to-yaml", "/image-to-base64",
+        "/blog-free-developer-tools",
     ]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -1525,6 +1614,124 @@ async def parse_user_agent(ua: Optional[str] = Query(None), request: Request = N
         result["device"] = "Tablet"
 
     return result
+
+
+# --- API Key Endpoints ---
+
+class ApiKeyRequest(BaseModel):
+    email: str
+
+
+@app.post("/api-keys/register")
+async def register_key(req: ApiKeyRequest):
+    email = req.email.strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email required")
+    result = register_api_key(email)
+    return result
+
+
+@app.get("/api-keys", response_class=HTMLResponse)
+async def api_keys_dashboard():
+    return HTMLResponse("""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ToolPipe API Keys - Developer Dashboard</title>
+<meta name="description" content="Get your free API key for 100+ developer utility endpoints. JSON, PDF, QR, hash, UUID, and more.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0}
+.container{max-width:700px;margin:60px auto;padding:0 20px}
+h1{font-size:2rem;color:#fff;margin-bottom:8px}
+.sub{color:#94a3b8;margin-bottom:32px}
+.card{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:12px;padding:24px;margin-bottom:20px}
+.card h2{color:#fff;font-size:1.2rem;margin-bottom:12px}
+input{width:100%;background:#111;border:1px solid #2a2a2a;color:#e0e0e0;padding:12px;border-radius:8px;font-size:1rem;margin-bottom:12px}
+button{background:#6c63ff;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:1rem;width:100%}
+button:hover{background:#5b52ee}
+.key-display{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;font-family:monospace;font-size:1.1rem;color:#58a6ff;word-break:break-all;display:none;margin-top:12px}
+.tiers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.tier{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:12px;padding:20px}
+.tier.pro{border-color:#6c63ff}
+.tier h3{color:#fff;margin-bottom:8px}
+.tier .price{font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:8px}
+.tier .price span{font-size:0.85rem;color:#64748b}
+.tier ul{list-style:none;padding:0}
+.tier li{color:#94a3b8;padding:4px 0;font-size:0.9rem}
+.tier li::before{content:"-> ";color:#6c63ff}
+.endpoints{margin-top:24px;color:#94a3b8;font-size:0.9rem;line-height:1.8}
+.endpoints code{background:#1a1a2e;padding:2px 6px;border-radius:4px;color:#a78bfa}
+a{color:#6c63ff;text-decoration:none}
+.back{display:inline-block;margin-top:24px}
+</style></head><body>
+<div class="container">
+<h1>ToolPipe Developer API</h1>
+<p class="sub">100+ utility endpoints. Free API key in 10 seconds.</p>
+
+<div class="card">
+<h2>Get Your Free API Key</h2>
+<form onsubmit="return getKey(event)">
+<input type="email" id="email" placeholder="your@email.com" required>
+<button type="submit">Generate Free API Key</button>
+</form>
+<div class="key-display" id="key-result"></div>
+</div>
+
+<div class="tiers">
+<div class="tier">
+<h3>Free</h3>
+<div class="price">$0 <span>/month</span></div>
+<ul>
+<li>100 requests/day</li>
+<li>All endpoints</li>
+<li>Community support</li>
+<li>Rate limited</li>
+</ul>
+</div>
+<div class="tier pro">
+<h3>Pro</h3>
+<div class="price">$9.99 <span>/month</span></div>
+<ul>
+<li>10,000 requests/day</li>
+<li>All endpoints</li>
+<li>Priority support</li>
+<li>No rate limits</li>
+<li>Bulk operations</li>
+<li>Webhooks</li>
+</ul>
+<a href="mailto:toolpipe-project@sharebot.net?subject=ToolPipe Pro" style="display:block;background:#6c63ff;color:#fff;text-align:center;padding:10px;border-radius:8px;margin-top:12px;font-weight:600;">Upgrade to Pro</a>
+</div>
+</div>
+
+<div class="endpoints">
+<h2 style="color:#fff;margin:24px 0 12px;">Popular Endpoints</h2>
+<p><code>GET /api/qr?text=hello</code> Generate QR codes</p>
+<p><code>POST /api/json/format</code> Format & validate JSON</p>
+<p><code>GET /api/uuid</code> Generate UUIDs</p>
+<p><code>POST /api/hash</code> Hash text (MD5/SHA)</p>
+<p><code>GET /api/ip</code> IP geolocation</p>
+<p><code>POST /api/markdown</code> Markdown to HTML</p>
+<p><code>GET /api/password</code> Generate passwords</p>
+<p style="margin-top:12px;"><a href="/docs">View all 100+ endpoints</a></p>
+</div>
+
+<a href="/" class="back">Back to ToolPipe</a>
+</div>
+<script>
+function getKey(e){
+  e.preventDefault();
+  var email=document.getElementById('email').value;
+  fetch('/api-keys/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})})
+  .then(r=>r.json()).then(d=>{
+    var el=document.getElementById('key-result');
+    if(d.api_key){
+      el.style.display='block';
+      el.innerHTML='Your API Key: <strong>'+d.api_key+'</strong><br><br><small>Add to requests as: <code>?api_key='+d.api_key+'</code> or header <code>X-API-Key: '+d.api_key+'</code></small>';
+    }
+  });
+  return false;
+}
+</script>
+</body></html>""")
 
 
 # --- Waitlist ---

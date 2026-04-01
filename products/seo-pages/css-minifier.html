@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Minifier - Free Online CSS Compressor Tool</title>
+    <meta name="description" content="Free online CSS minifier and compressor. Reduce CSS file size by removing whitespace, comments, and unnecessary characters. No signup required.">
+    <meta property="og:title" content="Free CSS Minifier & Compressor">
+    <meta property="og:description" content="Minify and compress CSS code online for free. Reduce file size instantly.">
+    <link rel="canonical" href="/css-minifier">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"CSS Minifier","description":"Free online CSS minifier and compressor tool","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 220px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .stats { display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap; }
+        .stat { background: #f0f0ff; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; }
+        .stat strong { color: #302b63; }
+        .output textarea { background: #f0fdf4; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { padding-left: 24px; margin-bottom: 12px; color: #555; }
+        .content li { margin-bottom: 6px; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>CSS Minifier</h1>
+    <p class="subtitle">Compress and minify CSS code online. Reduce file size by removing whitespace and comments.</p>
+
+    <div class="tool-box">
+        <label><strong>Input CSS:</strong></label>
+        <textarea id="input" placeholder="Paste your CSS code here...
+
+.example {
+    color: red;
+    /* This is a comment */
+    background-color: white;
+    margin: 0px 0px 0px 0px;
+}"></textarea>
+
+        <div class="btns">
+            <button class="btn btn-primary" onclick="minifyCSS()">Minify CSS</button>
+            <button class="btn btn-secondary" onclick="beautifyCSS()">Beautify CSS</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy Output</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="stats" id="stats" style="display:none">
+            <div class="stat">Original: <strong id="orig-size">0</strong> bytes</div>
+            <div class="stat">Minified: <strong id="min-size">0</strong> bytes</div>
+            <div class="stat">Saved: <strong id="saved">0%</strong></div>
+        </div>
+
+        <div class="output">
+            <label><strong>Output:</strong></label>
+            <textarea id="output" readonly placeholder="Minified CSS will appear here..."></textarea>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>What is CSS Minification?</h2>
+        <p>CSS minification is the process of removing unnecessary characters from CSS code without changing its functionality. This includes removing whitespace, comments, and redundant semicolons to reduce file size and improve page load times.</p>
+
+        <h2>Why Minify CSS?</h2>
+        <ul>
+            <li><strong>Faster page loads:</strong> Smaller CSS files download faster, improving user experience</li>
+            <li><strong>Better SEO:</strong> Page speed is a Google ranking factor</li>
+            <li><strong>Lower bandwidth costs:</strong> Reduced file size means less data transfer</li>
+            <li><strong>Improved Core Web Vitals:</strong> Faster CSS parsing reduces render-blocking time</li>
+        </ul>
+
+        <h2>How This Tool Works</h2>
+        <p>Our CSS minifier removes comments, collapses whitespace, removes unnecessary semicolons and zeros, and compresses color values. The result is production-ready CSS that's as small as possible while remaining functionally identical.</p>
+
+        <h2>API Access</h2>
+        <p>Need to minify CSS programmatically? Use our API endpoint:</p>
+        <p><code>POST /api/css/minify</code> with <code>{"css": "your css here"}</code></p>
+        <p><a href="/api-keys">Get a free API key</a> for 100 requests/day.</p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/html-entity-encoder">HTML Encoder</a> | <a href="/api-keys">API Keys</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+function minifyCSS() {
+    const input = document.getElementById('input').value;
+    if (!input.trim()) return;
+
+    let css = input;
+    // Remove comments
+    css = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    // Remove whitespace around selectors and properties
+    css = css.replace(/\s+/g, ' ');
+    css = css.replace(/\s*{\s*/g, '{');
+    css = css.replace(/\s*}\s*/g, '}');
+    css = css.replace(/\s*:\s*/g, ':');
+    css = css.replace(/\s*;\s*/g, ';');
+    css = css.replace(/\s*,\s*/g, ',');
+    // Remove last semicolons before closing brace
+    css = css.replace(/;}/g, '}');
+    // Remove leading/trailing whitespace
+    css = css.trim();
+    // Compress zeros
+    css = css.replace(/:0px/g, ':0');
+    css = css.replace(/ 0px/g, ' 0');
+
+    document.getElementById('output').value = css;
+
+    const origSize = new Blob([input]).size;
+    const minSize = new Blob([css]).size;
+    const saved = origSize > 0 ? Math.round((1 - minSize / origSize) * 100) : 0;
+
+    document.getElementById('orig-size').textContent = origSize;
+    document.getElementById('min-size').textContent = minSize;
+    document.getElementById('saved').textContent = saved + '%';
+    document.getElementById('stats').style.display = 'flex';
+}
+
+function beautifyCSS() {
+    const input = document.getElementById('input').value;
+    if (!input.trim()) return;
+
+    let css = input;
+    // First minify
+    css = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    css = css.replace(/\s+/g, ' ').trim();
+
+    // Then beautify
+    let result = '';
+    let indent = 0;
+    for (let i = 0; i < css.length; i++) {
+        const c = css[i];
+        if (c === '{') {
+            result += ' {\n' + '  '.repeat(indent + 1);
+            indent++;
+        } else if (c === '}') {
+            indent = Math.max(0, indent - 1);
+            result = result.trimEnd() + '\n' + '  '.repeat(indent) + '}\n' + '  '.repeat(indent);
+        } else if (c === ';') {
+            result += ';\n' + '  '.repeat(indent);
+        } else {
+            result += c;
+        }
+    }
+    document.getElementById('output').value = result.trim();
+}
+
+function copyOutput() {
+    const output = document.getElementById('output');
+    output.select();
+    document.execCommand('copy');
+}
+
+function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+    document.getElementById('stats').style.display = 'none';
+}
+</script>
+</body>
+</html>

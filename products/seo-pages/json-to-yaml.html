@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to YAML Converter - Free Online Tool</title>
+    <meta name="description" content="Free online JSON to YAML converter. Convert JSON data to YAML format instantly. Also converts YAML back to JSON. No signup required.">
+    <meta property="og:title" content="Free JSON to YAML Converter">
+    <meta property="og:description" content="Convert between JSON and YAML formats online for free.">
+    <link rel="canonical" href="/json-to-yaml">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"JSON to YAML Converter","description":"Free online JSON to YAML converter tool","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .panels { grid-template-columns: 1fr; } }
+        textarea { width: 100%; min-height: 300px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .error { background: #fee; color: #c00; padding: 8px 12px; border-radius: 6px; margin-top: 8px; display: none; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>JSON to YAML Converter</h1>
+    <p class="subtitle">Convert between JSON and YAML formats instantly. Paste on either side.</p>
+
+    <div class="tool-box">
+        <div class="panels">
+            <div>
+                <label><strong>JSON</strong></label>
+                <textarea id="json-input" placeholder='{"name": "John", "age": 30, "hobbies": ["reading", "coding"]}'></textarea>
+            </div>
+            <div>
+                <label><strong>YAML</strong></label>
+                <textarea id="yaml-output" placeholder="name: John
+age: 30
+hobbies:
+  - reading
+  - coding"></textarea>
+            </div>
+        </div>
+        <div class="btns">
+            <button class="btn btn-primary" onclick="jsonToYaml()">JSON -> YAML</button>
+            <button class="btn btn-primary" onclick="yamlToJson()">YAML -> JSON</button>
+            <button class="btn btn-secondary" onclick="copyYaml()">Copy YAML</button>
+            <button class="btn btn-secondary" onclick="copyJson()">Copy JSON</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <div class="content">
+        <h2>About JSON to YAML Conversion</h2>
+        <p>JSON (JavaScript Object Notation) and YAML (YAML Ain't Markup Language) are both popular data serialization formats. YAML is often preferred for configuration files (like Docker Compose, Kubernetes, GitHub Actions) because of its human-readable syntax, while JSON is the standard for APIs and data exchange.</p>
+
+        <h2>When to Use YAML vs JSON</h2>
+        <p><strong>Use YAML for:</strong> Configuration files, CI/CD pipelines, Kubernetes manifests, Ansible playbooks, Docker Compose files.</p>
+        <p><strong>Use JSON for:</strong> API responses, data storage, package.json, tsconfig.json, and any machine-to-machine communication.</p>
+
+        <h2>API Access</h2>
+        <p>Convert programmatically: <code>POST /api/convert/json-to-yaml</code></p>
+        <p><a href="/api-keys">Get a free API key</a> for 100 requests/day.</p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/css-minifier">CSS Minifier</a> | <a href="/api-keys">API Keys</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+function jsonToYaml() {
+    const errEl = document.getElementById('error');
+    errEl.style.display = 'none';
+    try {
+        const json = JSON.parse(document.getElementById('json-input').value);
+        document.getElementById('yaml-output').value = toYaml(json, 0);
+    } catch (e) {
+        errEl.textContent = 'Invalid JSON: ' + e.message;
+        errEl.style.display = 'block';
+    }
+}
+
+function yamlToJson() {
+    const errEl = document.getElementById('error');
+    errEl.style.display = 'none';
+    try {
+        const yaml = document.getElementById('yaml-output').value;
+        const obj = parseSimpleYaml(yaml);
+        document.getElementById('json-input').value = JSON.stringify(obj, null, 2);
+    } catch (e) {
+        errEl.textContent = 'YAML parse error: ' + e.message;
+        errEl.style.display = 'block';
+    }
+}
+
+function toYaml(obj, indent) {
+    const prefix = '  '.repeat(indent);
+    if (obj === null) return 'null';
+    if (typeof obj === 'boolean') return obj ? 'true' : 'false';
+    if (typeof obj === 'number') return String(obj);
+    if (typeof obj === 'string') {
+        if (obj.includes('\n') || obj.includes(':') || obj.includes('#') || obj.includes("'") || obj.includes('"') || obj === '') {
+            return JSON.stringify(obj);
+        }
+        return obj;
+    }
+    if (Array.isArray(obj)) {
+        if (obj.length === 0) return '[]';
+        return obj.map(item => {
+            const val = toYaml(item, indent + 1);
+            if (typeof item === 'object' && item !== null) {
+                return prefix + '- ' + val.trimStart();
+            }
+            return prefix + '- ' + val;
+        }).join('\n');
+    }
+    const keys = Object.keys(obj);
+    if (keys.length === 0) return '{}';
+    return keys.map(key => {
+        const val = obj[key];
+        if (typeof val === 'object' && val !== null) {
+            return prefix + key + ':\n' + toYaml(val, indent + 1);
+        }
+        return prefix + key + ': ' + toYaml(val, indent);
+    }).join('\n');
+}
+
+function parseSimpleYaml(text) {
+    const lines = text.split('\n');
+    const result = {};
+    let currentKey = null;
+    let currentArray = null;
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+
+        if (trimmed.startsWith('- ')) {
+            if (currentKey && currentArray) {
+                let val = trimmed.substring(2).trim();
+                currentArray.push(parseYamlValue(val));
+            }
+        } else if (trimmed.includes(':')) {
+            const colonIdx = trimmed.indexOf(':');
+            const key = trimmed.substring(0, colonIdx).trim();
+            const val = trimmed.substring(colonIdx + 1).trim();
+            if (val === '') {
+                currentKey = key;
+                currentArray = [];
+                result[key] = currentArray;
+            } else {
+                currentKey = null;
+                currentArray = null;
+                result[key] = parseYamlValue(val);
+            }
+        }
+    }
+    return result;
+}
+
+function parseYamlValue(s) {
+    if (s === 'null' || s === '~') return null;
+    if (s === 'true') return true;
+    if (s === 'false') return false;
+    if (/^-?\d+$/.test(s)) return parseInt(s);
+    if (/^-?\d+\.\d+$/.test(s)) return parseFloat(s);
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+        return s.slice(1, -1);
+    }
+    return s;
+}
+
+function copyYaml() {
+    document.getElementById('yaml-output').select();
+    document.execCommand('copy');
+}
+
+function copyJson() {
+    document.getElementById('json-input').select();
+    document.execCommand('copy');
+}
+
+function clearAll() {
+    document.getElementById('json-input').value = '';
+    document.getElementById('yaml-output').value = '';
+    document.getElementById('error').style.display = 'none';
+}
+</script>
+</body>
+</html>

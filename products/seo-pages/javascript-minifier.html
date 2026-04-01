@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Minifier - Free Online JS Compressor Tool</title>
+    <meta name="description" content="Free online JavaScript minifier and compressor. Reduce JS file size by removing whitespace, comments, and unnecessary characters. No signup required.">
+    <meta property="og:title" content="Free JavaScript Minifier & Compressor">
+    <meta property="og:description" content="Minify and compress JavaScript code online for free. Reduce file size instantly.">
+    <link rel="canonical" href="/javascript-minifier">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"JavaScript Minifier","description":"Free online JavaScript minifier and compressor tool","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 220px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .stats { display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap; }
+        .stat { background: #f0f0ff; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; }
+        .stat strong { color: #302b63; }
+        .output textarea { background: #f0fdf4; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { padding-left: 24px; margin-bottom: 12px; color: #555; }
+        .content li { margin-bottom: 6px; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>JavaScript Minifier</h1>
+    <p class="subtitle">Compress and minify JavaScript code online. Reduce file size for faster page loads.</p>
+
+    <div class="tool-box">
+        <label><strong>Input JavaScript:</strong></label>
+        <textarea id="input" placeholder="Paste your JavaScript code here...
+
+function greet(name) {
+    // Say hello
+    console.log('Hello, ' + name + '!');
+    return true;
+}"></textarea>
+
+        <div class="btns">
+            <button class="btn btn-primary" onclick="minifyJS()">Minify JavaScript</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy Output</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="stats" id="stats" style="display:none">
+            <div class="stat">Original: <strong id="orig-size">0</strong> bytes</div>
+            <div class="stat">Minified: <strong id="min-size">0</strong> bytes</div>
+            <div class="stat">Saved: <strong id="saved">0%</strong></div>
+        </div>
+
+        <div class="output">
+            <label><strong>Output:</strong></label>
+            <textarea id="output" readonly placeholder="Minified JavaScript will appear here..."></textarea>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>What is JavaScript Minification?</h2>
+        <p>JavaScript minification removes unnecessary characters from JS source code without changing functionality. This includes whitespace, line breaks, comments, and sometimes shortening variable names to reduce the overall file size.</p>
+
+        <h2>Why Minify JavaScript?</h2>
+        <ul>
+            <li><strong>Faster page loads:</strong> Smaller JS files download and parse faster</li>
+            <li><strong>Better SEO scores:</strong> Google PageSpeed rewards optimized JavaScript</li>
+            <li><strong>Reduced bandwidth:</strong> Less data to transfer means lower hosting costs</li>
+            <li><strong>Improved Core Web Vitals:</strong> Faster JS execution improves LCP and FID metrics</li>
+            <li><strong>Better mobile experience:</strong> Critical for users on slow connections</li>
+        </ul>
+
+        <h2>How This Tool Works</h2>
+        <p>Our JavaScript minifier removes single-line and multi-line comments, collapses whitespace, removes unnecessary semicolons, and compresses the code into a single line. For production use, consider tools like Terser or UglifyJS for advanced optimizations like variable renaming.</p>
+
+        <h2>API Access</h2>
+        <p>Minify JavaScript programmatically with our API:</p>
+        <p><code>POST /api/js/minify</code> with <code>{"code": "your js here"}</code></p>
+        <p><a href="/api-keys">Get a free API key</a> for 100 requests/day.</p>
+
+        <h2>Related Tools</h2>
+        <p><a href="/css-minifier">CSS Minifier</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/html-entity-encoder">HTML Encoder</a> | <a href="/base64-encoder">Base64 Encoder</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/css-minifier">CSS Minifier</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/api-keys">API Keys</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+function minifyJS() {
+    const input = document.getElementById('input').value;
+    if (!input.trim()) return;
+
+    let js = input;
+    // Remove multi-line comments
+    js = js.replace(/\/\*[\s\S]*?\*\//g, '');
+    // Remove single-line comments (be careful not to remove URLs)
+    js = js.replace(/([^:])\/\/.*$/gm, '$1');
+    // Collapse multiple whitespace/newlines
+    js = js.replace(/\s+/g, ' ');
+    // Remove spaces around operators
+    js = js.replace(/\s*([{}()=+\-*/<>!&|,;:])\s*/g, '$1');
+    // Fix cases where we shouldn't remove spaces (keywords)
+    js = js.replace(/\b(var|let|const|return|function|if|else|for|while|new|typeof|instanceof|in|of|class|extends|import|export|from|default|throw|try|catch|finally|switch|case|break|continue|do|void|delete|yield|async|await)\b/g, ' $1 ');
+    // Clean up extra spaces
+    js = js.replace(/\s+/g, ' ');
+    js = js.trim();
+
+    document.getElementById('output').value = js;
+
+    const origSize = new Blob([input]).size;
+    const minSize = new Blob([js]).size;
+    const saved = origSize > 0 ? Math.round((1 - minSize / origSize) * 100) : 0;
+
+    document.getElementById('orig-size').textContent = origSize;
+    document.getElementById('min-size').textContent = minSize;
+    document.getElementById('saved').textContent = saved + '%';
+    document.getElementById('stats').style.display = 'flex';
+}
+
+function copyOutput() {
+    const output = document.getElementById('output');
+    output.select();
+    document.execCommand('copy');
+}
+
+function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+    document.getElementById('stats').style.display = 'none';
+}
+</script>
+</body>
+</html>

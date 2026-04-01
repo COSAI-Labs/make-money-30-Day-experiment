@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25 Free Developer Tools You Can Use Right Now (No Signup Required)</title>
+    <meta name="description" content="A curated collection of 25+ free developer tools: JSON formatter, UUID generator, JWT decoder, regex tester, QR code generator, PDF tools, and more. All browser-based, no signup needed.">
+    <meta name="keywords" content="free developer tools, online tools, json formatter, uuid generator, regex tester, developer utilities, web tools">
+    <link rel="canonical" href="/blog-free-developer-tools">
+    <meta property="og:title" content="25 Free Developer Tools You Can Use Right Now">
+    <meta property="og:description" content="Browser-based developer utilities: JSON, UUID, JWT, regex, QR codes, PDFs, and more. No signup, no install.">
+    <meta property="og:type" content="article">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Article","headline":"25 Free Developer Tools You Can Use Right Now","description":"A curated collection of free browser-based developer tools","author":{"@type":"Organization","name":"ToolPipe"},"datePublished":"2026-04-01"}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.7; }
+        .header { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .header h1 { font-size: 2.2rem; max-width: 700px; margin: 0 auto 12px; letter-spacing: -0.5px; }
+        .header p { color: #a5b4fc; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        h2 { font-size: 1.4rem; color: #302b63; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+        p { margin-bottom: 16px; color: #374151; }
+        .tool-card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid #6c63ff; }
+        .tool-card h3 { margin-bottom: 6px; }
+        .tool-card h3 a { color: #302b63; text-decoration: none; }
+        .tool-card h3 a:hover { color: #6c63ff; text-decoration: underline; }
+        .tool-card p { color: #555; font-size: 0.95rem; margin-bottom: 0; }
+        .category { background: #f0f0ff; color: #6c63ff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-bottom: 8px; }
+        .cta-box { background: linear-gradient(135deg, #302b63, #24243e); color: white; border-radius: 12px; padding: 32px; text-align: center; margin: 40px 0; }
+        .cta-box h2 { color: white; border: none; margin-top: 0; }
+        .cta-box p { color: #c7d2fe; }
+        .cta-box a { display: inline-block; background: #6c63ff; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 12px; }
+        .cta-box a:hover { background: #5b52ee; }
+        .back { display: inline-block; margin-top: 24px; color: #6c63ff; text-decoration: none; }
+        code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>25 Free Developer Tools You Can Use Right Now</h1>
+    <p>Browser-based utilities for everyday development. No signup, no install, no tracking. Just tools that work.</p>
+</div>
+<div class="container">
+    <p>Every developer has moments where they need to quickly format JSON, decode a JWT, generate a UUID, or test a regex. Instead of googling each time, here's a collection of tools that handle all of it in one place.</p>
+    <p>Every tool runs entirely in your browser. Your data never leaves your machine. And they're all free, forever.</p>
+
+    <h2>Text & Data Tools</h2>
+
+    <div class="tool-card">
+        <span class="category">JSON</span>
+        <h3><a href="/json-formatter">JSON Formatter & Validator</a></h3>
+        <p>Paste messy JSON, get perfectly formatted output with syntax highlighting. Validates structure and shows errors inline. Also available via API: <code>POST /api/json/format</code></p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Encoding</span>
+        <h3><a href="/base64-encoder">Base64 Encoder/Decoder</a></h3>
+        <p>Encode and decode Base64 strings instantly. Supports text and binary data. API: <code>POST /api/base64/encode</code></p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Encoding</span>
+        <h3><a href="/url-encoder">URL Encoder/Decoder</a></h3>
+        <p>Encode special characters for URLs or decode URL-encoded strings. Handles nested encoding.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">HTML</span>
+        <h3><a href="/html-entity-encoder">HTML Entity Encoder</a></h3>
+        <p>Convert special characters to HTML entities and back. Essential for sanitizing user input.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Text</span>
+        <h3><a href="/word-counter">Word Counter & Text Analyzer</a></h3>
+        <p>Count words, characters, sentences, paragraphs. Calculate reading time. Analyze text density and keyword frequency.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Text</span>
+        <h3><a href="/text-diff">Text Diff Checker</a></h3>
+        <p>Compare two text blocks side by side. Highlights additions, deletions, and changes with color coding.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Text</span>
+        <h3><a href="/lorem-ipsum-generator">Lorem Ipsum Generator</a></h3>
+        <p>Generate placeholder text by paragraph, sentence, or word count. Clean output, easy to copy.</p>
+    </div>
+
+    <h2>Security & Auth Tools</h2>
+
+    <div class="tool-card">
+        <span class="category">Auth</span>
+        <h3><a href="/jwt-decoder">JWT Decoder</a></h3>
+        <p>Paste a JWT token and instantly see the decoded header, payload, and signature. Validates expiration and structure.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Security</span>
+        <h3><a href="/password-generator">Password Generator</a></h3>
+        <p>Generate cryptographically strong passwords. Customize length, character sets, and format. API: <code>GET /api/password</code></p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Crypto</span>
+        <h3><a href="/hash-generator">Hash Generator</a></h3>
+        <p>Generate MD5, SHA-1, SHA-256, and SHA-512 hashes. Useful for file verification and password hashing demos. API: <code>POST /api/hash</code></p>
+    </div>
+
+    <h2>Developer Utilities</h2>
+
+    <div class="tool-card">
+        <span class="category">IDs</span>
+        <h3><a href="/uuid-generator">UUID Generator</a></h3>
+        <p>Generate v4 UUIDs instantly. Bulk generation supported. API: <code>GET /api/uuid</code></p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Regex</span>
+        <h3><a href="/regex-tester">Regex Tester</a></h3>
+        <p>Test regular expressions against sample text with real-time match highlighting. Shows capture groups and flags.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Cron</span>
+        <h3><a href="/cron-expression-generator">Cron Expression Generator</a></h3>
+        <p>Build cron expressions visually. See next run times and human-readable descriptions. No more cron syntax guessing.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Time</span>
+        <h3><a href="/epoch-converter">Unix Epoch Converter</a></h3>
+        <p>Convert between Unix timestamps and human-readable dates. Supports seconds and milliseconds.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Markdown</span>
+        <h3><a href="/markdown-preview">Markdown Editor & Preview</a></h3>
+        <p>Write Markdown with live preview. Supports GFM, tables, and code blocks. Export to HTML.</p>
+    </div>
+
+    <h2>Visual & Design Tools</h2>
+
+    <div class="tool-card">
+        <span class="category">QR</span>
+        <h3><a href="/qr-code-generator">QR Code Generator</a></h3>
+        <p>Generate QR codes for any text, URL, or data. Customize size and download as PNG. API: <code>GET /api/qr?text=hello</code></p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Color</span>
+        <h3><a href="/color-picker">Color Picker & Converter</a></h3>
+        <p>Pick colors visually or convert between HEX, RGB, HSL formats. Copy values with one click.</p>
+    </div>
+
+    <h2>PDF Tools</h2>
+
+    <div class="tool-card">
+        <span class="category">PDF</span>
+        <h3><a href="/merge-pdf">Merge PDF</a></h3>
+        <p>Combine multiple PDF files into one. Drag to reorder pages. All processing in your browser.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">PDF</span>
+        <h3><a href="/compress-pdf">Compress PDF</a></h3>
+        <p>Reduce PDF file size while maintaining quality. Works with large files.</p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">PDF</span>
+        <h3><a href="/split-pdf">Split PDF</a></h3>
+        <p>Extract specific pages or split a PDF into multiple files.</p>
+    </div>
+
+    <h2>Network & Web Tools</h2>
+
+    <div class="tool-card">
+        <span class="category">Network</span>
+        <h3><a href="/whats-my-ip">What's My IP</a></h3>
+        <p>See your public IP address, geolocation, ISP, and more. API: <code>GET /api/ip</code></p>
+    </div>
+
+    <div class="tool-card">
+        <span class="category">Webhooks</span>
+        <h3><a href="/webhook-tester">Webhook Tester</a></h3>
+        <p>Get a unique URL to test webhook integrations. See incoming requests in real time with full headers and body.</p>
+    </div>
+
+    <h2>API Access</h2>
+    <p>Every tool above is also available as a REST API endpoint. Get a free API key (100 requests/day) or upgrade to Pro for 10,000 requests/day.</p>
+
+    <div class="cta-box">
+        <h2>Get Your Free API Key</h2>
+        <p>100+ endpoints. JSON, PDF, QR, hash, UUID, and more. Free tier: 100 requests/day.</p>
+        <a href="/api-keys">Get Free API Key</a>
+    </div>
+
+    <p style="color:#888;font-size:0.9rem;">All tools are open source and built with FastAPI + vanilla JavaScript. No frameworks, no trackers, no cookies. Just tools that work.</p>
+
+    <a href="/" class="back">Back to ToolPipe</a>
+</div>
+</body>
+</html>
