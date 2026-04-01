@@ -1090,6 +1090,9 @@ async def sitemap(request: Request):
     return Response(content=xml, media_type="application/xml")
 
 
+INDEXNOW_KEY = "dc57971f04a84a7e99edf0b3c4105663"
+
+
 @app.get("/robots.txt")
 async def robots(request: Request):
     host = request.headers.get("host", "")
@@ -1097,6 +1100,42 @@ async def robots(request: Request):
     base = f"{scheme}://{host}" if host else "https://assessing-scoop-authorities-sheet.trycloudflare.com"
     content = f"User-agent: *\nAllow: /\nSitemap: {base}/sitemap.xml\n"
     return Response(content=content, media_type="text/plain")
+
+
+@app.get(f"/{INDEXNOW_KEY}.txt")
+async def indexnow_key():
+    return Response(content=INDEXNOW_KEY, media_type="text/plain")
+
+
+@app.post("/api/indexnow/submit")
+async def submit_indexnow(request: Request):
+    """Submit URLs to IndexNow (Bing, Yandex, etc.)."""
+    host = request.headers.get("host", "")
+    scheme = "https" if "trycloudflare.com" in host else "http"
+    base = f"{scheme}://{host}" if host else "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+
+    # Collect all URLs from SEO pages
+    urls = [f"{base}/"]
+    if SEO_PAGES_DIR.exists():
+        urls.extend(f"{base}/{p.stem}" for p in SEO_PAGES_DIR.glob("*.html"))
+    urls.extend(f"{base}{p}" for p in [
+        "/tools", "/seo", "/invoice", "/monitor", "/pdf",
+        "/webhooks", "/short", "/paste", "/down", "/docs",
+    ])
+
+    payload = {
+        "host": host or "assessing-scoop-authorities-sheet.trycloudflare.com",
+        "key": INDEXNOW_KEY,
+        "keyLocation": f"{base}/{INDEXNOW_KEY}.txt",
+        "urlList": urls[:100],
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post("https://api.indexnow.org/indexnow", json=payload)
+            return {"status": resp.status_code, "urls_submitted": len(urls), "response": resp.text[:200]}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 # --- PDF Tools ---

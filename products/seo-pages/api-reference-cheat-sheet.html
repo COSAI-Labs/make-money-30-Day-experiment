@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REST API Cheat Sheet - HTTP Methods, Status Codes, Headers & Curl Examples</title>
+    <meta name="description" content="The ultimate REST API cheat sheet. HTTP methods, status codes, headers, authentication patterns, curl examples, and best practices. A complete reference for API developers.">
+    <meta name="keywords" content="REST API cheat sheet, curl examples, HTTP methods reference, API authentication, REST API tutorial, HTTP headers, API best practices">
+    <link rel="canonical" href="/api-reference-cheat-sheet">
+    <meta property="og:title" content="REST API Cheat Sheet - Complete Developer Reference">
+    <meta property="og:description" content="HTTP methods, status codes, headers, auth patterns, curl examples. The only REST API reference you need.">
+    <meta property="og:type" content="article">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"TechArticle","headline":"REST API Cheat Sheet","description":"Comprehensive REST API reference covering HTTP methods, status codes, headers, authentication, and curl examples","author":{"@type":"Organization","name":"ToolPipe"},"datePublished":"2026-04-01","proficiencyLevel":"Beginner to Advanced"}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.7; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .header { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 48px 20px; text-align: center; }
+        .header h1 { font-size: 2.2rem; max-width: 750px; margin: 0 auto 12px; letter-spacing: -0.5px; }
+        .header p { color: #a5b4fc; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+        .toc { background: white; border-radius: 10px; padding: 24px; margin-bottom: 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .toc h2 { font-size: 1.1rem; margin-bottom: 12px; color: #302b63; }
+        .toc ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+        .toc a { color: #6c63ff; text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; }
+        .search-box { margin-bottom: 24px; }
+        .search-box input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .search-box input:focus { outline: none; border-color: #6c63ff; }
+        h2 { font-size: 1.5rem; color: #302b63; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+        h3 { font-size: 1.15rem; color: #1a1a2e; margin: 24px 0 8px; }
+        p { margin-bottom: 14px; color: #374151; }
+        .section { background: white; border-radius: 10px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .section[data-section] { scroll-margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 0.92rem; }
+        th { background: #f0f0ff; color: #302b63; text-align: left; padding: 10px 12px; border-bottom: 2px solid #e5e7eb; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+        tr:hover { background: #fafaff; }
+        .method-badge { display: inline-block; padding: 2px 10px; border-radius: 4px; font-weight: 700; font-size: 0.8rem; color: white; font-family: monospace; }
+        .m-get { background: #22c55e; }
+        .m-post { background: #3b82f6; }
+        .m-put { background: #f59e0b; }
+        .m-patch { background: #a855f7; }
+        .m-delete { background: #ef4444; }
+        .m-head { background: #6b7280; }
+        .m-options { background: #06b6d4; }
+        .code-block { background: #1a1a2e; color: #e2e8f0; border-radius: 8px; padding: 16px; margin: 10px 0 16px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88rem; overflow-x: auto; position: relative; line-height: 1.6; white-space: pre; }
+        .code-block .comment { color: #6b7280; }
+        .copy-btn { position: absolute; top: 8px; right: 8px; background: #302b63; color: #a5b4fc; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; }
+        .copy-btn:hover { background: #6c63ff; color: white; }
+        .tip { background: #f0f7ff; border-left: 4px solid #3b82f6; padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0; font-size: 0.92rem; }
+        .tip strong { color: #1e40af; }
+        .status-group { display: grid; grid-template-columns: 70px 1fr; gap: 4px 12px; margin: 8px 0; }
+        .status-code { font-family: monospace; font-weight: 700; }
+        .s-2xx { color: #16a34a; }
+        .s-3xx { color: #d97706; }
+        .s-4xx { color: #dc2626; }
+        .s-5xx { color: #7c3aed; }
+        .cta-box { background: linear-gradient(135deg, #302b63, #24243e); color: white; border-radius: 12px; padding: 32px; text-align: center; margin: 40px 0; }
+        .cta-box h2 { color: white; border: none; margin-top: 0; }
+        .cta-box p { color: #c7d2fe; }
+        .cta-box a { display: inline-block; background: #6c63ff; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 12px; }
+        .cta-box a:hover { background: #5b52ee; }
+        .related { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+        .related a { background: white; padding: 14px; border-radius: 8px; text-decoration: none; color: #302b63; font-weight: 600; font-size: 0.92rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: block; }
+        .related a:hover { box-shadow: 0 2px 8px rgba(108,99,255,0.15); }
+        .related span { display: block; color: #6b7280; font-size: 0.82rem; font-weight: 400; margin-top: 4px; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        .hidden { display: none; }
+        @media (max-width: 600px) {
+            .toc ul { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="header">
+    <h1>REST API Cheat Sheet</h1>
+    <p>HTTP methods, status codes, headers, authentication, curl examples. The complete reference for API developers.</p>
+</div>
+<div class="container">
+
+    <div class="toc">
+        <h2>Quick Navigation</h2>
+        <ul>
+            <li><a href="#http-methods">HTTP Methods</a></li>
+            <li><a href="#status-codes">Status Codes</a></li>
+            <li><a href="#common-headers">Common Headers</a></li>
+            <li><a href="#authentication">Authentication</a></li>
+            <li><a href="#curl-examples">Curl Examples</a></li>
+            <li><a href="#request-body">Request Body Formats</a></li>
+            <li><a href="#pagination">Pagination Patterns</a></li>
+            <li><a href="#error-handling">Error Handling</a></li>
+            <li><a href="#versioning">API Versioning</a></li>
+            <li><a href="#best-practices">Best Practices</a></li>
+        </ul>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Search this cheat sheet... (e.g. POST, 404, Authorization, curl)" oninput="filterSections()">
+    </div>
+
+    <!-- HTTP Methods -->
+    <div class="section" data-section="http-methods" id="http-methods">
+        <h2 style="margin-top:0">HTTP Methods</h2>
+        <p>The nine standard HTTP methods define the action to perform on a resource.</p>
+        <table>
+            <thead><tr><th>Method</th><th>Purpose</th><th>Request Body</th><th>Idempotent</th><th>Safe</th></tr></thead>
+            <tbody>
+                <tr><td><span class="method-badge m-get">GET</span></td><td>Retrieve a resource or collection</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td><span class="method-badge m-post">POST</span></td><td>Create a new resource</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td><span class="method-badge m-put">PUT</span></td><td>Replace a resource entirely</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+                <tr><td><span class="method-badge m-patch">PATCH</span></td><td>Partially update a resource</td><td>Yes</td><td>No*</td><td>No</td></tr>
+                <tr><td><span class="method-badge m-delete">DELETE</span></td><td>Remove a resource</td><td>Optional</td><td>Yes</td><td>No</td></tr>
+                <tr><td><span class="method-badge m-head">HEAD</span></td><td>Same as GET but no response body</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td><span class="method-badge m-options">OPTIONS</span></td><td>Describe communication options</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+            </tbody>
+        </table>
+        <div class="tip"><strong>Idempotent</strong> means making the same request multiple times produces the same result. *PATCH can be idempotent depending on implementation.</div>
+
+        <h3>When to use PUT vs PATCH</h3>
+        <p><strong>PUT</strong> replaces the entire resource. Every field must be included. If a field is omitted, it is set to null or its default.</p>
+        <p><strong>PATCH</strong> updates only the specified fields. Fields not included in the request body remain unchanged.</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="comment"># PUT - replaces the entire user resource</span>
+curl -X PUT https://api.example.com/users/42 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Jane","email":"jane@example.com","role":"admin"}'
+
+<span class="comment"># PATCH - updates only the role field</span>
+curl -X PATCH https://api.example.com/users/42 \
+  -H "Content-Type: application/json" \
+  -d '{"role":"admin"}'</div>
+    </div>
+
+    <!-- Status Codes -->
+    <div class="section" data-section="status-codes" id="status-codes">
+        <h2 style="margin-top:0">HTTP Status Codes (Most Common)</h2>
+        <p>For a complete list of all codes, see our <a href="/http-status-codes" style="color:#6c63ff">HTTP Status Codes Reference</a>.</p>
+
+        <h3>2xx Success</h3>
+        <div class="status-group">
+            <span class="status-code s-2xx">200</span><span>OK. Request succeeded. Standard response for GET.</span>
+            <span class="status-code s-2xx">201</span><span>Created. Resource was created. Return in response to POST.</span>
+            <span class="status-code s-2xx">204</span><span>No Content. Success, but no body returned. Common for DELETE.</span>
+        </div>
+
+        <h3>3xx Redirection</h3>
+        <div class="status-group">
+            <span class="status-code s-3xx">301</span><span>Moved Permanently. Resource has a new permanent URL.</span>
+            <span class="status-code s-3xx">302</span><span>Found. Temporary redirect. Method may change to GET.</span>
+            <span class="status-code s-3xx">304</span><span>Not Modified. Cached version is still valid.</span>
+        </div>
+
+        <h3>4xx Client Errors</h3>
+        <div class="status-group">
+            <span class="status-code s-4xx">400</span><span>Bad Request. Malformed syntax or invalid parameters.</span>
+            <span class="status-code s-4xx">401</span><span>Unauthorized. Authentication required or credentials invalid.</span>
+            <span class="status-code s-4xx">403</span><span>Forbidden. Authenticated but not authorized for this resource.</span>
+            <span class="status-code s-4xx">404</span><span>Not Found. Resource does not exist.</span>
+            <span class="status-code s-4xx">405</span><span>Method Not Allowed. HTTP method not supported for this endpoint.</span>
+            <span class="status-code s-4xx">409</span><span>Conflict. Request conflicts with current state (e.g., duplicate).</span>
+            <span class="status-code s-4xx">422</span><span>Unprocessable Entity. Valid syntax but semantically incorrect.</span>
+            <span class="status-code s-4xx">429</span><span>Too Many Requests. Rate limit exceeded. Check Retry-After header.</span>
+        </div>
+
+        <h3>5xx Server Errors</h3>
+        <div class="status-group">
+            <span class="status-code s-5xx">500</span><span>Internal Server Error. Generic server failure.</span>
+            <span class="status-code s-5xx">502</span><span>Bad Gateway. Upstream server returned invalid response.</span>
+            <span class="status-code s-5xx">503</span><span>Service Unavailable. Server is overloaded or under maintenance.</span>
+            <span class="status-code s-5xx">504</span><span>Gateway Timeout. Upstream server did not respond in time.</span>
+        </div>
+    </div>
+
+    <!-- Common Headers -->
+    <div class="section" data-section="common-headers" id="common-headers">
+        <h2 style="margin-top:0">Common HTTP Headers</h2>
+
+        <h3>Request Headers</h3>
+        <table>
+            <thead><tr><th>Header</th><th>Purpose</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>Content-Type</code></td><td>Format of the request body</td><td><code>application/json</code></td></tr>
+                <tr><td><code>Accept</code></td><td>Expected response format</td><td><code>application/json</code></td></tr>
+                <tr><td><code>Authorization</code></td><td>Authentication credentials</td><td><code>Bearer eyJhbG...</code></td></tr>
+                <tr><td><code>User-Agent</code></td><td>Client identifier</td><td><code>MyApp/1.0</code></td></tr>
+                <tr><td><code>Cache-Control</code></td><td>Caching directives</td><td><code>no-cache</code></td></tr>
+                <tr><td><code>If-None-Match</code></td><td>Conditional request (ETag)</td><td><code>"abc123"</code></td></tr>
+                <tr><td><code>X-Request-ID</code></td><td>Trace ID for debugging</td><td><code>uuid-value</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Response Headers</h3>
+        <table>
+            <thead><tr><th>Header</th><th>Purpose</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>Content-Type</code></td><td>Format of response body</td><td><code>application/json; charset=utf-8</code></td></tr>
+                <tr><td><code>Location</code></td><td>URL of created resource</td><td><code>/users/42</code></td></tr>
+                <tr><td><code>ETag</code></td><td>Version identifier for caching</td><td><code>"abc123"</code></td></tr>
+                <tr><td><code>Retry-After</code></td><td>Seconds to wait after 429/503</td><td><code>60</code></td></tr>
+                <tr><td><code>X-RateLimit-Limit</code></td><td>Max requests per window</td><td><code>1000</code></td></tr>
+                <tr><td><code>X-RateLimit-Remaining</code></td><td>Requests left in window</td><td><code>847</code></td></tr>
+                <tr><td><code>Link</code></td><td>Pagination links</td><td><code>&lt;/users?page=2&gt;; rel="next"</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>CORS Headers</h3>
+        <table>
+            <thead><tr><th>Header</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>Access-Control-Allow-Origin</code></td><td>Which origins can access the API</td></tr>
+                <tr><td><code>Access-Control-Allow-Methods</code></td><td>Allowed HTTP methods for CORS</td></tr>
+                <tr><td><code>Access-Control-Allow-Headers</code></td><td>Allowed request headers for CORS</td></tr>
+                <tr><td><code>Access-Control-Max-Age</code></td><td>How long preflight results can be cached (seconds)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Authentication -->
+    <div class="section" data-section="authentication" id="authentication">
+        <h2 style="margin-top:0">Authentication Patterns</h2>
+
+        <h3>API Key (Header)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl https://api.example.com/data \
+  -H "X-API-Key: your_api_key_here"</div>
+
+        <h3>API Key (Query Parameter)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl "https://api.example.com/data?api_key=your_api_key_here"</div>
+        <div class="tip"><strong>Security note:</strong> Query parameter API keys appear in server logs and browser history. Prefer header-based authentication when possible.</div>
+
+        <h3>Bearer Token (JWT / OAuth2)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl https://api.example.com/data \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."</div>
+
+        <h3>Basic Auth</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="comment"># Using -u flag (curl encodes to Base64 automatically)</span>
+curl -u username:password https://api.example.com/data
+
+<span class="comment"># Manual header (Base64 of "username:password")</span>
+curl https://api.example.com/data \
+  -H "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ="</div>
+
+        <h3>OAuth 2.0 Client Credentials Flow</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="comment"># Step 1: Get access token</span>
+curl -X POST https://auth.example.com/oauth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id=YOUR_ID&client_secret=YOUR_SECRET"
+
+<span class="comment"># Step 2: Use the token</span>
+curl https://api.example.com/data \
+  -H "Authorization: Bearer ACCESS_TOKEN_FROM_STEP_1"</div>
+    </div>
+
+    <!-- Curl Examples -->
+    <div class="section" data-section="curl-examples" id="curl-examples">
+        <h2 style="margin-top:0">Curl Examples</h2>
+
+        <h3>GET request</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl https://api.example.com/users</div>
+
+        <h3>GET with query parameters</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl "https://api.example.com/users?page=2&limit=25&sort=created_at"</div>
+
+        <h3>GET with headers</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl https://api.example.com/users \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"</div>
+
+        <h3>POST with JSON body</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl -X POST https://api.example.com/users \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Jane Doe","email":"jane@example.com"}'</div>
+
+        <h3>POST with form data</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl -X POST https://api.example.com/login \
+  -d "username=jane&password=secret123"</div>
+
+        <h3>PUT (full update)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl -X PUT https://api.example.com/users/42 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Jane Doe","email":"jane@new.com","role":"admin"}'</div>
+
+        <h3>PATCH (partial update)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl -X PATCH https://api.example.com/users/42 \
+  -H "Content-Type: application/json" \
+  -d '{"role":"admin"}'</div>
+
+        <h3>DELETE</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl -X DELETE https://api.example.com/users/42 \
+  -H "Authorization: Bearer YOUR_TOKEN"</div>
+
+        <h3>File upload</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl -X POST https://api.example.com/upload \
+  -F "file=@/path/to/document.pdf" \
+  -F "description=Quarterly report"</div>
+
+        <h3>Verbose output (debugging)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="comment"># -v shows request/response headers</span>
+curl -v https://api.example.com/users
+
+<span class="comment"># -i includes response headers in output</span>
+curl -i https://api.example.com/users
+
+<span class="comment"># Save response to file</span>
+curl -o response.json https://api.example.com/users
+
+<span class="comment"># Follow redirects</span>
+curl -L https://api.example.com/old-endpoint
+
+<span class="comment"># Set timeout (seconds)</span>
+curl --max-time 10 https://api.example.com/slow-endpoint</div>
+
+        <h3>Useful curl flags</h3>
+        <table>
+            <thead><tr><th>Flag</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>-X METHOD</code></td><td>Set HTTP method</td></tr>
+                <tr><td><code>-H "Header: Value"</code></td><td>Add request header</td></tr>
+                <tr><td><code>-d 'data'</code></td><td>Send request body (sets POST by default)</td></tr>
+                <tr><td><code>-F "field=value"</code></td><td>Send multipart form data</td></tr>
+                <tr><td><code>-u user:pass</code></td><td>Basic authentication</td></tr>
+                <tr><td><code>-v</code></td><td>Verbose output (debug)</td></tr>
+                <tr><td><code>-i</code></td><td>Include response headers</td></tr>
+                <tr><td><code>-o file</code></td><td>Write output to file</td></tr>
+                <tr><td><code>-L</code></td><td>Follow redirects</td></tr>
+                <tr><td><code>-s</code></td><td>Silent mode (no progress bar)</td></tr>
+                <tr><td><code>-k</code></td><td>Skip SSL verification (dev only)</td></tr>
+                <tr><td><code>--max-time N</code></td><td>Timeout in seconds</td></tr>
+                <tr><td><code>-w "%{http_code}"</code></td><td>Print HTTP status code</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Request Body Formats -->
+    <div class="section" data-section="request-body" id="request-body">
+        <h2 style="margin-top:0">Request Body Formats</h2>
+
+        <h3>JSON (most common)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "tags": ["admin", "active"],
+  "address": {
+    "city": "Portland",
+    "state": "OR"
+  }
+}</div>
+
+        <h3>Form URL-encoded</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>Content-Type: application/x-www-form-urlencoded
+
+name=Jane+Doe&email=jane%40example.com&role=admin</div>
+
+        <h3>Multipart Form Data (file uploads)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="file"; filename="photo.jpg"
+Content-Type: image/jpeg
+
+(binary data)
+------FormBoundary--</div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="section" data-section="pagination" id="pagination">
+        <h2 style="margin-top:0">Pagination Patterns</h2>
+
+        <h3>Offset-based (most common)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>GET /users?page=2&limit=25
+GET /users?offset=25&limit=25</div>
+
+        <h3>Cursor-based (better for large datasets)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>GET /users?limit=25&after=eyJpZCI6NDJ9</div>
+
+        <h3>Typical paginated response</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>{
+  "data": [...],
+  "meta": {
+    "total": 1042,
+    "page": 2,
+    "per_page": 25,
+    "total_pages": 42
+  },
+  "links": {
+    "first": "/users?page=1",
+    "prev": "/users?page=1",
+    "next": "/users?page=3",
+    "last": "/users?page=42"
+  }
+}</div>
+    </div>
+
+    <!-- Error Handling -->
+    <div class="section" data-section="error-handling" id="error-handling">
+        <h2 style="margin-top:0">Error Response Patterns</h2>
+
+        <h3>Standard error format</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>{
+  "error": {
+    "code": "validation_error",
+    "message": "Invalid email format",
+    "details": [
+      {
+        "field": "email",
+        "message": "Must be a valid email address",
+        "value": "not-an-email"
+      }
+    ]
+  }
+}</div>
+
+        <h3>RFC 7807 Problem Details</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Error",
+  "status": 422,
+  "detail": "The 'email' field must be a valid email address",
+  "instance": "/users/42"
+}</div>
+
+        <div class="tip"><strong>Best practice:</strong> Always return consistent error formats. Include a machine-readable error code, a human-readable message, and enough detail for the client to fix the problem.</div>
+    </div>
+
+    <!-- API Versioning -->
+    <div class="section" data-section="versioning" id="versioning">
+        <h2 style="margin-top:0">API Versioning</h2>
+
+        <h3>URL path versioning (most common)</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>GET https://api.example.com/v1/users
+GET https://api.example.com/v2/users</div>
+
+        <h3>Header versioning</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>curl https://api.example.com/users \
+  -H "Accept: application/vnd.example.v2+json"</div>
+
+        <h3>Query parameter versioning</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>GET https://api.example.com/users?version=2</div>
+    </div>
+
+    <!-- Best Practices -->
+    <div class="section" data-section="best-practices" id="best-practices">
+        <h2 style="margin-top:0">REST API Best Practices</h2>
+
+        <table>
+            <thead><tr><th>Do</th><th>Don't</th></tr></thead>
+            <tbody>
+                <tr><td>Use nouns for resources: <code>/users</code></td><td><code>/getUsers</code> or <code>/createUser</code></td></tr>
+                <tr><td>Use plural nouns: <code>/users/42</code></td><td><code>/user/42</code></td></tr>
+                <tr><td>Use HTTP methods for actions</td><td>Put verbs in URLs</td></tr>
+                <tr><td>Return 201 + Location header on create</td><td>Return 200 for everything</td></tr>
+                <tr><td>Use 204 for successful DELETE</td><td>Return the deleted resource</td></tr>
+                <tr><td>Nest sub-resources: <code>/users/42/posts</code></td><td>Deeply nest beyond 2 levels</td></tr>
+                <tr><td>Use kebab-case in URLs: <code>/user-profiles</code></td><td>camelCase or snake_case in URLs</td></tr>
+                <tr><td>Filter via query params: <code>?status=active</code></td><td>Create separate endpoints per filter</td></tr>
+                <tr><td>Include rate limit headers</td><td>Rate limit without informing clients</td></tr>
+                <tr><td>Version your API from day one</td><td>Make breaking changes without versioning</td></tr>
+            </tbody>
+        </table>
+
+        <h3>URL structure examples</h3>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="comment"># Resource collections</span>
+GET    /users              <span class="comment"># List users</span>
+POST   /users              <span class="comment"># Create user</span>
+GET    /users/42           <span class="comment"># Get user 42</span>
+PUT    /users/42           <span class="comment"># Replace user 42</span>
+PATCH  /users/42           <span class="comment"># Update user 42</span>
+DELETE /users/42           <span class="comment"># Delete user 42</span>
+
+<span class="comment"># Sub-resources</span>
+GET    /users/42/posts     <span class="comment"># List posts by user 42</span>
+POST   /users/42/posts     <span class="comment"># Create post for user 42</span>
+
+<span class="comment"># Filtering, sorting, pagination</span>
+GET    /users?role=admin&sort=-created_at&page=2&limit=25</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <h2>Test Your APIs with ToolPipe</h2>
+        <p>Use our webhook tester, JWT decoder, and JSON formatter to build and debug APIs faster.</p>
+        <a href="/webhook-tester">Try Webhook Tester</a>
+    </div>
+
+    <!-- Related Tools -->
+    <h2>Related Tools</h2>
+    <div class="related">
+        <a href="/json-formatter">JSON Formatter<span>Format and validate JSON</span></a>
+        <a href="/jwt-decoder">JWT Decoder<span>Decode and inspect tokens</span></a>
+        <a href="/http-status-codes">HTTP Status Codes<span>Complete status code list</span></a>
+        <a href="/webhook-tester">Webhook Tester<span>Test API webhooks</span></a>
+        <a href="/url-encoder">URL Encoder<span>Encode query parameters</span></a>
+        <a href="/base64-encoder">Base64 Encoder<span>Encode/decode Base64</span></a>
+        <a href="/hash-generator">Hash Generator<span>MD5, SHA-256, SHA-512</span></a>
+        <a href="/uuid-generator">UUID Generator<span>Generate unique IDs</span></a>
+    </div>
+
+    <a href="/" style="display:inline-block;margin-top:24px;color:#6c63ff;text-decoration:none;">Back to ToolPipe</a>
+</div>
+<footer>
+    <a href="/">ToolPipe</a> - Free developer tools. No signup required.
+</footer>
+<script>
+function copyCode(btn) {
+    const block = btn.parentElement;
+    const text = block.innerText.replace('Copy', '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+}
+
+function filterSections() {
+    const q = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.section').forEach(s => {
+        if (!q) { s.classList.remove('hidden'); return; }
+        s.classList.toggle('hidden', !s.textContent.toLowerCase().includes(q));
+    });
+}
+</script>
+</body>
+</html>

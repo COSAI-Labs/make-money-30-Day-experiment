@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Cheat Sheet - Regular Expression Reference with Interactive Examples</title>
+    <meta name="description" content="Complete regex cheat sheet with character classes, quantifiers, groups, lookahead, lookbehind, and 30+ common patterns for email, URL, phone, IP validation. Interactive examples that run in your browser.">
+    <meta name="keywords" content="regex cheat sheet, regular expression reference, regex patterns, regex examples, regex tutorial, common regex patterns, email regex, URL regex">
+    <link rel="canonical" href="/regex-cheat-sheet">
+    <meta property="og:title" content="Regex Cheat Sheet - The Complete Regular Expression Reference">
+    <meta property="og:description" content="Character classes, quantifiers, groups, lookahead/lookbehind, and 30+ ready-to-use patterns. Interactive examples included.">
+    <meta property="og:type" content="article">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"TechArticle","headline":"Regex Cheat Sheet","description":"Comprehensive regular expression reference with interactive examples, character classes, quantifiers, groups, and common patterns","author":{"@type":"Organization","name":"ToolPipe"},"datePublished":"2026-04-01","proficiencyLevel":"Beginner to Advanced"}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.7; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .header { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 48px 20px; text-align: center; }
+        .header h1 { font-size: 2.2rem; max-width: 750px; margin: 0 auto 12px; letter-spacing: -0.5px; }
+        .header p { color: #a5b4fc; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 880px; margin: 0 auto; padding: 32px 20px 60px; }
+        .toc { background: white; border-radius: 10px; padding: 24px; margin-bottom: 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .toc h2 { font-size: 1.1rem; margin-bottom: 12px; color: #302b63; }
+        .toc ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+        .toc a { color: #6c63ff; text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; }
+        .search-box { margin-bottom: 24px; }
+        .search-box input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .search-box input:focus { outline: none; border-color: #6c63ff; }
+        h2 { font-size: 1.5rem; color: #302b63; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+        h3 { font-size: 1.15rem; color: #1a1a2e; margin: 24px 0 8px; }
+        p { margin-bottom: 14px; color: #374151; }
+        .section { background: white; border-radius: 10px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .section[data-section] { scroll-margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 0.92rem; }
+        th { background: #f0f0ff; color: #302b63; text-align: left; padding: 10px 12px; border-bottom: 2px solid #e5e7eb; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        tr:hover { background: #fafaff; }
+        code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.88rem; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .pattern-code { background: #1a1a2e; color: #a5b4fc; padding: 3px 8px; border-radius: 4px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88rem; display: inline-block; }
+        .try-it { background: white; border: 2px solid #e5e7eb; border-radius: 10px; padding: 20px; margin: 16px 0; }
+        .try-it label { font-weight: 600; font-size: 0.9rem; color: #302b63; display: block; margin-bottom: 6px; }
+        .try-it input, .try-it textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9rem; margin-bottom: 10px; }
+        .try-it textarea { height: 80px; resize: vertical; }
+        .try-it input:focus, .try-it textarea:focus { outline: none; border-color: #6c63ff; }
+        .try-result { background: #f8f9fa; border-radius: 6px; padding: 12px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88rem; min-height: 40px; line-height: 1.8; }
+        .try-result .match { background: #bbf7d0; padding: 1px 2px; border-radius: 3px; border-bottom: 2px solid #22c55e; }
+        .try-result .no-match { color: #9ca3af; font-style: italic; font-family: -apple-system, sans-serif; }
+        .copy-btn { background: #302b63; color: #a5b4fc; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; margin-left: 8px; }
+        .copy-btn:hover { background: #6c63ff; color: white; }
+        .pattern-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 4px solid #6c63ff; }
+        .pattern-card .label { font-weight: 700; color: #302b63; margin-bottom: 4px; }
+        .pattern-card .regex { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88rem; background: #1a1a2e; color: #e2e8f0; padding: 8px 12px; border-radius: 6px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; overflow-x: auto; }
+        .pattern-card .regex span { white-space: nowrap; }
+        .pattern-card .desc { color: #6b7280; font-size: 0.9rem; }
+        .pattern-card .matches { color: #16a34a; font-size: 0.85rem; margin-top: 4px; }
+        .pattern-card .no-matches { color: #dc2626; font-size: 0.85rem; margin-top: 2px; }
+        .tip { background: #f0f7ff; border-left: 4px solid #3b82f6; padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0; font-size: 0.92rem; }
+        .tip strong { color: #1e40af; }
+        .flag-list { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+        .flag { background: #f0f0ff; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; }
+        .flag code { background: transparent; font-weight: 700; color: #6c63ff; }
+        .cta-box { background: linear-gradient(135deg, #302b63, #24243e); color: white; border-radius: 12px; padding: 32px; text-align: center; margin: 40px 0; }
+        .cta-box h2 { color: white; border: none; margin-top: 0; }
+        .cta-box p { color: #c7d2fe; }
+        .cta-box a { display: inline-block; background: #6c63ff; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 12px; }
+        .cta-box a:hover { background: #5b52ee; }
+        .related { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+        .related a { background: white; padding: 14px; border-radius: 8px; text-decoration: none; color: #302b63; font-weight: 600; font-size: 0.92rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: block; }
+        .related a:hover { box-shadow: 0 2px 8px rgba(108,99,255,0.15); }
+        .related span { display: block; color: #6b7280; font-size: 0.82rem; font-weight: 400; margin-top: 4px; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        .hidden { display: none; }
+        @media (max-width: 600px) {
+            .toc ul { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.6rem; }
+            .flag-list { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="header">
+    <h1>Regex Cheat Sheet</h1>
+    <p>Complete regular expression reference with interactive examples. Character classes, quantifiers, groups, lookahead, and 30+ ready-to-use patterns.</p>
+</div>
+<div class="container">
+
+    <div class="toc">
+        <h2>Quick Navigation</h2>
+        <ul>
+            <li><a href="#try-regex">Interactive Tester</a></li>
+            <li><a href="#basics">Basics &amp; Anchors</a></li>
+            <li><a href="#character-classes">Character Classes</a></li>
+            <li><a href="#quantifiers">Quantifiers</a></li>
+            <li><a href="#groups">Groups &amp; Backreferences</a></li>
+            <li><a href="#lookaround">Lookahead &amp; Lookbehind</a></li>
+            <li><a href="#flags">Flags</a></li>
+            <li><a href="#common-patterns">Common Patterns</a></li>
+        </ul>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Search regex syntax... (e.g. quantifier, email, lookahead, group)" oninput="filterSections()">
+    </div>
+
+    <!-- Interactive Tester -->
+    <div class="section" data-section="try-regex" id="try-regex">
+        <h2 style="margin-top:0">Try It Live</h2>
+        <p>Type a regex pattern and test string below. Matches are highlighted in real time.</p>
+        <div class="try-it">
+            <label>Pattern</label>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <input type="text" id="regexInput" value="\b\w+@\w+\.\w+\b" placeholder="Enter regex pattern..." style="margin-bottom:0" oninput="runRegex()">
+                <input type="text" id="flagsInput" value="g" placeholder="Flags" style="width:60px;margin-bottom:0;text-align:center" oninput="runRegex()">
+            </div>
+            <label>Test String</label>
+            <textarea id="testInput" oninput="runRegex()">Contact us at support@example.com or sales@toolpipe.dev for help.</textarea>
+            <label>Matches</label>
+            <div class="try-result" id="regexResult"></div>
+        </div>
+        <div class="tip"><strong>Try it:</strong> Change the pattern above to test any regex from this cheat sheet. For a full-featured tester, use our <a href="/regex-tester" style="color:#3b82f6">Regex Tester tool</a>.</div>
+    </div>
+
+    <!-- Basics -->
+    <div class="section" data-section="basics" id="basics">
+        <h2 style="margin-top:0">Basics &amp; Anchors</h2>
+        <table>
+            <thead><tr><th>Pattern</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>.</code></td><td>Any character except newline</td><td><code>a.c</code> matches "abc", "a1c"</td></tr>
+                <tr><td><code>^</code></td><td>Start of string (or line with <code>m</code> flag)</td><td><code>^Hello</code> matches "Hello world"</td></tr>
+                <tr><td><code>$</code></td><td>End of string (or line with <code>m</code> flag)</td><td><code>end$</code> matches "the end"</td></tr>
+                <tr><td><code>\b</code></td><td>Word boundary</td><td><code>\bcat\b</code> matches "cat" but not "catch"</td></tr>
+                <tr><td><code>\B</code></td><td>Non-word boundary</td><td><code>\Bcat</code> matches "catch" but not "cat"</td></tr>
+                <tr><td><code>\</code></td><td>Escape special character</td><td><code>\.</code> matches literal "."</td></tr>
+                <tr><td><code>|</code></td><td>Alternation (OR)</td><td><code>cat|dog</code> matches "cat" or "dog"</td></tr>
+            </tbody>
+        </table>
+        <div class="tip"><strong>Special characters</strong> that need escaping: <code>. ^ $ * + ? { } [ ] \ | ( )</code></div>
+    </div>
+
+    <!-- Character Classes -->
+    <div class="section" data-section="character-classes" id="character-classes">
+        <h2 style="margin-top:0">Character Classes</h2>
+        <table>
+            <thead><tr><th>Pattern</th><th>Description</th><th>Equivalent</th></tr></thead>
+            <tbody>
+                <tr><td><code>[abc]</code></td><td>Match any one of a, b, or c</td><td></td></tr>
+                <tr><td><code>[^abc]</code></td><td>Match anything except a, b, or c</td><td></td></tr>
+                <tr><td><code>[a-z]</code></td><td>Match any lowercase letter</td><td></td></tr>
+                <tr><td><code>[A-Z]</code></td><td>Match any uppercase letter</td><td></td></tr>
+                <tr><td><code>[0-9]</code></td><td>Match any digit</td><td><code>\d</code></td></tr>
+                <tr><td><code>[a-zA-Z0-9]</code></td><td>Match any alphanumeric character</td><td></td></tr>
+                <tr><td><code>\d</code></td><td>Digit</td><td><code>[0-9]</code></td></tr>
+                <tr><td><code>\D</code></td><td>Non-digit</td><td><code>[^0-9]</code></td></tr>
+                <tr><td><code>\w</code></td><td>Word character</td><td><code>[a-zA-Z0-9_]</code></td></tr>
+                <tr><td><code>\W</code></td><td>Non-word character</td><td><code>[^a-zA-Z0-9_]</code></td></tr>
+                <tr><td><code>\s</code></td><td>Whitespace (space, tab, newline)</td><td><code>[ \t\n\r\f\v]</code></td></tr>
+                <tr><td><code>\S</code></td><td>Non-whitespace</td><td><code>[^ \t\n\r\f\v]</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Quantifiers -->
+    <div class="section" data-section="quantifiers" id="quantifiers">
+        <h2 style="margin-top:0">Quantifiers</h2>
+        <table>
+            <thead><tr><th>Pattern</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>*</code></td><td>0 or more (greedy)</td><td><code>ab*c</code> matches "ac", "abc", "abbc"</td></tr>
+                <tr><td><code>+</code></td><td>1 or more (greedy)</td><td><code>ab+c</code> matches "abc", "abbc" but not "ac"</td></tr>
+                <tr><td><code>?</code></td><td>0 or 1 (optional)</td><td><code>colou?r</code> matches "color" and "colour"</td></tr>
+                <tr><td><code>{n}</code></td><td>Exactly n times</td><td><code>\d{4}</code> matches "2026"</td></tr>
+                <tr><td><code>{n,}</code></td><td>n or more times</td><td><code>\d{2,}</code> matches "42", "123", "9999"</td></tr>
+                <tr><td><code>{n,m}</code></td><td>Between n and m times</td><td><code>\d{2,4}</code> matches "42", "123", "9999"</td></tr>
+                <tr><td><code>*?</code></td><td>0 or more (lazy / non-greedy)</td><td><code>".*?"</code> matches first quoted string</td></tr>
+                <tr><td><code>+?</code></td><td>1 or more (lazy)</td><td><code>.+?;</code> matches up to first semicolon</td></tr>
+                <tr><td><code>??</code></td><td>0 or 1 (lazy)</td><td></td></tr>
+            </tbody>
+        </table>
+        <div class="tip"><strong>Greedy vs lazy:</strong> By default, quantifiers are greedy (match as much as possible). Adding <code>?</code> after makes them lazy (match as little as possible). Example: for the string <code>"a" and "b"</code>, the pattern <code>".*"</code> matches the entire string, while <code>".*?"</code> matches <code>"a"</code> then <code>"b"</code> separately.</div>
+    </div>
+
+    <!-- Groups -->
+    <div class="section" data-section="groups" id="groups">
+        <h2 style="margin-top:0">Groups &amp; Backreferences</h2>
+        <table>
+            <thead><tr><th>Pattern</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>(abc)</code></td><td>Capturing group</td><td><code>(ha)+</code> matches "haha"</td></tr>
+                <tr><td><code>(?:abc)</code></td><td>Non-capturing group</td><td><code>(?:ha)+</code> matches "haha" (no capture)</td></tr>
+                <tr><td><code>(?&lt;name&gt;abc)</code></td><td>Named capturing group</td><td><code>(?&lt;year&gt;\d{4})</code></td></tr>
+                <tr><td><code>\1</code></td><td>Backreference to group 1</td><td><code>(ha)\1</code> matches "haha"</td></tr>
+                <tr><td><code>\k&lt;name&gt;</code></td><td>Backreference to named group</td><td><code>(?&lt;word&gt;\w+)\s\k&lt;word&gt;</code> matches repeated words</td></tr>
+                <tr><td><code>(a|b)</code></td><td>Alternation within group</td><td><code>(cat|dog)s</code> matches "cats" or "dogs"</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Useful group patterns</h3>
+        <table>
+            <thead><tr><th>Pattern</th><th>What it does</th></tr></thead>
+            <tbody>
+                <tr><td><code>(\w+)\s\1</code></td><td>Find duplicate words ("the the")</td></tr>
+                <tr><td><code>(?&lt;y&gt;\d{4})-(?&lt;m&gt;\d{2})-(?&lt;d&gt;\d{2})</code></td><td>Named capture for date parts</td></tr>
+                <tr><td><code>(["']).*?\1</code></td><td>Match quoted strings (matching quotes)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Lookaround -->
+    <div class="section" data-section="lookaround" id="lookaround">
+        <h2 style="margin-top:0">Lookahead &amp; Lookbehind</h2>
+        <p>Lookaround assertions match a position without consuming characters. They check what comes before or after the current position.</p>
+        <table>
+            <thead><tr><th>Pattern</th><th>Name</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>(?=abc)</code></td><td>Positive lookahead</td><td>Followed by "abc"</td></tr>
+                <tr><td><code>(?!abc)</code></td><td>Negative lookahead</td><td>NOT followed by "abc"</td></tr>
+                <tr><td><code>(?&lt;=abc)</code></td><td>Positive lookbehind</td><td>Preceded by "abc"</td></tr>
+                <tr><td><code>(?&lt;!abc)</code></td><td>Negative lookbehind</td><td>NOT preceded by "abc"</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Practical examples</h3>
+        <table>
+            <thead><tr><th>Pattern</th><th>What it matches</th></tr></thead>
+            <tbody>
+                <tr><td><code>\d+(?= dollars)</code></td><td>Numbers followed by " dollars" (matches "100" in "100 dollars")</td></tr>
+                <tr><td><code>\d+(?! dollars)</code></td><td>Numbers NOT followed by " dollars"</td></tr>
+                <tr><td><code>(?&lt;=\$)\d+</code></td><td>Numbers preceded by "$" (matches "50" in "$50")</td></tr>
+                <tr><td><code>(?&lt;!@)\w+</code></td><td>Words NOT preceded by "@"</td></tr>
+                <tr><td><code>(?=.*[A-Z])(?=.*\d).{8,}</code></td><td>Password with at least 1 uppercase and 1 digit, 8+ chars</td></tr>
+            </tbody>
+        </table>
+        <div class="tip"><strong>Note:</strong> Lookbehind has limited support in some engines. JavaScript supports it in modern browsers (ES2018+). Python, Java, .NET, and PCRE all support it.</div>
+    </div>
+
+    <!-- Flags -->
+    <div class="section" data-section="flags" id="flags">
+        <h2 style="margin-top:0">Flags (Modifiers)</h2>
+        <div class="flag-list">
+            <div class="flag"><code>g</code> Global: find all matches</div>
+            <div class="flag"><code>i</code> Case-insensitive</div>
+            <div class="flag"><code>m</code> Multiline: ^ and $ match line boundaries</div>
+            <div class="flag"><code>s</code> Dotall: . matches newlines too</div>
+            <div class="flag"><code>u</code> Unicode: full Unicode support</div>
+            <div class="flag"><code>y</code> Sticky: match at lastIndex position only</div>
+        </div>
+
+        <h3>Using flags in different languages</h3>
+        <table>
+            <thead><tr><th>Language</th><th>Syntax</th></tr></thead>
+            <tbody>
+                <tr><td>JavaScript</td><td><code>/pattern/gi</code> or <code>new RegExp("pattern", "gi")</code></td></tr>
+                <tr><td>Python</td><td><code>re.findall(r"pattern", text, re.IGNORECASE | re.MULTILINE)</code></td></tr>
+                <tr><td>Java</td><td><code>Pattern.compile("pattern", Pattern.CASE_INSENSITIVE)</code></td></tr>
+                <tr><td>Go</td><td><code>(?i)pattern</code> (inline flag)</td></tr>
+                <tr><td>PHP</td><td><code>/pattern/gi</code></td></tr>
+                <tr><td>Ruby</td><td><code>/pattern/im</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Common Patterns -->
+    <div class="section" data-section="common-patterns" id="common-patterns">
+        <h2 style="margin-top:0">Common Regex Patterns</h2>
+        <p>Copy-paste ready patterns for common validation tasks.</p>
+
+        <div class="pattern-card">
+            <div class="label">Email Address</div>
+            <div class="regex"><span>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: user@example.com, first.last@sub.domain.org</div>
+            <div class="no-matches">Fails: user@, @domain.com, user@.com</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">URL (HTTP/HTTPS)</div>
+            <div class="regex"><span>https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: https://example.com, http://sub.domain.com/path?q=1</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">IPv4 Address</div>
+            <div class="regex"><span>^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 192.168.1.1, 10.0.0.1, 255.255.255.0</div>
+            <div class="no-matches">Fails: 256.1.1.1, 1.2.3, 1.2.3.4.5</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">IPv6 Address (simplified)</div>
+            <div class="regex"><span>^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 2001:0db8:85a3:0000:0000:8a2e:0370:7334</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Phone Number (US)</div>
+            <div class="regex"><span>^(\+1[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: (555) 123-4567, 555-123-4567, +1 555.123.4567</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Phone Number (International E.164)</div>
+            <div class="regex"><span>^\+[1-9]\d{1,14}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: +14155552671, +442071838750</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Date (YYYY-MM-DD)</div>
+            <div class="regex"><span>^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 2026-04-01, 2025-12-31</div>
+            <div class="no-matches">Fails: 2026-13-01, 2026-00-15</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Time (HH:MM, 24-hour)</div>
+            <div class="regex"><span>^([01]\d|2[0-3]):[0-5]\d$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 09:30, 23:59, 00:00</div>
+            <div class="no-matches">Fails: 24:00, 9:30 (needs leading zero)</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Hex Color Code</div>
+            <div class="regex"><span>^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: #fff, #6c63ff, #ABC123</div>
+            <div class="no-matches">Fails: #gg0000, fff (no #)</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Strong Password</div>
+            <div class="regex"><span>^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="desc">Minimum 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special character</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Username (alphanumeric + underscores, 3-16 chars)</div>
+            <div class="regex"><span>^[a-zA-Z0-9_]{3,16}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: john_doe, User42, admin</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Slug (URL-friendly string)</div>
+            <div class="regex"><span>^[a-z0-9]+(-[a-z0-9]+)*$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: my-page, regex-cheat-sheet, hello</div>
+            <div class="no-matches">Fails: My-Page, --double, trailing-</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Credit Card Number (basic Luhn-compatible format)</div>
+            <div class="regex"><span>^\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 4111111111111111, 4111-1111-1111-1111, 4111 1111 1111 1111</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">SSN (US Social Security Number)</div>
+            <div class="regex"><span>^\d{3}-\d{2}-\d{4}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 123-45-6789</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">ZIP Code (US, 5 or 9 digit)</div>
+            <div class="regex"><span>^\d{5}(-\d{4})?$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 90210, 90210-1234</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">HTML Tag</div>
+            <div class="regex"><span>&lt;([a-z][a-z0-9]*)\b[^&gt;]*&gt;(.*?)&lt;\/\1&gt;</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="desc">Matches opening and closing HTML tags with content. Not suitable for full HTML parsing.</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Whitespace Trimming</div>
+            <div class="regex"><span>^\s+|\s+$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="desc">Use with replace to trim leading and trailing whitespace</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Duplicate Words</div>
+            <div class="regex"><span>\b(\w+)\s+\1\b</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: "the the", "is is"</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">UUID v4</div>
+            <div class="regex"><span>^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 550e8400-e29b-41d4-a716-446655440000</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">Semantic Version (semver)</div>
+            <div class="regex"><span>^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="matches">Matches: 1.0.0, 2.1.3, 1.0.0-beta.1</div>
+        </div>
+
+        <div class="pattern-card">
+            <div class="label">JSON String</div>
+            <div class="regex"><span>"(?:[^"\\]|\\.)*"</span><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+            <div class="desc">Matches a properly escaped JSON string value</div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <h2>Test Your Regex Patterns</h2>
+        <p>Use our full regex tester with real-time matching, capture groups, and multi-language support.</p>
+        <a href="/regex-tester">Open Regex Tester</a>
+    </div>
+
+    <!-- Related Tools -->
+    <h2>Related Tools</h2>
+    <div class="related">
+        <a href="/regex-tester">Regex Tester<span>Full-featured regex testing</span></a>
+        <a href="/json-formatter">JSON Formatter<span>Format and validate JSON</span></a>
+        <a href="/text-diff">Text Diff Checker<span>Compare text blocks</span></a>
+        <a href="/password-generator">Password Generator<span>Strong password generator</span></a>
+        <a href="/word-counter">Word Counter<span>Analyze text content</span></a>
+        <a href="/html-entity-encoder">HTML Entity Encoder<span>Encode HTML entities</span></a>
+    </div>
+
+    <a href="/" style="display:inline-block;margin-top:24px;color:#6c63ff;text-decoration:none;">Back to ToolPipe</a>
+</div>
+<footer>
+    <a href="/">ToolPipe</a> - Free developer tools. No signup required.
+</footer>
+<script>
+function runRegex() {
+    const pattern = document.getElementById('regexInput').value;
+    const flags = document.getElementById('flagsInput').value;
+    const text = document.getElementById('testInput').value;
+    const result = document.getElementById('regexResult');
+    if (!pattern) { result.innerHTML = '<span class="no-match">Enter a pattern above</span>'; return; }
+    try {
+        const re = new RegExp(pattern, flags);
+        if (!text) { result.innerHTML = '<span class="no-match">Enter test text</span>'; return; }
+        const matches = text.match(re);
+        if (!matches || matches.length === 0) {
+            result.innerHTML = '<span class="no-match">No matches found</span>';
+            return;
+        }
+        // Highlight matches in the text
+        let html = '';
+        let lastIndex = 0;
+        const globalRe = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
+        let m;
+        while ((m = globalRe.exec(text)) !== null) {
+            html += escapeHtml(text.slice(lastIndex, m.index));
+            html += '<span class="match">' + escapeHtml(m[0]) + '</span>';
+            lastIndex = m.index + m[0].length;
+            if (m[0].length === 0) { globalRe.lastIndex++; }
+        }
+        html += escapeHtml(text.slice(lastIndex));
+        result.innerHTML = html + '<br><br><strong>' + matches.length + ' match' + (matches.length !== 1 ? 'es' : '') + '</strong>';
+    } catch (e) {
+        result.innerHTML = '<span class="no-match">Invalid regex: ' + escapeHtml(e.message) + '</span>';
+    }
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyText(btn) {
+    const span = btn.parentElement.querySelector('span');
+    navigator.clipboard.writeText(span.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+}
+
+function filterSections() {
+    const q = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.section').forEach(s => {
+        if (!q) { s.classList.remove('hidden'); return; }
+        s.classList.toggle('hidden', !s.textContent.toLowerCase().includes(q));
+    });
+}
+
+// Run on load
+runRegex();
+</script>
+</body>
+</html>
