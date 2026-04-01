@@ -71,16 +71,18 @@ async function get(path) {
 // ---------------------------------------------------------------------------
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.0.0" },
+  { name: "toolpipe", version: "1.1.0" },
   {
     capabilities: { tools: {} },
     instructions:
-      "ToolPipe provides 20 essential developer utility APIs as MCP tools. " +
-      "JSON formatting, QR codes, hashing, UUID, base64, markdown-to-HTML, " +
-      "URL shortener, regex tester, text stats, JWT decode, DNS lookup, " +
-      "HTTP headers check, SSL check, password generator, lorem ipsum, " +
-      "color converter, cron parser, timestamp converter, CSV-to-JSON, and " +
-      "code minification. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo).",
+      "ToolPipe provides 35 developer utility APIs as MCP tools. " +
+      "JSON formatting/validation/schema, QR codes, hashing, UUID, base64, " +
+      "markdown-to-HTML, URL shortener, regex tester/generator, text stats, " +
+      "JWT decode/create, DNS lookup, HTTP headers, SSL check, password gen, " +
+      "lorem ipsum, color converter, cron parser, timestamp converter, " +
+      "CSV-to-JSON, code minify/format/review/explain, fake data generation, " +
+      "WHOIS lookup, Dockerfile/docker-compose generation, git commit messages, " +
+      "and more. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo).",
   }
 );
 
@@ -529,6 +531,312 @@ server.tool(
         code,
         language: language || "javascript",
       });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 21. Code Review
+// ---------------------------------------------------------------------------
+server.tool(
+  "code_review",
+  "Review code for bugs, security issues, and best practices. Returns detailed feedback.",
+  {
+    code: z.string().describe("Code to review"),
+    language: z.string().optional().describe("Programming language (auto-detected if omitted)"),
+  },
+  async ({ code, language }) => {
+    try {
+      const data = await post("/api/code/review", { code, language });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 22. Code Explain
+// ---------------------------------------------------------------------------
+server.tool(
+  "code_explain",
+  "Explain what a piece of code does in plain English.",
+  {
+    code: z.string().describe("Code to explain"),
+    language: z.string().optional().describe("Programming language"),
+  },
+  async ({ code, language }) => {
+    try {
+      const data = await post("/api/code/explain", { code, language });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 23. Code Format
+// ---------------------------------------------------------------------------
+server.tool(
+  "code_format",
+  "Format/beautify code (JavaScript, Python, SQL, JSON, HTML, CSS, and more).",
+  {
+    code: z.string().describe("Code to format"),
+    language: z.string().optional().describe("Programming language (default javascript)"),
+  },
+  async ({ code, language }) => {
+    try {
+      const data = await post("/api/code/format", { code, language: language || "javascript" });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 24. Fake Data Generator
+// ---------------------------------------------------------------------------
+server.tool(
+  "generate_fake_data",
+  "Generate realistic fake/mock data (names, emails, addresses, companies, etc.).",
+  {
+    type: z.string().describe("Data type: person, company, address, email, phone, creditcard, product, user"),
+    count: z.number().optional().describe("Number of records (default 1, max 100)"),
+    locale: z.string().optional().describe("Locale (default en)"),
+  },
+  async ({ type, count, locale }) => {
+    try {
+      const data = await post("/api/data/fake", { type, count: count || 1, locale: locale || "en" });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 25. JSON Schema Validate
+// ---------------------------------------------------------------------------
+server.tool(
+  "json_schema_validate",
+  "Validate JSON data against a JSON Schema.",
+  {
+    data: z.string().describe("JSON data to validate"),
+    schema: z.string().describe("JSON Schema to validate against"),
+  },
+  async ({ data, schema }) => {
+    try {
+      const parsed_data = JSON.parse(data);
+      const parsed_schema = JSON.parse(schema);
+      const result = await post("/api/schema/validate", { data: parsed_data, schema: parsed_schema });
+      return ok(result);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 26. WHOIS Lookup
+// ---------------------------------------------------------------------------
+server.tool(
+  "whois_lookup",
+  "Look up WHOIS registration info for a domain.",
+  {
+    domain: z.string().describe("Domain name to look up"),
+  },
+  async ({ domain }) => {
+    try {
+      const data = await get(`/api/whois?domain=${encodeURIComponent(domain)}`);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 27. Dockerfile Generator
+// ---------------------------------------------------------------------------
+server.tool(
+  "generate_dockerfile",
+  "Generate a Dockerfile for a project based on language and framework.",
+  {
+    language: z.string().describe("Programming language (node, python, go, rust, java, etc.)"),
+    framework: z.string().optional().describe("Framework (express, fastapi, gin, etc.)"),
+    port: z.number().optional().describe("Port to expose"),
+  },
+  async ({ language, framework, port }) => {
+    try {
+      const data = await post("/api/dockerfile/generate", { language, framework, port });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 28. Docker Compose Generator
+// ---------------------------------------------------------------------------
+server.tool(
+  "generate_docker_compose",
+  "Generate a docker-compose.yml for a multi-service stack.",
+  {
+    services: z.string().describe("Comma-separated services (e.g. 'node,postgres,redis')"),
+  },
+  async ({ services }) => {
+    try {
+      const data = await post("/api/generate/docker-compose", { services });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 29. Git Commit Message Generator
+// ---------------------------------------------------------------------------
+server.tool(
+  "generate_commit_message",
+  "Generate a conventional git commit message from a code diff or description.",
+  {
+    diff: z.string().optional().describe("Git diff or code changes"),
+    description: z.string().optional().describe("Description of what changed"),
+    style: z.string().optional().describe("Style: conventional, angular, simple (default conventional)"),
+  },
+  async ({ diff, description, style }) => {
+    try {
+      const data = await post("/api/commit/message", { diff, description, style: style || "conventional" });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 30. Regex Generator
+// ---------------------------------------------------------------------------
+server.tool(
+  "generate_regex",
+  "Generate a regex pattern from a natural language description.",
+  {
+    description: z.string().describe("What the regex should match (e.g. 'email addresses', 'US phone numbers')"),
+    test_strings: z.array(z.string()).optional().describe("Strings to test the regex against"),
+  },
+  async ({ description, test_strings }) => {
+    try {
+      const data = await post("/api/regex/generate", { description, test_strings });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 31. SQL Formatter
+// ---------------------------------------------------------------------------
+server.tool(
+  "sql_format",
+  "Format and beautify SQL queries.",
+  {
+    sql: z.string().describe("SQL query to format"),
+    dialect: z.string().optional().describe("SQL dialect: standard, postgresql, mysql, sqlite"),
+  },
+  async ({ sql, dialect }) => {
+    try {
+      const data = await post("/api/sql/format", { sql, dialect });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 32. JSON to TypeScript Interface
+// ---------------------------------------------------------------------------
+server.tool(
+  "json_to_typescript",
+  "Generate TypeScript interfaces from JSON data.",
+  {
+    json: z.string().describe("JSON data to generate interfaces from"),
+    name: z.string().optional().describe("Root interface name (default Root)"),
+  },
+  async ({ json, name }) => {
+    try {
+      const data = await post("/api/generate/typescript-interface", { json, name });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 33. JWT Create
+// ---------------------------------------------------------------------------
+server.tool(
+  "jwt_create",
+  "Create a JWT token with custom payload and secret.",
+  {
+    payload: z.string().describe("JSON payload for the token"),
+    secret: z.string().describe("Secret key for signing"),
+    expires_in: z.string().optional().describe("Expiration (e.g. '1h', '7d', '30m')"),
+  },
+  async ({ payload, secret, expires_in }) => {
+    try {
+      const parsed = JSON.parse(payload);
+      const data = await post("/api/jwt/create", { payload: parsed, secret, expires_in });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 34. Web Extract (Scrape)
+// ---------------------------------------------------------------------------
+server.tool(
+  "web_extract",
+  "Extract structured content from a URL (title, text, links, meta tags).",
+  {
+    url: z.string().describe("URL to extract content from"),
+    selectors: z.array(z.string()).optional().describe("CSS selectors to extract specific elements"),
+  },
+  async ({ url, selectors }) => {
+    try {
+      const data = await post("/api/web/extract", { url, selectors });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 35. Prompt Engineer
+// ---------------------------------------------------------------------------
+server.tool(
+  "prompt_engineer",
+  "Improve and optimize an LLM prompt. Returns an enhanced version with best practices.",
+  {
+    prompt: z.string().describe("The prompt to improve"),
+    model: z.string().optional().describe("Target model (gpt-4, claude, llama, etc.)"),
+    task: z.string().optional().describe("Task type: chat, code, analysis, creative"),
+  },
+  async ({ prompt, model, task }) => {
+    try {
+      const data = await post("/api/prompt/engineer", { prompt, model, task });
       return ok(data);
     } catch (e) {
       return err(e.message);

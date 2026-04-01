@@ -1,7 +1,8 @@
 {
-  "name": "@toolpipe/mcp-server",
-  "version": "1.0.0",
-  "description": "MCP server for ToolPipe: 20 essential developer utility APIs (JSON, QR, hash, UUID, base64, markdown, DNS, SSL, JWT, and more) accessible to AI agents via Model Context Protocol",
+  "name": "@cosai-labs/toolpipe-mcp-server",
+  "version": "1.17.0",
+  "mcpName": "io.github.cosai-labs/toolpipe",
+  "description": "MCP server for ToolPipe: 35 developer utility APIs (JSON, QR, hash, UUID, code review, fake data, Dockerfile gen, regex gen, WHOIS, and more) accessible to AI agents via Model Context Protocol",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -27,6 +28,16 @@
     "base64",
     "markdown",
     "jwt-decoder",
+    "code-review",
+    "fake-data",
+    "dockerfile",
+    "docker-compose",
+    "whois",
+    "regex-generator",
+    "sql-formatter",
+    "typescript-generator",
+    "web-scraper",
+    "prompt-engineering",
     "claude",
     "llm-tools"
   ],
@@ -39,6 +50,7 @@
     "directory": "products/mcp-server-package"
   },
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "access": "public"
   },
   "engines": {

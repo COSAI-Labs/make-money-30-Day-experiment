@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.16.0" },
+    { name: "toolpipe", version: "1.17.0" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 220+ developer utility APIs as 120+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT, SQL formatting, XML/YAML, text stats, code review, code explain, fake data generation, OpenAPI spec generation, security header checking, API client generation, CSV analysis, JSON Schema validation, code minification, and more. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99).",
@@ -210,6 +210,16 @@ function createServer() {
   server.tool("buy_credits", "Purchase API credits (1K/$4.99, 10K/$29.99, 100K/$199.99).", { api_key: z.string(), pack: z.enum(["starter", "growth", "scale"]).optional() }, async ({ api_key, pack }) => textResult(await apiCall("/api/credits/buy", { method: "POST", body: JSON.stringify({ api_key, pack: pack ?? "starter" }) })));
   server.tool("credit_packs", "List available credit packs and pricing.", {}, async () => textResult(await apiCall("/api/credits/packs")));
 
+  // v1.17.0 new tools (non-duplicate only)
+  server.tool("generate_dockerfile", "Generate Dockerfile for a project.", { language: z.string(), framework: z.string().optional(), port: z.number().optional() }, async ({ language, framework, port }) => textResult(await apiCall("/api/dockerfile/generate", { method: "POST", body: JSON.stringify({ language, framework, port }) })));
+  server.tool("generate_commit_message", "Generate conventional git commit message from diff/description.", { diff: z.string().optional(), description: z.string().optional(), style: z.string().optional() }, async ({ diff, description, style }) => textResult(await apiCall("/api/commit/message", { method: "POST", body: JSON.stringify({ diff, description, style: style ?? "conventional" }) })));
+  server.tool("generate_regex", "Generate regex from natural language description.", { description: z.string(), test_strings: z.array(z.string()).optional() }, async ({ description, test_strings }) => textResult(await apiCall("/api/regex/generate", { method: "POST", body: JSON.stringify({ description, test_strings }) })));
+  server.tool("json_to_typescript", "Generate TypeScript interfaces from JSON.", { json: z.string(), name: z.string().optional() }, async ({ json, name }) => textResult(await apiCall("/api/generate/typescript-interface", { method: "POST", body: JSON.stringify({ json, name }) })));
+  server.tool("prompt_engineer", "Improve and optimize LLM prompts.", { prompt: z.string(), model: z.string().optional(), task: z.string().optional() }, async ({ prompt, model, task }) => textResult(await apiCall("/api/prompt/engineer", { method: "POST", body: JSON.stringify({ prompt, model, task }) })));
+  server.tool("generate_changelog", "Generate a changelog from commits or description.", { commits: z.string().optional(), description: z.string().optional(), version: z.string().optional() }, async ({ commits, description, version }) => textResult(await apiCall("/api/changelog/generate", { method: "POST", body: JSON.stringify({ commits, description, version }) })));
+  server.tool("generate_license", "Generate a license file (MIT, Apache-2.0, GPL-3.0, BSD-3, ISC).", { type: z.string(), name: z.string().optional(), year: z.string().optional() }, async ({ type, name, year }) => textResult(await apiCall("/api/license/generate", { method: "POST", body: JSON.stringify({ type, name, year }) })));
+  server.tool("api_spec_compare", "Compare two OpenAPI specs for breaking changes.", { spec1: z.string(), spec2: z.string() }, async ({ spec1, spec2 }) => textResult(await apiCall("/api/api-spec/compare", { method: "POST", body: JSON.stringify({ spec1: JSON.parse(spec1), spec2: JSON.parse(spec2) }) })));
+
   return server;
 }
 
@@ -264,5 +274,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`126 tools available. API backend: ${API_BASE}`);
+  console.log(`127 tools available. API backend: ${API_BASE}`);
 });

@@ -36,7 +36,7 @@ from reportlab.lib.pagesizes import letter
 app = FastAPI(
     title="ToolPipe API",
     description="230+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Credits: 1K for $4.99. Pay with crypto, no KYC.",
-    version="1.16.0",
+    version="1.17.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -5174,11 +5174,11 @@ async def mcp_info():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe MCP Server",
-        "version": "1.7.0",
+        "version": "1.17.0",
         "protocol": "MCP (Model Context Protocol)",
         "transport": "Streamable HTTP",
-        "tools": 88,
-        "total_api_endpoints": 130,
+        "tools": 156,
+        "total_api_endpoints": 230,
         "endpoint": "/mcp",
         "remote_url": f"{base}/mcp",
         "quickstart": f"{base}/quickstart",
@@ -5215,30 +5215,42 @@ async def well_known_mcp():
     return {
         "mcp_version": "2025-03-26",
         "name": "ToolPipe",
-        "description": "88 developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more",
+        "description": "230+ developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, code review, fake data, Dockerfile gen, and more",
         "url": f"{base}/mcp",
         "transport": "streamable-http",
-        "tools_count": 88,
-        "pricing": {"free_tier": True, "free_daily_limit": 100},
+        "tools_count": 156,
+        "total_api_endpoints": 230,
+        "npm_package": "@toolpipe/mcp-server",
+        "pricing": {
+            "free_tier": True,
+            "free_daily_limit": 100,
+            "pro": {"price_usd": 9.99, "daily_limit": 10000},
+            "enterprise": {"price_usd": 49.99, "daily_limit": 100000},
+        },
+        "setup": {
+            "claude_desktop": {"mcpServers": {"toolpipe": {"url": f"{base}/mcp"}}},
+            "claude_code": f"claude mcp add toolpipe {base}/mcp",
+            "npx": "npx -y @toolpipe/mcp-server",
+        },
         "documentation": f"{base}/quickstart",
     }
 
 
 @app.get("/.well-known/ai-plugin.json")
 async def ai_plugin_manifest():
-    """OpenAI plugin manifest for discoverability."""
+    """OpenAI-compatible plugin manifest for agent discovery."""
     base = _get_tunnel_url()
     return {
         "schema_version": "v1",
-        "name_for_human": "ToolPipe",
+        "name_for_human": "ToolPipe Developer Tools",
         "name_for_model": "toolpipe",
-        "description_for_human": "130+ developer utility APIs: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more.",
-        "description_for_model": "ToolPipe provides 130+ developer utility APIs. Use it for JSON formatting, QR code generation, hashing, UUID generation, DNS lookups, regex testing, JWT encoding/decoding, SQL formatting, XML/YAML conversion, PDF operations, web scraping, code analysis, and more. All tools are available via REST API.",
+        "description_for_human": "230+ free developer utility APIs: JSON formatting, QR codes, hashing, code review, fake data, DNS lookup, and more.",
+        "description_for_model": "ToolPipe provides 230+ developer utility APIs. Use this for JSON formatting, QR code generation, hashing (MD5/SHA256/bcrypt), UUID generation, base64 encoding, markdown conversion, regex testing, DNS lookup, SSL checks, code review, fake data generation, Dockerfile generation, JWT creation, and more. All tools work without authentication for the free tier (100 calls/day).",
         "auth": {"type": "none"},
         "api": {"type": "openapi", "url": f"{base}/openapi.json"},
         "logo_url": f"{base}/favicon.ico",
         "contact_email": "toolpipe-ads@sharebot.net",
-        "legal_info_url": f"{base}/quickstart",
+        "legal_info_url": f"{base}/terms",
     }
 
 
@@ -5248,9 +5260,9 @@ async def api_info():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe API",
-        "version": "1.7.0",
+        "version": "1.17.0",
         "base_url": base,
-        "total_endpoints": 130,
+        "total_endpoints": 230,
         "mcp_server": f"{base}/mcp",
         "docs": f"{base}/docs",
         "pricing": f"{base}/pricing",
@@ -10584,8 +10596,9 @@ async def agent_discover():
     return {
         "service": "ToolPipe",
         "tagline": "230+ developer APIs for AI agents and developers",
-        "version": "1.16.0",
+        "version": "1.17.0",
         "total_endpoints": 230,
+        "mcp_tools": 156,
         "free_tier": {
             "daily_limit": 100,
             "signup": "POST /api-keys/register with {\"email\": \"your@email.com\"}",
@@ -10796,6 +10809,43 @@ async def validate_crontab(request: Request):
         "errors": errors or None,
     }
 
+
+
+@app.get("/.well-known/a2a.json")
+async def a2a_discovery():
+    """A2A (Agent-to-Agent) protocol discovery."""
+    base = _get_tunnel_url()
+    return {
+        "name": "ToolPipe",
+        "description": "Developer utility API service with 230+ endpoints and 156 MCP tools.",
+        "version": "1.17.0",
+        "protocol": "a2a",
+        "capabilities": [
+            "json-formatting", "qr-code-generation", "hashing", "uuid-generation",
+            "base64-encoding", "dns-lookup", "ssl-check", "code-review",
+            "fake-data-generation", "regex-testing", "jwt-operations",
+            "dockerfile-generation", "web-scraping", "text-analysis",
+        ],
+        "endpoints": {
+            "rest": f"{base}/docs",
+            "mcp": f"{base}/mcp",
+            "openapi": f"{base}/openapi.json",
+        },
+        "authentication": {
+            "type": "api_key",
+            "header": "X-API-Key",
+            "free_tier_available": True,
+            "register": f"{base}/api-keys/register",
+        },
+        "payment": {
+            "crypto": True,
+            "wallets": {
+                "ethereum": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
+                "solana": "2guKDsPScRpCCKuVEGKBPFvodSNtZF4ArYeSC6oy6pf6",
+            },
+            "payment_endpoint": f"{base}/payments/create",
+        },
+    }
 
 
 # --- SEO Pages (catch-all for static content pages) ---
