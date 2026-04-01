@@ -641,6 +641,87 @@ async def base64_convert(req: Base64Request):
     return {"result": result, "action": req.action}
 
 
+# --- CSS/JS Minify ---
+
+class MinifyRequest(BaseModel):
+    code: str = ""
+    css: str = ""
+
+
+@app.post("/api/css/minify")
+async def css_minify(req: MinifyRequest):
+    css = req.css or req.code
+    if not css:
+        raise HTTPException(status_code=400, detail="Provide 'css' or 'code' field")
+    original_size = len(css.encode())
+    # Remove comments
+    result = re.sub(r'/\*[\s\S]*?\*/', '', css)
+    # Collapse whitespace
+    result = re.sub(r'\s+', ' ', result)
+    result = re.sub(r'\s*([{}:;,])\s*', r'\1', result)
+    result = re.sub(r';}', '}', result)
+    result = result.strip()
+    minified_size = len(result.encode())
+    saved = round((1 - minified_size / original_size) * 100, 1) if original_size > 0 else 0
+    return {"result": result, "original_size": original_size, "minified_size": minified_size, "saved_percent": saved}
+
+
+@app.post("/api/js/minify")
+async def js_minify(req: MinifyRequest):
+    js = req.code
+    if not js:
+        raise HTTPException(status_code=400, detail="Provide 'code' field")
+    original_size = len(js.encode())
+    # Remove multi-line comments
+    result = re.sub(r'/\*[\s\S]*?\*/', '', js)
+    # Remove single-line comments
+    result = re.sub(r'([^:])//.*$', r'\1', result, flags=re.MULTILINE)
+    # Collapse whitespace
+    result = re.sub(r'\s+', ' ', result).strip()
+    minified_size = len(result.encode())
+    saved = round((1 - minified_size / original_size) * 100, 1) if original_size > 0 else 0
+    return {"result": result, "original_size": original_size, "minified_size": minified_size, "saved_percent": saved}
+
+
+class YamlConvertRequest(BaseModel):
+    json_data: str = ""
+    yaml_data: str = ""
+
+
+@app.post("/api/convert/json-to-yaml")
+async def json_to_yaml_api(req: YamlConvertRequest):
+    if not req.json_data:
+        raise HTTPException(status_code=400, detail="Provide 'json_data' field")
+    try:
+        data = json.loads(req.json_data)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {str(e)}")
+
+    def to_yaml(obj, indent=0):
+        prefix = "  " * indent
+        if obj is None:
+            return "null"
+        if isinstance(obj, bool):
+            return "true" if obj else "false"
+        if isinstance(obj, (int, float)):
+            return str(obj)
+        if isinstance(obj, str):
+            if any(c in obj for c in ':\n#"\'') or obj == '':
+                return json.dumps(obj)
+            return obj
+        if isinstance(obj, list):
+            if not obj:
+                return "[]"
+            return "\n".join(f"{prefix}- {to_yaml(item, indent + 1).lstrip()}" for item in obj)
+        if isinstance(obj, dict):
+            if not obj:
+                return "{}"
+            return "\n".join(f"{prefix}{k}: {to_yaml(v, indent + 1).lstrip() if isinstance(v, (str, int, float, bool, type(None))) else chr(10) + to_yaml(v, indent + 1)}" for k, v in obj.items())
+        return str(obj)
+
+    return {"yaml": to_yaml(data), "success": True}
+
+
 # --- Uptime Monitor ---
 
 @app.get("/monitor", response_class=HTMLResponse)
