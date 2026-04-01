@@ -3452,24 +3452,91 @@ async def mcp_proxy(request: Request):
         )
 
 
+def _get_tunnel_url():
+    """Read the current tunnel URL from the capture file."""
+    url_file = Path(__file__).parent.parent.parent / ".tunnel-url"
+    try:
+        return url_file.read_text().strip()
+    except Exception:
+        return "https://toolpipe.dev"
+
+
 @app.get("/mcp-info")
 async def mcp_info():
     """Information about the MCP server endpoint."""
+    base = _get_tunnel_url()
     return {
         "name": "ToolPipe MCP Server",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "protocol": "MCP (Model Context Protocol)",
         "transport": "Streamable HTTP",
         "tools": 34,
         "endpoint": "/mcp",
+        "remote_url": f"{base}/mcp",
         "setup": {
             "claude_desktop": {
                 "mcpServers": {
                     "toolpipe": {
-                        "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
+                        "url": f"{base}/mcp"
                     }
                 }
-            }
+            },
+            "local_npx": "npx toolpipe-mcp-server",
+            "npm_package": "@cosai-labs/toolpipe-mcp-server"
+        }
+    }
+
+
+@app.get("/api/info")
+async def api_info():
+    """Complete API information and endpoint catalog."""
+    base = _get_tunnel_url()
+    return {
+        "name": "ToolPipe API",
+        "version": "1.2.0",
+        "base_url": base,
+        "total_endpoints": 82,
+        "mcp_server": f"{base}/mcp",
+        "docs": f"{base}/docs",
+        "pricing": f"{base}/pricing",
+        "categories": {
+            "json_data": [
+                "POST /json/format", "POST /api/convert/json-to-yaml", "POST /json/to-csv",
+                "POST /api/json/validate-schema", "POST /api/code/format"
+            ],
+            "text": [
+                "POST /text/analyze", "POST /api/text/summarize", "POST /api/text/detect-language",
+                "POST /api/text/diff", "POST /api/text/slugify", "POST /api/regex/test",
+                "POST /api/lorem-ipsum", "POST /api/markdown/table"
+            ],
+            "encoding_hashing": [
+                "POST /hash/generate", "POST /base64", "POST /api/url/encode-decode",
+                "POST /api/html/encode-decode", "POST /api/jwt/decode",
+                "GET /uuid/generate", "POST /api/password/generate"
+            ],
+            "web_network": [
+                "GET /dns/lookup", "GET /ip/lookup", "GET /ip/my",
+                "GET /meta/extract", "GET /down/check", "GET /seo/analyze",
+                "POST /api/http/request", "POST /s/create"
+            ],
+            "media": [
+                "GET /qr/generate", "POST /api/screenshot", "POST /pdf/create",
+                "POST /pdf/merge", "POST /pdf/extract-text"
+            ],
+            "utilities": [
+                "GET /color/convert", "POST /api/timestamp/convert", "GET /api/timestamp/now",
+                "POST /api/cron/parse", "GET /api/crypto/prices",
+                "POST /api/css/minify", "POST /api/js/minify",
+                "POST /markdown/to-html", "GET /api/random/quote"
+            ],
+            "payments": [
+                "POST /payments/create", "GET /payments/status", "POST /payments/webhook"
+            ]
+        },
+        "free_tier": {"daily_limit": 100, "signup": "Email only at /api-keys"},
+        "paid_tiers": {
+            "pro": {"price": "$9.99/mo", "daily_limit": 10000},
+            "enterprise": {"price": "$49.99/mo", "daily_limit": 100000}
         }
     }
 
