@@ -2,51 +2,45 @@
 
 ## Status: ACTIVE
 
-## Phase: Setup + First Builds
+## Phase: Setup + First Builds (COMPLETE)
 
 ## Key Decisions
-- Primary revenue play: AI-powered APIs on RapidAPI (fastest path)
-- Secondary: Digital products on Gumroad
-- Tertiary: Micro-SaaS (launch by Day 7-10)
-- Strategy: multi-product, ship fast, test, iterate
+- Primary revenue play: multi-product utility suite + API marketplace listing
+- Strategy: ship fast, build multiple products, test demand, add payment when available
+- HTTPS via Cloudflare tunnel (no sudo for nginx)
+- Emailed owner about payment/email/domain blockers
 
 ## Infrastructure
 - [x] Project directory created
 - [x] CLAUDE.md written with self-editing protocol
 - [x] Revenue tracker initialized
-- [x] Git repo: COSAI-Labs/make-money-30day-challenge (private)
-- [x] Remote Strategist trigger (every 6h with Gmail)
+- [x] Git repo: COSAI-Labs/make-money-30day-challenge
 - [x] Auto-restart runner (run.sh) in tmux
 - [x] Agent startup prompt with self-healing
-- [x] PM2 installed and running
-- [x] 6 cron jobs active (Builder, Researcher, Ops, Finance, Growth, Sales)
-- [ ] Install nginx + certbot for HTTPS
-- [ ] Set up domain or use IP-based endpoints
+- [x] PM2 installed and running (2 processes)
+- [x] 7 cron jobs active (Builder, Researcher, Ops, Finance, Growth, Sales, Uptime)
+- [x] Cloudflare tunnel for HTTPS
+- [x] Sitemap.xml and robots.txt
+- [ ] Domain name (using IP + tunnel)
+- [ ] Payment processing (Stripe)
+- [ ] Project email for account signups
 
-## Research Completed
-- Market scan: API marketplaces, micro-SaaS, digital products, freelancing
-- VPS audit: Node v22, Python 3.14, public IP 187.77.213.192
-- Top API marketplace: RapidAPI (4M devs, 25% cut)
+## Products Shipped (5 products + 3 SEO pages)
+1. **ToolPipe API** - 12+ REST API endpoints at /docs
+2. **DevTools Online** - 12 client-side developer tools at /tools
+3. **SEO Analyzer** - Full website SEO audit at /seo
+4. **QuickInvoice** - Invoice generator with PDF at /invoice
+5. **PingPulse** - Uptime monitoring with SQLite at /monitor
+6. SEO page: QR Code Generator at /qr-code-generator
+7. SEO page: JSON Formatter at /json-formatter
+8. SEO page: Base64 Encoder at /base64-encoder
 
-## Products Shipped
-1. **ToolPipe API** (http://187.77.213.192:8081)
-   - 12+ REST API endpoints (QR, metadata, text, image, hash, UUID, color, base64, markdown, DNS, JSON-CSV)
-   - FastAPI + uvicorn, running via PM2
-   - Landing page with pricing tiers
-   - Interactive API docs at /docs
-
-2. **DevTools Online** (http://187.77.213.192:8081/tools)
-   - 12 client-side developer tools in a single page
-   - JSON formatter, Base64, hash, QR, UUID, color converter, text analyzer, markdown preview, URL encoder, regex tester, text diff, timestamp converter
-
-## Next Steps (Priority Order)
-1. Set up nginx + SSL (need HTTPS for marketplace listings)
-2. List ToolPipe API on RapidAPI
-3. Build a micro-SaaS product
-4. Set up payment processing (Stripe, Gumroad, or Payhip)
-5. Create project email account
+## Access
+- HTTP: http://187.77.213.192:8081
+- HTTPS: https://assessing-scoop-authorities-sheet.trycloudflare.com
+- Swagger docs: http://187.77.213.192:8081/docs
 
 ## Revenue Today: $0
 ## Running Total: $0
 ## Days Remaining: 30
-## On Track: NO (need first dollar by Day 3)
+## On Track: NO (need first dollar by Day 3, payment processing is the blocker)
