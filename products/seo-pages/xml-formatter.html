@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Formatter - Free Online XML Beautifier & Validator</title>
+    <meta name="description" content="Free online XML formatter, beautifier, and validator. Format messy XML with proper indentation. Validate XML syntax instantly. No signup required.">
+    <link rel="canonical" href="/xml-formatter">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"XML Formatter","description":"Free online XML formatter and validator","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 250px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin: 8px 0; display: none; }
+        .status.valid { background: #d4edda; color: #155724; display: block; }
+        .status.invalid { background: #f8d7da; color: #721c24; display: block; }
+        .output textarea { background: #f0fdf4; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>XML Formatter & Validator</h1>
+    <p class="subtitle">Beautify, format, and validate XML documents online. Proper indentation with syntax validation.</p>
+
+    <div class="tool-box">
+        <label><strong>Input XML:</strong></label>
+        <textarea id="input" placeholder='<?xml version="1.0"?><catalog><book id="1"><title>XML Formatting</title><author>Dev Tools</author><price>29.99</price></book><book id="2"><title>JSON vs XML</title><author>ToolPipe</author><price>19.99</price></book></catalog>'></textarea>
+
+        <div class="btns">
+            <button class="btn btn-primary" onclick="formatXML()">Format XML</button>
+            <button class="btn btn-secondary" onclick="minifyXML()">Minify</button>
+            <button class="btn btn-secondary" onclick="validateXML()">Validate</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="output">
+            <label><strong>Output:</strong></label>
+            <textarea id="output" readonly></textarea>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>About XML Formatting</h2>
+        <p>XML (eXtensible Markup Language) is a structured data format used in web services, configuration files, and data exchange. Well-formatted XML with proper indentation is essential for readability and debugging.</p>
+
+        <h2>Features</h2>
+        <p><strong>Format:</strong> Adds proper indentation and line breaks to make XML readable.</p>
+        <p><strong>Minify:</strong> Removes all whitespace to create the smallest possible XML output.</p>
+        <p><strong>Validate:</strong> Checks XML syntax and reports any errors.</p>
+
+        <h2>Related Tools</h2>
+        <p><a href="/json-formatter">JSON Formatter</a> | <a href="/json-to-yaml">JSON to YAML</a> | <a href="/html-entity-encoder">HTML Encoder</a> | <a href="/api-keys">Free API Key</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON</a> | <a href="/sql-formatter">SQL</a> | <a href="/api-keys">API</a>
+</footer>
+
+<script>
+function formatXML() {
+    const input = document.getElementById('input').value.trim();
+    if (!input) return;
+
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(input, 'application/xml');
+        const error = doc.querySelector('parsererror');
+        if (error) {
+            showStatus('Invalid XML: ' + error.textContent.split('\n')[0], false);
+            return;
+        }
+
+        const formatted = prettyPrint(doc.documentElement, 0);
+        const declaration = input.match(/^<\?xml[^?]*\?>/);
+        document.getElementById('output').value = (declaration ? declaration[0] + '\n' : '') + formatted;
+        showStatus('Valid XML', true);
+    } catch (e) {
+        showStatus('Error: ' + e.message, false);
+    }
+}
+
+function prettyPrint(node, indent) {
+    const pad = '  '.repeat(indent);
+    let result = '';
+
+    if (node.nodeType === 3) {
+        const text = node.textContent.trim();
+        if (text) return text;
+        return '';
+    }
+
+    if (node.nodeType === 1) {
+        result += pad + '<' + node.tagName;
+
+        for (const attr of node.attributes) {
+            result += ' ' + attr.name + '="' + attr.value + '"';
+        }
+
+        if (node.childNodes.length === 0) {
+            result += '/>';
+            return result;
+        }
+
+        if (node.childNodes.length === 1 && node.childNodes[0].nodeType === 3) {
+            result += '>' + node.textContent.trim() + '</' + node.tagName + '>';
+            return result;
+        }
+
+        result += '>\n';
+        for (const child of node.childNodes) {
+            const childResult = prettyPrint(child, indent + 1);
+            if (childResult) result += childResult + '\n';
+        }
+        result += pad + '</' + node.tagName + '>';
+    }
+
+    return result;
+}
+
+function minifyXML() {
+    const input = document.getElementById('input').value.trim();
+    if (!input) return;
+    document.getElementById('output').value = input.replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim();
+    showStatus('Minified', true);
+}
+
+function validateXML() {
+    const input = document.getElementById('input').value.trim();
+    if (!input) return;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(input, 'application/xml');
+    const error = doc.querySelector('parsererror');
+    if (error) {
+        showStatus('Invalid: ' + error.textContent.split('\n')[0], false);
+    } else {
+        showStatus('Valid XML document', true);
+    }
+}
+
+function showStatus(msg, valid) {
+    const el = document.getElementById('status');
+    el.className = 'status ' + (valid ? 'valid' : 'invalid');
+    el.textContent = msg;
+}
+
+function copyOutput() { document.getElementById('output').select(); document.execCommand('copy'); }
+function clearAll() { document.getElementById('input').value = ''; document.getElementById('output').value = ''; document.getElementById('status').className = 'status'; }
+</script>
+</body>
+</html>
