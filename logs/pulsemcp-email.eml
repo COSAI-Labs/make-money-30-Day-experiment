@@ -1,0 +1,51 @@
+Content-Type: multipart/mixed; boundary="===============6835111788630649819=="
+MIME-Version: 1.0
+From: ToolPipe Team <toolpipe-ads@sharebot.net>
+To: submit@pulsemcp.com
+Subject: Listing Request: ToolPipe MCP Server (139+ Developer Tools)
+Reply-To: toolpipe-ads@sharebot.net
+
+--===============6835111788630649819==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+Hi PulseMCP Team,
+
+I'd like to request listing for the ToolPipe MCP Server on PulseMCP.
+
+ToolPipe is an MCP server providing 139+ developer utility tools, including:
+- JSON formatting and validation
+- QR code generation
+- Hashing (MD5, SHA-256, etc.)
+- UUID generation
+- DNS lookup
+- Base64 encode/decode
+- PDF tools
+- CSV analysis
+- Code formatting and minification
+- Regex testing
+- JWT decoding
+- SQL formatting
+- XML/YAML conversion
+- SSL certificate checking
+- WHOIS lookup
+- Code review tools
+- Fake data generation
+- And many more
+
+Remote MCP endpoint: https://toolpipe.dev/mcp
+npm package: npx @cosai-labs/toolpipe-mcp-server
+GitHub: https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server
+npm: https://www.npmjs.com/package/@cosai-labs/toolpipe-mcp-server
+Website: https://toolpipe.dev
+
+It works with Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Cline, and any MCP-compatible client. Free tier includes 100 API calls per day with all tools available.
+
+We'd love to be listed on PulseMCP. Happy to provide any additional information needed.
+
+Best regards,
+ToolPipe Team
+toolpipe-ads@sharebot.net
+https://toolpipe.dev
+--===============6835111788630649819==--
