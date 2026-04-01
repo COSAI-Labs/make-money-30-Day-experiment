@@ -1077,6 +1077,7 @@ async def sitemap():
         "/blog-free-developer-tools", "/polymarket",
         "/sql-formatter", "/html-to-markdown",
         "/json-path-tester", "/chmod-calculator",
+        "/ai-automation-consulting",
     ]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
