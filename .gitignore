@@ -12,3 +12,4 @@ products/api-service/waitlist.txt
 .env
 .env.*
 data/wallet.json
+products/mcp-server/.npmrc
