@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Gradient Generator - Free Visual Gradient Builder</title>
+    <meta name="description" content="Free online CSS gradient generator. Create beautiful linear and radial gradients with a visual builder. Copy CSS code instantly.">
+    <meta property="og:title" content="Free CSS Gradient Generator">
+    <meta property="og:description" content="Build beautiful CSS gradients visually. Linear and radial gradients with live preview and copy-ready code.">
+    <link rel="canonical" href="/css-gradient-generator">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "CSS Gradient Generator",
+        "description": "Free online CSS gradient generator with visual builder, live preview, and copy-ready code.",
+        "url": "https://toolpipe.com/css-gradient-generator",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .preview { width: 100%; height: 200px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; transition: background 0.3s; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-weight: 500; font-size: 0.9rem; }
+        .field select, .field input[type="range"] { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        .color-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .color-row input[type="color"] { width: 50px; height: 36px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; padding: 2px; }
+        .color-row input[type="range"] { flex: 1; }
+        .color-row span { font-size: 0.8rem; color: #666; min-width: 35px; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .code-output { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; background: #f8f9fa; min-height: 60px; resize: vertical; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .preset { width: 40px; height: 40px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s; }
+        .preset:hover { border-color: #6c63ff; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media (max-width: 600px) { .controls { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>CSS Gradient Generator</h1>
+        <p class="subtitle">Build beautiful CSS gradients visually with live preview</p>
+        <div class="tool-box">
+            <div class="preview" id="preview"></div>
+            <label style="font-weight:500;margin-bottom:8px;display:block">Presets</label>
+            <div class="presets" id="presets"></div>
+            <div class="controls">
+                <div class="field">
+                    <label>Type</label>
+                    <select id="type" onchange="update()">
+                        <option value="linear">Linear</option>
+                        <option value="radial">Radial</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Angle: <span id="angle-val">90</span>deg</label>
+                    <input type="range" id="angle" min="0" max="360" value="90" oninput="document.getElementById('angle-val').textContent=this.value;update()">
+                </div>
+            </div>
+            <label style="font-weight:500;margin-bottom:8px;display:block">Color Stops</label>
+            <div id="stops">
+                <div class="color-row">
+                    <input type="color" value="#6c63ff" oninput="update()">
+                    <input type="range" min="0" max="100" value="0" oninput="update()">
+                    <span>0%</span>
+                    <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem" onclick="removeStop(this)">X</button>
+                </div>
+                <div class="color-row">
+                    <input type="color" value="#e942f5" oninput="update()">
+                    <input type="range" min="0" max="100" value="100" oninput="update()">
+                    <span>100%</span>
+                    <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem" onclick="removeStop(this)">X</button>
+                </div>
+            </div>
+            <div class="btns">
+                <button class="btn btn-secondary" onclick="addStop()">Add Color Stop</button>
+                <button class="btn btn-primary" onclick="copyCSS()">Copy CSS</button>
+                <button class="btn btn-secondary" onclick="randomGradient()">Random</button>
+            </div>
+            <div id="status-bar"></div>
+            <label style="font-weight:500;margin:12px 0 6px;display:block">CSS Code</label>
+            <textarea id="code-output" class="code-output" readonly></textarea>
+        </div>
+
+        <div class="content">
+            <h2>What are CSS Gradients?</h2>
+            <p>CSS gradients let you display smooth transitions between two or more colors. They are generated by the browser, so they scale perfectly at any resolution. Linear gradients transition along a line, while radial gradients radiate from a center point.</p>
+            <h2>How to Use This Tool</h2>
+            <p>Choose your gradient type (linear or radial), set the angle, and pick your colors. Add more color stops for complex gradients. The live preview updates instantly, and the generated CSS code is ready to copy into your stylesheet.</p>
+            <h2>Gradient Best Practices</h2>
+            <p>Use gradients to add depth and visual interest to backgrounds, buttons, and cards. Keep gradients subtle for professional designs, or use bold colors for creative projects. Always test gradients on different screen sizes to ensure they look good everywhere.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/color-converter">Color Converter</a> | <a href="/html-beautifier">HTML Beautifier</a></p></footer>
+    <script>
+    const presets = [
+        ['#667eea','#764ba2'], ['#f093fb','#f5576c'], ['#4facfe','#00f2fe'],
+        ['#43e97b','#38f9d7'], ['#fa709a','#fee140'], ['#a18cd1','#fbc2eb'],
+        ['#ffecd2','#fcb69f'], ['#ff9a9e','#fecfef'], ['#667eea','#f093fb'],
+        ['#0c3483','#a2b6df']
+    ];
+    const presetsEl = document.getElementById('presets');
+    presets.forEach(([c1, c2]) => {
+        const d = document.createElement('div');
+        d.className = 'preset';
+        d.style.background = 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')';
+        d.onclick = () => { applyPreset(c1, c2); };
+        presetsEl.appendChild(d);
+    });
+
+    function applyPreset(c1, c2) {
+        const stops = document.getElementById('stops');
+        stops.innerHTML = '';
+        addStopWith(c1, 0);
+        addStopWith(c2, 100);
+        update();
+    }
+
+    function addStopWith(color, pos) {
+        const div = document.createElement('div');
+        div.className = 'color-row';
+        div.innerHTML = '<input type="color" value="' + color + '" oninput="update()">' +
+            '<input type="range" min="0" max="100" value="' + pos + '" oninput="update()">' +
+            '<span>' + pos + '%</span>' +
+            '<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem" onclick="removeStop(this)">X</button>';
+        document.getElementById('stops').appendChild(div);
+    }
+
+    function addStop() {
+        const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#845ef7'];
+        addStopWith(colors[Math.floor(Math.random() * colors.length)], 50);
+        update();
+    }
+
+    function removeStop(btn) {
+        const stops = document.getElementById('stops');
+        if (stops.children.length <= 2) return;
+        btn.parentElement.remove();
+        update();
+    }
+
+    function getStops() {
+        const rows = document.querySelectorAll('#stops .color-row');
+        const stops = [];
+        rows.forEach(row => {
+            const color = row.querySelector('input[type="color"]').value;
+            const pos = row.querySelector('input[type="range"]').value;
+            row.querySelector('span').textContent = pos + '%';
+            stops.push(color + ' ' + pos + '%');
+        });
+        return stops;
+    }
+
+    function update() {
+        const type = document.getElementById('type').value;
+        const angle = document.getElementById('angle').value;
+        const stops = getStops().join(', ');
+        let css;
+        if (type === 'linear') {
+            css = 'linear-gradient(' + angle + 'deg, ' + stops + ')';
+        } else {
+            css = 'radial-gradient(circle, ' + stops + ')';
+        }
+        document.getElementById('preview').style.background = css;
+        document.getElementById('code-output').value = 'background: ' + css + ';';
+    }
+
+    function copyCSS() {
+        navigator.clipboard.writeText(document.getElementById('code-output').value);
+        document.getElementById('status-bar').innerHTML = '<div class="status valid">CSS copied to clipboard</div>';
+    }
+
+    function randomGradient() {
+        const rand = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        const stops = document.getElementById('stops');
+        stops.innerHTML = '';
+        addStopWith(rand(), 0);
+        addStopWith(rand(), 100);
+        document.getElementById('angle').value = Math.floor(Math.random() * 360);
+        document.getElementById('angle-val').textContent = document.getElementById('angle').value;
+        update();
+    }
+
+    update();
+    </script>
+</body>
+</html>

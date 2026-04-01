@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Lookup - Free Online DNS Record Checker</title>
+    <meta name="description" content="Free online DNS lookup tool. Check A, AAAA, CNAME, MX, TXT, NS, and SOA records for any domain using public DNS-over-HTTPS APIs.">
+    <meta property="og:title" content="Free DNS Lookup Tool">
+    <meta property="og:description" content="Look up DNS records for any domain. Check A, AAAA, MX, CNAME, TXT, NS records instantly.">
+    <link rel="canonical" href="/dns-lookup">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "DNS Lookup",
+        "description": "Free online DNS lookup tool. Check DNS records for any domain using public DNS-over-HTTPS APIs.",
+        "url": "https://toolpipe.com/dns-lookup",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .search-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .search-row input { flex: 1; min-width: 200px; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .search-row input:focus { outline: none; border-color: #6c63ff; }
+        .search-row select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .record-types { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+        .record-type { padding: 6px 14px; background: #f0f0f0; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 2px solid transparent; font-weight: 500; transition: all 0.2s; }
+        .record-type.active { background: #6c63ff; color: white; border-color: #6c63ff; }
+        .record-type:hover { border-color: #6c63ff; }
+        .results { margin-top: 16px; }
+        .result-section { margin-bottom: 16px; }
+        .result-section h3 { font-size: 1rem; margin-bottom: 8px; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+        .result-section h3 .badge { background: #6c63ff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background: #f0f0f0; padding: 10px 12px; text-align: left; font-weight: 600; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-family: 'Courier New', monospace; word-break: break-all; }
+        tr:hover td { background: #f8f9fa; }
+        .loading { text-align: center; padding: 20px; color: #999; }
+        .loading .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #ddd; border-top-color: #6c63ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .provider-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; font-size: 0.9rem; }
+        .provider-row label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>DNS Lookup</h1>
+        <p class="subtitle">Look up DNS records for any domain using public DNS-over-HTTPS</p>
+        <div class="tool-box">
+            <div class="search-row">
+                <input type="text" id="domain" placeholder="Enter domain name (e.g., example.com)" onkeydown="if(event.key==='Enter')lookup()">
+                <button class="btn btn-primary" onclick="lookup()">Lookup</button>
+            </div>
+            <div class="provider-row">
+                <span>DNS Provider:</span>
+                <label><input type="radio" name="provider" value="cloudflare" checked> Cloudflare (1.1.1.1)</label>
+                <label><input type="radio" name="provider" value="google"> Google (8.8.8.8)</label>
+            </div>
+            <div class="record-types" id="record-types">
+                <div class="record-type active" data-type="A" onclick="toggleType(this)">A</div>
+                <div class="record-type active" data-type="AAAA" onclick="toggleType(this)">AAAA</div>
+                <div class="record-type active" data-type="CNAME" onclick="toggleType(this)">CNAME</div>
+                <div class="record-type active" data-type="MX" onclick="toggleType(this)">MX</div>
+                <div class="record-type active" data-type="TXT" onclick="toggleType(this)">TXT</div>
+                <div class="record-type active" data-type="NS" onclick="toggleType(this)">NS</div>
+                <div class="record-type" data-type="SOA" onclick="toggleType(this)">SOA</div>
+                <div class="record-type" data-type="CAA" onclick="toggleType(this)">CAA</div>
+                <div class="record-type" data-type="SRV" onclick="toggleType(this)">SRV</div>
+            </div>
+            <div class="btns">
+                <button class="btn btn-secondary" onclick="selectAll()">Select All Types</button>
+                <button class="btn btn-secondary" onclick="clearResults()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="results" id="results"></div>
+        </div>
+
+        <div class="content">
+            <h2>What is DNS?</h2>
+            <p>DNS (Domain Name System) translates human-readable domain names (like example.com) into IP addresses that computers use to identify each other on the network. DNS records contain various types of information about a domain.</p>
+            <h2>DNS Record Types Explained</h2>
+            <p>A records map a domain to an IPv4 address. AAAA records do the same for IPv6. CNAME records create aliases pointing to other domains. MX records specify mail servers. TXT records hold arbitrary text, often used for domain verification and email authentication (SPF, DKIM, DMARC). NS records identify authoritative name servers.</p>
+            <h2>How This Tool Works</h2>
+            <p>This tool uses DNS-over-HTTPS (DoH) to query public DNS resolvers from Cloudflare (1.1.1.1) or Google (8.8.8.8) directly from your browser. No data is sent to our servers. The queries use the standard RFC 8484 JSON API format.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/ip-address-lookup">IP Lookup</a> | <a href="/unix-permissions-calculator">Permissions Calculator</a></p></footer>
+    <script>
+    function toggleType(el) { el.classList.toggle('active'); }
+    function selectAll() { document.querySelectorAll('.record-type').forEach(el => el.classList.add('active')); }
+
+    function getProvider() {
+        return document.querySelector('input[name="provider"]:checked').value;
+    }
+
+    function getBaseUrl() {
+        const p = getProvider();
+        return p === 'cloudflare' ? 'https://cloudflare-dns.com/dns-query' : 'https://dns.google/resolve';
+    }
+
+    async function queryDNS(domain, type) {
+        const url = getBaseUrl() + '?name=' + encodeURIComponent(domain) + '&type=' + type;
+        const resp = await fetch(url, { headers: { 'Accept': 'application/dns-json' } });
+        if (!resp.ok) throw new Error('DNS query failed: ' + resp.status);
+        return resp.json();
+    }
+
+    async function lookup() {
+        const domain = document.getElementById('domain').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        if (!domain) { showStatus('Please enter a domain name', false); return; }
+
+        const types = [];
+        document.querySelectorAll('.record-type.active').forEach(el => types.push(el.dataset.type));
+        if (types.length === 0) { showStatus('Please select at least one record type', false); return; }
+
+        const resultsEl = document.getElementById('results');
+        resultsEl.innerHTML = '<div class="loading"><div class="spinner"></div> Looking up DNS records...</div>';
+
+        try {
+            const promises = types.map(type => queryDNS(domain, type).then(data => ({ type, data })).catch(err => ({ type, error: err.message })));
+            const results = await Promise.all(promises);
+            let html = '';
+            let totalRecords = 0;
+
+            for (const { type, data, error } of results) {
+                if (error) {
+                    html += '<div class="result-section"><h3>' + type + ' Records <span class="badge">Error</span></h3><p style="color:#721c24">' + error + '</p></div>';
+                    continue;
+                }
+                const answers = data.Answer || [];
+                const filtered = answers.filter(a => dnsTypeNum(type) === 0 || a.type === dnsTypeNum(type));
+                totalRecords += filtered.length;
+
+                html += '<div class="result-section"><h3>' + type + ' Records <span class="badge">' + filtered.length + '</span></h3>';
+                if (filtered.length === 0) {
+                    html += '<p style="color:#999">No ' + type + ' records found</p>';
+                } else {
+                    html += '<table><tr><th>Name</th><th>TTL</th><th>Value</th></tr>';
+                    for (const r of filtered) {
+                        html += '<tr><td>' + esc(r.name) + '</td><td>' + r.TTL + 's</td><td>' + esc(r.data) + '</td></tr>';
+                    }
+                    html += '</table>';
+                }
+                html += '</div>';
+            }
+
+            resultsEl.innerHTML = html;
+            showStatus('Found ' + totalRecords + ' records for ' + domain + ' via ' + getProvider(), true);
+        } catch(e) {
+            resultsEl.innerHTML = '';
+            showStatus('Error: ' + e.message, false);
+        }
+    }
+
+    function dnsTypeNum(type) {
+        const map = { A:1, NS:2, CNAME:5, SOA:6, MX:15, TXT:16, AAAA:28, SRV:33, CAA:257 };
+        return map[type] || 0;
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function clearResults() {
+        document.getElementById('results').innerHTML = '';
+        document.getElementById('domain').value = '';
+        document.getElementById('status-bar').innerHTML = '';
+    }
+
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>

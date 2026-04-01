@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToolPipe Pro - Premium Developer Tools & APIs | Pricing</title>
-    <meta name="description" content="ToolPipe Pro: unlimited API access, premium PDF tools, priority support. Plans from $9.99/mo. 10+ developer tools in one suite.">
+    <title>ToolPipe Pricing - Free, Pro & Enterprise API Plans</title>
+    <meta name="description" content="ToolPipe pricing: Free tier with 100 API calls/day, Pro at $29/month with 10,000 calls/day, Enterprise at $199/month with unlimited access. 65+ developer tools.">
     <link rel="canonical" href="/pricing">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,63 +12,101 @@
         .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 4rem 2rem; text-align: center; }
         .hero h1 { font-size: 2.5rem; color: #fff; margin-bottom: 0.5rem; }
         .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 3rem 2rem; }
-        .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .plan { background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 16px; padding: 2rem; text-align: center; position: relative; }
-        .plan.featured { border-color: #3b82f6; }
-        .plan.featured::before { content: "MOST POPULAR"; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: #fff; padding: 4px 20px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .container { max-width: 1060px; margin: 0 auto; padding: 3rem 2rem; }
+        .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin: 2rem 0; }
+        .plan { background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 16px; padding: 2rem; text-align: center; position: relative; transition: transform 0.2s; }
+        .plan:hover { transform: translateY(-4px); }
+        .plan.featured { border-color: #6c63ff; }
+        .plan.featured::before { content: "MOST POPULAR"; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #6c63ff; color: #fff; padding: 4px 20px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; }
         .plan h3 { color: #fff; font-size: 1.3rem; margin-bottom: 0.5rem; }
-        .plan .price { font-size: 3rem; font-weight: 700; color: #fff; margin: 1rem 0; }
+        .plan .desc { color: #64748b; font-size: 0.9rem; margin-bottom: 1rem; }
+        .plan .price { font-size: 3rem; font-weight: 700; color: #fff; margin: 1rem 0 0.25rem; }
         .plan .price span { font-size: 1rem; color: #64748b; font-weight: 400; }
         .plan .price .free { font-size: 3rem; color: #22c55e; }
+        .plan .billing { color: #64748b; font-size: 0.85rem; margin-bottom: 1rem; }
         .plan ul { list-style: none; text-align: left; margin: 1.5rem 0; }
-        .plan li { padding: 0.5rem 0; color: #94a3b8; font-size: 0.95rem; padding-left: 1.5rem; position: relative; }
-        .plan li::before { content: "->"; color: #3b82f6; position: absolute; left: 0; }
+        .plan li { padding: 0.5rem 0; color: #94a3b8; font-size: 0.95rem; padding-left: 1.75rem; position: relative; }
+        .plan li::before { content: "\2713"; color: #22c55e; position: absolute; left: 0; font-weight: 700; }
         .plan li.disabled { color: #4a4a4a; }
-        .plan li.disabled::before { color: #4a4a4a; }
-        .btn { display: block; width: 100%; background: #3b82f6; color: #fff; border: none; padding: 0.9rem; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: 600; text-decoration: none; text-align: center; }
-        .btn:hover { background: #2563eb; }
+        .plan li.disabled::before { content: "\2717"; color: #4a4a4a; }
+        .btn { display: block; width: 100%; color: #fff; border: none; padding: 0.9rem; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.2s; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn.primary { background: #6c63ff; }
+        .btn.primary:hover { background: #5b52e0; box-shadow: 0 4px 16px rgba(108,99,255,0.3); }
         .btn.free { background: #374151; }
         .btn.free:hover { background: #4b5563; }
-        .btn.enterprise { background: transparent; border: 2px solid #3b82f6; color: #3b82f6; }
-        .features-table { width: 100%; margin: 3rem 0; border-collapse: collapse; }
+        .btn.enterprise { background: transparent; border: 2px solid #6c63ff; color: #6c63ff; }
+        .btn.enterprise:hover { background: #6c63ff22; }
+
+        .notice { background: #1a1a2e; border: 1px solid #3b82f6; border-radius: 12px; padding: 16px 24px; text-align: center; margin: 2rem 0; }
+        .notice p { color: #94a3b8; font-size: 0.95rem; }
+        .notice strong { color: #fff; }
+
+        .features-table { width: 100%; margin: 2rem 0; border-collapse: collapse; }
         .features-table th, .features-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #1a1a1a; }
-        .features-table th { color: #fff; font-size: 0.9rem; }
+        .features-table th { color: #fff; font-size: 0.9rem; background: #111; }
         .features-table td { color: #94a3b8; font-size: 0.9rem; }
-        .features-table .check { color: #22c55e; }
+        .features-table .check { color: #22c55e; font-weight: 700; }
         .features-table .x { color: #4a4a4a; }
-        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem; text-align: center; }
-        .waitlist { background: #1a1a2e; border: 1px solid #3b82f6; border-radius: 12px; padding: 2rem; text-align: center; margin: 2rem 0; }
-        .waitlist h3 { color: #fff; margin-bottom: 0.5rem; }
-        .waitlist p { color: #94a3b8; margin-bottom: 1rem; }
-        .waitlist-form { display: flex; gap: 0.75rem; max-width: 450px; margin: 0 auto; }
+        .features-table tbody tr:hover { background: #111; }
+
+        h2 { color: #fff; font-size: 1.5rem; margin: 2.5rem 0 1rem; text-align: center; }
+
+        .waitlist { background: #1a1a2e; border: 1px solid #6c63ff; border-radius: 16px; padding: 2.5rem; text-align: center; margin: 2.5rem 0; }
+        .waitlist h3 { color: #fff; margin-bottom: 0.5rem; font-size: 1.2rem; }
+        .waitlist p { color: #94a3b8; margin-bottom: 1rem; font-size: 0.95rem; }
+        .waitlist-form { display: flex; gap: 0.75rem; max-width: 480px; margin: 0 auto; }
         .waitlist-form input { flex: 1; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.75rem 1rem; border-radius: 8px; font-size: 1rem; }
-        .waitlist-form button { background: #3b82f6; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; }
-        .success-msg { display: none; color: #22c55e; margin-top: 0.5rem; }
-        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
-        footer a { color: #3b82f6; text-decoration: none; }
+        .waitlist-form input:focus { outline: none; border-color: #6c63ff; }
+        .waitlist-form button { background: #6c63ff; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; transition: background 0.2s; }
+        .waitlist-form button:hover { background: #5b52e0; }
+        .success-msg { display: none; color: #22c55e; margin-top: 0.75rem; font-size: 0.95rem; }
+        .error-msg { display: none; color: #ef4444; margin-top: 0.75rem; font-size: 0.95rem; }
+
+        .faq { max-width: 700px; margin: 2rem auto; }
+        .faq-item { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 20px 24px; margin-bottom: 12px; }
+        .faq-item h4 { color: #fff; font-size: 1rem; margin-bottom: 8px; }
+        .faq-item p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; }
+
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid #1a1a1a; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .plans { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+            .hero h1 { font-size: 2rem; }
+            .waitlist-form { flex-direction: column; }
+            .features-table { font-size: 0.8rem; }
+            .features-table th, .features-table td { padding: 0.5rem; }
+        }
     </style>
 </head>
 <body>
     <div class="hero">
         <h1>Simple, Transparent Pricing</h1>
-        <p>10+ developer tools in one suite. Start free, upgrade when you need more.</p>
+        <p>65+ developer tools in one suite. Start free, upgrade when you need more power.</p>
     </div>
 
     <div class="container">
+        <div class="notice">
+            <p><strong>Payment processing coming soon.</strong> All paid plans are currently in pre-launch. Join the waitlist below to lock in early-access pricing and get notified the moment we go live.</p>
+        </div>
+
         <div class="plans">
             <div class="plan">
                 <h3>Free</h3>
+                <p class="desc">For personal projects and testing</p>
                 <div class="price"><span class="free">$0</span><span>/forever</span></div>
+                <p class="billing">No credit card required</p>
                 <ul>
-                    <li>100 API requests/minute</li>
-                    <li>All 12+ API endpoints</li>
+                    <li>100 API calls per day</li>
+                    <li>All 65+ browser tools free</li>
+                    <li>All API endpoints included</li>
                     <li>PDF tools (5MB limit)</li>
                     <li>URL shortener (50 links/day)</li>
                     <li>Webhook testing (24h bins)</li>
                     <li>PasteBin (500KB limit)</li>
-                    <li>Website status checker</li>
-                    <li>SEO analyzer</li>
+                    <li>SEO analyzer and site tools</li>
                     <li class="disabled">No API key required</li>
                     <li class="disabled">Community support only</li>
                 </ul>
@@ -77,88 +115,126 @@
 
             <div class="plan featured">
                 <h3>Pro</h3>
-                <div class="price">$9.99<span>/month</span></div>
+                <p class="desc">For teams and production apps</p>
+                <div class="price">$29<span>/month</span></div>
+                <p class="billing">Billed monthly, cancel anytime</p>
                 <ul>
-                    <li>1,000 API requests/minute</li>
-                    <li>All 12+ API endpoints</li>
-                    <li>PDF tools (50MB, no limits)</li>
-                    <li>URL shortener (unlimited)</li>
+                    <li>10,000 API calls per day</li>
+                    <li>All 65+ browser tools included</li>
+                    <li>All API endpoints included</li>
+                    <li>PDF tools (50MB, unlimited)</li>
+                    <li>URL shortener (unlimited links)</li>
                     <li>Webhook testing (7-day bins)</li>
                     <li>PasteBin (5MB, never expire)</li>
-                    <li>Uptime monitoring (100 monitors)</li>
-                    <li>Priority processing</li>
-                    <li>API key authentication</li>
-                    <li>Email support</li>
+                    <li>Priority processing (no ads)</li>
+                    <li>Dedicated API key</li>
+                    <li>Priority email support</li>
                 </ul>
-                <a href="#waitlist" class="btn" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Join Waitlist</a>
+                <a href="#waitlist" class="btn primary" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Join Pro Waitlist</a>
             </div>
 
             <div class="plan">
                 <h3>Enterprise</h3>
-                <div class="price">$49.99<span>/month</span></div>
+                <p class="desc">For scale and custom requirements</p>
+                <div class="price">$199<span>/month</span></div>
+                <p class="billing">Billed monthly or annually (save 20%)</p>
                 <ul>
-                    <li>Unlimited API requests</li>
-                    <li>All endpoints + custom</li>
+                    <li>Unlimited API calls</li>
+                    <li>All endpoints + custom tools</li>
                     <li>Unlimited everything</li>
                     <li>Custom URL shortener domain</li>
                     <li>Webhook testing (30-day bins)</li>
                     <li>White-label PDF tools</li>
-                    <li>500 uptime monitors</li>
-                    <li>SLA guarantee (99.9%)</li>
-                    <li>Dedicated API key</li>
-                    <li>Priority support + Slack</li>
+                    <li>Dedicated infrastructure</li>
+                    <li>SLA guarantee (99.9% uptime)</li>
+                    <li>Dedicated API key + SSO</li>
+                    <li>Dedicated support + Slack channel</li>
                 </ul>
-                <a href="#waitlist" class="btn enterprise" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Contact Us</a>
+                <a href="#waitlist" class="btn enterprise" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Join Enterprise Waitlist</a>
             </div>
         </div>
 
         <div class="waitlist" id="waitlist">
-            <h3>Pro and Enterprise plans launching soon</h3>
-            <p>Join the waitlist to get early access and a 50% launch discount.</p>
+            <h3>Join the Waitlist for Early Access</h3>
+            <p>Be the first to know when paid plans launch. Early waitlist members get a 50% discount for the first 3 months.</p>
             <div class="waitlist-form">
                 <input type="email" id="waitlistEmail" placeholder="your@email.com">
                 <button onclick="joinWaitlist()">Join Waitlist</button>
             </div>
-            <div class="success-msg" id="successMsg">You're on the list! We'll email you when Pro launches.</div>
+            <div class="success-msg" id="successMsg">You are on the list. We will email you when paid plans launch.</div>
+            <div class="error-msg" id="errorMsg">Something went wrong. Please try again.</div>
         </div>
 
         <h2>Feature Comparison</h2>
         <table class="features-table">
             <thead>
-                <tr><th>Feature</th><th>Free</th><th>Pro</th><th>Enterprise</th></tr>
+                <tr><th>Feature</th><th>Free</th><th>Pro ($29/mo)</th><th>Enterprise ($199/mo)</th></tr>
             </thead>
             <tbody>
-                <tr><td>API Endpoints</td><td>12+</td><td>12+</td><td>12+ custom</td></tr>
-                <tr><td>Rate Limit</td><td>100/min</td><td>1,000/min</td><td>Unlimited</td></tr>
+                <tr><td>API Calls</td><td>100/day</td><td>10,000/day</td><td>Unlimited</td></tr>
+                <tr><td>Browser Tools</td><td>All 65+</td><td>All 65+</td><td>All 65+ + custom</td></tr>
+                <tr><td>API Endpoints</td><td>All included</td><td>All included</td><td>All + custom endpoints</td></tr>
                 <tr><td>PDF File Size</td><td>5MB</td><td>50MB</td><td>Unlimited</td></tr>
                 <tr><td>Short URLs</td><td>50/day</td><td>Unlimited</td><td>Unlimited + custom domain</td></tr>
                 <tr><td>Webhook Bins</td><td>24h</td><td>7 days</td><td>30 days</td></tr>
-                <tr><td>Uptime Monitors</td><td>5</td><td>100</td><td>500</td></tr>
-                <tr><td>API Key</td><td class="x">No</td><td class="check">Yes</td><td class="check">Yes</td></tr>
-                <tr><td>Support</td><td>Community</td><td>Email</td><td>Priority + Slack</td></tr>
+                <tr><td>PasteBin Storage</td><td>500KB</td><td>5MB</td><td>Unlimited</td></tr>
+                <tr><td>Ads</td><td>Yes</td><td class="check">No ads</td><td class="check">No ads</td></tr>
+                <tr><td>API Key</td><td class="x">No</td><td class="check">Yes</td><td class="check">Yes + SSO</td></tr>
+                <tr><td>Support</td><td>Community</td><td>Priority email</td><td>Dedicated + Slack</td></tr>
                 <tr><td>SLA</td><td class="x">No</td><td class="x">No</td><td class="check">99.9%</td></tr>
+                <tr><td>Custom Tools</td><td class="x">No</td><td class="x">No</td><td class="check">Yes</td></tr>
             </tbody>
         </table>
+
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq">
+            <div class="faq-item">
+                <h4>Do I need to sign up to use the free tier?</h4>
+                <p>No. The free tier requires no account, no API key, and no credit card. Just start making requests or use the browser tools directly.</p>
+            </div>
+            <div class="faq-item">
+                <h4>When will paid plans be available?</h4>
+                <p>We are finalizing payment processing now. Join the waitlist to be notified the moment Pro and Enterprise plans go live. Early waitlist members receive a 50% discount for the first 3 months.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Can I pay with cryptocurrency?</h4>
+                <p>Crypto payment support is coming soon. Visit our <a href="/donate" style="color:#6c63ff;">donate page</a> to join the crypto waitlist.</p>
+            </div>
+            <div class="faq-item">
+                <h4>What happens if I exceed my daily API limit?</h4>
+                <p>Requests beyond your daily limit will receive a 429 rate limit response. You can upgrade your plan at any time to increase your limit.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Can I cancel anytime?</h4>
+                <p>Yes. All plans are month-to-month with no long-term commitment. Cancel anytime from your dashboard.</p>
+            </div>
+        </div>
     </div>
 
     <footer>
-        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/pdf">PDF Tools</a> | <a href="/docs">API Docs</a></p>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/pdf">PDF Tools</a> | <a href="/docs">API Docs</a> | <a href="/donate">Support Us</a></p>
+        <p style="margin-top:8px;">Questions? <a href="mailto:toolpipe-project@sharebot.net">toolpipe-project@sharebot.net</a></p>
     </footer>
 
     <script>
     async function joinWaitlist() {
         const email = document.getElementById('waitlistEmail').value.trim();
-        if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+        if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
         try {
-            await fetch('/waitlist/join', {
+            const res = await fetch('/api-keys/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ email: email, source: 'pricing-waitlist' }),
             });
-            document.getElementById('successMsg').style.display = 'block';
-            document.getElementById('waitlistEmail').value = '';
+            if (res.ok) {
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'none';
+                document.getElementById('waitlistEmail').value = '';
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
         } catch (e) {
-            alert('Error joining waitlist.');
+            document.getElementById('errorMsg').style.display = 'block';
         }
     }
     </script>

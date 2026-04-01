@@ -229,8 +229,14 @@ function tpCapture(e){
 <a href="/image-to-base64" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Image to Base64</a>
 <a href="/color-picker" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Color Picker</a>
 <a href="/whats-my-ip" style="color:#94a3b8;text-decoration:none;margin:0 8px;">My IP</a>
+<a href="/xml-formatter" style="color:#94a3b8;text-decoration:none;margin:0 8px;">XML Formatter</a>
+<a href="/yaml-validator" style="color:#94a3b8;text-decoration:none;margin:0 8px;">YAML Validator</a>
+<a href="/csv-to-json" style="color:#94a3b8;text-decoration:none;margin:0 8px;">CSV to JSON</a>
+<a href="/diff-checker" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Diff Checker</a>
+<a href="/sql-formatter" style="color:#94a3b8;text-decoration:none;margin:0 8px;">SQL Formatter</a>
 <a href="/api-keys" style="color:#6c63ff;text-decoration:none;margin:0 8px;">Free API Key</a>
-<br><span style="color:#475569;">Free developer tools by ToolPipe. No signup, no tracking.</span>
+<a href="/pricing" style="color:#6c63ff;text-decoration:none;margin:0 8px;">Pro Plans</a>
+<br><span style="color:#475569;">50+ free developer tools by ToolPipe. No signup, no tracking. <a href="/donate" style="color:#6c63ff;text-decoration:none;">Support us</a></span>
 </div></div>
 """
 
@@ -1060,28 +1066,22 @@ async def analyze_seo(url: str = Query(...)):
 # --- Sitemap ---
 
 @app.get("/sitemap.xml")
-async def sitemap():
-    base = "http://187.77.213.192:8081"
+async def sitemap(request: Request):
+    # Auto-detect base URL from request
+    host = request.headers.get("host", "")
+    scheme = "https" if "trycloudflare.com" in host or "toolpipe" in host else request.url.scheme
+    base = f"{scheme}://{host}" if host else "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+
+    # Auto-generate from SEO pages directory
+    seo_pages = []
+    if SEO_PAGES_DIR.exists():
+        seo_pages = [f"/{p.stem}" for p in SEO_PAGES_DIR.glob("*.html")]
+
     urls = [
         "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/down", "/pricing", "/docs",
-        "/qr-code-generator", "/json-formatter", "/base64-encoder",
-        "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
-        "/password-generator", "/whats-my-ip",
-        "/uuid-generator", "/regex-tester", "/cron-expression-generator",
-        "/color-picker", "/lorem-ipsum-generator", "/donate",
-        "/hash-generator", "/url-encoder", "/epoch-converter",
-        "/jwt-decoder", "/markdown-preview",
-        "/html-entity-encoder", "/text-diff", "/word-counter",
-        "/api-consulting", "/api-keys",
-        "/css-minifier", "/javascript-minifier", "/json-to-yaml", "/image-to-base64",
-        "/blog-free-developer-tools", "/polymarket",
-        "/sql-formatter", "/html-to-markdown",
-        "/json-path-tester", "/chmod-calculator",
-        "/ai-automation-consulting",
-        "/xml-formatter", "/hex-to-rgb", "/yaml-validator",
-        "/timestamp-converter", "/csv-to-json", "/diff-checker",
-        "/ip-address-lookup", "/http-status-codes",
-    ]
+        "/donate", "/api-keys", "/api-consulting", "/polymarket",
+    ] + seo_pages
+    urls = list(dict.fromkeys(urls))  # deduplicate while preserving order
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for url in urls:
@@ -1091,8 +1091,11 @@ async def sitemap():
 
 
 @app.get("/robots.txt")
-async def robots():
-    content = f"User-agent: *\nAllow: /\nSitemap: http://187.77.213.192:8081/sitemap.xml\n"
+async def robots(request: Request):
+    host = request.headers.get("host", "")
+    scheme = "https" if "trycloudflare.com" in host or "toolpipe" in host else request.url.scheme
+    base = f"{scheme}://{host}" if host else "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+    content = f"User-agent: *\nAllow: /\nSitemap: {base}/sitemap.xml\n"
     return Response(content=content, media_type="text/plain")
 
 
@@ -1923,6 +1926,102 @@ async def polymarket_markets():
         return {"error": str(e), "markets": []}
 
 
+@app.get("/api/polymarket/analysis")
+async def polymarket_analysis():
+    """Premium: structured analysis from latest scan with short-term focus."""
+    latest_path = Path(__file__).parent.parent / "polymarket" / "research" / "latest_scan.md"
+    if not latest_path.exists():
+        return {"error": "No analysis available. Scanner has not run yet.", "markets": []}
+    content = latest_path.read_text()
+    lines = content.split("\n")
+    # Extract metadata
+    date_line = next((l for l in lines if l.startswith("**Date:**")), "")
+    total_line = next((l for l in lines if "Total Markets" in l), "")
+    short_line = next((l for l in lines if "Short-Term" in l), "")
+    return {
+        "report_date": date_line.replace("**Date:**", "").strip(),
+        "summary": {
+            "total_scanned": total_line,
+            "short_term": short_line,
+        },
+        "report_markdown": content,
+        "note": "Full analysis updated every 2 hours. Premium API coming soon.",
+    }
+
+
+@app.get("/api/polymarket/short-term")
+async def polymarket_short_term():
+    """Short-term markets resolving within 30 days with analysis."""
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get("https://gamma-api.polymarket.com/markets", params={
+                "active": "true", "closed": "false", "limit": 100
+            })
+            resp.raise_for_status()
+            markets = resp.json()
+
+        from datetime import timezone as tz, timedelta
+        now = datetime.now(tz.utc)
+        cutoff = now + timedelta(days=30)
+        results = []
+
+        for m in markets:
+            vol = 0
+            try:
+                vol = float(m.get("volume", 0) or 0)
+            except (ValueError, TypeError):
+                pass
+            if vol < 10000:
+                continue
+
+            end_str = m.get("endDate", "")
+            if not end_str:
+                continue
+            try:
+                end_dt = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+                if end_dt > cutoff or end_dt <= now:
+                    continue
+                days_left = (end_dt - now).days
+            except (ValueError, TypeError):
+                continue
+
+            outcome_prices = m.get("outcomePrices", "")
+            if isinstance(outcome_prices, str):
+                try:
+                    outcome_prices = json.loads(outcome_prices)
+                except (json.JSONDecodeError, TypeError):
+                    outcome_prices = []
+
+            outcomes = m.get("outcomes", "")
+            if isinstance(outcomes, str):
+                try:
+                    outcomes = json.loads(outcomes)
+                except (json.JSONDecodeError, TypeError):
+                    outcomes = ["Yes", "No"]
+
+            tokens = []
+            for i, price in enumerate(outcome_prices):
+                tokens.append({
+                    "outcome": outcomes[i] if i < len(outcomes) else f"Outcome {i}",
+                    "price": float(price) if price else None,
+                })
+
+            results.append({
+                "question": m.get("question", ""),
+                "days_left": days_left,
+                "volume": vol,
+                "liquidity": float(m.get("liquidity", 0) or 0),
+                "end_date": end_str,
+                "slug": m.get("slug", ""),
+                "tokens": tokens,
+            })
+
+        results.sort(key=lambda x: x["volume"], reverse=True)
+        return {"markets": results[:25], "total_short_term": len(results), "cutoff_days": 30}
+    except Exception as e:
+        return {"error": str(e), "markets": []}
+
+
 @app.get("/polymarket", response_class=HTMLResponse)
 async def polymarket_dashboard():
     return HTMLResponse(inject_snippet(Path(Path(__file__).parent.parent / "seo-pages" / "polymarket-dashboard.html").read_text()) if (Path(__file__).parent.parent / "seo-pages" / "polymarket-dashboard.html").exists() else "<h1>Coming soon</h1>")
@@ -1989,39 +2088,133 @@ th{{background:#f5f5f5}}h1{{color:#302b63}}.stat{{display:inline-block;backgroun
 async def donate_page():
     return HTMLResponse("""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Support ToolPipe - Buy Us a Coffee</title>
+<title>Support ToolPipe - Donate to Keep Free APIs Running</title>
+<meta name="description" content="Support ToolPipe's 65+ free developer APIs and tools. Donate via card or crypto to help us keep building.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f9fa;color:#1a1a2e}
-.container{max-width:600px;margin:80px auto;padding:0 20px;text-align:center}
-h1{font-size:2.5rem;margin-bottom:16px;color:#302b63}
-p{font-size:1.1rem;color:#555;margin-bottom:32px;line-height:1.6}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0}
+.container{max-width:700px;margin:0 auto;padding:60px 20px;text-align:center}
+h1{font-size:2.5rem;margin-bottom:12px;color:#fff}
+.subtitle{font-size:1.1rem;color:#94a3b8;margin-bottom:40px;line-height:1.6}
+h2{font-size:1.3rem;color:#fff;margin:40px 0 16px;text-align:center}
 .options{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
-.option{background:white;border:2px solid #eee;border-radius:12px;padding:24px 16px;cursor:pointer;transition:all 0.2s}
+.option{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:12px;padding:24px 16px;cursor:pointer;transition:all 0.2s}
 .option:hover{border-color:#6c63ff;transform:translateY(-2px)}
-.option.selected{border-color:#6c63ff;background:#f0f0ff}
-.option .amount{font-size:1.5rem;font-weight:700;color:#302b63}
-.option .label{font-size:0.85rem;color:#888;margin-top:4px}
-.cta{display:inline-block;padding:16px 48px;background:#6c63ff;color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:1.1rem;margin-top:16px;border:none;cursor:pointer;transition:transform 0.2s}
-.cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,99,255,0.4)}
-.note{margin-top:24px;color:#888;font-size:0.9rem}
-.back{display:inline-block;margin-top:24px;color:#6c63ff;text-decoration:none}
+.option.selected{border-color:#6c63ff;background:#1a1a2e}
+.option .amount{font-size:1.5rem;font-weight:700;color:#fff}
+.option .label{font-size:0.85rem;color:#64748b;margin-top:4px}
+.custom-amount{margin-bottom:32px}
+.custom-amount input{background:#1a1a1a;border:1px solid #2a2a2a;color:#e0e0e0;padding:12px 16px;border-radius:8px;font-size:1rem;width:200px;text-align:center}
+.custom-amount input:focus{outline:none;border-color:#6c63ff}
+.section{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:32px;margin:24px 0;text-align:left}
+.section-title{font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.crypto-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.crypto-item{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:16px}
+.crypto-item .name{font-weight:600;color:#fff;font-size:0.95rem;margin-bottom:4px}
+.crypto-item .status{color:#f59e0b;font-size:0.8rem}
+.coming-badge{display:inline-block;background:#f59e0b22;color:#f59e0b;padding:2px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;margin-left:8px}
+.waitlist-box{background:#1a1a2e;border:1px solid #3b82f6;border-radius:16px;padding:32px;margin:32px 0;text-align:center}
+.waitlist-box h3{color:#fff;font-size:1.2rem;margin-bottom:8px}
+.waitlist-box p{color:#94a3b8;font-size:0.95rem;margin-bottom:16px}
+.waitlist-form{display:flex;gap:10px;max-width:420px;margin:0 auto}
+.waitlist-form input{flex:1;background:#111;border:1px solid #2a2a2a;color:#e0e0e0;padding:12px 16px;border-radius:8px;font-size:1rem}
+.waitlist-form input:focus{outline:none;border-color:#6c63ff}
+.waitlist-form button{background:#6c63ff;color:#fff;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;transition:background 0.2s}
+.waitlist-form button:hover{background:#5b52e0}
+.success-msg{display:none;color:#22c55e;margin-top:12px;font-size:0.95rem}
+.error-msg{display:none;color:#ef4444;margin-top:12px;font-size:0.95rem}
+.cta{display:inline-block;padding:16px 48px;background:#6c63ff;color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:1.1rem;margin-top:8px;border:none;cursor:pointer;transition:all 0.2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,99,255,0.3)}
+.links{margin-top:32px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.links a{color:#6c63ff;text-decoration:none;font-size:0.95rem}
+.links a:hover{text-decoration:underline}
+.note{color:#64748b;font-size:0.85rem;margin-top:24px}
+@media(max-width:500px){.options{grid-template-columns:1fr}.crypto-grid{grid-template-columns:1fr}.waitlist-form{flex-direction:column}}
 </style></head><body>
 <div class="container">
 <h1>Support ToolPipe</h1>
-<p>We provide 55+ free developer APIs and tools. If you find them useful, consider supporting us so we can keep building.</p>
+<p class="subtitle">We provide 65+ free developer APIs and tools with no sign-up required. Your support helps us keep the servers running and ship new features.</p>
+
+<h2>Choose an Amount</h2>
 <div class="options">
-<div class="option" onclick="selectAmount(5)"><div class="amount">$5</div><div class="label">A coffee</div></div>
-<div class="option selected" onclick="selectAmount(15)"><div class="amount">$15</div><div class="label">A lunch</div></div>
-<div class="option" onclick="selectAmount(50)"><div class="amount">$50</div><div class="label">A champion</div></div>
+<div class="option" onclick="selectAmount(5,this)"><div class="amount">$5</div><div class="label">A coffee</div></div>
+<div class="option selected" onclick="selectAmount(15,this)"><div class="amount">$15</div><div class="label">A lunch</div></div>
+<div class="option" onclick="selectAmount(50,this)"><div class="amount">$50</div><div class="label">Champion</div></div>
 </div>
-<p style="font-size:0.95rem;color:#666;">Payment processing is being set up. Join the waitlist to be notified when donations are live, or email us to arrange payment.</p>
-<a href="/pricing" class="cta">Get Pro Access Instead</a>
-<br><a href="mailto:toolpipe-project@sharebot.net" class="back">Contact us: toolpipe-project@sharebot.net</a>
-<br><a href="/" class="back">Back to ToolPipe</a>
+<div class="custom-amount">
+<input type="number" id="customAmount" placeholder="Or enter custom amount ($)" min="1" onfocus="clearSelection()">
+</div>
+
+<div class="section">
+<div class="section-title">Pay with Card</div>
+<p style="color:#94a3b8;font-size:0.95rem;margin-bottom:16px;">Stripe integration is being finalized. Join the waitlist below and we will email you the moment card payments go live.</p>
+<a href="#waitlist-section" class="cta" onclick="document.getElementById('waitlist-section').scrollIntoView({behavior:'smooth'}); return false;" style="display:block;text-align:center;padding:14px;font-size:1rem;">Notify Me When Ready</a>
+</div>
+
+<div class="section">
+<div class="section-title">Pay with Crypto <span class="coming-badge">Coming Soon</span></div>
+<p style="color:#94a3b8;font-size:0.95rem;margin-bottom:8px;">We are setting up crypto wallets to accept donations directly. The following currencies will be supported:</p>
+<div class="crypto-grid">
+<div class="crypto-item"><div class="name">Bitcoin (BTC)</div><div class="status">Wallet being configured</div></div>
+<div class="crypto-item"><div class="name">Ethereum (ETH)</div><div class="status">Wallet being configured</div></div>
+<div class="crypto-item"><div class="name">USDC (ERC-20)</div><div class="status">Wallet being configured</div></div>
+<div class="crypto-item"><div class="name">Solana (SOL)</div><div class="status">Wallet being configured</div></div>
+</div>
+<p style="color:#64748b;font-size:0.85rem;margin-top:12px;">Join the waitlist to be notified when crypto donations are live.</p>
+</div>
+
+<div class="waitlist-box" id="waitlist-section">
+<h3>Get Notified When Donations Go Live</h3>
+<p>Enter your email and we will notify you when card and crypto donations are ready. Early supporters may receive Pro access as a thank-you.</p>
+<div class="waitlist-form">
+<input type="email" id="donateEmail" placeholder="your@email.com">
+<button onclick="submitDonateWaitlist()">Join Waitlist</button>
+</div>
+<div class="success-msg" id="successMsg">You are on the list. We will email you when donations go live.</div>
+<div class="error-msg" id="errorMsg">Something went wrong. Please try again.</div>
+</div>
+
+<a href="/pricing" class="cta" style="margin-top:24px;">Get Pro Access Instead</a>
+
+<div class="links">
+<a href="mailto:toolpipe-project@sharebot.net">toolpipe-project@sharebot.net</a>
+<a href="/">Back to ToolPipe</a>
+<a href="/docs">API Docs</a>
+</div>
+<p class="note">ToolPipe is an independent developer tools project. 100% of donations go toward server costs and development.</p>
 </div>
 <script>
-function selectAmount(n){document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));event.currentTarget.classList.add('selected')}
+let selectedAmount = 15;
+function selectAmount(n, el) {
+    selectedAmount = n;
+    document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('customAmount').value = '';
+}
+function clearSelection() {
+    document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+}
+async function submitDonateWaitlist() {
+    const email = document.getElementById('donateEmail').value.trim();
+    if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+    const amount = document.getElementById('customAmount').value || selectedAmount || 15;
+    try {
+        const res = await fetch('/api-keys/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, source: 'donate-waitlist', amount: amount }),
+        });
+        if (res.ok) {
+            document.getElementById('successMsg').style.display = 'block';
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('donateEmail').value = '';
+        } else {
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+    } catch (e) {
+        document.getElementById('errorMsg').style.display = 'block';
+    }
+}
 </script>
 </body></html>""")
 

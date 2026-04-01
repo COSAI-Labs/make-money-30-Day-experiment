@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Generator - Create JSON Web Tokens Online Free</title>
+    <meta name="description" content="Free online JWT generator and decoder. Create JSON Web Tokens with custom headers, payloads, and secrets. Supports HS256 signing.">
+    <meta property="og:title" content="Free JWT Token Generator">
+    <meta property="og:description" content="Create and decode JSON Web Tokens online for free. Custom header, payload, and HMAC-SHA256 signing.">
+    <link rel="canonical" href="/jwt-generator">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "JWT Generator",
+        "description": "Free online JWT generator. Create JSON Web Tokens with custom headers, payloads, and HS256 signing.",
+        "url": "https://toolpipe.com/jwt-generator",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 120px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .field { margin-bottom: 16px; }
+        .field label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .output textarea { background: #f8f9fa; min-height: 80px; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .jwt-parts { margin-top: 12px; }
+        .jwt-parts .part { padding: 8px 12px; border-radius: 6px; margin: 4px 0; font-family: 'Courier New', monospace; font-size: 0.85rem; word-break: break-all; }
+        .part-header { background: #ffe0e0; color: #c0392b; }
+        .part-payload { background: #e0d4ff; color: #6c3483; }
+        .part-signature { background: #d4edda; color: #1e8449; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>JWT Generator</h1>
+        <p class="subtitle">Create and decode JSON Web Tokens with custom headers, payloads, and HS256 signing</p>
+        <div class="tool-box">
+            <div class="field">
+                <label>Header (JSON)</label>
+                <textarea id="header" rows="3">{"alg": "HS256", "typ": "JWT"}</textarea>
+            </div>
+            <div class="field">
+                <label>Payload (JSON)</label>
+                <textarea id="payload" rows="5">{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}</textarea>
+            </div>
+            <div class="field">
+                <label>Secret Key</label>
+                <input type="text" id="secret" value="your-256-bit-secret" placeholder="Enter secret key for HMAC-SHA256 signing">
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="generateJWT()">Generate JWT</button>
+                <button class="btn btn-primary" onclick="decodeJWT()">Decode JWT</button>
+                <button class="btn btn-secondary" onclick="copyOutput()">Copy Token</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="output">
+                <label style="font-weight:500;margin-bottom:6px;display:block">JWT Token</label>
+                <textarea id="output" placeholder="Generated JWT will appear here..."></textarea>
+            </div>
+            <div id="jwt-parts" class="jwt-parts"></div>
+        </div>
+
+        <div class="content">
+            <h2>What is a JWT?</h2>
+            <p>A JSON Web Token (JWT) is a compact, URL-safe token format used to securely transmit information between parties. JWTs consist of three parts: a header specifying the algorithm, a payload containing claims, and a signature for verification.</p>
+            <h2>How JWT Signing Works</h2>
+            <p>This tool uses HMAC-SHA256 (HS256) to sign tokens. The header and payload are Base64URL-encoded, concatenated with a period, then signed with your secret key using the Web Crypto API. The resulting signature ensures the token has not been tampered with.</p>
+            <h2>Common JWT Use Cases</h2>
+            <p>JWTs are widely used for authentication (login tokens), authorization (API access), and information exchange (secure data transfer between services). They are stateless, meaning the server does not need to store session data.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/base64-encoder">Base64 Encoder</a></p></footer>
+    <script>
+    function base64url(str) {
+        return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function base64urlEncode(buf) {
+        return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function base64urlDecode(str) {
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        while (str.length % 4) str += '=';
+        return atob(str);
+    }
+    async function generateJWT() {
+        try {
+            const header = JSON.parse(document.getElementById('header').value);
+            const payload = JSON.parse(document.getElementById('payload').value);
+            const secret = document.getElementById('secret').value;
+            const headerB64 = base64url(JSON.stringify(header));
+            const payloadB64 = base64url(JSON.stringify(payload));
+            const data = headerB64 + '.' + payloadB64;
+            const enc = new TextEncoder();
+            const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+            const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data));
+            const sigB64 = base64urlEncode(sig);
+            const jwt = data + '.' + sigB64;
+            document.getElementById('output').value = jwt;
+            showParts(headerB64, payloadB64, sigB64);
+            showStatus('JWT generated successfully (' + jwt.length + ' characters)', true);
+        } catch(e) { showStatus('Error: ' + e.message, false); }
+    }
+    function decodeJWT() {
+        try {
+            const token = document.getElementById('output').value.trim() || document.getElementById('payload').value.trim();
+            const parts = token.split('.');
+            if (parts.length !== 3) { showStatus('Invalid JWT format: expected 3 parts separated by dots', false); return; }
+            const header = JSON.parse(base64urlDecode(parts[0]));
+            const payload = JSON.parse(base64urlDecode(parts[1]));
+            document.getElementById('header').value = JSON.stringify(header, null, 2);
+            document.getElementById('payload').value = JSON.stringify(payload, null, 2);
+            showParts(parts[0], parts[1], parts[2]);
+            showStatus('JWT decoded successfully', true);
+        } catch(e) { showStatus('Error decoding JWT: ' + e.message, false); }
+    }
+    function showParts(h, p, s) {
+        document.getElementById('jwt-parts').innerHTML =
+            '<div class="part part-header">Header: ' + h + '</div>' +
+            '<div class="part part-payload">Payload: ' + p + '</div>' +
+            '<div class="part part-signature">Signature: ' + s + '</div>';
+    }
+    function copyOutput() { navigator.clipboard.writeText(document.getElementById('output').value); }
+    function clearAll() {
+        document.getElementById('header').value = '{"alg": "HS256", "typ": "JWT"}';
+        document.getElementById('payload').value = '{}';
+        document.getElementById('output').value = '';
+        document.getElementById('status-bar').innerHTML = '';
+        document.getElementById('jwt-parts').innerHTML = '';
+    }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>

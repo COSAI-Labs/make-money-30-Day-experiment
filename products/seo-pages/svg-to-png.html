@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to PNG Converter - Free Online SVG Converter</title>
+    <meta name="description" content="Free online SVG to PNG converter. Convert SVG vector graphics to PNG images at any resolution. No upload required, works entirely in your browser.">
+    <meta property="og:title" content="Free SVG to PNG Converter">
+    <meta property="og:description" content="Convert SVG to PNG at any resolution. Client-side, no upload needed. Free and instant.">
+    <link rel="canonical" href="/svg-to-png">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SVG to PNG Converter",
+        "description": "Free online SVG to PNG converter. Convert SVG vector graphics to PNG images at any resolution entirely in your browser.",
+        "url": "https://toolpipe.com/svg-to-png",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 180px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .size-controls { display: flex; gap: 12px; align-items: center; margin: 12px 0; flex-wrap: wrap; }
+        .size-controls label { font-weight: 500; font-size: 0.9rem; }
+        .size-controls input[type="number"] { width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        .size-controls select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        .preview-area { display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+        .preview-box { flex: 1; min-width: 250px; }
+        .preview-box label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .preview-frame { border: 1px solid #ddd; border-radius: 8px; background: repeating-conic-gradient(#f0f0f0 0% 25%, white 0% 50%) 50% / 20px 20px; min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .preview-frame img, .preview-frame canvas { max-width: 100%; max-height: 300px; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .drop-zone { border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; color: #999; margin-bottom: 12px; cursor: pointer; transition: border-color 0.2s; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: #6c63ff; color: #6c63ff; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>SVG to PNG Converter</h1>
+        <p class="subtitle">Convert SVG vector graphics to PNG images at any resolution</p>
+        <div class="tool-box">
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                Drop an SVG file here, or click to browse
+                <input type="file" id="file-input" accept=".svg" style="display:none" onchange="handleFile(this.files[0])">
+            </div>
+            <label style="font-weight:500;margin-bottom:6px;display:block">Or paste SVG code</label>
+            <textarea id="input" placeholder='<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" fill="#6c63ff"/></svg>'></textarea>
+            <div class="size-controls">
+                <label>Width:</label>
+                <input type="number" id="width" value="512" min="1" max="8192">
+                <label>Height:</label>
+                <input type="number" id="height" value="512" min="1" max="8192">
+                <label>Scale:</label>
+                <select id="scale" onchange="applyScale()">
+                    <option value="1">1x</option>
+                    <option value="2" selected>2x</option>
+                    <option value="3">3x</option>
+                    <option value="4">4x</option>
+                </select>
+                <label style="font-size:0.85rem;color:#666"><input type="checkbox" id="transparent" checked> Transparent background</label>
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="convert()">Convert to PNG</button>
+                <button class="btn btn-primary" onclick="download()">Download PNG</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="preview-area">
+                <div class="preview-box">
+                    <label>SVG Preview</label>
+                    <div class="preview-frame" id="svg-preview"></div>
+                </div>
+                <div class="preview-box">
+                    <label>PNG Output</label>
+                    <div class="preview-frame" id="png-preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Why Convert SVG to PNG?</h2>
+            <p>SVG (Scalable Vector Graphics) files are great for web use but not all platforms support them. Converting to PNG gives you a raster image that works everywhere, from social media uploads to presentation slides and email signatures.</p>
+            <h2>How This Tool Works</h2>
+            <p>This converter runs entirely in your browser using the HTML Canvas API. Your SVG is rendered to a canvas element at your specified resolution, then exported as a PNG file. No data is uploaded to any server.</p>
+            <h2>Choosing the Right Resolution</h2>
+            <p>For web use, 1x or 2x scale is typically sufficient. For print, use 3x or 4x to ensure crisp output. You can also set custom width and height values for exact dimensions.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/css-gradient-generator">CSS Gradient</a> | <a href="/qr-code-generator">QR Generator</a></p></footer>
+    <script>
+    let pngDataUrl = null;
+
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+    function handleFile(file) {
+        if (!file || !file.name.endsWith('.svg')) { showStatus('Please select an SVG file', false); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('input').value = e.target.result;
+            autoDetectSize(e.target.result);
+            showSvgPreview(e.target.result);
+        };
+        reader.readAsText(file);
+    }
+
+    function autoDetectSize(svg) {
+        const match = svg.match(/viewBox=["']([^"']+)["']/);
+        if (match) {
+            const parts = match[1].split(/[\s,]+/);
+            if (parts.length === 4) {
+                document.getElementById('width').value = Math.round(parseFloat(parts[2]));
+                document.getElementById('height').value = Math.round(parseFloat(parts[3]));
+            }
+        } else {
+            const w = svg.match(/width=["'](\d+)/);
+            const h = svg.match(/height=["'](\d+)/);
+            if (w) document.getElementById('width').value = parseInt(w[1]);
+            if (h) document.getElementById('height').value = parseInt(h[1]);
+        }
+    }
+
+    function applyScale() {
+        // Scale is applied during conversion, not to the input dimensions
+    }
+
+    function showSvgPreview(svg) {
+        const blob = new Blob([svg], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('svg-preview').innerHTML = '<img src="' + url + '" alt="SVG preview">';
+    }
+
+    function convert() {
+        const svg = document.getElementById('input').value.trim();
+        if (!svg) { showStatus('Please enter SVG code or upload a file', false); return; }
+        if (!svg.includes('<svg')) { showStatus('Invalid SVG: must contain an <svg> element', false); return; }
+        const w = parseInt(document.getElementById('width').value);
+        const h = parseInt(document.getElementById('height').value);
+        const scale = parseInt(document.getElementById('scale').value);
+        const transparent = document.getElementById('transparent').checked;
+        const cw = w * scale, ch = h * scale;
+
+        showSvgPreview(svg);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        if (!transparent) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, cw, ch);
+        }
+        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, cw, ch);
+            URL.revokeObjectURL(url);
+            pngDataUrl = canvas.toDataURL('image/png');
+            const pngImg = document.createElement('img');
+            pngImg.src = pngDataUrl;
+            pngImg.alt = 'PNG output';
+            document.getElementById('png-preview').innerHTML = '';
+            document.getElementById('png-preview').appendChild(pngImg);
+            showStatus('Converted: ' + cw + 'x' + ch + ' PNG (' + Math.round(pngDataUrl.length * 0.75 / 1024) + ' KB approx)', true);
+        };
+        img.onerror = () => { showStatus('Error rendering SVG. Check your SVG code is valid.', false); URL.revokeObjectURL(url); };
+        img.src = url;
+    }
+
+    function download() {
+        if (!pngDataUrl) { showStatus('Convert first, then download', false); return; }
+        const a = document.createElement('a');
+        a.href = pngDataUrl;
+        a.download = 'converted.png';
+        a.click();
+    }
+
+    function clearAll() {
+        document.getElementById('input').value = '';
+        document.getElementById('svg-preview').innerHTML = '';
+        document.getElementById('png-preview').innerHTML = '';
+        document.getElementById('status-bar').innerHTML = '';
+        pngDataUrl = null;
+    }
+
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unix Permissions Calculator - Visual Chmod Calculator</title>
+    <meta name="description" content="Free visual Unix file permissions calculator. See rwx permissions mapped to chmod numbers interactively. Understand owner, group, and other permissions.">
+    <meta property="og:title" content="Free Unix Permissions Calculator">
+    <meta property="og:description" content="Visual chmod calculator with rwx checkboxes. Understand Unix file permissions instantly.">
+    <link rel="canonical" href="/unix-permissions-calculator">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Unix Permissions Calculator",
+        "description": "Free visual Unix file permissions calculator. Interactive rwx checkboxes mapped to chmod numbers.",
+        "url": "https://toolpipe.com/unix-permissions-calculator",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .perm-grid { display: grid; grid-template-columns: 120px repeat(3, 1fr); gap: 0; margin-bottom: 20px; }
+        .perm-grid .cell { padding: 12px 16px; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .perm-grid .header { background: #1a1a2e; color: white; font-weight: 600; }
+        .perm-grid .row-label { background: #f0f0f0; font-weight: 600; justify-content: flex-start; }
+        .perm-grid label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem; }
+        .perm-grid input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6c63ff; cursor: pointer; }
+        .result-area { text-align: center; padding: 24px; background: #f8f9fa; border-radius: 12px; margin: 20px 0; }
+        .chmod-number { font-size: 3rem; font-weight: 700; font-family: 'Courier New', monospace; color: #1a1a2e; letter-spacing: 8px; }
+        .chmod-string { font-size: 1.5rem; font-family: 'Courier New', monospace; color: #6c63ff; margin-top: 8px; letter-spacing: 2px; }
+        .chmod-command { font-size: 1rem; font-family: 'Courier New', monospace; color: #666; margin-top: 12px; background: white; display: inline-block; padding: 8px 16px; border-radius: 6px; border: 1px solid #ddd; }
+        .input-row { display: flex; gap: 12px; align-items: center; margin: 16px 0; flex-wrap: wrap; }
+        .input-row label { font-weight: 500; }
+        .input-row input { width: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 1.1rem; text-align: center; }
+        .input-row input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .common-perms { margin-top: 20px; }
+        .common-perms h3 { margin-bottom: 12px; font-size: 1rem; }
+        .perm-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .perm-chip { padding: 8px 14px; background: #f0f0f0; border-radius: 6px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 0.85rem; border: 1px solid transparent; transition: all 0.2s; }
+        .perm-chip:hover { border-color: #6c63ff; background: #eee; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media (max-width: 600px) { .perm-grid { font-size: 0.8rem; } .perm-grid .cell { padding: 8px; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>Unix Permissions Calculator</h1>
+        <p class="subtitle">Visual chmod calculator with interactive rwx permission checkboxes</p>
+        <div class="tool-box">
+            <div class="input-row">
+                <label>Enter chmod number:</label>
+                <input type="text" id="chmod-input" maxlength="4" value="755" oninput="fromNumber()">
+                <label>or symbolic:</label>
+                <input type="text" id="symbolic-input" maxlength="10" value="rwxr-xr-x" oninput="fromSymbolic()" style="width:130px">
+            </div>
+
+            <div class="perm-grid">
+                <div class="cell header"></div>
+                <div class="cell header">Read (4)</div>
+                <div class="cell header">Write (2)</div>
+                <div class="cell header">Execute (1)</div>
+
+                <div class="cell row-label">Owner</div>
+                <div class="cell"><label><input type="checkbox" id="or" onchange="fromCheckboxes()"> r</label></div>
+                <div class="cell"><label><input type="checkbox" id="ow" onchange="fromCheckboxes()"> w</label></div>
+                <div class="cell"><label><input type="checkbox" id="ox" onchange="fromCheckboxes()"> x</label></div>
+
+                <div class="cell row-label">Group</div>
+                <div class="cell"><label><input type="checkbox" id="gr" onchange="fromCheckboxes()"> r</label></div>
+                <div class="cell"><label><input type="checkbox" id="gw" onchange="fromCheckboxes()"> w</label></div>
+                <div class="cell"><label><input type="checkbox" id="gx" onchange="fromCheckboxes()"> x</label></div>
+
+                <div class="cell row-label">Others</div>
+                <div class="cell"><label><input type="checkbox" id="tr" onchange="fromCheckboxes()"> r</label></div>
+                <div class="cell"><label><input type="checkbox" id="tw" onchange="fromCheckboxes()"> w</label></div>
+                <div class="cell"><label><input type="checkbox" id="tx" onchange="fromCheckboxes()"> x</label></div>
+            </div>
+
+            <div class="result-area">
+                <div class="chmod-number" id="result-number">755</div>
+                <div class="chmod-string" id="result-string">rwxr-xr-x</div>
+                <div class="chmod-command" id="result-command">chmod 755 filename</div>
+            </div>
+
+            <div class="btns">
+                <button class="btn btn-secondary" onclick="copyCommand()">Copy Command</button>
+                <button class="btn btn-secondary" onclick="reset()">Reset</button>
+            </div>
+
+            <div class="common-perms">
+                <h3>Common Permissions</h3>
+                <div class="perm-chips">
+                    <div class="perm-chip" onclick="setPerms('777')">777 (rwxrwxrwx)</div>
+                    <div class="perm-chip" onclick="setPerms('755')">755 (rwxr-xr-x)</div>
+                    <div class="perm-chip" onclick="setPerms('700')">700 (rwx------)</div>
+                    <div class="perm-chip" onclick="setPerms('644')">644 (rw-r--r--)</div>
+                    <div class="perm-chip" onclick="setPerms('600')">600 (rw-------)</div>
+                    <div class="perm-chip" onclick="setPerms('444')">444 (r--r--r--)</div>
+                    <div class="perm-chip" onclick="setPerms('400')">400 (r--------)</div>
+                    <div class="perm-chip" onclick="setPerms('666')">666 (rw-rw-rw-)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Understanding Unix File Permissions</h2>
+            <p>Unix file permissions control who can read, write, and execute files. Each file has three permission groups: owner (the file creator), group (users in the file's group), and others (everyone else). Each group can have read (r), write (w), and execute (x) permissions.</p>
+            <h2>How Chmod Numbers Work</h2>
+            <p>Each permission has a numeric value: read = 4, write = 2, execute = 1. The chmod number is three digits, one for each group (owner, group, others). Each digit is the sum of permissions for that group. For example, 755 means owner has rwx (7), group has r-x (5), others have r-x (5).</p>
+            <h2>Common Permission Patterns</h2>
+            <p>755 is standard for executable files and directories (owner can modify, others can read/execute). 644 is typical for regular files (owner can modify, others can read only). 600 is used for private files (owner only). 777 grants full access to everyone and should be used with caution.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/chmod-calculator">Chmod Calculator</a> | <a href="/dns-lookup">DNS Lookup</a></p></footer>
+    <script>
+    const ids = ['or','ow','ox','gr','gw','gx','tr','tw','tx'];
+    const vals = [4,2,1,4,2,1,4,2,1];
+
+    function fromCheckboxes() {
+        let owner = 0, group = 0, other = 0;
+        if (el('or').checked) owner += 4;
+        if (el('ow').checked) owner += 2;
+        if (el('ox').checked) owner += 1;
+        if (el('gr').checked) group += 4;
+        if (el('gw').checked) group += 2;
+        if (el('gx').checked) group += 1;
+        if (el('tr').checked) other += 4;
+        if (el('tw').checked) other += 2;
+        if (el('tx').checked) other += 1;
+        const num = '' + owner + group + other;
+        el('chmod-input').value = num;
+        el('symbolic-input').value = toSymbolic(num);
+        updateResult(num);
+    }
+
+    function fromNumber() {
+        const val = el('chmod-input').value.replace(/[^0-7]/g, '');
+        if (val.length < 3) return;
+        const num = val.slice(-3);
+        setCheckboxes(num);
+        el('symbolic-input').value = toSymbolic(num);
+        updateResult(num);
+    }
+
+    function fromSymbolic() {
+        const s = el('symbolic-input').value;
+        if (s.length < 9) return;
+        const p = s.slice(-9);
+        const num = '' +
+            ((p[0]==='r'?4:0)+(p[1]==='w'?2:0)+(p[2]==='x'?1:0)) +
+            ((p[3]==='r'?4:0)+(p[4]==='w'?2:0)+(p[5]==='x'?1:0)) +
+            ((p[6]==='r'?4:0)+(p[7]==='w'?2:0)+(p[8]==='x'?1:0));
+        el('chmod-input').value = num;
+        setCheckboxes(num);
+        updateResult(num);
+    }
+
+    function setCheckboxes(num) {
+        const d = num.split('').map(Number);
+        el('or').checked = !!(d[0] & 4); el('ow').checked = !!(d[0] & 2); el('ox').checked = !!(d[0] & 1);
+        el('gr').checked = !!(d[1] & 4); el('gw').checked = !!(d[1] & 2); el('gx').checked = !!(d[1] & 1);
+        el('tr').checked = !!(d[2] & 4); el('tw').checked = !!(d[2] & 2); el('tx').checked = !!(d[2] & 1);
+    }
+
+    function toSymbolic(num) {
+        const d = num.split('').map(Number);
+        return '' +
+            (d[0]&4?'r':'-') + (d[0]&2?'w':'-') + (d[0]&1?'x':'-') +
+            (d[1]&4?'r':'-') + (d[1]&2?'w':'-') + (d[1]&1?'x':'-') +
+            (d[2]&4?'r':'-') + (d[2]&2?'w':'-') + (d[2]&1?'x':'-');
+    }
+
+    function updateResult(num) {
+        el('result-number').textContent = num;
+        el('result-string').textContent = toSymbolic(num);
+        el('result-command').textContent = 'chmod ' + num + ' filename';
+    }
+
+    function setPerms(num) {
+        el('chmod-input').value = num;
+        setCheckboxes(num);
+        el('symbolic-input').value = toSymbolic(num);
+        updateResult(num);
+    }
+
+    function copyCommand() { navigator.clipboard.writeText(el('result-command').textContent); }
+    function reset() { setPerms('755'); }
+    function el(id) { return document.getElementById(id); }
+
+    // Initialize
+    fromNumber();
+    </script>
+</body>
+</html>

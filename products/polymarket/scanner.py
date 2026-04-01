@@ -7,7 +7,7 @@ Fetches active markets, analyzes odds, identifies opportunities.
 import requests
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 GAMMA_API = "https://gamma-api.polymarket.com"
 CLOB_API = "https://clob.polymarket.com"
@@ -127,9 +127,28 @@ def find_opportunities(markets, min_volume=1000):
 
     return opportunities
 
+def filter_short_term(markets, max_days=30):
+    """Filter markets ending within max_days."""
+    now = datetime.now(timezone.utc)
+    cutoff = now + timedelta(days=max_days)
+    short_term = []
+    for m in markets:
+        end_str = m.get("end_date") or m.get("endDate", "")
+        if not end_str:
+            continue
+        try:
+            end_dt = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+            if end_dt <= cutoff and end_dt > now:
+                m["_days_left"] = (end_dt - now).days
+                short_term.append(m)
+        except (ValueError, TypeError):
+            continue
+    return short_term
+
+
 def scan_and_report():
     """Main scan: fetch markets, analyze, write report."""
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
     report_dir = os.path.join(os.path.dirname(__file__), "research")
     os.makedirs(report_dir, exist_ok=True)
 
@@ -148,29 +167,67 @@ def scan_and_report():
     opportunities = find_opportunities(all_markets, min_volume=5000)
     extreme = [o for o in opportunities if o.get("opportunity")]
 
-    # Sort by volume
+    # Separate short-term (within 30 days) from long-term
+    short_term = filter_short_term(extreme, max_days=30)
+    short_term.sort(key=lambda x: float(x.get("volume", 0) or 0), reverse=True)
+
+    # All opportunities sorted by volume
     extreme.sort(key=lambda x: float(x.get("volume", 0) or 0), reverse=True)
 
     report = f"# Polymarket Scan Report\n"
     report += f"**Date:** {timestamp}\n"
     report += f"**Total Markets Scanned:** {len(all_markets)}\n"
-    report += f"**Opportunities Found:** {len(extreme)}\n\n"
+    report += f"**Total Opportunities:** {len(extreme)}\n"
+    report += f"**Short-Term (30 days):** {len(short_term)}\n\n"
 
-    report += "## High-Interest Markets\n\n"
-    for opp in extreme[:30]:
+    # Short-term markets first (most actionable)
+    report += "## Short-Term Markets (Resolving Within 30 Days)\n\n"
+    if short_term:
+        for opp in short_term[:20]:
+            days_left = opp.get("_days_left", "?")
+            report += f"### {opp['question']}\n"
+            report += f"- **Days Left:** {days_left}\n"
+            report += f"- Volume: ${float(opp.get('volume', 0) or 0):,.0f}\n"
+            report += f"- Liquidity: ${float(opp.get('liquidity', 0) or 0):,.0f}\n"
+            report += f"- End Date: {opp.get('end_date', 'N/A')}\n"
+            for token in opp.get("tokens", []):
+                price = token.get("price")
+                price_str = f"${price:.2f}" if price else "N/A"
+                opp_type = token.get("opportunity_type", "")
+                report += f"  - {token['outcome']}: {price_str}"
+                if opp_type:
+                    report += f" [{opp_type}]"
+                report += "\n"
+            report += "\n"
+    else:
+        report += "No short-term opportunities found.\n\n"
+
+    # Liquid balanced markets (50/50 splits = most interesting for analysis)
+    balanced = [o for o in extreme if any(
+        t.get("opportunity_type") == "liquid_balanced" for t in o.get("tokens", [])
+    )]
+    report += "## Liquid Balanced Markets (Near 50/50)\n\n"
+    for opp in balanced[:15]:
         report += f"### {opp['question']}\n"
         report += f"- Volume: ${float(opp.get('volume', 0) or 0):,.0f}\n"
         report += f"- Liquidity: ${float(opp.get('liquidity', 0) or 0):,.0f}\n"
-        report += f"- Category: {opp.get('category', 'N/A')}\n"
+        for token in opp.get("tokens", []):
+            price = token.get("price")
+            price_str = f"${price:.2f}" if price else "N/A"
+            report += f"  - {token['outcome']}: {price_str}\n"
+        report += "\n"
+
+    # High-volume markets
+    report += "## Top Volume Markets\n\n"
+    for opp in extreme[:15]:
+        report += f"### {opp['question']}\n"
+        report += f"- Volume: ${float(opp.get('volume', 0) or 0):,.0f}\n"
+        report += f"- Liquidity: ${float(opp.get('liquidity', 0) or 0):,.0f}\n"
         report += f"- End Date: {opp.get('end_date', 'N/A')}\n"
         for token in opp.get("tokens", []):
             price = token.get("price")
             price_str = f"${price:.2f}" if price else "N/A"
-            opp_type = token.get("opportunity_type", "")
-            report += f"  - {token['outcome']}: {price_str}"
-            if opp_type:
-                report += f" [{opp_type}]"
-            report += "\n"
+            report += f"  - {token['outcome']}: {price_str}\n"
         report += "\n"
 
     report_path = os.path.join(report_dir, f"scan_{timestamp}.md")
@@ -183,7 +240,7 @@ def scan_and_report():
         f.write(report)
 
     print(f"Report written to {report_path}")
-    print(f"Found {len(extreme)} opportunities")
+    print(f"Found {len(extreme)} total, {len(short_term)} short-term")
 
     return extreme
 

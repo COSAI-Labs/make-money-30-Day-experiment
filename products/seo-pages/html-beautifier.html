@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Beautifier - Free Online HTML Formatter & Indenter</title>
+    <meta name="description" content="Free online HTML beautifier and formatter. Indent and format messy HTML code instantly. No signup required.">
+    <meta property="og:title" content="Free HTML Beautifier & Formatter">
+    <meta property="og:description" content="Format, indent, and beautify HTML code online for free. Clean up messy markup instantly.">
+    <link rel="canonical" href="/html-beautifier">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "HTML Beautifier",
+        "description": "Free online HTML beautifier and formatter. Indent and format messy HTML code instantly.",
+        "url": "https://toolpipe.com/html-beautifier",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 200px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; tab-size: 2; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        select { padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        .output { margin-top: 12px; }
+        .output textarea { background: #f8f9fa; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>HTML Beautifier</h1>
+        <p class="subtitle">Format and indent messy HTML code with proper indentation</p>
+        <div class="tool-box">
+            <label style="font-weight:500;margin-bottom:6px;display:block">Input HTML</label>
+            <textarea id="input" placeholder='Paste messy HTML here... e.g. <div><p>Hello</p><ul><li>Item</li></ul></div>'></textarea>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="beautify()">Beautify HTML</button>
+                <button class="btn btn-secondary" onclick="minify()">Minify</button>
+                <button class="btn btn-secondary" onclick="copyOutput()">Copy Output</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+                <label style="margin-left:8px;font-size:0.85rem;">Indent:
+                    <select id="indent">
+                        <option value="2">2 spaces</option>
+                        <option value="4">4 spaces</option>
+                        <option value="tab">Tab</option>
+                    </select>
+                </label>
+            </div>
+            <div id="status-bar"></div>
+            <div class="output">
+                <label style="font-weight:500;margin-bottom:6px;display:block">Output</label>
+                <textarea id="output" readonly placeholder="Formatted HTML will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>What is HTML Beautification?</h2>
+            <p>HTML beautification (also called pretty-printing) is the process of reformatting HTML code with proper indentation and line breaks. This makes the code easier to read, debug, and maintain without changing its rendered output.</p>
+            <h2>How to Use This Tool</h2>
+            <p>Paste your HTML into the input box and click "Beautify HTML". Choose your preferred indentation style (2 spaces, 4 spaces, or tabs). Click "Minify" to compress HTML into a single line for production use.</p>
+            <h2>Why Format HTML?</h2>
+            <p>Well-formatted HTML is easier to read, review in pull requests, and debug. Consistent indentation helps teams maintain code quality and catch nesting errors. Minified HTML, on the other hand, reduces file size for faster page loads.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/css-gradient-generator">CSS Gradient Generator</a></p></footer>
+    <script>
+    const VOID_ELEMENTS = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+    const RAW_ELEMENTS = new Set(['script','style','pre','code','textarea']);
+
+    function beautify() {
+        const html = document.getElementById('input').value;
+        if (!html.trim()) { showStatus('Please enter HTML to beautify', false); return; }
+        const indentSel = document.getElementById('indent').value;
+        const indentStr = indentSel === 'tab' ? '\t' : ' '.repeat(parseInt(indentSel));
+        try {
+            const result = formatHTML(html, indentStr);
+            document.getElementById('output').value = result;
+            const lines = result.split('\n').length;
+            showStatus('Beautified: ' + lines + ' lines', true);
+        } catch(e) { showStatus('Error: ' + e.message, false); }
+    }
+
+    function formatHTML(html, indent) {
+        let result = '';
+        let level = 0;
+        // Normalize whitespace between tags but preserve content
+        html = html.replace(/>\s+</g, '>\n<').replace(/^\s+|\s+$/g, '');
+        const lines = html.split('\n');
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+            // Process multiple tags on same line
+            const tokens = tokenize(line);
+            for (const token of tokens) {
+                const t = token.trim();
+                if (!t) continue;
+                if (t.startsWith('</')) {
+                    level = Math.max(0, level - 1);
+                    result += indent.repeat(level) + t + '\n';
+                } else if (t.startsWith('<') && !t.startsWith('<!') && !t.startsWith('<?')) {
+                    result += indent.repeat(level) + t + '\n';
+                    const tagMatch = t.match(/^<([a-zA-Z][a-zA-Z0-9-]*)/);
+                    if (tagMatch && !VOID_ELEMENTS.has(tagMatch[1].toLowerCase()) && !t.endsWith('/>') && !t.includes('</')) {
+                        level++;
+                    }
+                } else {
+                    result += indent.repeat(level) + t + '\n';
+                }
+            }
+        }
+        return result.replace(/\n$/, '');
+    }
+
+    function tokenize(str) {
+        const tokens = [];
+        let i = 0;
+        while (i < str.length) {
+            if (str[i] === '<') {
+                let j = str.indexOf('>', i);
+                if (j === -1) { tokens.push(str.substring(i)); break; }
+                tokens.push(str.substring(i, j + 1));
+                i = j + 1;
+            } else {
+                let j = str.indexOf('<', i);
+                if (j === -1) { tokens.push(str.substring(i)); break; }
+                const text = str.substring(i, j).trim();
+                if (text) tokens.push(text);
+                i = j;
+            }
+        }
+        return tokens;
+    }
+
+    function minify() {
+        const html = document.getElementById('input').value;
+        if (!html.trim()) { showStatus('Please enter HTML to minify', false); return; }
+        const result = html.replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
+        document.getElementById('output').value = result;
+        showStatus('Minified: ' + result.length + ' characters (saved ' + (html.length - result.length) + ')', true);
+    }
+
+    function copyOutput() { navigator.clipboard.writeText(document.getElementById('output').value); }
+    function clearAll() { document.getElementById('input').value = ''; document.getElementById('output').value = ''; document.getElementById('status-bar').innerHTML = ''; }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>
