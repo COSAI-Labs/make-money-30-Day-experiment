@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Analyzer - Free Website SEO Checker</title>
+    <meta name="description" content="Free SEO analyzer tool. Check your website's meta tags, headings, images, links, and get actionable SEO recommendations instantly.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; background: #f0f2f5; }
+        .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.8; font-size: 1.1rem; margin-bottom: 32px; }
+        .search-box { display: flex; max-width: 600px; margin: 0 auto; gap: 8px; }
+        .search-box input { flex: 1; padding: 14px 20px; border: none; border-radius: 8px; font-size: 1rem; }
+        .search-box button { padding: 14px 28px; background: #e94560; border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 1rem; cursor: pointer; }
+        .search-box button:hover { background: #c73e54; }
+        .search-box button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        #loading { display: none; text-align: center; padding: 40px; color: #666; }
+        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #ddd; border-top-color: #e94560; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #results { display: none; }
+        .score-card { background: white; border-radius: 16px; padding: 32px; margin: 24px 0; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: white; margin-bottom: 16px; }
+        .score-good { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .score-ok { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .score-bad { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .section { background: white; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .section h3 { font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .badge-pass { background: #d4edda; color: #155724; }
+        .badge-warn { background: #fff3cd; color: #856404; }
+        .badge-fail { background: #f8d7da; color: #721c24; }
+        .check-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .check-item:last-child { border-bottom: none; }
+        .check-item .label { font-weight: 500; }
+        .check-item .value { color: #666; font-size: 0.9rem; max-width: 400px; text-align: right; word-break: break-all; }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag { background: #f0f2f5; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; }
+        .rec { padding: 12px; background: #f8f9fa; border-left: 3px solid #e94560; margin: 8px 0; border-radius: 0 8px 8px 0; font-size: 0.9rem; }
+        .rec.good { border-left-color: #27ae60; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #e94560; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>SEO Analyzer</h1>
+        <p>Get a comprehensive SEO audit of any website in seconds</p>
+        <div class="search-box">
+            <input type="text" id="url-input" placeholder="Enter website URL (e.g. example.com)" onkeypress="if(event.key==='Enter')analyze()">
+            <button id="analyze-btn" onclick="analyze()">Analyze</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top:16px">Analyzing website SEO...</p>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <footer>
+        <p>SEO Analyzer by <a href="/">ToolPipe</a> | <a href="/tools">More Developer Tools</a></p>
+    </footer>
+
+    <script>
+    const API_BASE = '';
+
+    async function analyze() {
+        let url = document.getElementById('url-input').value.trim();
+        if (!url) return;
+        if (!url.startsWith('http')) url = 'https://' + url;
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('analyze-btn').disabled = true;
+
+        try {
+            const resp = await fetch(API_BASE + '/seo/analyze?url=' + encodeURIComponent(url));
+            const data = await resp.json();
+            if (data.error) throw new Error(data.error);
+            renderResults(data, url);
+        } catch(e) {
+            document.getElementById('results').innerHTML = '<div class="section"><h3>Error</h3><p>' + e.message + '</p></div>';
+            document.getElementById('results').style.display = 'block';
+        }
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('analyze-btn').disabled = false;
+    }
+
+    function renderResults(data, url) {
+        const r = document.getElementById('results');
+        let score = data.score;
+        let scoreClass = score >= 80 ? 'score-good' : (score >= 50 ? 'score-ok' : 'score-bad');
+        let scoreLabel = score >= 80 ? 'Good' : (score >= 50 ? 'Needs Work' : 'Poor');
+
+        let html = '';
+
+        // Score card
+        html += '<div class="score-card">';
+        html += '<div class="score-circle ' + scoreClass + '">' + score + '</div>';
+        html += '<h2>' + scoreLabel + '</h2>';
+        html += '<p style="color:#666;margin-top:8px">' + url + '</p>';
+        html += '</div>';
+
+        // Meta Tags
+        html += '<div class="section"><h3>Meta Tags ' + badge(data.meta.score) + '</h3>';
+        html += checkItem('Title', data.meta.title || 'Missing', data.meta.title ? 'pass' : 'fail');
+        html += checkItem('Title Length', data.meta.title_length + ' chars', data.meta.title_length >= 30 && data.meta.title_length <= 60 ? 'pass' : 'warn');
+        html += checkItem('Description', truncate(data.meta.description, 80) || 'Missing', data.meta.description ? 'pass' : 'fail');
+        html += checkItem('Desc Length', data.meta.desc_length + ' chars', data.meta.desc_length >= 120 && data.meta.desc_length <= 160 ? 'pass' : 'warn');
+        html += checkItem('Canonical', data.meta.canonical || 'Not set', data.meta.canonical ? 'pass' : 'warn');
+        html += checkItem('Language', data.meta.language || 'Not set', data.meta.language ? 'pass' : 'warn');
+        if (data.meta.recommendations.length) {
+            data.meta.recommendations.forEach(r => { html += '<div class="rec">' + r + '</div>'; });
+        }
+        html += '</div>';
+
+        // Open Graph
+        html += '<div class="section"><h3>Social / Open Graph ' + badge(data.og.score) + '</h3>';
+        html += checkItem('OG Title', truncate(data.og.og_title, 60) || 'Missing', data.og.og_title ? 'pass' : 'warn');
+        html += checkItem('OG Description', truncate(data.og.og_description, 60) || 'Missing', data.og.og_description ? 'pass' : 'warn');
+        html += checkItem('OG Image', data.og.og_image ? 'Set' : 'Missing', data.og.og_image ? 'pass' : 'warn');
+        html += checkItem('Twitter Card', data.og.twitter_card || 'Missing', data.og.twitter_card ? 'pass' : 'warn');
+        if (data.og.recommendations.length) {
+            data.og.recommendations.forEach(r => { html += '<div class="rec">' + r + '</div>'; });
+        }
+        html += '</div>';
+
+        // Headings
+        html += '<div class="section"><h3>Headings ' + badge(data.headings.score) + '</h3>';
+        html += checkItem('H1 Tags', data.headings.h1_count, data.headings.h1_count === 1 ? 'pass' : 'warn');
+        html += checkItem('H2 Tags', data.headings.h2_count, data.headings.h2_count > 0 ? 'pass' : 'warn');
+        html += checkItem('H3 Tags', data.headings.h3_count, 'info');
+        if (data.headings.h1_texts.length) {
+            html += '<div style="margin-top:8px"><strong>H1:</strong>';
+            data.headings.h1_texts.forEach(t => { html += '<div class="tag" style="display:block;margin:4px 0">' + escapeHtml(t) + '</div>'; });
+            html += '</div>';
+        }
+        if (data.headings.recommendations.length) {
+            data.headings.recommendations.forEach(r => { html += '<div class="rec">' + r + '</div>'; });
+        }
+        html += '</div>';
+
+        // Links
+        html += '<div class="section"><h3>Links ' + badge(data.links.score) + '</h3>';
+        html += checkItem('Total Links', data.links.total);
+        html += checkItem('Internal Links', data.links.internal);
+        html += checkItem('External Links', data.links.external);
+        html += checkItem('Links with nofollow', data.links.nofollow);
+        if (data.links.recommendations.length) {
+            data.links.recommendations.forEach(r => { html += '<div class="rec">' + r + '</div>'; });
+        }
+        html += '</div>';
+
+        // Images
+        html += '<div class="section"><h3>Images ' + badge(data.images.score) + '</h3>';
+        html += checkItem('Total Images', data.images.total);
+        html += checkItem('With Alt Text', data.images.with_alt);
+        html += checkItem('Without Alt Text', data.images.without_alt, data.images.without_alt === 0 ? 'pass' : 'warn');
+        if (data.images.recommendations.length) {
+            data.images.recommendations.forEach(r => { html += '<div class="rec">' + r + '</div>'; });
+        }
+        html += '</div>';
+
+        // Performance hints
+        html += '<div class="section"><h3>Technical ' + badge(data.technical.score) + '</h3>';
+        html += checkItem('HTTPS', data.technical.https ? 'Yes' : 'No', data.technical.https ? 'pass' : 'fail');
+        html += checkItem('Response Time', data.technical.response_time_ms + 'ms', data.technical.response_time_ms < 500 ? 'pass' : 'warn');
+        html += checkItem('Page Size', data.technical.page_size_kb + ' KB', data.technical.page_size_kb < 500 ? 'pass' : 'warn');
+        html += checkItem('Viewport Meta', data.technical.has_viewport ? 'Yes' : 'No', data.technical.has_viewport ? 'pass' : 'fail');
+        html += checkItem('Charset', data.technical.charset || 'Not specified', data.technical.charset ? 'pass' : 'warn');
+        if (data.technical.recommendations.length) {
+            data.technical.recommendations.forEach(r => { html += '<div class="rec">' + r + '</div>'; });
+        }
+        html += '</div>';
+
+        r.innerHTML = html;
+        r.style.display = 'block';
+    }
+
+    function badge(score) {
+        if (score === undefined || score === 'info') return '';
+        if (score >= 80) return '<span class="badge badge-pass">PASS</span>';
+        if (score >= 50) return '<span class="badge badge-warn">WARNING</span>';
+        return '<span class="badge badge-fail">FAIL</span>';
+    }
+
+    function checkItem(label, value, status) {
+        let statusHtml = '';
+        if (status === 'pass') statusHtml = '<span style="color:#27ae60">OK</span>';
+        else if (status === 'warn') statusHtml = '<span style="color:#f39c12">!</span>';
+        else if (status === 'fail') statusHtml = '<span style="color:#e74c3c">X</span>';
+        return '<div class="check-item"><span class="label">' + label + ' ' + statusHtml + '</span><span class="value">' + (value || '-') + '</span></div>';
+    }
+
+    function truncate(str, len) { return str && str.length > len ? str.substring(0, len) + '...' : str; }
+    function escapeHtml(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+    </script>
+</body>
+</html>

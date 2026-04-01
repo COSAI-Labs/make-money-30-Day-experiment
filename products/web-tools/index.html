@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevTools Online - Free Developer Utilities</title>
+    <meta name="description" content="Free online developer tools: JSON formatter, Base64 encoder, hash generator, QR code maker, color converter, UUID generator, and more.">
+    <meta name="keywords" content="json formatter, base64 encoder, hash generator, qr code, uuid generator, developer tools, online tools">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; background: #f0f2f5; }
+
+        nav { background: #1a1a2e; color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+        nav h1 { font-size: 1.3rem; }
+        nav a { color: #6c63ff; text-decoration: none; font-weight: 500; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        .tool-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
+        .tool-nav button {
+            padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 6px;
+            cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .tool-nav button.active { background: #6c63ff; color: white; border-color: #6c63ff; }
+        .tool-nav button:hover { border-color: #6c63ff; }
+
+        .tool-panel { display: none; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .tool-panel.active { display: block; }
+        .tool-panel h2 { font-size: 1.3rem; margin-bottom: 16px; }
+
+        textarea, input[type="text"], input[type="number"], select {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical;
+        }
+        textarea { min-height: 150px; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+
+        .btn {
+            padding: 10px 20px; background: #6c63ff; color: white; border: none;
+            border-radius: 6px; cursor: pointer; font-weight: 600; margin: 12px 4px 12px 0;
+        }
+        .btn:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+
+        .output { background: #f8f9fa; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-top: 12px; font-family: 'Courier New', monospace; font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; min-height: 60px; }
+        .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .row > * { flex: 1; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+        .stat { background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center; }
+        .stat .val { font-size: 1.5rem; font-weight: 700; color: #6c63ff; }
+        .stat .lbl { font-size: 0.75rem; color: #666; margin-top: 4px; }
+
+        footer { text-align: center; padding: 40px 20px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+
+        #qr-output img { max-width: 300px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>DevTools Online</h1>
+        <a href="/docs" target="_blank">API Access</a>
+    </nav>
+
+    <div class="container">
+        <div class="tool-nav">
+            <button class="active" onclick="showTool('json')">JSON Formatter</button>
+            <button onclick="showTool('base64')">Base64</button>
+            <button onclick="showTool('hash')">Hash Generator</button>
+            <button onclick="showTool('qr')">QR Code</button>
+            <button onclick="showTool('uuid')">UUID Generator</button>
+            <button onclick="showTool('color')">Color Converter</button>
+            <button onclick="showTool('text')">Text Analyzer</button>
+            <button onclick="showTool('markdown')">Markdown Preview</button>
+            <button onclick="showTool('url')">URL Encoder</button>
+            <button onclick="showTool('regex')">Regex Tester</button>
+            <button onclick="showTool('diff')">Text Diff</button>
+            <button onclick="showTool('timestamp')">Timestamp</button>
+        </div>
+
+        <!-- JSON Formatter -->
+        <div id="tool-json" class="tool-panel active">
+            <h2>JSON Formatter & Validator</h2>
+            <textarea id="json-input" placeholder='Paste JSON here... e.g. {"name":"test","value":123}'></textarea>
+            <button class="btn" onclick="formatJson()">Format</button>
+            <button class="btn btn-secondary" onclick="minifyJson()">Minify</button>
+            <button class="btn btn-secondary" onclick="copyOutput('json-output')">Copy</button>
+            <div id="json-output" class="output">Output will appear here...</div>
+        </div>
+
+        <!-- Base64 -->
+        <div id="tool-base64" class="tool-panel">
+            <h2>Base64 Encoder / Decoder</h2>
+            <textarea id="b64-input" placeholder="Enter text to encode or Base64 to decode..."></textarea>
+            <button class="btn" onclick="b64Encode()">Encode</button>
+            <button class="btn btn-secondary" onclick="b64Decode()">Decode</button>
+            <button class="btn btn-secondary" onclick="copyOutput('b64-output')">Copy</button>
+            <div id="b64-output" class="output"></div>
+        </div>
+
+        <!-- Hash Generator -->
+        <div id="tool-hash" class="tool-panel">
+            <h2>Hash Generator</h2>
+            <textarea id="hash-input" placeholder="Enter text to hash..."></textarea>
+            <button class="btn" onclick="generateHashes()">Generate Hashes</button>
+            <div id="hash-output" class="output"></div>
+        </div>
+
+        <!-- QR Code -->
+        <div id="tool-qr" class="tool-panel">
+            <h2>QR Code Generator</h2>
+            <input type="text" id="qr-input" placeholder="Enter URL or text...">
+            <div class="row" style="margin-top:12px">
+                <div>
+                    <label>Size (px)</label>
+                    <input type="number" id="qr-size" value="300" min="100" max="1000">
+                </div>
+            </div>
+            <button class="btn" onclick="generateQR()">Generate QR Code</button>
+            <div id="qr-output" class="output" style="text-align:center"></div>
+        </div>
+
+        <!-- UUID -->
+        <div id="tool-uuid" class="tool-panel">
+            <h2>UUID Generator</h2>
+            <div class="row">
+                <div>
+                    <label>Count</label>
+                    <input type="number" id="uuid-count" value="5" min="1" max="100">
+                </div>
+                <div>
+                    <label>Version</label>
+                    <select id="uuid-version"><option value="4">v4 (random)</option><option value="1">v1 (timestamp)</option></select>
+                </div>
+            </div>
+            <button class="btn" onclick="generateUUIDs()">Generate</button>
+            <button class="btn btn-secondary" onclick="copyOutput('uuid-output')">Copy All</button>
+            <div id="uuid-output" class="output"></div>
+        </div>
+
+        <!-- Color Converter -->
+        <div id="tool-color" class="tool-panel">
+            <h2>Color Converter</h2>
+            <div class="row">
+                <div>
+                    <label>Hex Color</label>
+                    <input type="text" id="color-input" placeholder="#FF5733" value="#6C63FF">
+                </div>
+            </div>
+            <button class="btn" onclick="convertColor()">Convert</button>
+            <div id="color-preview" style="height:60px;border-radius:8px;margin-top:12px;background:#6C63FF"></div>
+            <div id="color-output" class="output"></div>
+        </div>
+
+        <!-- Text Analyzer -->
+        <div id="tool-text" class="tool-panel">
+            <h2>Text Analyzer</h2>
+            <textarea id="text-input" placeholder="Paste text to analyze..." oninput="analyzeTextLive()"></textarea>
+            <div id="text-stats" class="stats"></div>
+        </div>
+
+        <!-- Markdown -->
+        <div id="tool-markdown" class="tool-panel">
+            <h2>Markdown Preview</h2>
+            <textarea id="md-input" placeholder="# Hello World&#10;&#10;Write **markdown** here..."></textarea>
+            <button class="btn" onclick="renderMarkdown()">Render</button>
+            <div id="md-output" style="background:#fff;border:1px solid #eee;border-radius:8px;padding:20px;margin-top:12px"></div>
+        </div>
+
+        <!-- URL Encoder -->
+        <div id="tool-url" class="tool-panel">
+            <h2>URL Encoder / Decoder</h2>
+            <textarea id="url-input" placeholder="Enter text or URL-encoded string..."></textarea>
+            <button class="btn" onclick="urlEncode()">Encode</button>
+            <button class="btn btn-secondary" onclick="urlDecode()">Decode</button>
+            <button class="btn btn-secondary" onclick="copyOutput('url-output')">Copy</button>
+            <div id="url-output" class="output"></div>
+        </div>
+
+        <!-- Regex Tester -->
+        <div id="tool-regex" class="tool-panel">
+            <h2>Regex Tester</h2>
+            <div class="row">
+                <div>
+                    <label>Pattern</label>
+                    <input type="text" id="regex-pattern" placeholder="e.g. \d+">
+                </div>
+                <div>
+                    <label>Flags</label>
+                    <input type="text" id="regex-flags" placeholder="gi" value="g">
+                </div>
+            </div>
+            <label>Test String</label>
+            <textarea id="regex-input" placeholder="Enter text to test against..."></textarea>
+            <button class="btn" onclick="testRegex()">Test</button>
+            <div id="regex-output" class="output"></div>
+        </div>
+
+        <!-- Text Diff -->
+        <div id="tool-diff" class="tool-panel">
+            <h2>Text Diff</h2>
+            <div class="row">
+                <div>
+                    <label>Original</label>
+                    <textarea id="diff-a" style="min-height:120px" placeholder="Original text..."></textarea>
+                </div>
+                <div>
+                    <label>Modified</label>
+                    <textarea id="diff-b" style="min-height:120px" placeholder="Modified text..."></textarea>
+                </div>
+            </div>
+            <button class="btn" onclick="showDiff()">Compare</button>
+            <div id="diff-output" class="output"></div>
+        </div>
+
+        <!-- Timestamp -->
+        <div id="tool-timestamp" class="tool-panel">
+            <h2>Unix Timestamp Converter</h2>
+            <div class="row">
+                <div>
+                    <label>Unix Timestamp</label>
+                    <input type="text" id="ts-input" placeholder="e.g. 1680000000">
+                </div>
+            </div>
+            <button class="btn" onclick="convertTimestamp()">Convert</button>
+            <button class="btn btn-secondary" onclick="currentTimestamp()">Current Time</button>
+            <div id="ts-output" class="output"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>DevTools Online - Free developer utilities | Powered by <a href="/">ToolPipe API</a></p>
+    </footer>
+
+    <script>
+    const API = '';
+
+    function showTool(name) {
+        document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tool-nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('tool-' + name).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function copyOutput(id) {
+        const el = document.getElementById(id);
+        navigator.clipboard.writeText(el.textContent);
+    }
+
+    // JSON
+    function formatJson() {
+        try {
+            const obj = JSON.parse(document.getElementById('json-input').value);
+            document.getElementById('json-output').textContent = JSON.stringify(obj, null, 2);
+        } catch(e) { document.getElementById('json-output').textContent = 'Error: ' + e.message; }
+    }
+    function minifyJson() {
+        try {
+            const obj = JSON.parse(document.getElementById('json-input').value);
+            document.getElementById('json-output').textContent = JSON.stringify(obj);
+        } catch(e) { document.getElementById('json-output').textContent = 'Error: ' + e.message; }
+    }
+
+    // Base64
+    function b64Encode() {
+        document.getElementById('b64-output').textContent = btoa(unescape(encodeURIComponent(document.getElementById('b64-input').value)));
+    }
+    function b64Decode() {
+        try {
+            document.getElementById('b64-output').textContent = decodeURIComponent(escape(atob(document.getElementById('b64-input').value)));
+        } catch(e) { document.getElementById('b64-output').textContent = 'Error: Invalid Base64'; }
+    }
+
+    // Hash (using SubtleCrypto)
+    async function generateHashes() {
+        const text = document.getElementById('hash-input').value;
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        const algos = ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'];
+        let result = '';
+        for (const algo of algos) {
+            const hash = await crypto.subtle.digest(algo, data);
+            const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+            result += algo + ':\n' + hex + '\n\n';
+        }
+        document.getElementById('hash-output').textContent = result.trim();
+    }
+
+    // QR Code (uses API)
+    function generateQR() {
+        const data = document.getElementById('qr-input').value;
+        const size = document.getElementById('qr-size').value;
+        if (!data) return;
+        const url = API + '/qr/generate?data=' + encodeURIComponent(data) + '&size=' + size;
+        document.getElementById('qr-output').innerHTML = '<img src="' + url + '" alt="QR Code"><br><br><a href="' + url + '" download="qr-code.png" style="color:#6c63ff">Download PNG</a>';
+    }
+
+    // UUID
+    function generateUUIDs() {
+        const count = document.getElementById('uuid-count').value;
+        const version = document.getElementById('uuid-version').value;
+        fetch(API + '/uuid/generate?count=' + count + '&version=' + version)
+            .then(r => r.json())
+            .then(d => { document.getElementById('uuid-output').textContent = d.uuids.join('\n'); });
+    }
+
+    // Color
+    function convertColor() {
+        const hex = document.getElementById('color-input').value;
+        document.getElementById('color-preview').style.background = hex;
+        fetch(API + '/color/convert?hex=' + encodeURIComponent(hex))
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('color-output').textContent =
+                    'HEX: ' + d.hex + '\n' +
+                    'RGB: ' + d.rgb_string + '\n' +
+                    'HSL: ' + d.hsl_string;
+            });
+    }
+
+    // Text Analysis (live, client-side)
+    function analyzeTextLive() {
+        const text = document.getElementById('text-input').value;
+        const words = text.trim() ? text.trim().split(/\s+/) : [];
+        const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+        const chars = text.length;
+        const charsNoSpace = text.replace(/\s/g, '').length;
+        const readTime = (words.length / 238).toFixed(1);
+        document.getElementById('text-stats').innerHTML =
+            '<div class="stat"><div class="val">' + chars + '</div><div class="lbl">Characters</div></div>' +
+            '<div class="stat"><div class="val">' + charsNoSpace + '</div><div class="lbl">No Spaces</div></div>' +
+            '<div class="stat"><div class="val">' + words.length + '</div><div class="lbl">Words</div></div>' +
+            '<div class="stat"><div class="val">' + sentences.length + '</div><div class="lbl">Sentences</div></div>' +
+            '<div class="stat"><div class="val">' + readTime + '</div><div class="lbl">Min Read</div></div>';
+    }
+
+    // Markdown (uses API)
+    function renderMarkdown() {
+        const content = document.getElementById('md-input').value;
+        fetch(API + '/markdown/to-html', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content: content})
+        }).then(r => r.json()).then(d => { document.getElementById('md-output').innerHTML = d.html; });
+    }
+
+    // URL Encode/Decode
+    function urlEncode() { document.getElementById('url-output').textContent = encodeURIComponent(document.getElementById('url-input').value); }
+    function urlDecode() { try { document.getElementById('url-output').textContent = decodeURIComponent(document.getElementById('url-input').value); } catch(e) { document.getElementById('url-output').textContent = 'Error: Invalid encoded string'; } }
+
+    // Regex
+    function testRegex() {
+        const pattern = document.getElementById('regex-pattern').value;
+        const flags = document.getElementById('regex-flags').value;
+        const text = document.getElementById('regex-input').value;
+        try {
+            const re = new RegExp(pattern, flags);
+            const matches = [...text.matchAll(re)];
+            let result = 'Matches found: ' + matches.length + '\n\n';
+            matches.forEach((m, i) => { result += 'Match ' + (i+1) + ': "' + m[0] + '" at index ' + m.index + '\n'; });
+            document.getElementById('regex-output').textContent = result;
+        } catch(e) { document.getElementById('regex-output').textContent = 'Error: ' + e.message; }
+    }
+
+    // Diff (simple line-by-line)
+    function showDiff() {
+        const a = document.getElementById('diff-a').value.split('\n');
+        const b = document.getElementById('diff-b').value.split('\n');
+        let result = '';
+        const max = Math.max(a.length, b.length);
+        for (let i = 0; i < max; i++) {
+            if (a[i] === b[i]) { result += '  ' + (a[i] || '') + '\n'; }
+            else {
+                if (i < a.length) result += '- ' + a[i] + '\n';
+                if (i < b.length) result += '+ ' + b[i] + '\n';
+            }
+        }
+        document.getElementById('diff-output').textContent = result;
+    }
+
+    // Timestamp
+    function convertTimestamp() {
+        const ts = parseInt(document.getElementById('ts-input').value);
+        if (isNaN(ts)) { document.getElementById('ts-output').textContent = 'Enter a valid timestamp'; return; }
+        const d = new Date(ts * 1000);
+        document.getElementById('ts-output').textContent =
+            'UTC: ' + d.toUTCString() + '\n' +
+            'ISO: ' + d.toISOString() + '\n' +
+            'Local: ' + d.toLocaleString();
+    }
+    function currentTimestamp() {
+        const now = Math.floor(Date.now() / 1000);
+        document.getElementById('ts-input').value = now;
+        convertTimestamp();
+    }
+    </script>
+</body>
+</html>

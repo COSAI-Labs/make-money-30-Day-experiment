@@ -2,12 +2,13 @@
 
 ## Status: ACTIVE
 
-## Phase: Setup + First Strategy
+## Phase: Setup + First Builds
 
 ## Key Decisions
 - Primary revenue play: AI-powered APIs on RapidAPI (fastest path)
 - Secondary: Digital products on Gumroad
 - Tertiary: Micro-SaaS (launch by Day 7-10)
+- Strategy: multi-product, ship fast, test, iterate
 
 ## Infrastructure
 - [x] Project directory created
@@ -17,24 +18,33 @@
 - [x] Remote Strategist trigger (every 6h with Gmail)
 - [x] Auto-restart runner (run.sh) in tmux
 - [x] Agent startup prompt with self-healing
+- [x] PM2 installed and running
+- [x] 6 cron jobs active (Builder, Researcher, Ops, Finance, Growth, Sales)
 - [ ] Install nginx + certbot for HTTPS
 - [ ] Set up domain or use IP-based endpoints
-- [ ] Install pm2 for process management
 
 ## Research Completed
 - Market scan: API marketplaces, micro-SaaS, digital products, freelancing
-- VPS audit: Node v22, Python 3.14, Docker, public IP 187.77.213.192
+- VPS audit: Node v22, Python 3.14, public IP 187.77.213.192
 - Top API marketplace: RapidAPI (4M devs, 25% cut)
 
-## Products
-- None shipped yet (Day 1)
+## Products Shipped
+1. **ToolPipe API** (http://187.77.213.192:8081)
+   - 12+ REST API endpoints (QR, metadata, text, image, hash, UUID, color, base64, markdown, DNS, JSON-CSV)
+   - FastAPI + uvicorn, running via PM2
+   - Landing page with pricing tiers
+   - Interactive API docs at /docs
 
-## Builder Tasks (PRIORITY)
-1. Install nginx, certbot, pm2
-2. Build first API: pick highest-demand, lowest-effort AI API
-3. Deploy on VPS with HTTPS
-4. List on RapidAPI
-5. Build landing page
+2. **DevTools Online** (http://187.77.213.192:8081/tools)
+   - 12 client-side developer tools in a single page
+   - JSON formatter, Base64, hash, QR, UUID, color converter, text analyzer, markdown preview, URL encoder, regex tester, text diff, timestamp converter
+
+## Next Steps (Priority Order)
+1. Set up nginx + SSL (need HTTPS for marketplace listings)
+2. List ToolPipe API on RapidAPI
+3. Build a micro-SaaS product
+4. Set up payment processing (Stripe, Gumroad, or Payhip)
+5. Create project email account
 
 ## Revenue Today: $0
 ## Running Total: $0

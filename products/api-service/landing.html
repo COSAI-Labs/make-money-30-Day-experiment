@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolPipe API - Developer Utility APIs</title>
+    <meta name="description" content="Fast, reliable developer utility APIs. QR codes, metadata extraction, text analysis, image processing, and more. Free tier available.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; background: #f8f9fa; }
+
+        .hero {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white; padding: 80px 20px; text-align: center;
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 16px; letter-spacing: -1px; }
+        .hero p { font-size: 1.25rem; opacity: 0.85; max-width: 600px; margin: 0 auto 32px; }
+        .hero .cta {
+            display: inline-block; padding: 14px 32px; background: #6c63ff; color: white;
+            border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hero .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
+        .hero .secondary {
+            display: inline-block; padding: 14px 32px; color: white; text-decoration: none;
+            font-weight: 500; margin-left: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        .endpoints { padding: 80px 20px; }
+        .endpoints h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .card {
+            background: white; border-radius: 12px; padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-4px); }
+        .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: #302b63; }
+        .card .method { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; }
+        .card .method.post { background: #fff3e0; color: #e65100; }
+        .card p { color: #666; font-size: 0.95rem; line-height: 1.5; }
+        .card code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+
+        .pricing { padding: 80px 20px; background: white; }
+        .pricing h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
+        .price-card {
+            border: 2px solid #eee; border-radius: 12px; padding: 32px; text-align: center;
+        }
+        .price-card.featured { border-color: #6c63ff; position: relative; }
+        .price-card.featured::before {
+            content: "POPULAR"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: #6c63ff; color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+        }
+        .price-card h3 { font-size: 1.25rem; margin-bottom: 8px; }
+        .price-card .price { font-size: 2.5rem; font-weight: 700; margin: 16px 0; }
+        .price-card .price span { font-size: 1rem; color: #666; }
+        .price-card ul { list-style: none; margin: 24px 0; text-align: left; }
+        .price-card li { padding: 8px 0; color: #555; }
+        .price-card li::before { content: "->"; color: #6c63ff; margin-right: 8px; }
+        .price-card a {
+            display: block; padding: 12px; background: #6c63ff; color: white;
+            border-radius: 8px; text-decoration: none; font-weight: 600;
+        }
+
+        .try-it { padding: 80px 20px; }
+        .try-it h2 { text-align: center; font-size: 2rem; margin-bottom: 32px; }
+        .demo-box {
+            max-width: 700px; margin: 0 auto; background: #1a1a2e; border-radius: 12px;
+            padding: 24px; color: #a5d6a7; font-family: 'Courier New', monospace; font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        .demo-box .comment { color: #666; }
+        .demo-box .url { color: #81d4fa; }
+        .demo-box .response { color: #fff; }
+
+        footer {
+            background: #1a1a2e; color: #aaa; padding: 40px 20px; text-align: center;
+            font-size: 0.9rem;
+        }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>ToolPipe API</h1>
+            <p>Developer utility APIs that just work. QR codes, metadata extraction, text analysis, image processing, and more. One API, 12+ endpoints.</p>
+            <a href="/docs" class="cta">Interactive Docs</a>
+            <a href="#pricing" class="secondary">View Pricing</a>
+        </div>
+    </div>
+
+    <div class="endpoints">
+        <div class="container">
+            <h2>12+ Endpoints, One API</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/qr/generate</h3>
+                    <p>Generate QR codes as PNG images. Configurable size and error correction. Also available as GET.</p>
+                </div>
+                <div class="card">
+                    <span class="method">GET</span>
+                    <h3>/meta/extract</h3>
+                    <p>Extract Open Graph, Twitter Card, title, description, favicon from any URL. Perfect for link previews.</p>
+                </div>
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/text/analyze</h3>
+                    <p>Word count, reading time, Flesch readability score, sentence stats. Everything you need for content analysis.</p>
+                </div>
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/markdown/to-html</h3>
+                    <p>Convert Markdown to clean HTML with support for extensions like code highlighting and table of contents.</p>
+                </div>
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/image/resize</h3>
+                    <p>Resize images on-the-fly. Supports PNG, JPEG, WebP. Just pass a URL and dimensions.</p>
+                </div>
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/hash/generate</h3>
+                    <p>Generate MD5, SHA256, SHA512, and more. Multiple algorithms in one request.</p>
+                </div>
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/json/to-csv</h3>
+                    <p>Convert JSON arrays to CSV format instantly. Custom delimiters supported.</p>
+                </div>
+                <div class="card">
+                    <span class="method">GET</span>
+                    <h3>/uuid/generate</h3>
+                    <p>Generate UUID v1 or v4. Batch generate up to 100 at once.</p>
+                </div>
+                <div class="card">
+                    <span class="method">GET</span>
+                    <h3>/dns/lookup</h3>
+                    <p>DNS resolution for any domain. Returns all A and AAAA records.</p>
+                </div>
+                <div class="card">
+                    <span class="method">GET</span>
+                    <h3>/color/convert</h3>
+                    <p>Convert hex colors to RGB and HSL. Full color space conversion.</p>
+                </div>
+                <div class="card">
+                    <span class="method post">POST</span>
+                    <h3>/base64</h3>
+                    <p>Encode and decode Base64 strings. Simple and fast.</p>
+                </div>
+                <div class="card">
+                    <span class="method">GET</span>
+                    <h3>/health</h3>
+                    <p>Health check endpoint for monitoring. Returns status and timestamp.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="try-it">
+        <div class="container">
+            <h2>Try It Now</h2>
+            <div class="demo-box">
+                <div class="comment"># Generate a QR code</div>
+                <div>curl <span class="url">http://api.toolpipe.dev/qr/generate?data=https://example.com</span></div>
+                <br>
+                <div class="comment"># Extract metadata from a URL</div>
+                <div>curl "<span class="url">http://api.toolpipe.dev/meta/extract?url=https://github.com</span>"</div>
+                <br>
+                <div class="comment"># Analyze text readability</div>
+                <div>curl -X POST <span class="url">http://api.toolpipe.dev/text/analyze</span> \</div>
+                <div>&nbsp;&nbsp;-H "Content-Type: application/json" \</div>
+                <div>&nbsp;&nbsp;-d '{"text": "Your content here..."}'</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pricing" id="pricing">
+        <div class="container">
+            <h2>Simple Pricing</h2>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <h3>Free</h3>
+                    <div class="price">$0<span>/mo</span></div>
+                    <ul>
+                        <li>100 requests/minute</li>
+                        <li>All endpoints included</li>
+                        <li>Community support</li>
+                        <li>No API key required</li>
+                    </ul>
+                    <a href="/docs">Get Started</a>
+                </div>
+                <div class="price-card featured">
+                    <h3>Pro</h3>
+                    <div class="price">$9.99<span>/mo</span></div>
+                    <ul>
+                        <li>1,000 requests/minute</li>
+                        <li>Priority processing</li>
+                        <li>API key authentication</li>
+                        <li>Email support</li>
+                    </ul>
+                    <a href="#" id="pro-signup">Subscribe via RapidAPI</a>
+                </div>
+                <div class="price-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">$49.99<span>/mo</span></div>
+                    <ul>
+                        <li>Unlimited requests</li>
+                        <li>Custom endpoints</li>
+                        <li>SLA guarantee</li>
+                        <li>Dedicated support</li>
+                    </ul>
+                    <a href="#" id="enterprise-signup">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>ToolPipe API &copy; 2026 | <a href="/docs">API Documentation</a></p>
+        </div>
+    </footer>
+</body>
+</html>
