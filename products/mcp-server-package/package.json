@@ -1,0 +1,51 @@
+{
+  "name": "@toolpipe/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for ToolPipe: 20 essential developer utility APIs (JSON, QR, hash, UUID, base64, markdown, DNS, SSL, JWT, and more) accessible to AI agents via Model Context Protocol",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "toolpipe-mcp": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "ai-tools",
+    "developer-tools",
+    "api",
+    "toolpipe",
+    "json-formatter",
+    "qr-code",
+    "hash-generator",
+    "uuid",
+    "dns-lookup",
+    "base64",
+    "markdown",
+    "jwt-decoder",
+    "claude",
+    "llm-tools"
+  ],
+  "author": "ToolPipe <toolpipe-ads@sharebot.net>",
+  "license": "MIT",
+  "homepage": "https://toolpipe.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
+    "directory": "products/mcp-server-package"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.22.0"
+  }
+}
