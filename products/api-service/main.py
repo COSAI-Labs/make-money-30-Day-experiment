@@ -2066,6 +2066,267 @@ async def polymarket_dashboard():
     return HTMLResponse(inject_snippet(Path(Path(__file__).parent.parent / "seo-pages" / "polymarket-dashboard.html").read_text()) if (Path(__file__).parent.parent / "seo-pages" / "polymarket-dashboard.html").exists() else "<h1>Coming soon</h1>")
 
 
+# --- New Premium API Endpoints ---
+
+import random as _random
+import collections as _collections
+
+PROGRAMMING_QUOTES = [
+    {"quote": "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.", "author": "Martin Fowler"},
+    {"quote": "First, solve the problem. Then, write the code.", "author": "John Johnson"},
+    {"quote": "Experience is the name everyone gives to their mistakes.", "author": "Oscar Wilde"},
+    {"quote": "Code is like humor. When you have to explain it, it's bad.", "author": "Cory House"},
+    {"quote": "Fix the cause, not the symptom.", "author": "Steve Maguire"},
+    {"quote": "Optimism is an occupational hazard of programming: feedback is the treatment.", "author": "Kent Beck"},
+    {"quote": "Simplicity is the soul of efficiency.", "author": "Austin Freeman"},
+    {"quote": "Before software can be reusable it first has to be usable.", "author": "Ralph Johnson"},
+    {"quote": "Make it work, make it right, make it fast.", "author": "Kent Beck"},
+    {"quote": "Walking on water and developing software from a specification are easy if both are frozen.", "author": "Edward V. Berard"},
+    {"quote": "If debugging is the process of removing software bugs, then programming must be the process of putting them in.", "author": "Edsger Dijkstra"},
+    {"quote": "The best error message is the one that never shows up.", "author": "Thomas Fuchs"},
+    {"quote": "A language that doesn't affect the way you think about programming is not worth knowing.", "author": "Alan Perlis"},
+    {"quote": "The most disastrous thing that you can ever learn is your first programming language.", "author": "Alan Kay"},
+    {"quote": "Deleted code is debugged code.", "author": "Jeff Sickel"},
+    {"quote": "Programming isn't about what you know; it's about what you can figure out.", "author": "Chris Pine"},
+    {"quote": "The only way to learn a new programming language is by writing programs in it.", "author": "Dennis Ritchie"},
+    {"quote": "Sometimes it pays to stay in bed on Monday, rather than spending the rest of the week debugging Monday's code.", "author": "Dan Salomon"},
+    {"quote": "Measuring programming progress by lines of code is like measuring aircraft building progress by weight.", "author": "Bill Gates"},
+    {"quote": "Controlling complexity is the essence of computer programming.", "author": "Brian Kernighan"},
+    {"quote": "The computer was born to solve problems that did not exist before.", "author": "Bill Gates"},
+    {"quote": "There are only two kinds of languages: the ones people complain about and the ones nobody uses.", "author": "Bjarne Stroustrup"},
+    {"quote": "Talk is cheap. Show me the code.", "author": "Linus Torvalds"},
+    {"quote": "Programs must be written for people to read, and only incidentally for machines to execute.", "author": "Harold Abelson"},
+    {"quote": "Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.", "author": "John Woods"},
+    {"quote": "In theory, there is no difference between theory and practice. But in practice, there is.", "author": "Jan L. A. van de Snepscheut"},
+    {"quote": "Any sufficiently advanced technology is indistinguishable from magic.", "author": "Arthur C. Clarke"},
+    {"quote": "Truth can only be found in one place: the code.", "author": "Robert C. Martin"},
+    {"quote": "Give a man a program, frustrate him for a day. Teach a man to program, frustrate him for a lifetime.", "author": "Muhammad Waseem"},
+    {"quote": "There are two ways of constructing a software design: One way is to make it so simple that there are obviously no deficiencies, and the other way is to make it so complicated that there are no obvious deficiencies.", "author": "C.A.R. Hoare"},
+]
+
+
+@app.get("/api/random/quote")
+async def random_quote():
+    """Return a random programming quote."""
+    return _random.choice(PROGRAMMING_QUOTES)
+
+
+class TextSummarizeRequest(BaseModel):
+    text: str
+    sentences: int = 3
+
+
+@app.post("/api/text/summarize")
+async def text_summarize(req: TextSummarizeRequest):
+    """Extract key sentences from text using word frequency scoring."""
+    text = req.text.strip()
+    if not text:
+        raise HTTPException(400, "Text is required")
+
+    # Split into sentences
+    sents = re.split(r'(?<=[.!?])\s+', text)
+    if len(sents) <= req.sentences:
+        return {"summary": text, "sentences": sents, "method": "extractive"}
+
+    # Word frequency scoring
+    words = re.findall(r'\b\w+\b', text.lower())
+    freq = _collections.Counter(words)
+    # Remove very common words
+    stopwords = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+                 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+                 'should', 'may', 'might', 'shall', 'can', 'to', 'of', 'in', 'for',
+                 'on', 'with', 'at', 'by', 'from', 'as', 'into', 'through', 'during',
+                 'and', 'but', 'or', 'nor', 'not', 'so', 'yet', 'both', 'either',
+                 'that', 'this', 'these', 'those', 'it', 'its', 'he', 'she', 'they',
+                 'we', 'you', 'i', 'me', 'him', 'her', 'us', 'them', 'my', 'your',
+                 'his', 'their', 'our', 'which', 'who', 'whom', 'what', 'where', 'when'}
+    for sw in stopwords:
+        freq.pop(sw, None)
+
+    # Score sentences
+    scored = []
+    for i, sent in enumerate(sents):
+        sent_words = re.findall(r'\b\w+\b', sent.lower())
+        score = sum(freq.get(w, 0) for w in sent_words) / max(len(sent_words), 1)
+        scored.append((score, i, sent))
+
+    scored.sort(reverse=True)
+    top = sorted(scored[:req.sentences], key=lambda x: x[1])
+    summary_sents = [s[2] for s in top]
+
+    return {
+        "summary": " ".join(summary_sents),
+        "sentences": summary_sents,
+        "total_sentences": len(sents),
+        "method": "extractive_frequency",
+    }
+
+
+class CodeFormatRequest(BaseModel):
+    code: str
+    language: str = "json"
+
+
+@app.post("/api/code/format")
+async def code_format(req: CodeFormatRequest):
+    """Format/beautify code. Supports json, sql, html."""
+    code = req.code.strip()
+    lang = req.language.lower()
+
+    if lang == "json":
+        try:
+            parsed = json.loads(code)
+            return {"formatted": json.dumps(parsed, indent=2), "language": "json"}
+        except json.JSONDecodeError as e:
+            raise HTTPException(400, f"Invalid JSON: {e}")
+
+    elif lang == "sql":
+        keywords = ['SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'ORDER BY', 'GROUP BY',
+                     'HAVING', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'ON',
+                     'INSERT INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE FROM', 'CREATE TABLE',
+                     'ALTER TABLE', 'DROP TABLE', 'LIMIT', 'OFFSET', 'UNION', 'AS']
+        formatted = code
+        for kw in sorted(keywords, key=len, reverse=True):
+            formatted = re.sub(rf'\b{kw}\b', kw, formatted, flags=re.IGNORECASE)
+        for kw in ['SELECT', 'FROM', 'WHERE', 'ORDER BY', 'GROUP BY', 'HAVING',
+                    'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'LIMIT', 'UNION']:
+            formatted = re.sub(rf'\b({kw})\b', rf'\n\1', formatted, flags=re.IGNORECASE)
+        return {"formatted": formatted.strip(), "language": "sql"}
+
+    elif lang == "html":
+        indent = 0
+        lines = []
+        for line in code.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith('</'):
+                indent = max(0, indent - 1)
+            lines.append('  ' * indent + line)
+            if line.startswith('<') and not line.startswith('</') and not line.endswith('/>') and '/' not in line[:5]:
+                indent += 1
+        return {"formatted": '\n'.join(lines), "language": "html"}
+
+    else:
+        return {"formatted": code, "language": lang, "note": "No formatter available for this language"}
+
+
+# Crypto price cache
+_crypto_cache = {"data": None, "timestamp": 0}
+
+
+@app.get("/api/crypto/prices")
+async def crypto_prices():
+    """Fetch current top 10 crypto prices from CoinGecko."""
+    now = time.time()
+    if _crypto_cache["data"] and now - _crypto_cache["timestamp"] < 60:
+        return _crypto_cache["data"]
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                "https://api.coingecko.com/api/v3/coins/markets",
+                params={
+                    "vs_currency": "usd",
+                    "order": "market_cap_desc",
+                    "per_page": 10,
+                    "page": 1,
+                    "sparkline": "false",
+                    "price_change_percentage": "24h",
+                }
+            )
+            resp.raise_for_status()
+            coins = resp.json()
+
+        result = {
+            "coins": [
+                {
+                    "name": c["name"],
+                    "symbol": c["symbol"].upper(),
+                    "price": c["current_price"],
+                    "change_24h": c.get("price_change_percentage_24h"),
+                    "market_cap": c["market_cap"],
+                    "volume_24h": c.get("total_volume"),
+                }
+                for c in coins
+            ],
+            "currency": "USD",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        _crypto_cache["data"] = result
+        _crypto_cache["timestamp"] = now
+        return result
+    except Exception as e:
+        if _crypto_cache["data"]:
+            return {**_crypto_cache["data"], "cached": True, "error": str(e)}
+        return {"error": str(e), "coins": []}
+
+
+@app.post("/api/text/detect-language")
+async def detect_language(req: TextSummarizeRequest):
+    """Detect language of text using character and word frequency analysis."""
+    text = req.text.strip()
+    if not text:
+        raise HTTPException(400, "Text is required")
+
+    # Simple language detection using common words
+    lang_words = {
+        "en": {"the", "is", "are", "and", "or", "but", "not", "have", "has", "was", "were", "with", "this", "that", "from"},
+        "es": {"el", "la", "los", "las", "de", "en", "que", "es", "por", "con", "una", "para", "como", "pero", "sobre"},
+        "fr": {"le", "la", "les", "de", "des", "un", "une", "est", "et", "en", "que", "pour", "dans", "pas", "sur"},
+        "de": {"der", "die", "das", "und", "ist", "ein", "eine", "nicht", "mit", "auf", "den", "dem", "von", "sich", "auch"},
+        "pt": {"de", "que", "e", "do", "da", "em", "um", "para", "com", "uma", "os", "no", "se", "na", "por"},
+        "it": {"il", "la", "di", "che", "e", "in", "un", "per", "non", "una", "sono", "del", "da", "con", "dei"},
+        "nl": {"de", "het", "een", "van", "en", "in", "is", "dat", "op", "te", "zijn", "voor", "met", "niet", "aan"},
+        "ja": set(),  # Detect by character ranges
+        "zh": set(),
+        "ko": set(),
+        "ar": set(),
+        "ru": set(),
+    }
+
+    words = set(re.findall(r'\b\w+\b', text.lower()))
+
+    # Check for CJK/Arabic/Cyrillic characters
+    cjk = len(re.findall(r'[\u4e00-\u9fff]', text))
+    hiragana = len(re.findall(r'[\u3040-\u309f]', text))
+    katakana = len(re.findall(r'[\u30a0-\u30ff]', text))
+    hangul = len(re.findall(r'[\uac00-\ud7af]', text))
+    arabic = len(re.findall(r'[\u0600-\u06ff]', text))
+    cyrillic = len(re.findall(r'[\u0400-\u04ff]', text))
+    total = len(text)
+
+    if total > 0:
+        if (hiragana + katakana) / total > 0.1:
+            return {"language": "ja", "name": "Japanese", "confidence": 0.9}
+        if cjk / total > 0.2:
+            return {"language": "zh", "name": "Chinese", "confidence": 0.85}
+        if hangul / total > 0.2:
+            return {"language": "ko", "name": "Korean", "confidence": 0.9}
+        if arabic / total > 0.2:
+            return {"language": "ar", "name": "Arabic", "confidence": 0.85}
+        if cyrillic / total > 0.2:
+            return {"language": "ru", "name": "Russian", "confidence": 0.8}
+
+    # Score by common words
+    scores = {}
+    lang_names = {"en": "English", "es": "Spanish", "fr": "French", "de": "German",
+                  "pt": "Portuguese", "it": "Italian", "nl": "Dutch"}
+    for lang, common in lang_words.items():
+        if common:
+            overlap = len(words & common)
+            scores[lang] = overlap / max(len(common), 1)
+
+    if scores:
+        best = max(scores, key=scores.get)
+        confidence = min(scores[best] * 2, 0.95)
+        if confidence < 0.1:
+            return {"language": "unknown", "name": "Unknown", "confidence": 0.0, "scores": scores}
+        return {"language": best, "name": lang_names.get(best, best), "confidence": round(confidence, 2)}
+
+    return {"language": "unknown", "name": "Unknown", "confidence": 0.0}
+
+
 # --- Analytics Endpoints ---
 
 class TrackRequest(BaseModel):
