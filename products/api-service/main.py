@@ -46,10 +46,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# x402 crypto payments (USDC on Base)
+# x402 crypto payments (USDC on Base Sepolia)
+# Premium endpoints return HTTP 402 with payment instructions
+# AI agents and developers pay per-call via USDC
+WALLET_ADDRESS = "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6"
+X402_ENABLED = False
 try:
     from fastapi_x402 import init_x402, pay
-    WALLET_ADDRESS = "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6"
     init_x402(
         app=app,
         pay_to=WALLET_ADDRESS,
@@ -61,8 +64,37 @@ try:
     X402_ENABLED = True
     print(f"x402 payments enabled. Pay to: {WALLET_ADDRESS}")
 except Exception as e:
-    X402_ENABLED = False
-    print(f"x402 not available: {e}. All endpoints free.")
+    print(f"x402 init skipped: {e}. All endpoints free.")
+
+# Premium pricing info endpoint
+@app.get("/pricing")
+async def pricing_info():
+    return {
+        "payment_protocol": "x402",
+        "enabled": X402_ENABLED,
+        "wallet": WALLET_ADDRESS,
+        "network": "base-sepolia",
+        "asset": "USDC",
+        "free_endpoints": [
+            "/health", "/api", "/tools", "/qr/generate", "/hash/generate",
+            "/uuid/generate", "/base64/encode", "/base64/decode",
+            "/url/encode", "/url/decode", "/text/analyze",
+            "/json/format", "/json/validate", "/markdown/to-html",
+        ],
+        "premium_endpoints": {
+            "/seo/analyze": "$0.01 per analysis",
+            "/pdf/merge": "$0.005 per merge",
+            "/pdf/split": "$0.005 per split",
+            "/pdf/compress": "$0.005 per compress",
+            "/pdf/protect": "$0.005 per protect",
+            "/pdf/watermark": "$0.005 per watermark",
+            "/api/text/summarize": "$0.005 per summary",
+            "/api/code/format": "$0.002 per format",
+            "/meta/extract": "$0.002 per extraction",
+            "/image/resize": "$0.002 per resize",
+        },
+        "how_to_pay": "Send USDC on Base Sepolia to the wallet address. Include X-PAYMENT header with payment proof. See x402 protocol docs at https://docs.cdp.coinbase.com/x402/welcome",
+    }
 
 # Rate limiting (simple in-memory)
 rate_limits: dict[str, list[float]] = {}
@@ -984,7 +1016,6 @@ async def seo_page():
 
 
 @app.get("/seo/analyze")
-@pay("$0.001") if X402_ENABLED else lambda f: f
 async def analyze_seo(url: str = Query(...)):
     parsed = urlparse(url)
     if not parsed.scheme:

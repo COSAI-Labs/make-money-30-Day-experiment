@@ -2,7 +2,20 @@
 
 Date: 2026-04-01
 
-## PRs Created
+## MCP Server PRs
+
+### 10. habitoai/awesome-mcp-servers
+- **PR**: https://github.com/habitoai/awesome-mcp-servers/pull/37
+- **Section**: Developer Tools
+- **Status**: Open
+
+### SKIPPED: wong2/awesome-mcp-servers
+- **Reason**: PRs disabled. Must submit via https://mcpservers.org/submit
+
+### SKIPPED: appcypher/awesome-mcp-servers
+- **Reason**: PRs, issues, and discussions all disabled. Fork ready at Aldric-Core/awesome-mcp-servers
+
+## API/Tool PRs Created
 
 ### 1. ripienaar/free-for-dev
 - **PR**: https://github.com/ripienaar/free-for-dev/pull/4239
