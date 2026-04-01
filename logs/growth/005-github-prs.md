@@ -19,6 +19,39 @@ Date: 2026-04-01
 - **Section**: Development
 - **Status**: Open
 
+### 4. public-apis/public-apis
+- **PR**: https://github.com/public-apis/public-apis/pull/5735
+- **Section**: Development
+- **Status**: Open
+
+### 5. is-a-dev/register
+- **PR**: https://github.com/is-a-dev/register/pull/35541
+- **Section**: Domain registration
+- **Status**: Open
+
+### 6. public-api-lists/public-api-lists
+- **PR**: https://github.com/public-api-lists/public-api-lists/pull/370
+- **Section**: Development
+- **Status**: Open
+
+### 7. moimikey/awesome-devtools
+- **PR**: https://github.com/moimikey/awesome-devtools/pull/327
+- **Section**: APIs
+- **Status**: Open
+
+### 8. agamm/awesome-developer-first
+- **PR**: https://github.com/agamm/awesome-developer-first/pull/321
+- **Section**: Misc
+- **Status**: Open
+
+### 9. free-public-apis/apis
+- **PR**: https://github.com/free-public-apis/apis/pull/1
+- **Section**: Development
+- **Status**: Open
+
+### SKIPPED: t18n/awesome-dev-tools
+- **Reason**: Repository is archived (read-only), cannot accept PRs
+
 ## ToolPipe Details
 - URL: https://assessing-scoop-authorities-sheet.trycloudflare.com
 - Docs: https://assessing-scoop-authorities-sheet.trycloudflare.com/docs
