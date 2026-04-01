@@ -3,65 +3,55 @@
 ## Date: 2026-04-01 (Day 1)
 ## Agent: Builder
 
-## Products Live (10 products + pricing page)
+## Products Live (10 products + pricing)
 All served from FastAPI on port 8081 (single worker):
 
-| # | Product | Route | Description |
-|---|---------|-------|-------------|
-| 1 | ToolPipe API | / and /docs | 12+ utility API endpoints |
-| 2 | DevTools Online | /tools | 12 client-side developer tools |
-| 3 | SEO Analyzer | /seo | Full website SEO audit |
-| 4 | QuickInvoice | /invoice | Invoice generator with PDF |
-| 5 | PingPulse | /monitor | Uptime monitoring (SQLite) |
-| 6 | PDF Tools | /pdf | 8 PDF operations (merge, split, compress, protect, unlock, rotate, watermark, info) |
-| 7 | WebhookBin | /webhooks | Webhook/request capture and inspection |
-| 8 | URL Shortener | /short | Short links with click analytics (SQLite) |
-| 9 | PasteBin | /paste | Code snippet sharing with expiry |
-| 10 | Is It Down? | /down | Website status checker |
-| - | Pricing Page | /pricing | Pro/Enterprise pricing with waitlist capture |
+| # | Product | Route | Storage |
+|---|---------|-------|---------|
+| 1 | ToolPipe API | /docs | - |
+| 2 | DevTools Online | /tools | - |
+| 3 | SEO Analyzer | /seo | - |
+| 4 | QuickInvoice | /invoice | - |
+| 5 | PingPulse | /monitor | SQLite |
+| 6 | PDF Tools | /pdf | - |
+| 7 | WebhookBin | /webhooks | In-memory |
+| 8 | URL Shortener | /short | SQLite |
+| 9 | PasteBin | /paste | In-memory |
+| 10 | Is It Down? | /down | - |
 
-## SEO Pages (7 landing pages)
-/qr-code-generator, /json-formatter, /base64-encoder, /merge-pdf, /compress-pdf, /split-pdf, /webhook-tester
+## API Endpoints: 55 total
+Key additions this session: /ip/lookup, /ip/my, /useragent/parse, all /pdf/* endpoints, all /webhook/* endpoints, /s/* shortener endpoints, /paste/* endpoints, /down/check, /waitlist/join
 
-## Access Points
+## SEO Pages (9 landing pages)
+/qr-code-generator, /json-formatter, /base64-encoder, /merge-pdf, /compress-pdf, /split-pdf, /webhook-tester, /password-generator, /whats-my-ip
+
+## Other Pages
+/pricing (Pro/Enterprise with waitlist), /sitemap.xml, /robots.txt
+
+## Access
 - HTTP: http://187.77.213.192:8081
-- HTTPS: via Cloudflare tunnel (changes on restart)
-- API docs: /docs (Swagger UI)
-- Sitemap: /sitemap.xml (includes all pages)
+- HTTPS: https://assessing-scoop-authorities-sheet.trycloudflare.com
+- OpenAPI spec: products/api-service/openapi.json
 
 ## Infrastructure
-- PM2: toolpipe-api (port 8081, 1 worker), cloudflare-tunnel
-- Cron jobs: 6 agents (Builder/30m, Researcher/2h, Ops/1h, Finance/6h, Growth/4h, Sales/3h)
-- Project email: toolpipe-project@sharebot.net (mail.tm, credentials in .env)
+- PM2: toolpipe-api (1 worker), cloudflare-tunnel
+- 6 agent crons: Builder/30m, Researcher/2h, Ops/1h, Finance/6h, Growth/4h, Sales/3h
+- Project email: toolpipe-project@sharebot.net (mail.tm, creds in .env)
+- Waitlist persistence: products/api-service/waitlist.txt
 
 ## Revenue: $0
 
-## KEY PROGRESS THIS SESSION
-1. Created project email via mail.tm API (toolpipe-project@sharebot.net)
-2. Shipped 5 new products (PDF Tools, WebhookBin, URL Shortener, PasteBin, Is It Down?)
-3. Built pricing page with waitlist capture
-4. Created 4 new SEO landing pages
-5. Sent updated email draft to owner about payment blockers
-6. Researched payment alternatives (CREEM, Polar, ad networks)
-
-## STILL BLOCKED
-- Payment processing: no Stripe/CREEM/Paddle keys yet
-- Gmail tool can only create drafts, not send. Owner must check drafts.
-- Ad networks (Adsterra, ylliX) need web-based signup (can use project email now)
-
-## NEXT SESSION PRIORITIES
-1. Try signing up for Adsterra/ylliX with project email (web-based, may need browser automation)
-2. Try listing API on RapidAPI marketplace
-3. Explore Polymarket/prediction markets (per updated CLAUDE.md)
-4. Build more products: screenshot API, diff checker, IP lookup, password generator
-5. Submit to web directories: Product Hunt, HN Show, dev tool lists
-6. Consider building a Next.js marketing site on a different port for better SEO
+## CRITICAL NEXT STEPS
+1. **Payment processing** remains #1 blocker. Two email drafts in owner's Gmail.
+2. Try using project email to sign up for: RapidAPI, Adsterra, Gumroad (needs web browser)
+3. Distribution: HN, Reddit, dev tool directories (needs accounts)
+4. Polymarket/prediction markets (per updated CLAUDE.md)
+5. Consider building a standalone marketing site with Next.js
+6. GitHub Pages blocked (plan doesn't support it)
 
 ## Technical Notes
-- Python venv: products/api-service/venv/
-- Main app: products/api-service/main.py (getting large, ~1200 lines)
-- Credentials: .env file (gitignored)
-- SQLite DBs: products/uptime-monitor/data/, products/url-shortener/data/ (gitignored)
-- In-memory stores: webhook_bins, paste_store, waitlist_emails (lost on restart)
-- Waitlist persistence: products/api-service/waitlist.txt (gitignored)
-- Docker on port 8080 (Aldric Core, don't touch)
+- Main app: products/api-service/main.py (~1300 lines, getting large)
+- Consider splitting into multiple route files
+- venv: products/api-service/venv/
+- .env has project email credentials
+- .gitignore covers .env, waitlist.txt, SQLite data dirs
