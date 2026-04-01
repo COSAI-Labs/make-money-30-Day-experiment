@@ -539,22 +539,43 @@ async def invoice_page():
 async def api_info():
     return {
         "service": "ToolPipe API",
-        "version": "1.0.0",
+        "version": "1.5.0",
         "status": "operational",
-        "endpoints": [
-            "/qr/generate",
-            "/meta/extract",
-            "/markdown/to-html",
-            "/text/analyze",
-            "/hash/generate",
-            "/image/resize",
-            "/image/convert",
-            "/json/to-csv",
-            "/uuid/generate",
-            "/dns/lookup",
-            "/color/convert",
-            "/base64",
+        "total_endpoints": "110+",
+        "new_in_v1_5": [
+            "/api/ip/lookup",
+            "/api/cron/parse",
+            "/api/diff/text",
+            "/api/jwt/decode",
+            "/api/time/convert",
+            "/api/headers/analyze",
+            "/api/password/check",
+            "/api/regex/test",
+            "/api/lorem",
+            "/api/color/palette",
+            "/api/slug/generate",
+            "/api/markdown/strip",
         ],
+        "categories": {
+            "json": ["/json/format", "/json/validate", "/api/json/query", "/api/json/to-schema", "/api/diff/json"],
+            "text": ["/text/analyze", "/api/text/count", "/api/text/similarity", "/api/diff/text", "/api/lorem", "/api/slug/generate", "/api/markdown/strip"],
+            "crypto_hash": ["/hash/generate", "/api/jwt/decode", "/api/password/check"],
+            "web": ["/meta/extract", "/seo/analyze", "/api/web/extract", "/api/headers/analyze", "/api/test/endpoint"],
+            "convert": ["/base64", "/api/convert/json-to-yaml", "/api/convert/csv-to-json", "/api/time/convert", "/color/convert", "/api/color/palette"],
+            "generate": ["/qr/generate", "/uuid/generate", "/api/fake/generate", "/api/gitignore/generate", "/api/dockerfile/generate"],
+            "network": ["/dns/lookup", "/api/ip/lookup", "/api/validate/ip", "/api/validate/email"],
+            "code": ["/api/code/analyze", "/api/schema/generate", "/api/regex/test", "/api/cron/parse"],
+        },
+        "mcp_server": {
+            "stdio_tools": 69,
+            "http_tools": 51,
+            "http_endpoint": "/mcp",
+        },
+        "pricing": {
+            "free": "100 requests/day, no signup",
+            "pro": "$9.99/mo, 10,000 requests/day",
+            "enterprise": "$49.99/mo, 100,000 requests/day",
+        },
         "docs": "/docs",
     }
 
@@ -4985,6 +5006,701 @@ async def text_similarity(req: CompareTextRequest):
         "common_words": sorted(list(intersection))[:50],
         "unique_to_text1": sorted(list(words1 - words2))[:50],
         "unique_to_text2": sorted(list(words2 - words1))[:50],
+    }
+
+
+# --- IP Geolocation Lookup ---
+
+class IPLookupRequest(BaseModel):
+    ip: str
+
+@app.post("/api/ip/lookup")
+@app.get("/api/ip/lookup")
+async def ip_lookup(request: Request, req: Optional[IPLookupRequest] = None):
+    """Look up geolocation, ISP, and network info for any IP address."""
+    if request.method == "GET":
+        ip = request.query_params.get("ip", "")
+    else:
+        ip = req.ip if req else ""
+
+    if not ip:
+        return JSONResponse({"error": "ip parameter required"}, status_code=400)
+
+    # Validate IP format
+    import ipaddress
+    try:
+        addr = ipaddress.ip_address(ip)
+        is_private = addr.is_private
+        is_loopback = addr.is_loopback
+        is_multicast = addr.is_multicast
+        version = addr.version
+    except ValueError:
+        return JSONResponse({"error": "Invalid IP address"}, status_code=400)
+
+    result = {
+        "ip": ip,
+        "version": f"IPv{version}",
+        "is_private": is_private,
+        "is_loopback": is_loopback,
+        "is_multicast": is_multicast,
+    }
+
+    # Try free geolocation API
+    if not is_private and not is_loopback:
+        try:
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as")
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data.get("status") == "success":
+                        result.update({
+                            "country": data.get("country"),
+                            "country_code": data.get("countryCode"),
+                            "region": data.get("regionName"),
+                            "city": data.get("city"),
+                            "zip": data.get("zip"),
+                            "latitude": data.get("lat"),
+                            "longitude": data.get("lon"),
+                            "timezone": data.get("timezone"),
+                            "isp": data.get("isp"),
+                            "org": data.get("org"),
+                            "as_number": data.get("as"),
+                        })
+        except Exception:
+            pass
+
+    return result
+
+
+# --- Cron Expression Parser ---
+
+class CronParseRequest(BaseModel):
+    expression: str
+    count: int = 5
+
+@app.post("/api/cron/parse")
+@app.get("/api/cron/parse")
+async def cron_parse(request: Request, req: Optional[CronParseRequest] = None):
+    """Parse and explain a cron expression, show next N scheduled times."""
+    if request.method == "GET":
+        expression = request.query_params.get("expression", "")
+        count = int(request.query_params.get("count", "5"))
+    else:
+        expression = req.expression if req else ""
+        count = req.count if req else 5
+
+    if not expression:
+        return JSONResponse({"error": "expression parameter required"}, status_code=400)
+
+    parts = expression.strip().split()
+    if len(parts) not in (5, 6, 7):
+        return JSONResponse({"error": "Invalid cron expression. Expected 5-7 fields."}, status_code=400)
+
+    field_names = ["minute", "hour", "day_of_month", "month", "day_of_week"]
+    if len(parts) >= 6:
+        field_names.append("year")
+    if len(parts) >= 7:
+        field_names.insert(5, "second")
+
+    fields = {}
+    for i, name in enumerate(field_names):
+        if i < len(parts):
+            fields[name] = parts[i]
+
+    # Generate human-readable description
+    descriptions = []
+    minute = fields.get("minute", "*")
+    hour = fields.get("hour", "*")
+    dom = fields.get("day_of_month", "*")
+    month = fields.get("month", "*")
+    dow = fields.get("day_of_week", "*")
+
+    if expression.strip() == "* * * * *":
+        descriptions.append("Every minute")
+    elif minute != "*" and hour != "*" and dom == "*" and month == "*" and dow == "*":
+        descriptions.append(f"At {hour.zfill(2)}:{minute.zfill(2)} every day")
+    elif minute == "0" and hour == "*":
+        descriptions.append("Every hour at minute 0")
+    elif minute.startswith("*/"):
+        descriptions.append(f"Every {minute[2:]} minutes")
+    elif hour.startswith("*/"):
+        descriptions.append(f"Every {hour[2:]} hours at minute {minute}")
+    elif dow != "*" and dom == "*":
+        day_map = {"0": "Sunday", "1": "Monday", "2": "Tuesday", "3": "Wednesday", "4": "Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday"}
+        day_name = day_map.get(dow, dow)
+        descriptions.append(f"At {hour.zfill(2)}:{minute.zfill(2)} every {day_name}")
+    else:
+        descriptions.append(f"minute={minute} hour={hour} day={dom} month={month} weekday={dow}")
+
+    # Calculate next run times (simple approximation)
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    next_times = []
+
+    def matches_field(value, field_str, max_val):
+        if field_str == "*":
+            return True
+        if field_str.startswith("*/"):
+            step = int(field_str[2:])
+            return value % step == 0
+        if "," in field_str:
+            return value in [int(v) for v in field_str.split(",")]
+        if "-" in field_str:
+            low, high = field_str.split("-")
+            return int(low) <= value <= int(high)
+        return value == int(field_str)
+
+    check_time = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+    attempts = 0
+    while len(next_times) < min(count, 10) and attempts < 525960:  # max 1 year of minutes
+        if (matches_field(check_time.minute, minute, 59) and
+            matches_field(check_time.hour, hour, 23) and
+            matches_field(check_time.day, dom, 31) and
+            matches_field(check_time.month, month, 12) and
+            matches_field(check_time.isoweekday() % 7, dow, 6)):
+            next_times.append(check_time.isoformat())
+        check_time += timedelta(minutes=1)
+        attempts += 1
+
+    return {
+        "expression": expression,
+        "fields": fields,
+        "description": " ".join(descriptions),
+        "is_valid": True,
+        "next_runs": next_times,
+    }
+
+
+# --- Text Diff Tool ---
+
+class DiffRequest(BaseModel):
+    original: str
+    modified: str
+    context_lines: int = 3
+
+@app.post("/api/diff/text")
+async def text_diff(req: DiffRequest):
+    """Generate a unified diff between two text inputs."""
+    import difflib
+
+    original_lines = req.original.splitlines(keepends=True)
+    modified_lines = req.modified.splitlines(keepends=True)
+
+    diff = list(difflib.unified_diff(
+        original_lines, modified_lines,
+        fromfile="original", tofile="modified",
+        n=req.context_lines
+    ))
+
+    # Stats
+    added = sum(1 for line in diff if line.startswith("+") and not line.startswith("+++"))
+    removed = sum(1 for line in diff if line.startswith("-") and not line.startswith("---"))
+
+    return {
+        "diff": "".join(diff),
+        "stats": {
+            "lines_added": added,
+            "lines_removed": removed,
+            "lines_changed": min(added, removed),
+            "original_lines": len(original_lines),
+            "modified_lines": len(modified_lines),
+        },
+        "has_changes": len(diff) > 0,
+    }
+
+
+# --- JWT Decoder ---
+
+class JWTDecodeRequest(BaseModel):
+    token: str
+
+@app.post("/api/jwt/decode")
+async def jwt_decode(req: JWTDecodeRequest):
+    """Decode a JWT token without verification (inspect header and payload)."""
+    parts = req.token.strip().split(".")
+    if len(parts) not in (2, 3):
+        return JSONResponse({"error": "Invalid JWT format. Expected 2 or 3 parts separated by dots."}, status_code=400)
+
+    def decode_part(part):
+        # Add padding
+        padding = 4 - len(part) % 4
+        if padding != 4:
+            part += "=" * padding
+        try:
+            decoded = base64.urlsafe_b64decode(part)
+            return json.loads(decoded)
+        except Exception:
+            return None
+
+    header = decode_part(parts[0])
+    payload = decode_part(parts[1]) if len(parts) > 1 else None
+
+    result = {
+        "header": header,
+        "payload": payload,
+        "has_signature": len(parts) == 3,
+        "parts_count": len(parts),
+    }
+
+    # Check expiration if present
+    if payload and isinstance(payload, dict):
+        exp = payload.get("exp")
+        iat = payload.get("iat")
+        nbf = payload.get("nbf")
+        now_ts = int(time.time())
+
+        if exp:
+            result["expired"] = now_ts > exp
+            result["expires_at"] = datetime.fromtimestamp(exp, tz=timezone.utc).isoformat()
+        if iat:
+            result["issued_at"] = datetime.fromtimestamp(iat, tz=timezone.utc).isoformat()
+        if nbf:
+            result["not_before"] = datetime.fromtimestamp(nbf, tz=timezone.utc).isoformat()
+
+    return result
+
+
+# --- Timestamp Converter ---
+
+class TimestampRequest(BaseModel):
+    timestamp: Optional[str] = None
+    format: str = "all"
+
+@app.post("/api/time/convert")
+@app.get("/api/time/convert")
+async def time_convert(request: Request, req: Optional[TimestampRequest] = None):
+    """Convert between Unix timestamps, ISO 8601, and human-readable formats. Pass no timestamp to get current time."""
+    if request.method == "GET":
+        ts_input = request.query_params.get("timestamp", None)
+    else:
+        ts_input = req.timestamp if req else None
+
+    now = datetime.now(timezone.utc)
+
+    if ts_input is None or ts_input == "":
+        dt = now
+    else:
+        ts_input = ts_input.strip()
+        dt = None
+
+        # Try Unix timestamp (seconds)
+        try:
+            ts_float = float(ts_input)
+            if ts_float > 1e12:  # milliseconds
+                dt = datetime.fromtimestamp(ts_float / 1000, tz=timezone.utc)
+            else:
+                dt = datetime.fromtimestamp(ts_float, tz=timezone.utc)
+        except (ValueError, OverflowError, OSError):
+            pass
+
+        # Try ISO format
+        if dt is None:
+            try:
+                dt = datetime.fromisoformat(ts_input.replace("Z", "+00:00"))
+            except ValueError:
+                pass
+
+        # Try common formats
+        if dt is None:
+            for fmt in ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%m/%d/%Y", "%d/%m/%Y", "%B %d, %Y"]:
+                try:
+                    dt = datetime.strptime(ts_input, fmt).replace(tzinfo=timezone.utc)
+                    break
+                except ValueError:
+                    continue
+
+        if dt is None:
+            return JSONResponse({"error": f"Could not parse timestamp: {ts_input}"}, status_code=400)
+
+    unix_s = int(dt.timestamp())
+    unix_ms = int(dt.timestamp() * 1000)
+
+    return {
+        "input": ts_input,
+        "unix_seconds": unix_s,
+        "unix_milliseconds": unix_ms,
+        "iso8601": dt.isoformat(),
+        "utc": dt.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "date": dt.strftime("%Y-%m-%d"),
+        "time": dt.strftime("%H:%M:%S"),
+        "day_of_week": dt.strftime("%A"),
+        "day_of_year": dt.timetuple().tm_yday,
+        "week_number": dt.isocalendar()[1],
+        "relative_to_now": f"{abs((now - dt).total_seconds()):.0f} seconds {'ago' if dt < now else 'from now'}",
+    }
+
+
+# --- HTTP Header Analyzer ---
+
+@app.get("/api/headers/analyze")
+async def headers_analyze(url: str = Query(...)):
+    """Analyze HTTP response headers of any URL for security, caching, and configuration."""
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.head(url)
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to fetch URL: {str(e)}"}, status_code=400)
+
+    headers = dict(resp.headers)
+
+    # Security analysis
+    security = {
+        "has_hsts": "strict-transport-security" in headers,
+        "has_csp": "content-security-policy" in headers,
+        "has_x_frame_options": "x-frame-options" in headers,
+        "has_x_content_type_options": "x-content-type-options" in headers,
+        "has_referrer_policy": "referrer-policy" in headers,
+        "has_permissions_policy": "permissions-policy" in headers,
+    }
+    security["score"] = sum(1 for v in security.values() if v)
+    security["max_score"] = 6
+    security["grade"] = "A" if security["score"] >= 5 else "B" if security["score"] >= 3 else "C" if security["score"] >= 1 else "F"
+
+    # Caching analysis
+    caching = {
+        "cache_control": headers.get("cache-control"),
+        "expires": headers.get("expires"),
+        "etag": headers.get("etag"),
+        "last_modified": headers.get("last-modified"),
+        "age": headers.get("age"),
+    }
+
+    return {
+        "url": url,
+        "status_code": resp.status_code,
+        "headers": headers,
+        "security": security,
+        "caching": caching,
+        "server": headers.get("server"),
+        "content_type": headers.get("content-type"),
+        "redirect_count": len(resp.history),
+    }
+
+
+# --- Password Strength Checker ---
+
+class PasswordCheckRequest(BaseModel):
+    password: str
+
+@app.post("/api/password/check")
+async def password_check(req: PasswordCheckRequest):
+    """Check password strength and provide improvement suggestions."""
+    pwd = req.password
+    length = len(pwd)
+
+    checks = {
+        "length_ok": length >= 8,
+        "has_uppercase": bool(re.search(r"[A-Z]", pwd)),
+        "has_lowercase": bool(re.search(r"[a-z]", pwd)),
+        "has_digit": bool(re.search(r"\d", pwd)),
+        "has_special": bool(re.search(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>/?]", pwd)),
+        "no_common_patterns": not bool(re.search(r"(123|abc|password|qwerty|admin|letmein|welcome|monkey|dragon)", pwd.lower())),
+        "length_good": length >= 12,
+        "length_excellent": length >= 16,
+    }
+
+    score = sum([
+        min(length, 20) * 2,  # Up to 40 points for length
+        10 if checks["has_uppercase"] else 0,
+        10 if checks["has_lowercase"] else 0,
+        10 if checks["has_digit"] else 0,
+        15 if checks["has_special"] else 0,
+        15 if checks["no_common_patterns"] else -20,
+    ])
+    score = max(0, min(100, score))
+
+    if score >= 80:
+        strength = "strong"
+    elif score >= 60:
+        strength = "good"
+    elif score >= 40:
+        strength = "fair"
+    else:
+        strength = "weak"
+
+    suggestions = []
+    if not checks["length_ok"]:
+        suggestions.append("Use at least 8 characters")
+    if not checks["length_good"]:
+        suggestions.append("Consider using 12+ characters for better security")
+    if not checks["has_uppercase"]:
+        suggestions.append("Add uppercase letters")
+    if not checks["has_lowercase"]:
+        suggestions.append("Add lowercase letters")
+    if not checks["has_digit"]:
+        suggestions.append("Add numbers")
+    if not checks["has_special"]:
+        suggestions.append("Add special characters (!@#$%^&*)")
+    if not checks["no_common_patterns"]:
+        suggestions.append("Avoid common words and patterns")
+
+    # Entropy estimation (bits)
+    charset_size = 0
+    if checks["has_lowercase"]:
+        charset_size += 26
+    if checks["has_uppercase"]:
+        charset_size += 26
+    if checks["has_digit"]:
+        charset_size += 10
+    if checks["has_special"]:
+        charset_size += 32
+    if charset_size == 0:
+        charset_size = 26
+
+    import math
+    entropy = length * math.log2(charset_size)
+
+    return {
+        "score": score,
+        "strength": strength,
+        "length": length,
+        "checks": checks,
+        "suggestions": suggestions,
+        "entropy_bits": round(entropy, 1),
+        "crack_time_estimate": "centuries" if entropy > 80 else "years" if entropy > 60 else "months" if entropy > 40 else "days" if entropy > 28 else "minutes",
+    }
+
+
+# --- Regex Tester ---
+
+class RegexTestRequest(BaseModel):
+    pattern: str
+    text: str
+    flags: str = ""
+
+@app.post("/api/regex/test")
+async def regex_test(req: RegexTestRequest):
+    """Test a regex pattern against text and return all matches with groups and positions."""
+    flag_map = {"i": re.IGNORECASE, "m": re.MULTILINE, "s": re.DOTALL}
+    flags = 0
+    for f in req.flags:
+        if f in flag_map:
+            flags |= flag_map[f]
+
+    try:
+        compiled = re.compile(req.pattern, flags)
+    except re.error as e:
+        return JSONResponse({"error": f"Invalid regex: {str(e)}"}, status_code=400)
+
+    matches = []
+    for m in compiled.finditer(req.text):
+        match_info = {
+            "match": m.group(),
+            "start": m.start(),
+            "end": m.end(),
+            "groups": list(m.groups()),
+        }
+        if m.groupdict():
+            match_info["named_groups"] = m.groupdict()
+        matches.append(match_info)
+        if len(matches) >= 100:
+            break
+
+    return {
+        "pattern": req.pattern,
+        "flags": req.flags,
+        "is_valid": True,
+        "match_count": len(matches),
+        "matches": matches,
+        "text_length": len(req.text),
+    }
+
+
+# --- Lorem Ipsum Generator ---
+
+@app.get("/api/lorem")
+async def lorem_ipsum(
+    paragraphs: int = Query(3, ge=1, le=20),
+    sentences_per_paragraph: int = Query(5, ge=1, le=15),
+    format: str = Query("text"),
+):
+    """Generate lorem ipsum placeholder text."""
+    words = [
+        "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
+        "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
+        "magna", "aliqua", "enim", "ad", "minim", "veniam", "quis", "nostrud",
+        "exercitation", "ullamco", "laboris", "nisi", "aliquip", "ex", "ea", "commodo",
+        "consequat", "duis", "aute", "irure", "in", "reprehenderit", "voluptate",
+        "velit", "esse", "cillum", "fugiat", "nulla", "pariatur", "excepteur", "sint",
+        "occaecat", "cupidatat", "non", "proident", "sunt", "culpa", "qui", "officia",
+        "deserunt", "mollit", "anim", "id", "est", "laborum", "at", "vero", "eos",
+        "accusamus", "iusto", "odio", "dignissimos", "ducimus", "blanditiis",
+        "praesentium", "voluptatum", "deleniti", "atque", "corrupti", "quos", "dolores",
+        "quas", "molestias", "excepturi", "obcaecati", "cupiditate", "provident",
+    ]
+
+    import random
+    paras = []
+    for p in range(paragraphs):
+        sentences = []
+        for s in range(sentences_per_paragraph):
+            length = random.randint(6, 15)
+            sentence_words = [random.choice(words) for _ in range(length)]
+            sentence_words[0] = sentence_words[0].capitalize()
+            sentences.append(" ".join(sentence_words) + ".")
+        paras.append(" ".join(sentences))
+
+    text = "\n\n".join(paras)
+
+    if format == "html":
+        html = "".join(f"<p>{p}</p>" for p in paras)
+        return {"format": "html", "text": html, "paragraphs": paragraphs}
+
+    return {"format": "text", "text": text, "paragraphs": paragraphs, "word_count": len(text.split())}
+
+
+# --- Color Palette Generator ---
+
+@app.get("/api/color/palette")
+async def color_palette(
+    base_color: str = Query("#3498db"),
+    scheme: str = Query("complementary"),
+    count: int = Query(5, ge=2, le=12),
+):
+    """Generate color palettes (complementary, analogous, triadic, monochromatic) from a base color."""
+    # Parse hex color
+    color = base_color.lstrip("#")
+    if len(color) != 6:
+        return JSONResponse({"error": "Invalid hex color. Use format: #RRGGBB"}, status_code=400)
+
+    r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+
+    # RGB to HSL
+    r1, g1, b1 = r / 255, g / 255, b / 255
+    max_c = max(r1, g1, b1)
+    min_c = min(r1, g1, b1)
+    l = (max_c + min_c) / 2
+
+    if max_c == min_c:
+        h = s = 0
+    else:
+        d = max_c - min_c
+        s = d / (2 - max_c - min_c) if l > 0.5 else d / (max_c + min_c)
+        if max_c == r1:
+            h = (g1 - b1) / d + (6 if g1 < b1 else 0)
+        elif max_c == g1:
+            h = (b1 - r1) / d + 2
+        else:
+            h = (r1 - g1) / d + 4
+        h /= 6
+
+    def hsl_to_hex(h, s, l):
+        if s == 0:
+            rv = gv = bv = int(l * 255)
+        else:
+            def hue2rgb(p, q, t):
+                if t < 0: t += 1
+                if t > 1: t -= 1
+                if t < 1/6: return p + (q - p) * 6 * t
+                if t < 1/2: return q
+                if t < 2/3: return p + (q - p) * (2/3 - t) * 6
+                return p
+            q = l * (1 + s) if l < 0.5 else l + s - l * s
+            p = 2 * l - q
+            rv = int(hue2rgb(p, q, h + 1/3) * 255)
+            gv = int(hue2rgb(p, q, h) * 255)
+            bv = int(hue2rgb(p, q, h - 1/3) * 255)
+        return f"#{rv:02x}{gv:02x}{bv:02x}"
+
+    colors = [{"hex": base_color, "role": "base"}]
+
+    if scheme == "complementary":
+        for i in range(1, count):
+            offset = 0.5 if i == 1 else (i * 0.5 / count)
+            new_h = (h + offset) % 1.0
+            colors.append({"hex": hsl_to_hex(new_h, s, l), "role": f"complement_{i}"})
+    elif scheme == "analogous":
+        step = 30 / 360
+        for i in range(1, count):
+            offset = step * (i - count // 2)
+            new_h = (h + offset) % 1.0
+            colors.append({"hex": hsl_to_hex(new_h, s, l), "role": f"analogous_{i}"})
+    elif scheme == "triadic":
+        for i in range(1, count):
+            new_h = (h + i / 3) % 1.0
+            colors.append({"hex": hsl_to_hex(new_h, s, l), "role": f"triadic_{i}"})
+    elif scheme == "monochromatic":
+        for i in range(1, count):
+            new_l = max(0.1, min(0.9, l + (i - count // 2) * 0.15))
+            colors.append({"hex": hsl_to_hex(h, s, new_l), "role": f"shade_{i}"})
+    else:
+        # Split complementary
+        for i in range(1, count):
+            offset = 150 / 360 if i % 2 == 1 else 210 / 360
+            new_h = (h + offset * ((i + 1) // 2)) % 1.0
+            colors.append({"hex": hsl_to_hex(new_h, s, l), "role": f"split_{i}"})
+
+    return {
+        "base_color": base_color,
+        "scheme": scheme,
+        "colors": colors[:count],
+        "hsl": {"h": round(h * 360, 1), "s": round(s * 100, 1), "l": round(l * 100, 1)},
+    }
+
+
+# --- Slug Generator ---
+
+class SlugRequest(BaseModel):
+    text: str
+    separator: str = "-"
+    max_length: int = 80
+
+@app.post("/api/slug/generate")
+async def slug_generate(req: SlugRequest):
+    """Generate URL-friendly slugs from text."""
+    import unicodedata
+    text = unicodedata.normalize("NFKD", req.text)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    text = text.lower()
+    text = re.sub(r"[^\w\s-]", "", text)
+    text = re.sub(r"[-\s]+", req.separator, text).strip(req.separator)
+    if req.max_length > 0:
+        text = text[:req.max_length].rstrip(req.separator)
+
+    return {
+        "original": req.text,
+        "slug": text,
+        "separator": req.separator,
+        "length": len(text),
+    }
+
+
+# --- Markdown to Plain Text ---
+
+class MarkdownStripRequest(BaseModel):
+    markdown: str
+
+@app.post("/api/markdown/strip")
+async def markdown_strip(req: MarkdownStripRequest):
+    """Strip markdown formatting and return plain text."""
+    text = req.markdown
+    # Remove headers
+    text = re.sub(r"#{1,6}\s*", "", text)
+    # Remove bold/italic
+    text = re.sub(r"\*{1,3}(.*?)\*{1,3}", r"\1", text)
+    text = re.sub(r"_{1,3}(.*?)_{1,3}", r"\1", text)
+    # Remove links
+    text = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", text)
+    # Remove images
+    text = re.sub(r"!\[([^\]]*)\]\([^\)]+\)", r"\1", text)
+    # Remove code blocks
+    text = re.sub(r"```[\s\S]*?```", "", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    # Remove blockquotes
+    text = re.sub(r"^\s*>\s*", "", text, flags=re.MULTILINE)
+    # Remove horizontal rules
+    text = re.sub(r"^[-*_]{3,}\s*$", "", text, flags=re.MULTILINE)
+    # Remove list markers
+    text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*\d+\.\s+", "", text, flags=re.MULTILINE)
+    # Clean up whitespace
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+
+    return {
+        "plain_text": text,
+        "original_length": len(req.markdown),
+        "stripped_length": len(text),
+        "reduction_percent": round((1 - len(text) / max(len(req.markdown), 1)) * 100, 1),
     }
 
 

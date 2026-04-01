@@ -50,10 +50,10 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.3.0" },
+  { name: "toolpipe", version: "1.5.0" },
   {
     capabilities: { tools: {} },
-    instructions: "ToolPipe provides 90+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, fake data generation, Dockerfile generation, .gitignore generation, data transformation, and more. Get a free API key at /api-keys for 100 calls/day, or upgrade to Pro for 10,000 calls/day.",
+    instructions: "ToolPipe provides 110+ developer utility APIs as 69 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, text analysis, fake data, Dockerfile/gitignore generation, IP geolocation, cron parsing, JWT decoding, regex testing, password checking, color palettes, text diffing, timestamp conversion, HTTP header analysis, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
   }
 );
 
@@ -894,6 +894,186 @@ server.tool(
     const result = await apiCall("/api/text/similarity", {
       method: "POST",
       body: JSON.stringify({ text1, text2 }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- New Tools: IP Lookup, Cron Parser, Text Diff, JWT Decode, Time Convert, etc. ---
+
+server.tool(
+  "ip_lookup",
+  "Look up geolocation, ISP, and network info for any IP address.",
+  {
+    ip: z.string().describe("IP address to look up"),
+  },
+  async ({ ip }) => {
+    const result = await apiCall(`/api/ip/lookup?ip=${encodeURIComponent(ip)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "cron_parse",
+  "Parse and explain a cron expression, show next N scheduled run times.",
+  {
+    expression: z.string().describe("Cron expression (e.g., '*/5 * * * *')"),
+    count: z.number().optional().describe("Number of next runs to show (default: 5)"),
+  },
+  async ({ expression, count }) => {
+    const result = await apiCall(`/api/cron/parse?expression=${encodeURIComponent(expression)}&count=${count || 5}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_diff",
+  "Generate a unified diff between two text inputs.",
+  {
+    original: z.string().describe("Original text"),
+    modified: z.string().describe("Modified text"),
+    context_lines: z.number().optional().describe("Lines of context (default: 3)"),
+  },
+  async ({ original, modified, context_lines }) => {
+    const result = await apiCall("/api/diff/text", {
+      method: "POST",
+      body: JSON.stringify({ original, modified, context_lines: context_lines || 3 }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "jwt_decode",
+  "Decode a JWT token without verification. Inspect header, payload, and expiration.",
+  {
+    token: z.string().describe("JWT token to decode"),
+  },
+  async ({ token }) => {
+    const result = await apiCall("/api/jwt/decode", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "time_convert",
+  "Convert between Unix timestamps, ISO 8601, and human-readable date formats.",
+  {
+    timestamp: z.string().optional().describe("Timestamp to convert (Unix seconds/ms, ISO 8601, or date string). Empty = current time."),
+  },
+  async ({ timestamp }) => {
+    const url = timestamp ? `/api/time/convert?timestamp=${encodeURIComponent(timestamp)}` : "/api/time/convert";
+    const result = await apiCall(url);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "headers_analyze",
+  "Analyze HTTP response headers of any URL for security, caching, and configuration.",
+  {
+    url: z.string().describe("URL to analyze"),
+  },
+  async ({ url }) => {
+    const result = await apiCall(`/api/headers/analyze?url=${encodeURIComponent(url)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "password_check",
+  "Check password strength and get improvement suggestions.",
+  {
+    password: z.string().describe("Password to check"),
+  },
+  async ({ password }) => {
+    const result = await apiCall("/api/password/check", {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "regex_test",
+  "Test a regex pattern against text. Returns all matches with positions and groups.",
+  {
+    pattern: z.string().describe("Regex pattern"),
+    text: z.string().describe("Text to test against"),
+    flags: z.string().optional().describe("Flags: i=case-insensitive, m=multiline, s=dotall"),
+  },
+  async ({ pattern, text, flags }) => {
+    const result = await apiCall("/api/regex/test", {
+      method: "POST",
+      body: JSON.stringify({ pattern, text, flags: flags || "" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "lorem_ipsum",
+  "Generate lorem ipsum placeholder text.",
+  {
+    paragraphs: z.number().optional().describe("Number of paragraphs (default: 3)"),
+    format: z.string().optional().describe("Output format: text or html (default: text)"),
+  },
+  async ({ paragraphs, format }) => {
+    const params = new URLSearchParams();
+    if (paragraphs) params.set("paragraphs", String(paragraphs));
+    if (format) params.set("format", format);
+    const result = await apiCall(`/api/lorem?${params.toString()}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "color_palette",
+  "Generate color palettes (complementary, analogous, triadic, monochromatic) from a base color.",
+  {
+    base_color: z.string().describe("Base hex color (e.g., #3498db)"),
+    scheme: z.string().optional().describe("Scheme: complementary, analogous, triadic, monochromatic (default: complementary)"),
+    count: z.number().optional().describe("Number of colors (default: 5)"),
+  },
+  async ({ base_color, scheme, count }) => {
+    const params = new URLSearchParams({ base_color });
+    if (scheme) params.set("scheme", scheme);
+    if (count) params.set("count", String(count));
+    const result = await apiCall(`/api/color/palette?${params.toString()}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "slug_generate",
+  "Generate URL-friendly slugs from text.",
+  {
+    text: z.string().describe("Text to convert to a slug"),
+    separator: z.string().optional().describe("Separator character (default: -)"),
+  },
+  async ({ text, separator }) => {
+    const result = await apiCall("/api/slug/generate", {
+      method: "POST",
+      body: JSON.stringify({ text, separator: separator || "-" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "markdown_strip",
+  "Strip markdown formatting and return plain text.",
+  {
+    markdown: z.string().describe("Markdown text to strip"),
+  },
+  async ({ markdown }) => {
+    const result = await apiCall("/api/markdown/strip", {
+      method: "POST",
+      body: JSON.stringify({ markdown }),
     });
     return textResult(result);
   }

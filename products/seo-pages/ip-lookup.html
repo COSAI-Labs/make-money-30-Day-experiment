@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free IP Address Lookup - Geolocation, ISP, Network Info</title>
+    <meta name="description" content="Free IP address lookup tool. Find geolocation, ISP, city, country, and coordinates for any IP address. No signup required.">
+    <meta property="og:title" content="Free IP Address Lookup - Geolocation, ISP, Network Info">
+    <meta property="og:description" content="Look up any IP address to find geolocation, ISP, city, country, and coordinates instantly.">
+    <link rel="canonical" href="/ip-lookup">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"IP Address Lookup","description":"Free IP geolocation lookup tool","applicationCategory":"NetworkApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .input-row input { flex: 1; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; font-family: 'Courier New', monospace; }
+        .input-row input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .result-card { margin-top: 16px; background: #f8f9fa; border-radius: 8px; padding: 20px; display: none; }
+        .result-card h3 { margin-bottom: 12px; font-size: 1.1rem; color: #1a1a2e; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e9ecef; }
+        .result-row:last-child { border-bottom: none; }
+        .result-row .label { color: #666; }
+        .result-row .value { font-weight: 600; font-family: 'Courier New', monospace; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>IP Address Lookup</h1>
+        <p class="subtitle">Find geolocation, ISP, and network details for any IP address</p>
+        <div class="tool-box">
+            <label style="font-weight:500;margin-bottom:6px;display:block">IP Address</label>
+            <div class="input-row">
+                <input type="text" id="ip-input" placeholder="Enter IP address (e.g. 8.8.8.8)">
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="lookupIP()">Lookup</button>
+                <button class="btn btn-secondary" onclick="getMyIP()">My IP</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+            <div class="result-card" id="result-card">
+                <h3>Lookup Results</h3>
+                <div id="results"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>What is an IP Address Lookup?</h2>
+            <p>An IP address lookup reveals the geographic location, Internet Service Provider (ISP), and network information associated with an IP address. Every device connected to the internet has a unique IP address that can be traced to an approximate location.</p>
+            <h2>How to Use This Tool</h2>
+            <p>Enter any IPv4 or IPv6 address in the input field and click "Lookup" to see its details. Click "My IP" to automatically detect and look up your own public IP address. Results include country, city, ISP, coordinates, and timezone information.</p>
+            <h2>API Access</h2>
+            <p>Use this tool programmatically with our free API: GET /api/ip/lookup?ip=8.8.8.8. Returns JSON with geolocation data including country, city, ISP, latitude, longitude, and more.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/dns-lookup">DNS Lookup</a></p></footer>
+    <script>
+    function lookupIP() {
+        const ip = document.getElementById('ip-input').value.trim();
+        if (!ip) { showStatus('Please enter an IP address', false); return; }
+        showStatus('Looking up...', true);
+        fetch('/api/ip/lookup?ip=' + encodeURIComponent(ip))
+        .then(r => r.json())
+        .then(d => {
+            if (d.error) { showStatus(d.error, false); return; }
+            const card = document.getElementById('result-card');
+            card.style.display = 'block';
+            document.getElementById('results').innerHTML =
+                row('IP Address', d.ip || ip) +
+                row('Country', d.country || 'N/A') +
+                row('City', d.city || 'N/A') +
+                row('Region', d.region || 'N/A') +
+                row('ISP', d.isp || d.org || 'N/A') +
+                row('Latitude', d.lat || d.latitude || 'N/A') +
+                row('Longitude', d.lon || d.longitude || 'N/A') +
+                row('Timezone', d.timezone || 'N/A');
+            showStatus('Lookup complete', true);
+        })
+        .catch(() => showStatus('Lookup failed. Please try again.', false));
+    }
+    function getMyIP() {
+        showStatus('Detecting your IP...', true);
+        fetch('/api/ip/lookup')
+        .then(r => r.json())
+        .then(d => {
+            if (d.ip) document.getElementById('ip-input').value = d.ip;
+            lookupIP();
+        })
+        .catch(() => showStatus('Could not detect your IP', false));
+    }
+    function row(label, value) {
+        return '<div class="result-row"><span class="label">' + label + '</span><span class="value">' + value + '</span></div>';
+    }
+    function clearAll() {
+        document.getElementById('ip-input').value = '';
+        document.getElementById('results').innerHTML = '';
+        document.getElementById('result-card').style.display = 'none';
+        document.getElementById('status-bar').innerHTML = '';
+    }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>

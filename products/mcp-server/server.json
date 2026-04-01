@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "57 dev tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, web scraping, code analysis, more",
+  "description": "69 dev tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, web scraping, code analysis, more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.4.0",
+  "version": "1.5.0",
   "remoteEndpoints": [
     {
       "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp",
@@ -73,6 +73,11 @@
     {"name": "schema_generate", "description": "Generate TypeScript, Python, Zod, or JSON Schema from JSON data"},
     {"name": "prompt_build", "description": "Build structured LLM prompts with variable substitution"},
     {"name": "test_endpoint", "description": "Test API endpoints with detailed response metrics and timing"},
-    {"name": "text_similarity", "description": "Calculate text similarity using Jaccard, cosine, and character algorithms"}
+    {"name": "text_similarity", "description": "Calculate text similarity using Jaccard, cosine, and character algorithms"},
+    {"name": "headers_analyze", "description": "Analyze HTTP response headers for security, caching, configuration"},
+    {"name": "password_check", "description": "Check password strength with entropy and crack time estimates"},
+    {"name": "color_palette", "description": "Generate color palettes (complementary, analogous, triadic, monochromatic)"},
+    {"name": "slug_generate", "description": "Generate URL-friendly slugs from text"},
+    {"name": "markdown_strip", "description": "Strip markdown formatting to plain text"}
   ]
 }

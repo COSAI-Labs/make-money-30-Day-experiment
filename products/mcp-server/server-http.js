@@ -46,10 +46,10 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.4.0" },
+    { name: "toolpipe", version: "1.5.0" },
     {
       capabilities: { tools: {} },
-      instructions: "ToolPipe provides 70+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, regex testing, JWT decoding, and more.",
+      instructions: "ToolPipe provides 110+ developer utility APIs as 51 HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT decoding, IP geolocation, cron parsing, password checking, color palettes, text diffing, timestamp conversion, and more.",
     }
   );
 
@@ -113,6 +113,19 @@ function createServer() {
   server.tool("test_endpoint", "Test API endpoints with detailed response metrics and timing.", { url: z.string(), method: z.string().optional(), headers: z.record(z.string()).optional(), body: z.string().optional() }, async ({ url, method, headers, body }) => textResult(await apiCall("/api/test/endpoint", { method: "POST", body: JSON.stringify({ url, method: method || "GET", headers: headers || {}, body: body || "" }) })));
   server.tool("text_similarity", "Calculate text similarity (Jaccard, cosine, character-level).", { text1: z.string(), text2: z.string() }, async ({ text1, text2 }) => textResult(await apiCall("/api/text/similarity", { method: "POST", body: JSON.stringify({ text1, text2 }) })));
 
+  // v1.5.0 new tools
+  server.tool("ip_lookup", "Look up IP geolocation, ISP, and network info.", { ip: z.string() }, async ({ ip }) => textResult(await apiCall(`/api/ip/lookup?ip=${encodeURIComponent(ip)}`)));
+  server.tool("text_diff", "Generate unified diff between two texts.", { original: z.string(), modified: z.string(), context_lines: z.number().optional() }, async ({ original, modified, context_lines }) => textResult(await apiCall("/api/diff/text", { method: "POST", body: JSON.stringify({ original, modified, context_lines: context_lines || 3 }) })));
+  server.tool("jwt_decode", "Decode JWT tokens without verification.", { token: z.string() }, async ({ token }) => textResult(await apiCall("/api/jwt/decode", { method: "POST", body: JSON.stringify({ token }) })));
+  server.tool("time_convert", "Convert timestamps (Unix, ISO 8601, human-readable).", { timestamp: z.string().optional() }, async ({ timestamp }) => textResult(await apiCall(`/api/time/convert${timestamp ? `?timestamp=${encodeURIComponent(timestamp)}` : ""}`)));
+  server.tool("headers_analyze", "Analyze HTTP response headers for security and caching.", { url: z.string() }, async ({ url }) => textResult(await apiCall(`/api/headers/analyze?url=${encodeURIComponent(url)}`)));
+  server.tool("password_check", "Check password strength with entropy and crack time.", { password: z.string() }, async ({ password }) => textResult(await apiCall("/api/password/check", { method: "POST", body: JSON.stringify({ password }) })));
+  server.tool("regex_test", "Test regex patterns with match details and groups.", { pattern: z.string(), text: z.string(), flags: z.string().optional() }, async ({ pattern, text, flags }) => textResult(await apiCall("/api/regex/test", { method: "POST", body: JSON.stringify({ pattern, text, flags: flags || "" }) })));
+  server.tool("lorem_ipsum", "Generate lorem ipsum placeholder text.", { paragraphs: z.number().optional(), format: z.string().optional() }, async ({ paragraphs, format }) => textResult(await apiCall(`/api/lorem?paragraphs=${paragraphs || 3}&format=${format || "text"}`)));
+  server.tool("color_palette", "Generate color palettes from a base color.", { base_color: z.string(), scheme: z.string().optional(), count: z.number().optional() }, async ({ base_color, scheme, count }) => textResult(await apiCall(`/api/color/palette?base_color=${encodeURIComponent(base_color)}&scheme=${scheme || "complementary"}&count=${count || 5}`)));
+  server.tool("slug_generate", "Generate URL-friendly slugs.", { text: z.string(), separator: z.string().optional() }, async ({ text, separator }) => textResult(await apiCall("/api/slug/generate", { method: "POST", body: JSON.stringify({ text, separator: separator || "-" }) })));
+  server.tool("markdown_strip", "Strip markdown formatting to plain text.", { markdown: z.string() }, async ({ markdown }) => textResult(await apiCall("/api/markdown/strip", { method: "POST", body: JSON.stringify({ markdown }) })));
+
   return server;
 }
 
@@ -133,10 +146,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.4.0",
+    version: "1.5.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 40,
+    tools: 51,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -167,5 +180,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`40 tools available. API backend: ${API_BASE}`);
+  console.log(`51 tools available. API backend: ${API_BASE}`);
 });
