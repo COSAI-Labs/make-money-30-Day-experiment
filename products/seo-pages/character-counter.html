@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Counter - Free Online Character & Word Count Tool</title>
+    <meta name="description" content="Count characters, words, sentences, and paragraphs in your text instantly. Free online tool, no signup.">
+    <meta property="og:title" content="Character Counter - Free Online Character & Word Count Tool">
+    <meta property="og:description" content="Count characters, words, sentences, and paragraphs in your text instantly. Free online tool, no signup.">
+    <link rel="canonical" href="/character-counter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 150px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .result { padding: 16px; background: #f0f0f0; border-radius: 8px; margin-top: 12px; font-family: monospace; word-break: break-all; min-height: 40px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { margin: 0 0 12px 24px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; margin: 0 8px; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .row > * { flex: 1; }
+        @media(max-width:600px) { .row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API Access</a></div></nav>
+    <div class="container">
+        <h1>Character Counter</h1>
+        <p class="subtitle">Count characters, words, sentences, and paragraphs instantly</p>
+        <div class="tool-box">
+            <label>Enter your text</label>
+            <textarea id="input" oninput="count()" placeholder="Start typing or paste text here..."></textarea>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px">
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="chars">0</div><div style="color:#666;font-size:0.85rem">Characters</div></div>
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="words">0</div><div style="color:#666;font-size:0.85rem">Words</div></div>
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="sents">0</div><div style="color:#666;font-size:0.85rem">Sentences</div></div>
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="paras">0</div><div style="color:#666;font-size:0.85rem">Paragraphs</div></div>
+            </div>
+            <div style="margin-top:12px;color:#666;font-size:0.9rem" id="reading-time">Reading time: 0 min</div>
+        </div>
+        <div class="content">
+            <h2>What is a Character Counter?</h2>
+            <p>A character counter tells you exactly how many characters, words, sentences, and paragraphs are in your text. Essential for Twitter posts (280 chars), meta descriptions (160 chars), essays, and more.</p>
+            <h2>Why Use This Tool?</h2>
+            <p>Perfect for social media posts, SEO meta descriptions, academic essays with word limits, SMS messages, and any content that needs to fit within specific character or word constraints.</p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/pricing">API Pricing</a>
+    </footer>
+    <script>
+function count(){const t=document.getElementById("input").value;document.getElementById("chars").textContent=t.length;const w=t.trim()?t.trim().split(/\s+/).length:0;document.getElementById("words").textContent=w;document.getElementById("sents").textContent=t.trim()?t.split(/[.!?]+/).filter(s=>s.trim()).length:0;document.getElementById("paras").textContent=t.trim()?t.split(/\n\n+/).filter(p=>p.trim()).length:0;document.getElementById("reading-time").textContent="Reading time: "+Math.max(1,Math.ceil(w/200))+" min";}
+    </script>
+</body>
+</html>

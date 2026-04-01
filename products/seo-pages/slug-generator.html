@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Slug Generator - SEO-Friendly URL Maker Online</title>
+    <meta name="description" content="Generate clean, SEO-friendly URL slugs from text. Removes special characters, converts spaces to hyphens. Free online tool.">
+    <meta property="og:title" content="URL Slug Generator - SEO-Friendly URL Maker Online">
+    <meta property="og:description" content="Generate clean, SEO-friendly URL slugs from text. Removes special characters, converts spaces to hyphens. Free online tool.">
+    <link rel="canonical" href="/slug-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 150px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .result { padding: 16px; background: #f0f0f0; border-radius: 8px; margin-top: 12px; font-family: monospace; word-break: break-all; min-height: 40px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { margin: 0 0 12px 24px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; margin: 0 8px; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .row > * { flex: 1; }
+        @media(max-width:600px) { .row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API Access</a></div></nav>
+    <div class="container">
+        <h1>URL Slug Generator</h1>
+        <p class="subtitle">Create SEO-friendly URL slugs from any text</p>
+        <div class="tool-box">
+            <label>Enter text</label>
+            <input type="text" id="input" oninput="gen()" placeholder="Enter title or text to convert to slug...">
+            <div style="margin-top:16px"><label>Generated Slug</label>
+            <div class="result" id="output" style="font-size:1.2rem"></div></div>
+            <div class="btns"><button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('output').textContent)">Copy Slug</button></div>
+        </div>
+        <div class="content">
+            <h2>What is a URL Slug?</h2>
+            <p>A URL slug is the part of a URL that identifies a particular page in a human-readable form. For example, in "example.com/my-blog-post", "my-blog-post" is the slug.</p>
+            <h2>SEO Benefits</h2>
+            <p>Clean URL slugs improve SEO by making URLs readable and descriptive. Search engines prefer short, keyword-rich URLs that describe the page content.</p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/pricing">API Pricing</a>
+    </footer>
+    <script>
+function gen(){const t=document.getElementById("input").value;document.getElementById("output").textContent=t.toLowerCase().trim().replace(/[^\w\s-]/g,"").replace(/[\s_]+/g,"-").replace(/^-+|-+$/g,"");}
+    </script>
+</body>
+</html>

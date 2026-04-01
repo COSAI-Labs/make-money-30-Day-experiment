@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Length Calculator - Count String Length Online</title>
+    <meta name="description" content="Calculate the length of any string. Count bytes, characters, words. Free online string length tool for developers.">
+    <meta property="og:title" content="String Length Calculator - Count String Length Online">
+    <meta property="og:description" content="Calculate the length of any string. Count bytes, characters, words. Free online string length tool for developers.">
+    <link rel="canonical" href="/string-length">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 150px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .result { padding: 16px; background: #f0f0f0; border-radius: 8px; margin-top: 12px; font-family: monospace; word-break: break-all; min-height: 40px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { margin: 0 0 12px 24px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; margin: 0 8px; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .row > * { flex: 1; }
+        @media(max-width:600px) { .row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API Access</a></div></nav>
+    <div class="container">
+        <h1>String Length Calculator</h1>
+        <p class="subtitle">Count characters, bytes, and UTF-8 length of any string</p>
+        <div class="tool-box">
+            <label>Enter string</label>
+            <textarea id="input" oninput="calc()" placeholder="Type or paste text..."></textarea>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="len">0</div><div style="color:#666;font-size:0.85rem">Characters</div></div>
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="bytes">0</div><div style="color:#666;font-size:0.85rem">UTF-8 Bytes</div></div>
+                <div style="text-align:center;padding:16px;background:#f0f0f0;border-radius:8px"><div style="font-size:2rem;font-weight:700;color:#6c63ff" id="lines">0</div><div style="color:#666;font-size:0.85rem">Lines</div></div>
+            </div>
+        </div>
+        <div class="content">
+            <h2>Why Measure String Length?</h2>
+            <p>String length matters in database schemas (VARCHAR limits), API payloads, SMS messages, social media posts, and buffer sizing. UTF-8 byte count differs from character count for non-ASCII text.</p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/pricing">API Pricing</a>
+    </footer>
+    <script>
+function calc(){const t=document.getElementById("input").value;document.getElementById("len").textContent=t.length;document.getElementById("bytes").textContent=new Blob([t]).size;document.getElementById("lines").textContent=t?t.split("\n").length:0;}
+    </script>
+</body>
+</html>

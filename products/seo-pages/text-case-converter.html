@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Case Converter - UPPERCASE, lowercase, Title Case Online</title>
+    <meta name="description" content="Convert text to uppercase, lowercase, title case, sentence case, and more. Free online text transformer.">
+    <meta property="og:title" content="Text Case Converter - UPPERCASE, lowercase, Title Case Online">
+    <meta property="og:description" content="Convert text to uppercase, lowercase, title case, sentence case, and more. Free online text transformer.">
+    <link rel="canonical" href="/text-case-converter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 150px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .result { padding: 16px; background: #f0f0f0; border-radius: 8px; margin-top: 12px; font-family: monospace; word-break: break-all; min-height: 40px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { margin: 0 0 12px 24px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; margin: 0 8px; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .row > * { flex: 1; }
+        @media(max-width:600px) { .row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API Access</a></div></nav>
+    <div class="container">
+        <h1>Text Case Converter</h1>
+        <p class="subtitle">Convert text between different cases instantly</p>
+        <div class="tool-box">
+            <label>Enter your text</label>
+            <textarea id="input" placeholder="Type or paste text here..."></textarea>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="convert('upper')">UPPER CASE</button>
+                <button class="btn btn-secondary" onclick="convert('lower')">lower case</button>
+                <button class="btn btn-secondary" onclick="convert('title')">Title Case</button>
+                <button class="btn btn-secondary" onclick="convert('sentence')">Sentence case</button>
+                <button class="btn btn-secondary" onclick="convert('camel')">camelCase</button>
+                <button class="btn btn-secondary" onclick="convert('snake')">snake_case</button>
+                <button class="btn btn-secondary" onclick="convert('kebab')">kebab-case</button>
+                <button class="btn btn-secondary" onclick="copy()">Copy</button>
+            </div>
+            <div class="output"><label>Result</label><textarea id="output" readonly></textarea></div>
+        </div>
+        <div class="content">
+            <h2>About Text Case Converter</h2>
+            <p>This tool converts text between different cases: uppercase, lowercase, title case, sentence case, camelCase, snake_case, and kebab-case. Perfect for developers, writers, and content creators.</p>
+            <h2>Use Cases</h2>
+            <ul><li>Convert variable names between coding conventions</li><li>Fix accidentally typed CAPS LOCK text</li><li>Format titles and headings properly</li><li>Convert between programming naming conventions</li></ul>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/pricing">API Pricing</a>
+    </footer>
+    <script>
+function convert(type){const t=document.getElementById("input").value;let r="";switch(type){case"upper":r=t.toUpperCase();break;case"lower":r=t.toLowerCase();break;case"title":r=t.replace(/\w\S*/g,w=>w[0].toUpperCase()+w.substr(1).toLowerCase());break;case"sentence":r=t.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g,c=>c.toUpperCase());break;case"camel":r=t.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g,(_,c)=>c.toUpperCase());break;case"snake":r=t.toLowerCase().replace(/\s+/g,"_").replace(/[^a-zA-Z0-9_]/g,"");break;case"kebab":r=t.toLowerCase().replace(/\s+/g,"-").replace(/[^a-zA-Z0-9-]/g,"");break;}document.getElementById("output").value=r;}function copy(){navigator.clipboard.writeText(document.getElementById("output").value);}
+    </script>
+</body>
+</html>

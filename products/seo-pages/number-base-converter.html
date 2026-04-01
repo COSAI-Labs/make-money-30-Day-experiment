@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Base Converter - Binary, Octal, Decimal, Hex Online</title>
+    <meta name="description" content="Convert numbers between binary, octal, decimal, and hexadecimal. Free online number base converter tool.">
+    <meta property="og:title" content="Number Base Converter - Binary, Octal, Decimal, Hex Online">
+    <meta property="og:description" content="Convert numbers between binary, octal, decimal, and hexadecimal. Free online number base converter tool.">
+    <link rel="canonical" href="/number-base-converter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 150px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output { margin-top: 12px; }
+        .result { padding: 16px; background: #f0f0f0; border-radius: 8px; margin-top: 12px; font-family: monospace; word-break: break-all; min-height: 40px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content ul { margin: 0 0 12px 24px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; margin: 0 8px; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; }
+        .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .row > * { flex: 1; }
+        @media(max-width:600px) { .row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API Access</a></div></nav>
+    <div class="container">
+        <h1>Number Base Converter</h1>
+        <p class="subtitle">Convert between binary, octal, decimal, and hexadecimal</p>
+        <div class="tool-box">
+            <div class="row">
+                <div><label>Decimal</label><input type="text" id="dec" oninput="fromDec()" placeholder="255"></div>
+                <div><label>Binary</label><input type="text" id="bin" oninput="fromBin()" placeholder="11111111"></div>
+            </div>
+            <div class="row">
+                <div><label>Octal</label><input type="text" id="oct" oninput="fromOct()" placeholder="377"></div>
+                <div><label>Hexadecimal</label><input type="text" id="hex" oninput="fromHex()" placeholder="FF"></div>
+            </div>
+        </div>
+        <div class="content">
+            <h2>Number Base Systems</h2>
+            <p>Computers use different number systems: binary (base-2), octal (base-8), decimal (base-10), and hexadecimal (base-16). Understanding these is essential for programming and computer science.</p>
+            <h2>Common Uses</h2>
+            <ul><li>Binary: machine code, bitwise operations</li><li>Octal: Unix file permissions</li><li>Hexadecimal: color codes, memory addresses</li></ul>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/pricing">API Pricing</a>
+    </footer>
+    <script>
+function upd(n){if(isNaN(n)||n<0)return;document.getElementById("dec").value=n;document.getElementById("bin").value=n.toString(2);document.getElementById("oct").value=n.toString(8);document.getElementById("hex").value=n.toString(16).toUpperCase();}
+function fromDec(){upd(parseInt(document.getElementById("dec").value)||0);}
+function fromBin(){upd(parseInt(document.getElementById("bin").value,2)||0);}
+function fromOct(){upd(parseInt(document.getElementById("oct").value,8)||0);}
+function fromHex(){upd(parseInt(document.getElementById("hex").value,16)||0);}
+    </script>
+</body>
+</html>
