@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.2.0" },
+    { name: "toolpipe", version: "1.4.0" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 70+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, regex testing, JWT decoding, and more.",
@@ -105,6 +105,14 @@ function createServer() {
   server.tool("css_minify", "Minify CSS.", { css: z.string() }, async ({ css }) => textResult(await apiCall("/api/css/minify", { method: "POST", body: JSON.stringify({ css }) })));
   server.tool("js_minify", "Minify JavaScript.", { code: z.string() }, async ({ code }) => textResult(await apiCall("/api/js/minify", { method: "POST", body: JSON.stringify({ code }) })));
 
+  // v1.4.0 new tools
+  server.tool("web_extract", "Extract content from web pages (text, links, images, metadata, structured).", { url: z.string(), extract: z.string().optional() }, async ({ url, extract }) => textResult(await apiCall("/api/web/extract", { method: "POST", body: JSON.stringify({ url, extract: extract || "text" }) })));
+  server.tool("code_analyze", "Analyze code: detect language, find functions/classes, measure complexity.", { code: z.string(), language: z.string().optional() }, async ({ code, language }) => textResult(await apiCall("/api/code/analyze", { method: "POST", body: JSON.stringify({ code, language: language || "auto" }) })));
+  server.tool("schema_generate", "Generate TypeScript, Python, Zod, or JSON Schema from JSON data.", { data: z.string(), format: z.string().optional() }, async ({ data, format }) => textResult(await apiCall("/api/schema/generate", { method: "POST", body: JSON.stringify({ data, format: format || "typescript" }) })));
+  server.tool("prompt_build", "Build structured LLM prompts with variable substitution.", { template: z.string(), variables: z.record(z.string()).optional(), system: z.string().optional() }, async ({ template, variables, system }) => textResult(await apiCall("/api/prompt/build", { method: "POST", body: JSON.stringify({ template, variables: variables || {}, system: system || "" }) })));
+  server.tool("test_endpoint", "Test API endpoints with detailed response metrics and timing.", { url: z.string(), method: z.string().optional(), headers: z.record(z.string()).optional(), body: z.string().optional() }, async ({ url, method, headers, body }) => textResult(await apiCall("/api/test/endpoint", { method: "POST", body: JSON.stringify({ url, method: method || "GET", headers: headers || {}, body: body || "" }) })));
+  server.tool("text_similarity", "Calculate text similarity (Jaccard, cosine, character-level).", { text1: z.string(), text2: z.string() }, async ({ text1, text2 }) => textResult(await apiCall("/api/text/similarity", { method: "POST", body: JSON.stringify({ text1, text2 }) })));
+
   return server;
 }
 
@@ -125,10 +133,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.2.0",
+    version: "1.4.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 34,
+    tools: 40,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -159,5 +167,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`34 tools available. API backend: ${API_BASE}`);
+  console.log(`40 tools available. API backend: ${API_BASE}`);
 });

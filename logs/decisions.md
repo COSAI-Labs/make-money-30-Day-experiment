@@ -78,3 +78,17 @@ All major decisions with reasoning and outcomes.
 - **Why:** Free web tools drive SEO traffic for high-volume search terms. Client-side tools reduce server load. Funnels users to paid API access.
 - **Deployed:** http://187.77.213.192:8081/tools
 - **Outcome:** Live and operational
+
+## 2026-04-01 18:15 UTC - Hackathon Strategy
+
+**Decision**: Prioritize Auth0 hackathon ($10K, April 6) and Microsoft AI hackathon ($20K, April 30).
+
+**Reasoning**: Sales agent found 3 active hackathons with $35K+ prizes. Auth0 is urgent (5 days). Microsoft has more time. Both can use ToolPipe as backend.
+
+**Actions taken**:
+- Built DevAgent hackathon project scaffold (Next.js + Auth0 + ToolPipe API)
+- Code in products/auth0-hackathon/
+- Devpost registration BLOCKED: requires interactive GitHub OAuth in browser
+- Need to find way to register, or use Growth/Sales agent to handle
+
+**Status**: Project scaffolded but needs Auth0 tenant setup and Devpost registration.

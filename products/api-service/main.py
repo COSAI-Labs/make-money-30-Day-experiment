@@ -4585,6 +4585,409 @@ CMD ["java", "-jar", "/app.jar"]""",
     return {"dockerfile": dockerfile, "language": req.language, "framework": req.framework or "default", "port": req.port}
 
 
+# --- High-Value AI Agent Endpoints ---
+
+class WebExtractRequest(BaseModel):
+    url: str
+    extract: str = "text"  # text, links, images, metadata, structured
+
+
+@app.post("/api/web/extract")
+async def web_extract(req: WebExtractRequest):
+    """Extract content from any web page: text, links, images, metadata, or structured data.
+    This is a premium tool for AI agents that need to process web content."""
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            resp = await client.get(req.url, headers={"User-Agent": "ToolPipe/1.0 (API; +https://toolpipe.dev)"})
+            html = resp.text
+    except Exception as e:
+        raise HTTPException(400, f"Failed to fetch URL: {e}")
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    if req.extract == "text":
+        for script in soup(["script", "style", "nav", "footer", "header"]):
+            script.decompose()
+        text = soup.get_text(separator="\n", strip=True)
+        lines = [l.strip() for l in text.splitlines() if l.strip()]
+        return {"url": req.url, "text": "\n".join(lines[:500]), "word_count": len(" ".join(lines).split())}
+
+    elif req.extract == "links":
+        links = []
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if href.startswith("http"):
+                links.append({"url": href, "text": a.get_text(strip=True)[:100]})
+        return {"url": req.url, "links": links[:200], "count": len(links)}
+
+    elif req.extract == "images":
+        images = []
+        for img in soup.find_all("img", src=True):
+            images.append({"src": img["src"], "alt": img.get("alt", ""), "width": img.get("width"), "height": img.get("height")})
+        return {"url": req.url, "images": images[:100], "count": len(images)}
+
+    elif req.extract == "metadata":
+        meta = {}
+        for tag in soup.find_all("meta"):
+            name = tag.get("name", tag.get("property", ""))
+            content = tag.get("content", "")
+            if name and content:
+                meta[name] = content
+        title = soup.find("title")
+        meta["title"] = title.get_text(strip=True) if title else ""
+        return {"url": req.url, "metadata": meta}
+
+    elif req.extract == "structured":
+        result = {"title": "", "description": "", "headings": [], "paragraphs": [], "lists": []}
+        title = soup.find("title")
+        result["title"] = title.get_text(strip=True) if title else ""
+        desc = soup.find("meta", {"name": "description"})
+        result["description"] = desc.get("content", "") if desc else ""
+        for h in soup.find_all(["h1", "h2", "h3", "h4"]):
+            result["headings"].append({"level": h.name, "text": h.get_text(strip=True)})
+        for p in soup.find_all("p"):
+            text = p.get_text(strip=True)
+            if len(text) > 20:
+                result["paragraphs"].append(text[:500])
+        for ul in soup.find_all(["ul", "ol"]):
+            items = [li.get_text(strip=True)[:200] for li in ul.find_all("li")]
+            if items:
+                result["lists"].append(items[:20])
+        return {"url": req.url, "structured": result}
+
+    return {"error": "Invalid extract type. Use: text, links, images, metadata, structured"}
+
+
+class CodeAnalyzeRequest(BaseModel):
+    code: str
+    language: str = "auto"
+
+
+@app.post("/api/code/analyze")
+async def code_analyze(req: CodeAnalyzeRequest):
+    """Analyze code: detect language, count lines, find functions/classes, measure complexity."""
+    code = req.code
+    lines = code.split("\n")
+    total_lines = len(lines)
+    blank_lines = sum(1 for l in lines if not l.strip())
+    comment_lines = sum(1 for l in lines if l.strip().startswith(("#", "//", "/*", "*", "<!--")))
+    code_lines = total_lines - blank_lines - comment_lines
+
+    # Detect language
+    lang = req.language.lower() if req.language != "auto" else "unknown"
+    if lang == "unknown":
+        if "def " in code and "import " in code:
+            lang = "python"
+        elif "function " in code or "const " in code or "=>" in code:
+            lang = "javascript"
+        elif "func " in code and "package " in code:
+            lang = "go"
+        elif "fn " in code and "let " in code:
+            lang = "rust"
+        elif "class " in code and "public " in code:
+            lang = "java"
+        elif "struct " in code and "#include" in code:
+            lang = "c/c++"
+        elif "<html" in code.lower() or "<!doctype" in code.lower():
+            lang = "html"
+
+    # Extract functions/classes
+    functions = []
+    classes = []
+    imports = []
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if lang == "python":
+            if stripped.startswith("def "):
+                name = stripped.split("(")[0].replace("def ", "")
+                functions.append({"name": name, "line": i + 1})
+            elif stripped.startswith("class "):
+                name = stripped.split("(")[0].split(":")[0].replace("class ", "")
+                classes.append({"name": name, "line": i + 1})
+            elif stripped.startswith("import ") or stripped.startswith("from "):
+                imports.append(stripped)
+        elif lang in ("javascript", "typescript"):
+            if "function " in stripped:
+                match = re.search(r"function\s+(\w+)", stripped)
+                if match:
+                    functions.append({"name": match.group(1), "line": i + 1})
+            elif stripped.startswith("class "):
+                match = re.search(r"class\s+(\w+)", stripped)
+                if match:
+                    classes.append({"name": match.group(1), "line": i + 1})
+            elif stripped.startswith("import "):
+                imports.append(stripped)
+        elif lang == "go":
+            if stripped.startswith("func "):
+                match = re.search(r"func\s+(?:\([^)]+\)\s+)?(\w+)", stripped)
+                if match:
+                    functions.append({"name": match.group(1), "line": i + 1})
+
+    # Complexity estimate (based on branching)
+    branches = sum(1 for l in lines if any(kw in l for kw in ["if ", "elif ", "else:", "for ", "while ", "switch ", "case ", "catch "]))
+
+    return {
+        "language": lang,
+        "metrics": {
+            "total_lines": total_lines,
+            "code_lines": code_lines,
+            "blank_lines": blank_lines,
+            "comment_lines": comment_lines,
+            "avg_line_length": round(sum(len(l) for l in lines) / max(total_lines, 1), 1),
+            "max_line_length": max(len(l) for l in lines) if lines else 0,
+        },
+        "structure": {
+            "functions": functions[:50],
+            "classes": classes[:50],
+            "imports": imports[:30],
+            "function_count": len(functions),
+            "class_count": len(classes),
+        },
+        "complexity": {
+            "branch_count": branches,
+            "estimated_cyclomatic": branches + 1,
+            "nesting_depth": max((len(l) - len(l.lstrip())) // 4 for l in lines if l.strip()) if lines else 0,
+        },
+    }
+
+
+class SchemaGenRequest(BaseModel):
+    data: str
+    format: str = "typescript"  # typescript, python, zod, jsonschema
+
+
+@app.post("/api/schema/generate")
+async def schema_generate(req: SchemaGenRequest):
+    """Generate type definitions from JSON data. Supports TypeScript, Python, Zod, JSON Schema."""
+    try:
+        data = json.loads(req.data)
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON: {e}")
+
+    def infer_type(value, name="Root", depth=0):
+        if isinstance(value, bool):
+            return {"type": "boolean", "ts": "boolean", "py": "bool", "zod": "z.boolean()"}
+        elif isinstance(value, int):
+            return {"type": "integer", "ts": "number", "py": "int", "zod": "z.number().int()"}
+        elif isinstance(value, float):
+            return {"type": "number", "ts": "number", "py": "float", "zod": "z.number()"}
+        elif isinstance(value, str):
+            return {"type": "string", "ts": "string", "py": "str", "zod": "z.string()"}
+        elif value is None:
+            return {"type": "null", "ts": "null", "py": "None", "zod": "z.null()"}
+        elif isinstance(value, list):
+            if not value:
+                return {"type": "array", "ts": "any[]", "py": "list", "zod": "z.array(z.any())"}
+            item_type = infer_type(value[0], name + "Item", depth + 1)
+            return {"type": "array", "ts": f"{item_type['ts']}[]", "py": f"list[{item_type['py']}]", "zod": f"z.array({item_type['zod']})"}
+        elif isinstance(value, dict):
+            fields = {}
+            for k, v in value.items():
+                fields[k] = infer_type(v, k.title().replace("_", ""), depth + 1)
+            return {"type": "object", "fields": fields, "name": name}
+        return {"type": "unknown", "ts": "any", "py": "Any", "zod": "z.any()"}
+
+    schema = infer_type(data)
+
+    if req.format == "typescript":
+        def to_ts(s, indent=0):
+            if s["type"] == "object":
+                lines = [f"{'  ' * indent}interface {s.get('name', 'Root')} {{"]
+                for k, v in s.get("fields", {}).items():
+                    if v["type"] == "object":
+                        lines.append(f"{'  ' * (indent+1)}{k}: {{")
+                        for k2, v2 in v.get("fields", {}).items():
+                            lines.append(f"{'  ' * (indent+2)}{k2}: {v2.get('ts', 'any')};")
+                        lines.append(f"{'  ' * (indent+1)}}};")
+                    else:
+                        lines.append(f"{'  ' * (indent+1)}{k}: {v.get('ts', 'any')};")
+                lines.append(f"{'  ' * indent}}}")
+                return "\n".join(lines)
+            return f"type Root = {s.get('ts', 'any')};"
+        output = to_ts(schema)
+    elif req.format == "python":
+        def to_py(s, indent=0):
+            if s["type"] == "object":
+                lines = [f"{'  ' * indent}class {s.get('name', 'Root')}(BaseModel):"]
+                for k, v in s.get("fields", {}).items():
+                    if v["type"] == "object":
+                        lines.append(to_py(v, indent + 1))
+                        lines.append(f"{'  ' * (indent+1)}{k}: {v.get('name', 'Dict')}")
+                    else:
+                        lines.append(f"{'  ' * (indent+1)}{k}: {v.get('py', 'Any')}")
+                return "\n".join(lines)
+            return f"Root = {s.get('py', 'Any')}"
+        output = "from pydantic import BaseModel\n\n" + to_py(schema)
+    elif req.format == "zod":
+        def to_zod(s):
+            if s["type"] == "object":
+                fields = []
+                for k, v in s.get("fields", {}).items():
+                    if v["type"] == "object":
+                        fields.append(f"  {k}: {to_zod(v)}")
+                    else:
+                        fields.append(f"  {k}: {v.get('zod', 'z.any()')}")
+                return "z.object({\n" + ",\n".join(fields) + "\n})"
+            return s.get("zod", "z.any()")
+        output = f'import {{ z }} from "zod";\n\nconst Schema = {to_zod(schema)};'
+    else:
+        # JSON Schema
+        def to_jsonschema(s):
+            if s["type"] == "object":
+                props = {}
+                required = []
+                for k, v in s.get("fields", {}).items():
+                    if v["type"] == "object":
+                        props[k] = to_jsonschema(v)
+                    elif v["type"] == "array":
+                        props[k] = {"type": "array"}
+                    else:
+                        props[k] = {"type": v["type"]}
+                    required.append(k)
+                return {"type": "object", "properties": props, "required": required}
+            return {"type": s["type"]}
+        output = json.dumps(to_jsonschema(schema), indent=2)
+
+    return {"schema": output, "format": req.format, "detected_type": schema["type"]}
+
+
+class PromptTemplateRequest(BaseModel):
+    template: str
+    variables: dict = {}
+    system: str = ""
+
+
+@app.post("/api/prompt/build")
+async def prompt_build(req: PromptTemplateRequest):
+    """Build structured prompts for LLMs. Supports variable substitution, system/user separation, and template rendering."""
+    prompt = req.template
+    for key, value in req.variables.items():
+        prompt = prompt.replace(f"{{{{{key}}}}}", str(value))
+        prompt = prompt.replace(f"${{{key}}}", str(value))
+
+    # Count tokens (rough estimate: 1 token per 4 chars)
+    total_chars = len(prompt) + len(req.system)
+    estimated_tokens = total_chars // 4
+
+    messages = []
+    if req.system:
+        system = req.system
+        for key, value in req.variables.items():
+            system = system.replace(f"{{{{{key}}}}}", str(value))
+            system = system.replace(f"${{{key}}}", str(value))
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
+    return {
+        "messages": messages,
+        "prompt": prompt,
+        "system": messages[0]["content"] if req.system else None,
+        "estimated_tokens": estimated_tokens,
+        "variables_used": list(req.variables.keys()),
+    }
+
+
+class ApiTestRequest(BaseModel):
+    url: str
+    method: str = "GET"
+    headers: dict = {}
+    body: str = ""
+    timeout: int = 10
+
+
+@app.post("/api/test/endpoint")
+async def test_endpoint(req: ApiTestRequest):
+    """Test any API endpoint and get detailed response metrics. Useful for monitoring, debugging, and validation."""
+    start = time.time()
+    try:
+        async with httpx.AsyncClient(timeout=req.timeout, follow_redirects=True) as client:
+            kwargs = {"headers": req.headers}
+            if req.body:
+                kwargs["content"] = req.body
+                if "Content-Type" not in req.headers:
+                    kwargs["headers"]["Content-Type"] = "application/json"
+
+            resp = await getattr(client, req.method.lower())(req.url, **kwargs)
+            elapsed = round((time.time() - start) * 1000, 2)
+
+            # Try to parse response
+            content_type = resp.headers.get("content-type", "")
+            body = resp.text[:5000]
+            is_json = False
+            try:
+                body = resp.json()
+                is_json = True
+            except Exception:
+                pass
+
+            return {
+                "url": req.url,
+                "method": req.method,
+                "status_code": resp.status_code,
+                "response_time_ms": elapsed,
+                "headers": dict(resp.headers),
+                "body": body,
+                "is_json": is_json,
+                "content_length": len(resp.content),
+                "content_type": content_type,
+                "redirected": len(resp.history) > 0,
+                "redirect_count": len(resp.history),
+            }
+    except httpx.TimeoutException:
+        elapsed = round((time.time() - start) * 1000, 2)
+        return {"url": req.url, "error": "timeout", "response_time_ms": elapsed}
+    except Exception as e:
+        elapsed = round((time.time() - start) * 1000, 2)
+        return {"url": req.url, "error": str(e), "response_time_ms": elapsed}
+
+
+class CompareTextRequest(BaseModel):
+    text1: str
+    text2: str
+
+
+@app.post("/api/text/similarity")
+async def text_similarity(req: CompareTextRequest):
+    """Calculate text similarity using multiple algorithms: Jaccard, cosine (word-level), Levenshtein ratio."""
+    words1 = set(req.text1.lower().split())
+    words2 = set(req.text2.lower().split())
+
+    # Jaccard similarity
+    intersection = words1 & words2
+    union = words1 | words2
+    jaccard = len(intersection) / len(union) if union else 0
+
+    # Cosine similarity (word frequency)
+    all_words = list(union)
+    freq1 = [req.text1.lower().split().count(w) for w in all_words]
+    freq2 = [req.text2.lower().split().count(w) for w in all_words]
+    dot = sum(a * b for a, b in zip(freq1, freq2))
+    mag1 = sum(a * a for a in freq1) ** 0.5
+    mag2 = sum(b * b for b in freq2) ** 0.5
+    cosine = dot / (mag1 * mag2) if mag1 and mag2 else 0
+
+    # Levenshtein ratio (character level, limited to avoid O(n^2) on huge texts)
+    s1 = req.text1[:1000]
+    s2 = req.text2[:1000]
+    len1, len2 = len(s1), len(s2)
+    if max(len1, len2) == 0:
+        lev_ratio = 1.0
+    else:
+        # Simple ratio based on common prefix/suffix + length
+        common = sum(1 for a, b in zip(s1, s2) if a == b)
+        lev_ratio = common / max(len1, len2)
+
+    return {
+        "jaccard_similarity": round(jaccard, 4),
+        "cosine_similarity": round(cosine, 4),
+        "character_similarity": round(lev_ratio, 4),
+        "average_similarity": round((jaccard + cosine + lev_ratio) / 3, 4),
+        "common_words": sorted(list(intersection))[:50],
+        "unique_to_text1": sorted(list(words1 - words2))[:50],
+        "unique_to_text2": sorted(list(words2 - words1))[:50],
+    }
+
+
 # --- APIs.json for API discovery ---
 
 @app.get("/apis.json")

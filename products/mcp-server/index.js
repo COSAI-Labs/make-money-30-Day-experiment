@@ -798,6 +798,107 @@ server.tool(
   }
 );
 
+// --- New High-Value Tools (v1.4.0) ---
+
+server.tool(
+  "web_extract",
+  "Extract content from any web page: text, links, images, metadata, or structured data.",
+  {
+    url: z.string().describe("URL to extract content from"),
+    extract: z.string().optional().describe("What to extract: text, links, images, metadata, structured (default: text)"),
+  },
+  async ({ url, extract }) => {
+    const result = await apiCall("/api/web/extract", {
+      method: "POST",
+      body: JSON.stringify({ url, extract: extract || "text" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "code_analyze",
+  "Analyze code: detect language, count lines, find functions/classes, measure complexity.",
+  {
+    code: z.string().describe("Source code to analyze"),
+    language: z.string().optional().describe("Language hint (auto-detected if omitted)"),
+  },
+  async ({ code, language }) => {
+    const result = await apiCall("/api/code/analyze", {
+      method: "POST",
+      body: JSON.stringify({ code, language: language || "auto" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "schema_generate",
+  "Generate type definitions from JSON. Supports TypeScript, Python (Pydantic), Zod, JSON Schema.",
+  {
+    data: z.string().describe("JSON data to generate schema from"),
+    format: z.string().optional().describe("Output format: typescript, python, zod, jsonschema (default: typescript)"),
+  },
+  async ({ data, format }) => {
+    const result = await apiCall("/api/schema/generate", {
+      method: "POST",
+      body: JSON.stringify({ data, format: format || "typescript" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "prompt_build",
+  "Build structured LLM prompts with variable substitution and system/user message formatting.",
+  {
+    template: z.string().describe("Prompt template with {{variable}} placeholders"),
+    variables: z.record(z.string()).optional().describe("Variables to substitute into template"),
+    system: z.string().optional().describe("System message template"),
+  },
+  async ({ template, variables, system }) => {
+    const result = await apiCall("/api/prompt/build", {
+      method: "POST",
+      body: JSON.stringify({ template, variables: variables || {}, system: system || "" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "test_endpoint",
+  "Test any API endpoint: send requests and get detailed response metrics, timing, and body.",
+  {
+    url: z.string().describe("URL to test"),
+    method: z.string().optional().describe("HTTP method (default: GET)"),
+    headers: z.record(z.string()).optional().describe("Request headers"),
+    body: z.string().optional().describe("Request body (for POST/PUT)"),
+  },
+  async ({ url, method, headers, body }) => {
+    const result = await apiCall("/api/test/endpoint", {
+      method: "POST",
+      body: JSON.stringify({ url, method: method || "GET", headers: headers || {}, body: body || "" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_similarity",
+  "Calculate text similarity using Jaccard, cosine, and character-level algorithms.",
+  {
+    text1: z.string().describe("First text"),
+    text2: z.string().describe("Second text"),
+  },
+  async ({ text1, text2 }) => {
+    const result = await apiCall("/api/text/similarity", {
+      method: "POST",
+      body: JSON.stringify({ text1, text2 }),
+    });
+    return textResult(result);
+  }
+);
+
 // --- Start Server ---
 
 async function main() {
