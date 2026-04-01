@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is It Down? Free Website Status Checker | ToolPipe</title>
+    <meta name="description" content="Check if a website is down for everyone or just you. Free, instant website status checker. No signup required. Test any URL in seconds.">
+    <meta name="keywords" content="is it down, website down checker, site status, is website down, down for everyone, downdetector alternative">
+    <meta property="og:title" content="Is It Down? Free Website Status Checker">
+    <meta property="og:description" content="Check if a website is down for everyone or just you. Instant results.">
+    <link rel="canonical" href="/down">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 3rem 2rem; text-align: center; }
+        .header h1 { font-size: 2.5rem; color: #fff; margin-bottom: 0.5rem; }
+        .header p { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto; }
+        .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
+        .check-form { display: flex; gap: 0.75rem; margin-bottom: 2rem; }
+        .check-form input { flex: 1; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.9rem 1.2rem; border-radius: 10px; font-size: 1.1rem; }
+        .check-form input:focus { outline: none; border-color: #3b82f6; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.9rem 2rem; border-radius: 10px; font-size: 1.1rem; cursor: pointer; font-weight: 600; white-space: nowrap; }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { opacity: 0.5; }
+        .result { border-radius: 12px; padding: 2rem; margin-bottom: 2rem; display: none; text-align: center; }
+        .result.active { display: block; }
+        .result.up { background: #0a2e0a; border: 1px solid #22c55e; }
+        .result.down { background: #2e0a0a; border: 1px solid #ef4444; }
+        .result .status-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+        .result h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .result.up h2 { color: #22c55e; }
+        .result.down h2 { color: #ef4444; }
+        .result p { color: #94a3b8; }
+        .details { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; display: none; }
+        .details.active { display: block; }
+        .detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #1a1a1a; }
+        .detail-row:last-child { border: none; }
+        .detail-row .label { color: #64748b; }
+        .detail-row .value { color: #e0e0e0; font-weight: 500; }
+        .recent-checks { margin-top: 2rem; }
+        .recent-checks h3 { color: #fff; font-size: 1rem; margin-bottom: 0.75rem; }
+        .recent-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
+        .recent-item:hover { background: #111; margin: 0 -0.5rem; padding: 0.5rem; border-radius: 6px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .status-dot.up { background: #22c55e; }
+        .status-dot.down { background: #ef4444; }
+        .recent-item .domain { color: #e0e0e0; flex: 1; }
+        .recent-item .time { color: #64748b; font-size: 0.8rem; }
+        .loading { display: none; text-align: center; padding: 2rem; }
+        .loading.active { display: block; }
+        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #2a2a2a; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+        .seo { max-width: 700px; margin: 2rem auto; padding: 0 2rem; }
+        .seo h2 { color: #fff; margin: 2rem 0 0.5rem; font-size: 1.2rem; }
+        .seo p { color: #94a3b8; line-height: 1.7; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Is It Down?</h1>
+        <p>Check if a website is down for everyone or just you.</p>
+    </div>
+
+    <div class="container">
+        <div class="check-form">
+            <input type="text" id="urlInput" placeholder="Enter a website URL (e.g. google.com)" autofocus>
+            <button class="btn" id="checkBtn" onclick="checkSite()">Check</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="color:#94a3b8; margin-top:1rem;">Checking website status...</p>
+        </div>
+
+        <div class="result" id="result">
+            <div class="status-icon" id="statusIcon"></div>
+            <h2 id="statusText"></h2>
+            <p id="statusDetail"></p>
+        </div>
+
+        <div class="details" id="details">
+            <div class="detail-row"><span class="label">URL</span><span class="value" id="detailUrl"></span></div>
+            <div class="detail-row"><span class="label">Status Code</span><span class="value" id="detailStatus"></span></div>
+            <div class="detail-row"><span class="label">Response Time</span><span class="value" id="detailTime"></span></div>
+            <div class="detail-row"><span class="label">IP Address</span><span class="value" id="detailIp"></span></div>
+            <div class="detail-row"><span class="label">Checked At</span><span class="value" id="detailChecked"></span></div>
+        </div>
+
+        <div class="recent-checks" id="recentChecks" style="display:none;">
+            <h3>Recent Checks</h3>
+            <div id="recentList"></div>
+        </div>
+    </div>
+
+    <div class="seo">
+        <h2>Free Website Down Checker</h2>
+        <p>Is a website down, or is it just your connection? Our free tool checks any website's status from our servers, so you can tell if the problem is on your end or theirs.</p>
+        <h2>How It Works</h2>
+        <p>Enter any URL and we'll attempt to connect to it from our server. We check the HTTP response code, measure response time, and resolve the domain's IP address. If the site responds with a 2xx or 3xx status code, it's up. If we get a timeout, connection error, or 5xx error, it's likely down.</p>
+        <h2>Common Reasons Websites Go Down</h2>
+        <p>Server overload, DNS issues, expired SSL certificates, DDoS attacks, hosting provider outages, or scheduled maintenance. If a site is down for everyone, the issue is on their end. If it's just you, try clearing your DNS cache, checking your internet connection, or using a VPN.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/monitor">Uptime Monitor</a> | <a href="/tools">Developer Tools</a> | <a href="/docs">API Docs</a></p>
+    </footer>
+
+    <script>
+    const recentChecks = JSON.parse(localStorage.getItem('recentChecks') || '[]');
+
+    function renderRecent() {
+        if (recentChecks.length === 0) return;
+        document.getElementById('recentChecks').style.display = 'block';
+        document.getElementById('recentList').innerHTML = recentChecks.slice(0, 10).map(c =>
+            `<div class="recent-item" onclick="document.getElementById('urlInput').value='${esc(c.domain)}';checkSite()">
+                <div class="status-dot ${c.up ? 'up' : 'down'}"></div>
+                <span class="domain">${esc(c.domain)}</span>
+                <span class="time">${c.time}</span>
+            </div>`
+        ).join('');
+    }
+
+    async function checkSite() {
+        let url = document.getElementById('urlInput').value.trim();
+        if (!url) return;
+        if (!url.match(/^https?:\/\//)) url = 'https://' + url;
+
+        document.getElementById('loading').classList.add('active');
+        document.getElementById('result').classList.remove('active');
+        document.getElementById('details').classList.remove('active');
+        document.getElementById('checkBtn').disabled = true;
+
+        try {
+            const resp = await fetch('/down/check?url=' + encodeURIComponent(url));
+            const data = await resp.json();
+
+            const result = document.getElementById('result');
+            result.classList.remove('up', 'down');
+
+            if (data.is_up) {
+                result.classList.add('up', 'active');
+                document.getElementById('statusIcon').textContent = '';
+                document.getElementById('statusText').textContent = data.domain + ' is UP';
+                document.getElementById('statusDetail').textContent = 'The website is reachable and responding normally.';
+            } else {
+                result.classList.add('down', 'active');
+                document.getElementById('statusIcon').textContent = '';
+                document.getElementById('statusText').textContent = data.domain + ' appears DOWN';
+                document.getElementById('statusDetail').textContent = data.error || 'The website is not responding.';
+            }
+
+            document.getElementById('detailUrl').textContent = data.url;
+            document.getElementById('detailStatus').textContent = data.status_code || 'N/A';
+            document.getElementById('detailTime').textContent = data.response_time_ms ? data.response_time_ms + 'ms' : 'N/A';
+            document.getElementById('detailIp').textContent = data.ip || 'N/A';
+            document.getElementById('detailChecked').textContent = new Date().toLocaleString();
+            document.getElementById('details').classList.add('active');
+
+            // Save to recent
+            recentChecks.unshift({
+                domain: data.domain,
+                up: data.is_up,
+                time: new Date().toLocaleTimeString(),
+            });
+            if (recentChecks.length > 20) recentChecks.length = 20;
+            localStorage.setItem('recentChecks', JSON.stringify(recentChecks));
+            renderRecent();
+        } catch (e) {
+            alert('Error checking website: ' + e.message);
+        } finally {
+            document.getElementById('loading').classList.remove('active');
+            document.getElementById('checkBtn').disabled = false;
+        }
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkSite(); });
+    renderRecent();
+    </script>
+</body>
+</html>

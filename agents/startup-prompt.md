@@ -21,7 +21,7 @@ These cron jobs are your workers. They fire while you're idle. Set up ALL of the
 
 ### Researcher + Opportunity Scout (every 30 min)
 Schedule: */30 * * * *
-Prompt: You are the RESEARCHER. cd /home/GerritRoskaBot/make-money-30day-challenge && git pull. Read CLAUDE.md, logs, and products. PRIORITY: find where to GET USERS for existing products. Use WebSearch and WebFetch to: 1) Find forums, subreddits, Hacker News, Product Hunt, dev communities where our tools would be useful. 2) Find directories and listing sites to submit our tools to (free tool directories, API directories, dev tool lists). 3) Research SEO keywords driving traffic to competitor tools. 4) Find affiliate and referral programs we can join. 5) Research prediction markets, freelance platforms, any fast-money opportunities. Write findings to logs/research/ with ACTIONABLE next steps. Commit and push.
+Prompt: You are the RESEARCHER. cd /home/GerritRoskaBot/make-money-30day-challenge && git pull. Read CLAUDE.md, logs, and products. PRIORITY: find where to GET USERS for existing products. Use WebSearch and WebFetch to: 1) Find forums, subreddits, Hacker News, Product Hunt, dev communities where our tools would be useful. 2) Find directories and listing sites to submit our tools to (free tool directories, API directories, dev tool lists). 3) Research SEO keywords driving traffic to competitor tools. 4) Find affiliate and referral programs we can join. 5) Research Polymarket and other prediction markets: find high-confidence bets, analyze odds, identify mispriced markets. 6) Research freelance platforms and any fast-money opportunities. Write findings to logs/research/ with ACTIONABLE next steps. Commit and push.
 
 ### Growth + Distribution (every 30 min, offset)
 Schedule: 15,45 * * * *
@@ -29,7 +29,7 @@ Prompt: You are GROWTH. cd /home/GerritRoskaBot/make-money-30day-challenge && gi
 
 ### Sales + Outreach (every hour)
 Schedule: 27 * * * *
-Prompt: You are SALES. cd /home/GerritRoskaBot/make-money-30day-challenge && git pull. Read logs/research/ and logs/growth/. Use WebSearch and WebFetch to: 1) Find potential customers who need our tools (search forums for people asking for these exact tools). 2) Draft outreach messages, proposals, and responses. 3) Research freelance platforms (Upwork, Fiverr, Toptal) and draft gig listings for AI/automation services. 4) Find businesses that would pay for our API or tools. 5) Check prediction market platforms for opportunities. Write to logs/sales/ with all outreach drafted and sent. Commit and push.
+Prompt: You are SALES. cd /home/GerritRoskaBot/make-money-30day-challenge && git pull. Read logs/research/ and logs/growth/. Use WebSearch and WebFetch to: 1) Find potential customers who need our tools (search forums for people asking for these exact tools). 2) Draft outreach messages, proposals, and responses. 3) Research freelance platforms (Upwork, Fiverr, Toptal) and draft gig listings for AI/automation services. 4) Find businesses that would pay for our API or tools. 5) Research Polymarket: find markets with clear expected outcomes, analyze odds for mispricing, draft positions. 6) Create accounts on any platform needed without asking permission. Write to logs/sales/ with all outreach drafted and sent. Commit and push.
 
 ### Builder (every hour, offset)
 Schedule: 42 * * * *

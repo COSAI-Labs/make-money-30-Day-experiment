@@ -83,6 +83,7 @@ PDF_HTML = Path(__file__).parent.parent / "pdf-tools" / "index.html"
 WEBHOOK_HTML = Path(__file__).parent.parent / "webhook-tester" / "index.html"
 SHORTENER_HTML = Path(__file__).parent.parent / "url-shortener" / "index.html"
 PASTE_HTML = Path(__file__).parent.parent / "pastebin" / "index.html"
+DOWN_HTML = Path(__file__).parent.parent / "downdetector" / "index.html"
 SEO_PAGES_DIR = Path(__file__).parent.parent / "seo-pages"
 
 # Import external modules
@@ -789,7 +790,7 @@ async def analyze_seo(url: str = Query(...)):
 async def sitemap():
     base = "http://187.77.213.192:8081"
     urls = [
-        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/docs",
+        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/down", "/docs",
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
         "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
     ]
@@ -1288,6 +1289,64 @@ async def view_paste(paste_id: str):
     if PASTE_HTML.exists():
         return HTMLResponse(PASTE_HTML.read_text())
     raise HTTPException(status_code=404, detail="Paste not found.")
+
+
+# --- Down Checker ---
+
+@app.get("/down", response_class=HTMLResponse)
+async def down_page():
+    if DOWN_HTML.exists():
+        return HTMLResponse(DOWN_HTML.read_text())
+    return HTMLResponse("<h1>Down Checker coming soon</h1>")
+
+
+@app.get("/down/check")
+async def check_down(url: str = Query(...)):
+    import socket
+    parsed = urlparse(url)
+    if not parsed.scheme:
+        url = "https://" + url
+        parsed = urlparse(url)
+
+    domain = parsed.netloc or parsed.path.split("/")[0]
+    if not domain:
+        raise HTTPException(status_code=400, detail="Invalid URL.")
+
+    # DNS lookup
+    ip = None
+    try:
+        results = socket.getaddrinfo(domain, None)
+        ip = results[0][4][0] if results else None
+    except Exception:
+        pass
+
+    # HTTP check
+    start = time.time()
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url, headers={"User-Agent": "ToolPipe-DownChecker/1.0"})
+        elapsed_ms = int((time.time() - start) * 1000)
+        is_up = resp.status_code < 500
+        return {
+            "url": str(resp.url),
+            "domain": domain,
+            "is_up": is_up,
+            "status_code": resp.status_code,
+            "response_time_ms": elapsed_ms,
+            "ip": ip,
+            "error": None,
+        }
+    except Exception as e:
+        elapsed_ms = int((time.time() - start) * 1000)
+        return {
+            "url": url,
+            "domain": domain,
+            "is_up": False,
+            "status_code": None,
+            "response_time_ms": elapsed_ms,
+            "ip": ip,
+            "error": str(e),
+        }
 
 
 # --- SEO Pages (catch-all for static content pages) ---
