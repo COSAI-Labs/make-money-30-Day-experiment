@@ -3767,10 +3767,10 @@ async def mcp_info():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe MCP Server",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "protocol": "MCP (Model Context Protocol)",
         "transport": "Streamable HTTP",
-        "tools": 34,
+        "tools": 51,
         "endpoint": "/mcp",
         "remote_url": f"{base}/mcp",
         "setup": {
@@ -3795,7 +3795,7 @@ async def api_info():
         "name": "ToolPipe API",
         "version": "1.2.0",
         "base_url": base,
-        "total_endpoints": 82,
+        "total_endpoints": 92,
         "mcp_server": f"{base}/mcp",
         "docs": f"{base}/docs",
         "pricing": f"{base}/pricing",
@@ -3839,6 +3839,480 @@ async def api_info():
             "enterprise": {"price": "$49.99/mo", "daily_limit": 100000}
         }
     }
+
+
+# --- NEW: AI Agent Utility Endpoints ---
+
+
+class JSONPathRequest(BaseModel):
+    json_data: str
+    path: str
+
+
+@app.post("/api/json/query")
+async def json_query(req: JSONPathRequest):
+    """Query JSON data using dot-notation paths (e.g., 'users[0].name', 'items.*.price')."""
+    try:
+        data = json.loads(req.json_data)
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON: {e}")
+
+    def resolve_path(obj, path_parts):
+        if not path_parts:
+            return [obj]
+        part = path_parts[0]
+        rest = path_parts[1:]
+        results = []
+        if part == "*":
+            if isinstance(obj, dict):
+                for v in obj.values():
+                    results.extend(resolve_path(v, rest))
+            elif isinstance(obj, list):
+                for item in obj:
+                    results.extend(resolve_path(item, rest))
+        elif "[" in part and part.endswith("]"):
+            key = part[:part.index("[")]
+            idx = int(part[part.index("[") + 1:-1])
+            target = obj.get(key, obj) if isinstance(obj, dict) and key else obj
+            if isinstance(target, list) and 0 <= idx < len(target):
+                results.extend(resolve_path(target[idx], rest))
+        else:
+            if isinstance(obj, dict) and part in obj:
+                results.extend(resolve_path(obj[part], rest))
+        return results
+
+    parts = req.path.replace("[", ".[").split(".")
+    parts = [p for p in parts if p]
+    matches = resolve_path(data, parts)
+    return {"path": req.path, "matches": matches, "count": len(matches)}
+
+
+class TemplateRequest(BaseModel):
+    template: str
+    variables: dict
+
+
+@app.post("/api/template/render")
+async def template_render(req: TemplateRequest):
+    """Render a text template with variable substitution. Uses {{variable}} syntax."""
+    result = req.template
+    for key, value in req.variables.items():
+        result = result.replace("{{" + key + "}}", str(value))
+    unreplaced = re.findall(r'\{\{(\w+)\}\}', result)
+    return {
+        "rendered": result,
+        "variables_used": list(req.variables.keys()),
+        "unreplaced": unreplaced,
+    }
+
+
+class FakeDataRequest(BaseModel):
+    type: str = "person"
+    count: int = 1
+    locale: str = "en"
+
+
+@app.post("/api/fake/generate")
+async def fake_data(req: FakeDataRequest):
+    """Generate fake/mock data for testing. Types: person, address, company, email, phone, credit_card, uuid, date, sentence, paragraph, product, url."""
+    import random
+    import string
+
+    first_names = ["James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda", "David", "Elizabeth", "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Christopher", "Karen"]
+    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"]
+    streets = ["Main St", "Oak Ave", "Cedar Ln", "Elm Dr", "Pine Rd", "Maple Ct", "Birch Way", "1st Ave", "2nd St", "Park Blvd"]
+    cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "Austin"]
+    domains = ["gmail.com", "yahoo.com", "outlook.com", "protonmail.com", "example.com", "test.io", "dev.co"]
+    companies = ["Acme Corp", "Globex", "Initech", "Umbrella Corp", "Stark Industries", "Wayne Enterprises", "Cyberdyne", "Soylent Corp", "Weyland-Yutani", "Tyrell Corp"]
+    tlds = [".com", ".io", ".dev", ".co", ".org", ".net", ".app"]
+    products = ["Widget", "Gadget", "Gizmo", "Doohickey", "Thingamajig", "Device", "Module", "Component", "System", "Platform"]
+    adjectives = ["Premium", "Ultra", "Pro", "Smart", "Nano", "Mega", "Super", "Quantum", "Hyper", "Elite"]
+
+    count = max(1, min(req.count, 100))
+    results = []
+
+    for _ in range(count):
+        first = random.choice(first_names)
+        last = random.choice(last_names)
+        if req.type == "person":
+            results.append({
+                "first_name": first, "last_name": last,
+                "email": f"{first.lower()}.{last.lower()}@{random.choice(domains)}",
+                "phone": f"+1-{random.randint(200,999)}-{random.randint(100,999)}-{random.randint(1000,9999)}",
+                "age": random.randint(18, 85),
+                "job": random.choice(["Engineer", "Designer", "Manager", "Analyst", "Developer", "Consultant", "Director", "Scientist"]),
+            })
+        elif req.type == "address":
+            results.append({
+                "street": f"{random.randint(100,9999)} {random.choice(streets)}",
+                "city": random.choice(cities),
+                "state": random.choice(["CA", "NY", "TX", "FL", "IL", "PA", "OH", "GA", "NC", "MI"]),
+                "zip": f"{random.randint(10000, 99999)}",
+                "country": "US",
+            })
+        elif req.type == "company":
+            results.append({
+                "name": random.choice(companies),
+                "industry": random.choice(["Technology", "Finance", "Healthcare", "Education", "Retail", "Manufacturing"]),
+                "employees": random.randint(10, 100000),
+                "founded": random.randint(1950, 2024),
+                "website": f"https://www.{random.choice(companies).lower().replace(' ', '')}{random.choice(tlds)}",
+            })
+        elif req.type == "email":
+            results.append(f"{first.lower()}.{last.lower()}{random.randint(1,999)}@{random.choice(domains)}")
+        elif req.type == "phone":
+            results.append(f"+1-{random.randint(200,999)}-{random.randint(100,999)}-{random.randint(1000,9999)}")
+        elif req.type == "credit_card":
+            results.append({
+                "number": f"4{''.join(str(random.randint(0,9)) for _ in range(15))}",
+                "expiry": f"{random.randint(1,12):02d}/{random.randint(25,30)}",
+                "cvv": f"{random.randint(100,999)}",
+                "type": random.choice(["Visa", "Mastercard", "Amex"]),
+            })
+        elif req.type == "uuid":
+            results.append(str(uuid.uuid4()))
+        elif req.type == "date":
+            y = random.randint(2000, 2026)
+            m = random.randint(1, 12)
+            d = random.randint(1, 28)
+            results.append(f"{y}-{m:02d}-{d:02d}")
+        elif req.type == "product":
+            results.append({
+                "name": f"{random.choice(adjectives)} {random.choice(products)}",
+                "price": round(random.uniform(4.99, 999.99), 2),
+                "sku": "".join(random.choices(string.ascii_uppercase + string.digits, k=8)),
+                "category": random.choice(["Electronics", "Software", "Hardware", "Accessories", "Services"]),
+                "in_stock": random.choice([True, True, True, False]),
+            })
+        elif req.type == "url":
+            results.append(f"https://{''.join(random.choices(string.ascii_lowercase, k=random.randint(5,12)))}{random.choice(tlds)}/{'/'.join(''.join(random.choices(string.ascii_lowercase, k=random.randint(3,8))) for _ in range(random.randint(1,3)))}")
+        else:
+            words = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua".split()
+            if req.type == "sentence":
+                s = " ".join(random.choice(words) for _ in range(random.randint(8, 20)))
+                results.append(s[0].upper() + s[1:] + ".")
+            elif req.type == "paragraph":
+                sentences = []
+                for _ in range(random.randint(3, 8)):
+                    s = " ".join(random.choice(words) for _ in range(random.randint(8, 20)))
+                    sentences.append(s[0].upper() + s[1:] + ".")
+                results.append(" ".join(sentences))
+            else:
+                results.append(str(uuid.uuid4()))
+
+    return {"type": req.type, "count": len(results), "data": results if count > 1 else results[0]}
+
+
+class SchemaGenRequest(BaseModel):
+    json_data: str
+
+
+@app.post("/api/json/to-schema")
+async def json_to_schema(req: SchemaGenRequest):
+    """Generate a JSON Schema from example JSON data. Useful for API documentation and validation."""
+    try:
+        data = json.loads(req.json_data)
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON: {e}")
+
+    def infer_schema(obj):
+        if obj is None:
+            return {"type": "null"}
+        if isinstance(obj, bool):
+            return {"type": "boolean"}
+        if isinstance(obj, int):
+            return {"type": "integer"}
+        if isinstance(obj, float):
+            return {"type": "number"}
+        if isinstance(obj, str):
+            schema = {"type": "string"}
+            if re.match(r'^\d{4}-\d{2}-\d{2}$', obj):
+                schema["format"] = "date"
+            elif re.match(r'^\d{4}-\d{2}-\d{2}T', obj):
+                schema["format"] = "date-time"
+            elif re.match(r'^[^@]+@[^@]+\.[^@]+$', obj):
+                schema["format"] = "email"
+            elif re.match(r'^https?://', obj):
+                schema["format"] = "uri"
+            return schema
+        if isinstance(obj, list):
+            if not obj:
+                return {"type": "array", "items": {}}
+            item_schemas = [infer_schema(item) for item in obj[:10]]
+            return {"type": "array", "items": item_schemas[0]}
+        if isinstance(obj, dict):
+            properties = {}
+            required = []
+            for k, v in obj.items():
+                properties[k] = infer_schema(v)
+                required.append(k)
+            return {"type": "object", "properties": properties, "required": required}
+        return {}
+
+    schema = infer_schema(data)
+    schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    return {"schema": schema, "source_type": type(data).__name__}
+
+
+class OpenAPIGenRequest(BaseModel):
+    name: str = "My API"
+    description: str = ""
+    endpoints: list
+
+
+@app.post("/api/openapi/generate")
+async def generate_openapi(req: OpenAPIGenRequest):
+    """Generate an OpenAPI 3.0 spec from a list of endpoint definitions. Each endpoint: {method, path, summary, request_body, response}."""
+    spec = {
+        "openapi": "3.0.3",
+        "info": {"title": req.name, "description": req.description or f"{req.name} API", "version": "1.0.0"},
+        "paths": {},
+    }
+    for ep in req.endpoints:
+        path = ep.get("path", "/unknown")
+        method = ep.get("method", "get").lower()
+        operation = {
+            "summary": ep.get("summary", f"{method.upper()} {path}"),
+            "responses": {"200": {"description": "Success"}},
+        }
+        if ep.get("request_body"):
+            operation["requestBody"] = {
+                "content": {"application/json": {"schema": {"type": "object"}}},
+            }
+        if path not in spec["paths"]:
+            spec["paths"][path] = {}
+        spec["paths"][path][method] = operation
+    return {"openapi_spec": spec, "endpoints_count": len(req.endpoints)}
+
+
+class DataTransformRequest(BaseModel):
+    data: str
+    operations: list
+
+
+@app.post("/api/data/transform")
+async def data_transform(req: DataTransformRequest):
+    """Apply a chain of transformations to data. Operations: sort, filter, map, unique, reverse, flatten, group_by, limit, skip."""
+    try:
+        data = json.loads(req.data)
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON: {e}")
+
+    result = data
+    applied = []
+    for op in req.operations:
+        op_type = op.get("type", "")
+        try:
+            if op_type == "sort" and isinstance(result, list):
+                key = op.get("key")
+                reverse = op.get("reverse", False)
+                if key:
+                    result = sorted(result, key=lambda x: x.get(key, "") if isinstance(x, dict) else x, reverse=reverse)
+                else:
+                    result = sorted(result, reverse=reverse)
+                applied.append(f"sort(key={key}, reverse={reverse})")
+            elif op_type == "filter" and isinstance(result, list):
+                key = op.get("key", "")
+                value = op.get("value")
+                op_name = op.get("operator", "eq")
+                filtered = []
+                for item in result:
+                    v = item.get(key) if isinstance(item, dict) else item
+                    if op_name == "eq" and v == value:
+                        filtered.append(item)
+                    elif op_name == "ne" and v != value:
+                        filtered.append(item)
+                    elif op_name == "gt" and v is not None and v > value:
+                        filtered.append(item)
+                    elif op_name == "lt" and v is not None and v < value:
+                        filtered.append(item)
+                    elif op_name == "contains" and isinstance(v, str) and str(value) in v:
+                        filtered.append(item)
+                result = filtered
+                applied.append(f"filter({key} {op_name} {value})")
+            elif op_type == "unique" and isinstance(result, list):
+                seen = set()
+                unique = []
+                key = op.get("key")
+                for item in result:
+                    v = item.get(key) if isinstance(item, dict) and key else json.dumps(item, sort_keys=True)
+                    if str(v) not in seen:
+                        seen.add(str(v))
+                        unique.append(item)
+                result = unique
+                applied.append("unique")
+            elif op_type == "reverse" and isinstance(result, list):
+                result = list(reversed(result))
+                applied.append("reverse")
+            elif op_type == "flatten" and isinstance(result, list):
+                flat = []
+                for item in result:
+                    if isinstance(item, list):
+                        flat.extend(item)
+                    else:
+                        flat.append(item)
+                result = flat
+                applied.append("flatten")
+            elif op_type == "limit" and isinstance(result, list):
+                n = op.get("n", 10)
+                result = result[:n]
+                applied.append(f"limit({n})")
+            elif op_type == "skip" and isinstance(result, list):
+                n = op.get("n", 0)
+                result = result[n:]
+                applied.append(f"skip({n})")
+            elif op_type == "group_by" and isinstance(result, list):
+                key = op.get("key", "")
+                groups = {}
+                for item in result:
+                    gk = str(item.get(key, "other")) if isinstance(item, dict) else str(item)
+                    groups.setdefault(gk, []).append(item)
+                result = groups
+                applied.append(f"group_by({key})")
+        except Exception as e:
+            applied.append(f"ERROR: {op_type}: {e}")
+
+    return {"result": result, "operations_applied": applied, "result_type": type(result).__name__}
+
+
+class EnvGenRequest(BaseModel):
+    variables: dict
+    format: str = "dotenv"
+
+
+@app.post("/api/env/generate")
+async def env_generate(req: EnvGenRequest):
+    """Generate environment variable files from a dict. Formats: dotenv, docker, yaml, json, shell."""
+    lines = []
+    if req.format == "dotenv":
+        for k, v in req.variables.items():
+            v_str = str(v)
+            if " " in v_str or '"' in v_str:
+                v_str = f'"{v_str}"'
+            lines.append(f"{k}={v_str}")
+        return {"output": "\n".join(lines), "format": "dotenv", "count": len(req.variables)}
+    elif req.format == "docker":
+        for k, v in req.variables.items():
+            lines.append(f"ENV {k}={v}")
+        return {"output": "\n".join(lines), "format": "Dockerfile", "count": len(req.variables)}
+    elif req.format == "yaml":
+        for k, v in req.variables.items():
+            lines.append(f"  {k}: \"{v}\"")
+        output = "env:\n" + "\n".join(lines)
+        return {"output": output, "format": "yaml", "count": len(req.variables)}
+    elif req.format == "shell":
+        for k, v in req.variables.items():
+            lines.append(f"export {k}=\"{v}\"")
+        return {"output": "\n".join(lines), "format": "shell", "count": len(req.variables)}
+    else:
+        return {"output": json.dumps(req.variables, indent=2), "format": "json", "count": len(req.variables)}
+
+
+class GitIgnoreRequest(BaseModel):
+    languages: list
+    extras: list = []
+
+
+@app.post("/api/gitignore/generate")
+async def gitignore_generate(req: GitIgnoreRequest):
+    """Generate a .gitignore file for specified languages/frameworks."""
+    templates = {
+        "python": ["__pycache__/", "*.py[cod]", "*$py.class", "*.so", ".Python", "env/", "venv/", ".env", "*.egg-info/", "dist/", "build/", ".pytest_cache/", ".mypy_cache/"],
+        "node": ["node_modules/", "npm-debug.log*", "yarn-debug.log*", ".env", "dist/", "build/", ".next/", ".nuxt/", "coverage/", "*.tsbuildinfo"],
+        "java": ["*.class", "*.jar", "*.war", "*.ear", "target/", ".gradle/", "build/", ".idea/", "*.iml"],
+        "go": ["*.exe", "*.test", "*.out", "vendor/", ".env"],
+        "rust": ["target/", "Cargo.lock", "*.pdb"],
+        "ruby": ["*.gem", ".bundle/", "vendor/bundle", ".env", "log/", "tmp/", "coverage/"],
+        "swift": [".build/", "Packages/", "*.xcodeproj/", "DerivedData/", ".swiftpm/"],
+        "docker": [".env", "docker-compose.override.yml", "*.log"],
+        "general": [".DS_Store", "Thumbs.db", "*.swp", "*.swo", "*~", ".vscode/", ".idea/", "*.log", ".env", ".env.local"],
+    }
+
+    lines = ["# Generated by ToolPipe .gitignore Generator", ""]
+    for lang in req.languages:
+        lang_lower = lang.lower()
+        if lang_lower in templates:
+            lines.append(f"# {lang}")
+            lines.extend(templates[lang_lower])
+            lines.append("")
+
+    if req.extras:
+        lines.append("# Custom")
+        lines.extend(req.extras)
+        lines.append("")
+
+    output = "\n".join(lines)
+    return {"gitignore": output, "languages": req.languages, "total_rules": sum(1 for l in lines if l and not l.startswith("#"))}
+
+
+class DockerfileRequest(BaseModel):
+    language: str
+    framework: str = ""
+    port: int = 8080
+
+
+@app.post("/api/dockerfile/generate")
+async def dockerfile_generate(req: DockerfileRequest):
+    """Generate a Dockerfile for common language/framework combos."""
+    templates = {
+        "python": f"""FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE {req.port}
+CMD ["python", "main.py"]""",
+        "node": f"""FROM node:20-slim
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --only=production
+COPY . .
+EXPOSE {req.port}
+CMD ["node", "index.js"]""",
+        "go": f"""FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.* .
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /server .
+
+FROM alpine:3.19
+COPY --from=builder /server /server
+EXPOSE {req.port}
+CMD ["/server"]""",
+        "rust": f"""FROM rust:1.77-slim AS builder
+WORKDIR /app
+COPY . .
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+COPY --from=builder /app/target/release/app /app
+EXPOSE {req.port}
+CMD ["/app"]""",
+        "java": f"""FROM eclipse-temurin:21-jdk-jammy AS builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew build -x test
+
+FROM eclipse-temurin:21-jre-jammy
+COPY --from=builder /app/build/libs/*.jar /app.jar
+EXPOSE {req.port}
+CMD ["java", "-jar", "/app.jar"]""",
+    }
+
+    lang = req.language.lower()
+    if lang == "python" and req.framework == "fastapi":
+        dockerfile = templates["python"].replace('CMD ["python", "main.py"]', f'CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "{req.port}"]')
+    elif lang == "python" and req.framework == "flask":
+        dockerfile = templates["python"].replace('CMD ["python", "main.py"]', f'CMD ["gunicorn", "--bind", "0.0.0.0:{req.port}", "app:app"]')
+    elif lang == "node" and req.framework in ("next", "nextjs"):
+        dockerfile = templates["node"].replace('CMD ["node", "index.js"]', f'RUN npm run build\nCMD ["npm", "start"]')
+    elif lang in templates:
+        dockerfile = templates[lang]
+    else:
+        dockerfile = f"# Dockerfile for {req.language}\n# Framework: {req.framework or 'none specified'}\nFROM ubuntu:22.04\nWORKDIR /app\nCOPY . .\nEXPOSE {req.port}\nCMD [\"./start.sh\"]"
+
+    return {"dockerfile": dockerfile, "language": req.language, "framework": req.framework or "default", "port": req.port}
 
 
 # --- APIs.json for API discovery ---

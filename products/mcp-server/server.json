@@ -1,18 +1,18 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "34 developer tools via MCP: JSON, Base64, UUID, hash, DNS, QR, JWT, regex, SEO, crypto prices",
+  "description": "51 developer tools via MCP: JSON, Base64, UUID, hash, DNS, QR, JWT, regex, SEO, crypto prices, fake data, Dockerfile, .gitignore, data transform, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.2.0",
+  "version": "1.3.1",
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "toolpipe-mcp-server",
-      "version": "1.2.0",
+      "identifier": "@cosai-labs/toolpipe-mcp-server",
+      "version": "1.3.1",
       "transport": {
         "type": "stdio"
       },
@@ -47,6 +47,9 @@
     {"name": "json_to_yaml", "description": "Convert JSON to YAML"},
     {"name": "json_to_csv", "description": "Convert JSON array to CSV"},
     {"name": "json_validate_schema", "description": "Validate JSON against JSON Schema"},
+    {"name": "json_query", "description": "Query JSON with dot-notation paths and wildcards"},
+    {"name": "json_to_schema", "description": "Generate JSON Schema from example data"},
+    {"name": "json_diff", "description": "Compare two JSON objects and show differences"},
     {"name": "code_format", "description": "Format code (JSON, SQL, HTML)"},
     {"name": "analyze_text", "description": "Analyze text: word count, reading time"},
     {"name": "summarize_text", "description": "Extractive text summarization"},
@@ -60,11 +63,15 @@
     {"name": "hash_text", "description": "Hash text (MD5, SHA-1, SHA-256, SHA-512)"},
     {"name": "base64_encode_decode", "description": "Base64 encode/decode"},
     {"name": "url_encode_decode", "description": "URL encode/decode"},
+    {"name": "html_encode_decode", "description": "HTML entity encode/decode"},
     {"name": "jwt_decode", "description": "Decode JWT tokens"},
     {"name": "generate_uuid", "description": "Generate UUIDs (v4)"},
     {"name": "generate_password", "description": "Generate secure passwords"},
+    {"name": "number_convert", "description": "Convert between decimal, binary, hex, roman"},
     {"name": "dns_lookup", "description": "DNS lookup (A, AAAA, MX, NS, TXT)"},
     {"name": "ip_lookup", "description": "IP geolocation lookup"},
+    {"name": "validate_ip", "description": "Validate and classify IP addresses"},
+    {"name": "validate_email", "description": "Validate email format and MX records"},
     {"name": "extract_metadata", "description": "Extract URL metadata (OG tags)"},
     {"name": "check_website_status", "description": "Check if website is up/down"},
     {"name": "seo_analyze", "description": "SEO analysis of any URL"},
@@ -76,6 +83,16 @@
     {"name": "cron_parse", "description": "Parse cron to plain English"},
     {"name": "get_crypto_prices", "description": "Live cryptocurrency prices"},
     {"name": "css_minify", "description": "Minify CSS code"},
-    {"name": "js_minify", "description": "Minify JavaScript code"}
+    {"name": "js_minify", "description": "Minify JavaScript code"},
+    {"name": "get_random_quote", "description": "Get random inspirational/programming quotes"},
+    {"name": "generate_fake_data", "description": "Generate mock data (person, address, company, etc.)"},
+    {"name": "template_render", "description": "Render templates with {{variable}} substitution"},
+    {"name": "data_transform", "description": "Sort, filter, group, flatten JSON data"},
+    {"name": "generate_gitignore", "description": "Generate .gitignore for any language"},
+    {"name": "generate_dockerfile", "description": "Generate Dockerfiles for common stacks"},
+    {"name": "generate_env_file", "description": "Generate env files (dotenv, docker, yaml, shell)"},
+    {"name": "generate_openapi", "description": "Generate OpenAPI 3.0 specs from endpoints"},
+    {"name": "csv_to_json", "description": "Convert CSV to JSON"},
+    {"name": "yaml_to_json", "description": "Convert YAML to JSON"}
   ]
 }

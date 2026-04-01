@@ -50,10 +50,10 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.2.0" },
+  { name: "toolpipe", version: "1.3.0" },
   {
     capabilities: { tools: {} },
-    instructions: "ToolPipe provides 70+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, and more. Get a free API key at /api-keys for 100 calls/day, or upgrade to Pro for 10,000 calls/day.",
+    instructions: "ToolPipe provides 90+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, fake data generation, Dockerfile generation, .gitignore generation, data transformation, and more. Get a free API key at /api-keys for 100 calls/day, or upgrade to Pro for 10,000 calls/day.",
   }
 );
 
@@ -532,6 +532,267 @@ server.tool(
     const result = await apiCall("/api/code/format", {
       method: "POST",
       body: JSON.stringify({ code, language }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- New Tools: AI Agent Utilities ---
+
+server.tool(
+  "generate_fake_data",
+  "Generate fake/mock data for testing. Types: person, address, company, email, phone, credit_card, uuid, date, sentence, paragraph, product, url.",
+  {
+    type: z.string().describe("Data type: person, address, company, email, phone, credit_card, uuid, date, sentence, paragraph, product, url"),
+    count: z.number().optional().describe("Number of items to generate (default 1, max 100)"),
+  },
+  async ({ type, count }) => {
+    const result = await apiCall("/api/fake/generate", {
+      method: "POST",
+      body: JSON.stringify({ type, count: count || 1 }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "json_query",
+  "Query JSON data using dot-notation paths. Supports wildcards (*) and array indices.",
+  {
+    json_data: z.string().describe("JSON string to query"),
+    path: z.string().describe("Dot-notation path (e.g., 'users[0].name', 'items.*.price')"),
+  },
+  async ({ json_data, path }) => {
+    const result = await apiCall("/api/json/query", {
+      method: "POST",
+      body: JSON.stringify({ json_data, path }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "json_to_schema",
+  "Generate a JSON Schema from example JSON data. Useful for API docs and validation.",
+  { json_data: z.string().describe("Example JSON to generate schema from") },
+  async ({ json_data }) => {
+    const result = await apiCall("/api/json/to-schema", {
+      method: "POST",
+      body: JSON.stringify({ json_data }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "template_render",
+  "Render a text template with variable substitution using {{variable}} syntax.",
+  {
+    template: z.string().describe("Template with {{variable}} placeholders"),
+    variables: z.record(z.string()).describe("Key-value pairs for substitution"),
+  },
+  async ({ template, variables }) => {
+    const result = await apiCall("/api/template/render", {
+      method: "POST",
+      body: JSON.stringify({ template, variables }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "data_transform",
+  "Apply transformations to JSON data. Operations: sort, filter, unique, reverse, flatten, group_by, limit, skip.",
+  {
+    data: z.string().describe("JSON array or object to transform"),
+    operations: z.array(z.record(z.any())).describe("Array of operations: [{type:'sort',key:'name'}, {type:'filter',key:'age',operator:'gt',value:18}]"),
+  },
+  async ({ data, operations }) => {
+    const result = await apiCall("/api/data/transform", {
+      method: "POST",
+      body: JSON.stringify({ data, operations }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_gitignore",
+  "Generate a .gitignore file for specified languages/frameworks.",
+  {
+    languages: z.array(z.string()).describe("Languages: python, node, java, go, rust, ruby, swift, docker, general"),
+    extras: z.array(z.string()).optional().describe("Additional custom patterns to ignore"),
+  },
+  async ({ languages, extras }) => {
+    const result = await apiCall("/api/gitignore/generate", {
+      method: "POST",
+      body: JSON.stringify({ languages, extras: extras || [] }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_dockerfile",
+  "Generate a Dockerfile for common language/framework combinations.",
+  {
+    language: z.string().describe("Language: python, node, go, rust, java"),
+    framework: z.string().optional().describe("Framework: fastapi, flask, next, etc."),
+    port: z.number().optional().describe("Port to expose (default 8080)"),
+  },
+  async ({ language, framework, port }) => {
+    const result = await apiCall("/api/dockerfile/generate", {
+      method: "POST",
+      body: JSON.stringify({ language, framework: framework || "", port: port || 8080 }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_env_file",
+  "Generate environment variable files in various formats (dotenv, docker, yaml, shell, json).",
+  {
+    variables: z.record(z.string()).describe("Key-value pairs for environment variables"),
+    format: z.string().optional().describe("Output format: dotenv, docker, yaml, shell, json (default dotenv)"),
+  },
+  async ({ variables, format }) => {
+    const result = await apiCall("/api/env/generate", {
+      method: "POST",
+      body: JSON.stringify({ variables, format: format || "dotenv" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_openapi",
+  "Generate an OpenAPI 3.0 spec from endpoint definitions.",
+  {
+    name: z.string().describe("API name"),
+    description: z.string().optional().describe("API description"),
+    endpoints: z.array(z.record(z.any())).describe("Array of {method, path, summary, request_body, response}"),
+  },
+  async ({ name, description, endpoints }) => {
+    const result = await apiCall("/api/openapi/generate", {
+      method: "POST",
+      body: JSON.stringify({ name, description: description || "", endpoints }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "validate_email",
+  "Validate email address format and check domain MX records.",
+  { email: z.string().describe("Email address to validate") },
+  async ({ email }) => {
+    const result = await apiCall("/api/validate/email", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "validate_ip",
+  "Validate and classify an IP address (IPv4/IPv6, private/public, etc.).",
+  { ip: z.string().describe("IP address to validate") },
+  async ({ ip }) => {
+    const result = await apiCall("/api/validate/ip", {
+      method: "POST",
+      body: JSON.stringify({ ip }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "csv_to_json",
+  "Convert CSV text to JSON array.",
+  { csv: z.string().describe("CSV text with headers") },
+  async ({ csv }) => {
+    const result = await apiCall("/api/convert/csv-to-json", {
+      method: "POST",
+      body: JSON.stringify({ csv }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "yaml_to_json",
+  "Convert YAML text to JSON.",
+  { yaml: z.string().describe("YAML text to convert") },
+  async ({ yaml }) => {
+    const result = await apiCall("/api/convert/yaml-to-json", {
+      method: "POST",
+      body: JSON.stringify({ yaml }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "json_diff",
+  "Compare two JSON objects and return the differences.",
+  {
+    json1: z.string().describe("First JSON object"),
+    json2: z.string().describe("Second JSON object"),
+  },
+  async ({ json1, json2 }) => {
+    const result = await apiCall("/api/diff/json", {
+      method: "POST",
+      body: JSON.stringify({ json1, json2 }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "lorem_ipsum",
+  "Generate Lorem Ipsum placeholder text.",
+  {
+    paragraphs: z.number().optional().describe("Number of paragraphs (default 3)"),
+    words_per_paragraph: z.number().optional().describe("Words per paragraph (default 50)"),
+  },
+  async ({ paragraphs, words_per_paragraph }) => {
+    const result = await apiCall("/api/lorem-ipsum", {
+      method: "POST",
+      body: JSON.stringify({ paragraphs: paragraphs || 3, words_per_paragraph: words_per_paragraph || 50 }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "html_encode_decode",
+  "HTML entity encode or decode text.",
+  {
+    text: z.string().describe("Text to encode or decode"),
+    action: z.string().optional().describe("'encode' or 'decode' (default encode)"),
+  },
+  async ({ text, action }) => {
+    const result = await apiCall("/api/html/encode-decode", {
+      method: "POST",
+      body: JSON.stringify({ text, action: action || "encode" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "number_convert",
+  "Convert numbers between decimal, binary, octal, hex, and roman numerals.",
+  {
+    value: z.string().describe("Number value to convert"),
+    from: z.string().optional().describe("Source format: decimal, binary, octal, hex, roman (default decimal)"),
+  },
+  async ({ value, from: fromBase }) => {
+    const result = await apiCall("/api/number/convert", {
+      method: "POST",
+      body: JSON.stringify({ value, from: fromBase || "decimal" }),
     });
     return textResult(result);
   }
