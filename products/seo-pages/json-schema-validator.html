@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Schema Validator - Validate JSON Against Schema Online</title>
+    <meta name="description" content="Validate JSON data against a JSON Schema. See validation errors instantly with detailed paths and messages. Free, no signup required.">
+    <meta property="og:title" content="JSON Schema Validator - Validate JSON Against Schema Online">
+    <link rel="canonical" href="/json-schema-validator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>JSON Schema Validator</h1>
+        <p class="subtitle">Validate JSON data against a JSON Schema and see errors instantly</p>
+        <div class="tool-box">
+            <label>JSON Data</label>
+            <textarea id="data" placeholder='{"name": "John", "age": 30}'></textarea>
+            <label style="margin-top:12px">JSON Schema</label>
+            <textarea id="schema" placeholder='{"type": "object", "properties": {"name": {"type": "string"}, "age": {"type": "integer"}}, "required": ["name"]}'></textarea>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="validateSchema()">Validate</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>What Is JSON Schema?</h2>
+            <p>JSON Schema is a vocabulary that allows you to annotate and validate JSON documents. It defines the structure, data types, required fields, and constraints for JSON data. Widely used in API validation, form validation, and configuration file verification.</p>
+            <h2>How to Use</h2>
+            <p>Paste your JSON data in the first box and the JSON Schema in the second box. Click Validate to check if the data conforms to the schema. The tool shows whether validation passed and lists any errors with their JSON paths and descriptions.</p>
+            <h2>API Access</h2>
+            <p>Use our REST API: <code>POST /api/schema/validate</code> with JSON body <code>{"data": {...}, "schema": {...}}</code>. Returns valid (boolean) and errors array. Free for 100 calls/day.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
+    <script>
+    async function validateSchema() {
+        const dataRaw = document.getElementById('data').value.trim();
+        const schemaRaw = document.getElementById('schema').value.trim();
+        if (!dataRaw || !schemaRaw) return alert('Enter both JSON data and schema');
+        let data, schema;
+        try { data = JSON.parse(dataRaw); } catch(e) { return alert('Invalid JSON data: ' + e.message); }
+        try { schema = JSON.parse(schemaRaw); } catch(e) { return alert('Invalid JSON schema: ' + e.message); }
+        document.getElementById('result').textContent = 'Validating...';
+        try {
+            const r = await fetch('/api/schema/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data, schema })
+            });
+            const j = await r.json();
+            document.getElementById('result').textContent = JSON.stringify(j, null, 2);
+        } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+    }
+    function copyResult() {
+        const t = document.getElementById('result').textContent;
+        navigator.clipboard.writeText(t);
+    }
+    </script>
+</body>
+</html>

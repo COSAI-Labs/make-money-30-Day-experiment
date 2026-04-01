@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI Spec Generator - Create OpenAPI 3.0 Specs Online</title>
+    <meta name="description" content="Generate OpenAPI 3.0 specifications from endpoint definitions. Input your API endpoints as JSON and get a complete OpenAPI spec. Free, no signup.">
+    <meta property="og:title" content="OpenAPI Spec Generator - Create OpenAPI 3.0 Specs Online">
+    <link rel="canonical" href="/openapi-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>OpenAPI Spec Generator</h1>
+        <p class="subtitle">Generate complete OpenAPI 3.0 specifications from endpoint definitions</p>
+        <div class="tool-box">
+            <label>Endpoint Definitions (JSON)</label>
+            <textarea id="endpoints" placeholder='[{"path": "/users", "method": "GET", "description": "List users"}, {"path": "/users", "method": "POST", "description": "Create user"}]' style="min-height:150px"></textarea>
+            <label style="margin-top:12px">API Title</label>
+            <input type="text" id="title" placeholder="My API">
+            <label>Version</label>
+            <input type="text" id="version" placeholder="1.0.0">
+            <label>Base URL</label>
+            <input type="text" id="base_url" placeholder="https://api.example.com">
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generateSpec()">Generate Spec</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>What Is OpenAPI?</h2>
+            <p>OpenAPI (formerly Swagger) is the industry standard for describing REST APIs. An OpenAPI specification defines endpoints, request/response formats, authentication, and more in a machine-readable JSON or YAML document. It powers documentation generators, client SDKs, and testing tools.</p>
+            <h2>How to Use This Tool</h2>
+            <p>Define your endpoints as a JSON array with path, method, and description for each. Add a title, version, and base URL. The generator produces a complete OpenAPI 3.0 spec you can use with Swagger UI, Redoc, or any OpenAPI-compatible tool.</p>
+            <h2>API Access</h2>
+            <p>Use our REST API: <code>POST /api/openapi/generate</code> with JSON body containing <code>endpoints</code>, <code>title</code>, <code>version</code>, and <code>base_url</code>. Returns a complete OpenAPI 3.0 specification. Free for 100 calls/day.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
+    <script>
+    async function generateSpec() {
+        const endpointsRaw = document.getElementById('endpoints').value.trim();
+        const title = document.getElementById('title').value.trim() || 'My API';
+        const version = document.getElementById('version').value.trim() || '1.0.0';
+        const base_url = document.getElementById('base_url').value.trim() || 'https://api.example.com';
+        if (!endpointsRaw) return alert('Enter endpoint definitions as JSON');
+        let endpoints;
+        try { endpoints = JSON.parse(endpointsRaw); } catch(e) { return alert('Invalid JSON: ' + e.message); }
+        document.getElementById('result').textContent = 'Generating...';
+        try {
+            const r = await fetch('/api/openapi/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoints, title, version, base_url })
+            });
+            const j = await r.json();
+            document.getElementById('result').textContent = JSON.stringify(j, null, 2);
+        } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+    }
+    function copyResult() {
+        const t = document.getElementById('result').textContent;
+        navigator.clipboard.writeText(t);
+    }
+    </script>
+</body>
+</html>

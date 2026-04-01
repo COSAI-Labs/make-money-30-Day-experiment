@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENV Template Generator - Free Online Tool</title>
+    <meta name="description" content="Generate .env.example templates from existing .env files. Automatically masks secrets and credentials. Free, no signup.">
+    <meta property="og:title" content="ENV Template Generator - Free Online Tool">
+    <link rel="canonical" href="/env-template-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 180px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>ENV Template Generator</h1>
+        <p class="subtitle">Generate .env.example templates by stripping secrets from your .env file</p>
+        <div class="tool-box">
+            <label>Paste your .env file content</label>
+            <textarea id="envInput" placeholder="DATABASE_URL=postgres://user:pass@host:5432/db
+API_KEY=sk_live_abc123xyz
+SECRET_KEY=my-super-secret
+PORT=3000
+DEBUG=true"></textarea>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generateTemplate()">Generate Template</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+            </div>
+            <label>Generated .env.example</label>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:120px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>What is an .env.example file?</h2>
+            <p>An .env.example file is a template that shows what environment variables your project needs without exposing actual secret values. It helps new team members set up their local environment quickly and safely.</p>
+            <h2>How This Tool Works</h2>
+            <p>Paste your .env file content and the tool automatically detects sensitive values (API keys, passwords, secrets, tokens) and replaces them with safe placeholder values while preserving the variable names and structure.</p>
+            <h2>API Access</h2>
+            <p>Use our REST API: <code>POST /api/generate/env-template</code> with <code>{"env": "your .env content"}</code>. Returns sanitized template. Free for 100 calls/day.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
+    <script>
+async function generateTemplate() {
+    const env = document.getElementById('envInput').value.trim();
+    if (!env) return alert('Paste your .env content');
+    document.getElementById('result').textContent = 'Generating...';
+    try {
+        const r = await fetch('/api/generate/env-template', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ env })
+        });
+        const j = await r.json();
+        document.getElementById('result').textContent = j.template || JSON.stringify(j, null, 2);
+    } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+}
+function copyResult() {
+    navigator.clipboard.writeText(document.getElementById('result').textContent);
+}
+    </script>
+</body>
+</html>

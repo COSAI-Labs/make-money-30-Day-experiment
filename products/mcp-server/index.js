@@ -52,7 +52,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.12.0" },
+  { name: "toolpipe", version: "1.13.0" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 200+ developer utility APIs as 120+ MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, placeholder images, favicon extraction, sitemap generation, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
@@ -2016,6 +2016,211 @@ server.tool(
     const result = await apiCall("/api/diff/text-detailed", {
       method: "POST",
       body: JSON.stringify({ text1, text2 }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Premium Tools (v1.13.0) ---
+
+server.tool(
+  "code_review",
+  "Analyze code for bugs, security issues, and improvements. Returns a score, grade, and list of issues.",
+  {
+    code: z.string().describe("Source code to review"),
+    language: z.string().optional().default("auto").describe("Language: python, javascript, go, rust, java, or auto"),
+  },
+  async ({ code, language }) => {
+    const result = await apiCall("/api/code/review", {
+      method: "POST",
+      body: JSON.stringify({ code, language }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "code_explain",
+  "Generate a plain-English explanation of code, including function signatures and structure.",
+  {
+    code: z.string().describe("Source code to explain"),
+  },
+  async ({ code }) => {
+    const result = await apiCall("/api/code/explain", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_openapi_spec",
+  "Generate an OpenAPI 3.0 spec (JSON + YAML) from endpoint definitions.",
+  {
+    title: z.string().describe("API title"),
+    version: z.string().optional().default("1.0.0"),
+    description: z.string().optional().default(""),
+    base_url: z.string().optional().default("https://api.example.com"),
+    endpoints: z.array(z.object({
+      path: z.string(),
+      method: z.string().optional().default("get"),
+      summary: z.string().optional().default(""),
+    })).describe("Array of endpoint definitions"),
+  },
+  async ({ title, version, description, base_url, endpoints }) => {
+    const result = await apiCall("/api/openapi/generate", {
+      method: "POST",
+      body: JSON.stringify({ title, version, description, base_url, endpoints }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "fake_data",
+  "Generate realistic fake/mock data for testing. Types: user, product, address, company, transaction, event.",
+  {
+    type: z.string().optional().default("user").describe("Data type: user, product, address, company, transaction, event"),
+    count: z.number().optional().default(10).describe("Number of records (max 100)"),
+  },
+  async ({ type, count }) => {
+    const result = await apiCall("/api/data/fake", {
+      method: "POST",
+      body: JSON.stringify({ type, count }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "code_minify",
+  "Minify JavaScript, CSS, or HTML code. Returns minified code with savings percentage.",
+  {
+    code: z.string().describe("Code to minify"),
+    language: z.string().optional().default("auto").describe("Language: javascript, css, html, or auto"),
+  },
+  async ({ code, language }) => {
+    const result = await apiCall("/api/code/minify", {
+      method: "POST",
+      body: JSON.stringify({ code, language }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "code_format",
+  "Auto-format/beautify code (JSON, SQL, HTML). Returns formatted code.",
+  {
+    code: z.string().describe("Code to format"),
+    language: z.string().optional().default("auto").describe("Language: json, sql, html, or auto"),
+    indent: z.number().optional().default(2).describe("Indent size"),
+  },
+  async ({ code, language, indent }) => {
+    const result = await apiCall("/api/code/format", {
+      method: "POST",
+      body: JSON.stringify({ code, language, indent }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "translate_code_pattern",
+  "Get equivalent code patterns across languages (Python, JS, Go, Rust, TS).",
+  {
+    pattern: z.string().describe("Pattern name: http_get, read_file, json_parse, hash_sha256, env_var"),
+    from: z.string().optional().default("python").describe("Source language"),
+    to: z.string().optional().default("javascript").describe("Target language"),
+  },
+  async ({ pattern, from: fromLang, to: toLang }) => {
+    const result = await apiCall("/api/text/translate-code", {
+      method: "POST",
+      body: JSON.stringify({ pattern, from: fromLang, to: toLang }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "validate_json_schema",
+  "Validate JSON data against a JSON Schema. Returns validation errors.",
+  {
+    data: z.any().describe("JSON data to validate"),
+    schema: z.any().describe("JSON Schema to validate against"),
+  },
+  async ({ data, schema }) => {
+    const result = await apiCall("/api/schema/validate", {
+      method: "POST",
+      body: JSON.stringify({ data, schema }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "csv_analyze",
+  "Analyze CSV data: column types, statistics, missing values, unique counts.",
+  {
+    csv: z.string().describe("CSV text data to analyze"),
+  },
+  async ({ csv }) => {
+    const result = await apiCall("/api/data/csv-analyze", {
+      method: "POST",
+      body: JSON.stringify({ csv }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "security_headers_check",
+  "Analyze HTTP security headers of a URL. Returns score, grade, and recommendations.",
+  {
+    url: z.string().describe("URL to check security headers for"),
+  },
+  async ({ url }) => {
+    const result = await apiCall("/api/security/headers-check", {
+      method: "POST",
+      body: JSON.stringify({ url }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_api_client",
+  "Generate API client code from endpoint definitions (Python, JavaScript, cURL).",
+  {
+    base_url: z.string().describe("Base URL of the API"),
+    endpoints: z.array(z.object({
+      path: z.string(),
+      method: z.string().optional().default("GET"),
+      name: z.string().optional(),
+    })).describe("Array of endpoint definitions"),
+    language: z.string().optional().default("python").describe("Output language: python, javascript, curl"),
+  },
+  async ({ base_url, endpoints, language }) => {
+    const result = await apiCall("/api/generate/api-client", {
+      method: "POST",
+      body: JSON.stringify({ base_url, endpoints, language }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_env_template",
+  "Generate a .env.example template from environment variables or parse existing .env file.",
+  {
+    env: z.string().optional().describe("Existing .env file content to sanitize"),
+    variables: z.array(z.union([z.string(), z.object({ name: z.string(), description: z.string().optional() })])).optional().describe("List of variable names or objects"),
+  },
+  async ({ env, variables }) => {
+    const result = await apiCall("/api/generate/env-template", {
+      method: "POST",
+      body: JSON.stringify({ env, variables }),
     });
     return textResult(result);
   }

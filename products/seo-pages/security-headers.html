@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Headers Checker - Check HTTP Security Headers</title>
+    <meta name="description" content="Check HTTP security headers for any website. Get a security score, grade, and detailed analysis of CSP, HSTS, X-Frame-Options, and more. Free tool.">
+    <meta property="og:title" content="Security Headers Checker - Check HTTP Security Headers">
+    <link rel="canonical" href="/security-headers">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>Security Headers Checker</h1>
+        <p class="subtitle">Check HTTP security headers for any website and get a security grade</p>
+        <div class="tool-box">
+            <label>URL</label>
+            <input type="text" id="url" placeholder="https://example.com">
+            <div class="btns">
+                <button class="btn btn-encode" onclick="checkHeaders()">Check Headers</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>Why Security Headers Matter</h2>
+            <p>HTTP security headers protect your website against common attacks like cross-site scripting (XSS), clickjacking, MIME sniffing, and man-in-the-middle attacks. Missing headers leave your site and users vulnerable. Most headers take minutes to configure but provide significant security improvements.</p>
+            <h2>What We Check</h2>
+            <p>This tool checks for Content-Security-Policy (CSP), Strict-Transport-Security (HSTS), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and other security-relevant headers. Each check explains what the header does and whether it is present and correctly configured.</p>
+            <h2>API Access</h2>
+            <p>Use our REST API: <code>POST /api/security/headers-check</code> with JSON body <code>{"url": "https://example.com"}</code>. Returns score, grade, and individual header checks. Free for 100 calls/day.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
+    <script>
+    async function checkHeaders() {
+        const url = document.getElementById('url').value.trim();
+        if (!url) return alert('Enter a URL to check');
+        document.getElementById('result').textContent = 'Checking...';
+        try {
+            const r = await fetch('/api/security/headers-check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            const j = await r.json();
+            document.getElementById('result').textContent = JSON.stringify(j, null, 2);
+        } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+    }
+    function copyResult() {
+        const t = document.getElementById('result').textContent;
+        navigator.clipboard.writeText(t);
+    }
+    </script>
+</body>
+</html>

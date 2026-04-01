@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Minifier - Minify JavaScript, CSS, and HTML Online</title>
+    <meta name="description" content="Minify JavaScript, CSS, and HTML code online. Reduce file size, improve load times. See exact savings. Free, no signup required.">
+    <meta property="og:title" content="Code Minifier - Minify JavaScript, CSS, and HTML Online">
+    <link rel="canonical" href="/code-minifier">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; background: white; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>Code Minifier</h1>
+        <p class="subtitle">Minify JavaScript, CSS, and HTML to reduce file size and improve performance</p>
+        <div class="tool-box">
+            <label>Your Code</label>
+            <textarea id="code" placeholder="Paste your JavaScript, CSS, or HTML code here..."></textarea>
+            <label style="margin-top:12px">Language</label>
+            <select id="language">
+                <option value="js">JavaScript</option>
+                <option value="css">CSS</option>
+                <option value="html">HTML</option>
+            </select>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="minifyCode()">Minify</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>What Is Code Minification?</h2>
+            <p>Minification removes unnecessary characters from source code (whitespace, comments, line breaks) without changing functionality. The result is a smaller file that loads faster in browsers, improving page speed and Core Web Vitals scores.</p>
+            <h2>How Much Can You Save?</h2>
+            <p>Typical savings range from 20-60% depending on the code. The tool shows you exact before/after sizes and the percentage reduction. For production deployments, minification is a standard best practice alongside gzip compression.</p>
+            <h2>API Access</h2>
+            <p>Use our REST API: <code>POST /api/code/minify</code> with JSON body <code>{"code": "...", "language": "js"}</code>. Returns minified code and savings stats. Free for 100 calls/day.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
+    <script>
+    async function minifyCode() {
+        const code = document.getElementById('code').value.trim();
+        const language = document.getElementById('language').value;
+        if (!code) return alert('Paste some code to minify');
+        document.getElementById('result').textContent = 'Minifying...';
+        try {
+            const r = await fetch('/api/code/minify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language })
+            });
+            const j = await r.json();
+            document.getElementById('result').textContent = JSON.stringify(j, null, 2);
+        } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+    }
+    function copyResult() {
+        const t = document.getElementById('result').textContent;
+        navigator.clipboard.writeText(t);
+    }
+    </script>
+</body>
+</html>

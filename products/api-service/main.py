@@ -35,7 +35,7 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="180+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, placeholder images, favicon extractor, sitemap generator, README generator, meta tags, CSS gradients, htaccess, robots.txt, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
+    description="220+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
     version="1.10.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
@@ -7369,9 +7369,9 @@ async def api_stats():
     """Public API statistics: total endpoints, tools, uptime, version."""
     route_count = sum(1 for r in app.routes if hasattr(r, "methods") and not r.path.startswith("/docs"))
     return {
-        "version": "1.9.0",
+        "version": "1.13.0",
         "total_endpoints": route_count,
-        "mcp_tools": 89,
+        "mcp_tools": 135,
         "uptime_start": datetime.now(timezone.utc).isoformat(),
         "pricing": {"free": "100 calls/day", "pro": "$9.99/mo (10k calls/day)", "enterprise": "$49.99/mo (100k calls/day)"},
         "payment_methods": ["ETH", "USDC", "USDT", "DAI", "SOL", "USDC-SPL"],
@@ -8694,6 +8694,784 @@ async def generate_docker_compose(request: Request):
     except Exception:
         yaml_str = json.dumps(compose, indent=2)
     return {"docker_compose": yaml_str, "service_count": len(services)}
+
+
+# --- Premium API Endpoints (v1.13.0) ---
+
+@app.post("/api/code/review")
+async def code_review(request: Request):
+    """Analyze code for bugs, security issues, and improvements. Supports Python, JS, TS, Go, Rust, Java."""
+    body = await request.json()
+    code = body.get("code", "")
+    language = body.get("language", "auto")
+    if not code:
+        raise HTTPException(status_code=400, detail="code field required")
+    if len(code) > 50000:
+        raise HTTPException(status_code=400, detail="Code too long (max 50KB)")
+
+    issues = []
+    suggestions = []
+    stats = {"lines": len(code.splitlines()), "chars": len(code), "language": language}
+
+    # Detect language if auto
+    if language == "auto":
+        if "def " in code and "import " in code:
+            language = "python"
+        elif "function " in code or "const " in code or "=>" in code:
+            language = "javascript"
+        elif "func " in code and "package " in code:
+            language = "go"
+        elif "fn " in code and "let mut" in code:
+            language = "rust"
+        elif "public class" in code:
+            language = "java"
+        else:
+            language = "unknown"
+        stats["language"] = language
+
+    # Security checks (language-agnostic)
+    security_patterns = [
+        (r'eval\s*\(', "eval() usage detected: potential code injection vulnerability", "critical"),
+        (r'exec\s*\(', "exec() usage detected: potential code injection", "critical"),
+        (r'os\.system\s*\(', "os.system() usage: use subprocess with shell=False instead", "high"),
+        (r'subprocess\.call\(.*shell\s*=\s*True', "subprocess with shell=True: command injection risk", "high"),
+        (r'pickle\.loads?\s*\(', "pickle deserialization: potential arbitrary code execution", "critical"),
+        (r'yaml\.load\s*\([^)]*\)(?!.*Loader)', "yaml.load without SafeLoader: code execution risk", "high"),
+        (r'innerHTML\s*=', "innerHTML assignment: potential XSS vulnerability", "high"),
+        (r'document\.write\s*\(', "document.write: potential XSS", "medium"),
+        (r'SELECT.*\+.*["\']', "String concatenation in SQL: potential SQL injection", "critical"),
+        (r'f["\'].*SELECT.*\{', "f-string in SQL query: potential SQL injection", "critical"),
+        (r'password\s*=\s*["\'][^"\']+["\']', "Hardcoded password detected", "critical"),
+        (r'api[_-]?key\s*=\s*["\'][^"\']+["\']', "Hardcoded API key detected", "high"),
+        (r'secret\s*=\s*["\'][^"\']+["\']', "Hardcoded secret detected", "high"),
+        (r'console\.log\(', "console.log left in code", "low"),
+        (r'print\((?!.*#)', "print() statement (remove for production)", "low"),
+        (r'TODO|FIXME|HACK|XXX', "TODO/FIXME marker found", "info"),
+        (r'except\s*:', "Bare except clause: catches all exceptions including SystemExit", "medium"),
+        (r'catch\s*\(\s*\)', "Empty catch block: silently swallows errors", "medium"),
+        (r'\.env', ".env file reference: ensure not committed to version control", "medium"),
+    ]
+    for pattern, msg, severity in security_patterns:
+        matches = list(re.finditer(pattern, code, re.IGNORECASE))
+        for m in matches:
+            line_num = code[:m.start()].count('\n') + 1
+            issues.append({"line": line_num, "message": msg, "severity": severity, "pattern": pattern})
+
+    # Code quality checks
+    lines = code.splitlines()
+    long_lines = [(i+1, len(line)) for i, line in enumerate(lines) if len(line) > 120]
+    if long_lines:
+        suggestions.append({"type": "style", "message": f"{len(long_lines)} lines exceed 120 chars", "lines": long_lines[:5]})
+
+    empty_blocks = len(re.findall(r'(if|for|while|def|function)\s*.*:\s*\n\s*pass', code))
+    if empty_blocks:
+        suggestions.append({"type": "quality", "message": f"{empty_blocks} empty code blocks found"})
+
+    # Complexity estimate
+    complexity = {
+        "functions": len(re.findall(r'(def |function |fn |func )\w+', code)),
+        "classes": len(re.findall(r'(class )\w+', code)),
+        "loops": len(re.findall(r'(for |while )', code)),
+        "conditionals": len(re.findall(r'(if |else |elif |else if)', code)),
+        "imports": len(re.findall(r'(import |from .* import |require\(|use )', code)),
+    }
+
+    critical_count = sum(1 for i in issues if i["severity"] == "critical")
+    high_count = sum(1 for i in issues if i["severity"] == "high")
+    score = max(0, 100 - critical_count * 20 - high_count * 10 - len(long_lines) - empty_blocks * 5)
+
+    return {
+        "score": min(100, score),
+        "grade": "A" if score >= 90 else "B" if score >= 75 else "C" if score >= 60 else "D" if score >= 40 else "F",
+        "issues": issues,
+        "suggestions": suggestions,
+        "complexity": complexity,
+        "stats": stats,
+    }
+
+
+@app.post("/api/code/explain")
+async def code_explain(request: Request):
+    """Generate a plain-English explanation of code, including function signatures, flow, and purpose."""
+    body = await request.json()
+    code = body.get("code", "")
+    if not code:
+        raise HTTPException(status_code=400, detail="code field required")
+    if len(code) > 50000:
+        raise HTTPException(status_code=400, detail="Code too long (max 50KB)")
+
+    lines = code.splitlines()
+    explanation = []
+    functions = []
+    classes = []
+    imports = []
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        # Python functions
+        m = re.match(r'(async\s+)?def\s+(\w+)\s*\((.*?)\)', stripped)
+        if m:
+            functions.append({"name": m.group(2), "params": m.group(3), "async": bool(m.group(1)), "line": i+1})
+        # JS/TS functions
+        m = re.match(r'(export\s+)?(async\s+)?function\s+(\w+)\s*\((.*?)\)', stripped)
+        if m:
+            functions.append({"name": m.group(3), "params": m.group(4), "async": bool(m.group(2)), "line": i+1})
+        # Arrow functions
+        m = re.match(r'(export\s+)?(const|let|var)\s+(\w+)\s*=\s*(async\s+)?\(', stripped)
+        if m:
+            functions.append({"name": m.group(3), "params": "...", "async": bool(m.group(4)), "line": i+1})
+        # Classes
+        m = re.match(r'class\s+(\w+)', stripped)
+        if m:
+            classes.append({"name": m.group(1), "line": i+1})
+        # Imports
+        if stripped.startswith(('import ', 'from ', 'require(', 'use ')):
+            imports.append({"statement": stripped, "line": i+1})
+
+    # Generate summary
+    parts = []
+    if imports:
+        parts.append(f"Imports {len(imports)} dependencies")
+    if classes:
+        parts.append(f"Defines {len(classes)} class(es): {', '.join(c['name'] for c in classes)}")
+    if functions:
+        parts.append(f"Contains {len(functions)} function(s): {', '.join(f['name'] for f in functions)}")
+    parts.append(f"Total: {len(lines)} lines of code")
+
+    return {
+        "summary": ". ".join(parts) + ".",
+        "functions": functions,
+        "classes": classes,
+        "imports": imports,
+        "line_count": len(lines),
+        "has_async": any(f.get("async") for f in functions),
+    }
+
+
+@app.post("/api/openapi/generate")
+async def generate_openapi_spec(request: Request):
+    """Generate an OpenAPI 3.0 spec from endpoint definitions."""
+    body = await request.json()
+    title = body.get("title", "My API")
+    version = body.get("version", "1.0.0")
+    description = body.get("description", "")
+    base_url = body.get("base_url", "https://api.example.com")
+    endpoints = body.get("endpoints", [])
+
+    if not endpoints:
+        raise HTTPException(status_code=400, detail="endpoints array required. Each: {path, method, summary, params?, body?, response?}")
+
+    paths = {}
+    for ep in endpoints:
+        path = ep.get("path", "/")
+        method = ep.get("method", "get").lower()
+        summary = ep.get("summary", "")
+        params = ep.get("params", [])
+        req_body = ep.get("body", None)
+        response = ep.get("response", {"type": "object"})
+
+        operation = {"summary": summary, "responses": {"200": {"description": "Success", "content": {"application/json": {"schema": response}}}}}
+        if params:
+            operation["parameters"] = [{"name": p.get("name"), "in": p.get("in", "query"), "required": p.get("required", False), "schema": {"type": p.get("type", "string")}} for p in params]
+        if req_body:
+            operation["requestBody"] = {"required": True, "content": {"application/json": {"schema": req_body}}}
+
+        if path not in paths:
+            paths[path] = {}
+        paths[path][method] = operation
+
+    spec = {
+        "openapi": "3.0.3",
+        "info": {"title": title, "version": version, "description": description},
+        "servers": [{"url": base_url}],
+        "paths": paths,
+    }
+    import yaml
+    try:
+        yaml_output = yaml.dump(spec, default_flow_style=False, sort_keys=False)
+    except Exception:
+        yaml_output = None
+
+    return {"spec": spec, "yaml": yaml_output, "endpoint_count": len(endpoints)}
+
+
+@app.post("/api/data/fake")
+async def generate_fake_data(request: Request):
+    """Generate realistic fake/mock data for testing. Schemas, users, products, addresses, etc."""
+    body = await request.json()
+    schema_type = body.get("type", "user")
+    count = min(body.get("count", 10), 100)
+    locale = body.get("locale", "en")
+
+    import random
+    import string
+
+    first_names = ["James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda", "David", "Elizabeth", "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Christopher", "Karen", "Daniel", "Lisa", "Matthew", "Nancy", "Anthony", "Betty", "Mark", "Margaret", "Donald", "Sandra"]
+    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson"]
+    domains = ["gmail.com", "yahoo.com", "outlook.com", "proton.me", "hey.com", "fastmail.com", "icloud.com"]
+    streets = ["Main St", "Oak Ave", "Maple Dr", "Cedar Ln", "Elm St", "Pine Rd", "Washington Blvd", "Park Ave", "Lake Dr", "Hill St"]
+    cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "Austin"]
+    states = ["NY", "CA", "IL", "TX", "AZ", "PA", "TX", "CA", "TX", "TX"]
+    companies = ["TechCorp", "DataFlow", "CloudNine", "PixelPerfect", "ByteForge", "CodeCraft", "NeuralNet", "QuantumLeap", "SkyBridge", "AeroSoft"]
+    products_list = ["Widget Pro", "Gadget Max", "Tool Kit", "Smart Sensor", "Power Bank", "LED Strip", "USB Hub", "Wireless Charger", "Cable Organizer", "Desk Lamp"]
+    categories = ["Electronics", "Software", "Hardware", "Services", "Accessories"]
+
+    data = []
+    for i in range(count):
+        first = random.choice(first_names)
+        last = random.choice(last_names)
+        uid = uuid.uuid4().hex[:8]
+
+        if schema_type == "user":
+            data.append({
+                "id": uid,
+                "first_name": first,
+                "last_name": last,
+                "email": f"{first.lower()}.{last.lower()}@{random.choice(domains)}",
+                "age": random.randint(18, 80),
+                "phone": f"+1{random.randint(200,999)}{random.randint(1000000,9999999)}",
+                "created_at": f"2024-{random.randint(1,12):02d}-{random.randint(1,28):02d}T{random.randint(0,23):02d}:{random.randint(0,59):02d}:00Z",
+                "is_active": random.choice([True, True, True, False]),
+            })
+        elif schema_type == "product":
+            price = round(random.uniform(4.99, 299.99), 2)
+            data.append({
+                "id": uid,
+                "name": f"{random.choice(products_list)} {random.choice(['v2', 'Plus', 'Elite', 'Mini', 'XL'])}",
+                "price": price,
+                "currency": "USD",
+                "category": random.choice(categories),
+                "in_stock": random.choice([True, True, False]),
+                "rating": round(random.uniform(3.0, 5.0), 1),
+                "reviews": random.randint(0, 500),
+                "sku": f"SKU-{''.join(random.choices(string.ascii_uppercase + string.digits, k=8))}",
+            })
+        elif schema_type == "address":
+            idx = random.randint(0, len(cities)-1)
+            data.append({
+                "id": uid,
+                "street": f"{random.randint(1, 9999)} {random.choice(streets)}",
+                "city": cities[idx],
+                "state": states[idx],
+                "zip": f"{random.randint(10000, 99999)}",
+                "country": "US",
+            })
+        elif schema_type == "company":
+            data.append({
+                "id": uid,
+                "name": f"{random.choice(companies)} {random.choice(['Inc', 'LLC', 'Corp', 'Ltd', 'GmbH'])}",
+                "industry": random.choice(["Technology", "Finance", "Healthcare", "Education", "Retail", "Manufacturing"]),
+                "employees": random.randint(10, 50000),
+                "revenue": f"${random.randint(1, 500)}M",
+                "founded": random.randint(1990, 2024),
+                "website": f"https://www.{random.choice(companies).lower()}.com",
+            })
+        elif schema_type == "transaction":
+            data.append({
+                "id": uid,
+                "amount": round(random.uniform(1.0, 5000.0), 2),
+                "currency": random.choice(["USD", "EUR", "GBP", "JPY"]),
+                "status": random.choice(["completed", "pending", "failed", "refunded"]),
+                "type": random.choice(["purchase", "refund", "transfer", "subscription"]),
+                "merchant": random.choice(companies),
+                "card_last4": f"{random.randint(1000, 9999)}",
+                "timestamp": f"2024-{random.randint(1,12):02d}-{random.randint(1,28):02d}T{random.randint(0,23):02d}:{random.randint(0,59):02d}:00Z",
+            })
+        elif schema_type == "event":
+            data.append({
+                "id": uid,
+                "event": random.choice(["page_view", "click", "signup", "purchase", "logout", "error", "api_call"]),
+                "user_id": uuid.uuid4().hex[:8],
+                "properties": {"source": random.choice(["web", "mobile", "api"]), "version": f"{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(0,9)}"},
+                "timestamp": f"2024-{random.randint(1,12):02d}-{random.randint(1,28):02d}T{random.randint(0,23):02d}:{random.randint(0,59):02d}:{random.randint(0,59):02d}Z",
+            })
+        else:
+            # Custom: just generate generic objects
+            data.append({
+                "id": uid,
+                "name": f"{first} {last}",
+                "value": round(random.uniform(1, 1000), 2),
+                "category": random.choice(["A", "B", "C", "D"]),
+                "timestamp": f"2024-{random.randint(1,12):02d}-{random.randint(1,28):02d}T{random.randint(0,23):02d}:{random.randint(0,59):02d}:00Z",
+            })
+
+    return {"data": data, "count": len(data), "type": schema_type, "available_types": ["user", "product", "address", "company", "transaction", "event"]}
+
+
+@app.post("/api/code/minify")
+async def minify_code(request: Request):
+    """Minify JavaScript, CSS, or HTML code."""
+    body = await request.json()
+    code = body.get("code", "")
+    language = body.get("language", "auto")
+    if not code:
+        raise HTTPException(status_code=400, detail="code field required")
+
+    original_size = len(code)
+
+    if language == "auto":
+        if "<html" in code.lower() or "<!doctype" in code.lower():
+            language = "html"
+        elif "{" in code and (":" in code) and (";" in code) and ("function" not in code and "var " not in code and "const " not in code):
+            language = "css"
+        else:
+            language = "javascript"
+
+    if language == "javascript" or language == "js":
+        # Basic JS minification
+        minified = re.sub(r'//[^\n]*', '', code)  # Remove single-line comments
+        minified = re.sub(r'/\*[\s\S]*?\*/', '', minified)  # Remove multi-line comments
+        minified = re.sub(r'\s*\n\s*', '\n', minified)  # Remove leading/trailing whitespace per line
+        minified = re.sub(r'\n+', '\n', minified)  # Collapse multiple newlines
+        minified = re.sub(r'\s*([{};,=+\-*/()<>!&|?:])\s*', r'\1', minified)  # Remove spaces around operators
+        minified = minified.strip()
+    elif language == "css":
+        minified = re.sub(r'/\*[\s\S]*?\*/', '', code)
+        minified = re.sub(r'\s+', ' ', minified)
+        minified = re.sub(r'\s*([{};:,>~+])\s*', r'\1', minified)
+        minified = re.sub(r';\s*}', '}', minified)
+        minified = minified.strip()
+    elif language == "html":
+        minified = re.sub(r'<!--[\s\S]*?-->', '', code)
+        minified = re.sub(r'>\s+<', '><', minified)
+        minified = re.sub(r'\s+', ' ', minified)
+        minified = minified.strip()
+    else:
+        minified = re.sub(r'\s+', ' ', code).strip()
+
+    new_size = len(minified)
+    savings = round((1 - new_size / original_size) * 100, 1) if original_size > 0 else 0
+
+    return {
+        "minified": minified,
+        "original_size": original_size,
+        "minified_size": new_size,
+        "savings_percent": savings,
+        "language": language,
+    }
+
+
+@app.post("/api/code/format")
+async def format_code(request: Request):
+    """Auto-format/beautify code (JS, CSS, HTML, JSON, SQL)."""
+    body = await request.json()
+    code = body.get("code", "")
+    language = body.get("language", "auto")
+    indent = body.get("indent", 2)
+    if not code:
+        raise HTTPException(status_code=400, detail="code field required")
+
+    if language == "auto" or language == "json":
+        try:
+            parsed = json.loads(code)
+            return {"formatted": json.dumps(parsed, indent=indent, ensure_ascii=False), "language": "json"}
+        except Exception:
+            if language == "json":
+                raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    if language == "auto":
+        if "SELECT" in code.upper() or "INSERT" in code.upper() or "CREATE TABLE" in code.upper():
+            language = "sql"
+        elif "<html" in code.lower():
+            language = "html"
+        elif "{" in code and ":" in code and ";" in code:
+            language = "css"
+        else:
+            language = "text"
+
+    if language == "sql":
+        keywords = ["SELECT", "FROM", "WHERE", "AND", "OR", "JOIN", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN",
+                     "ON", "GROUP BY", "ORDER BY", "HAVING", "LIMIT", "INSERT INTO", "VALUES", "UPDATE", "SET",
+                     "DELETE FROM", "CREATE TABLE", "ALTER TABLE", "DROP TABLE", "CREATE INDEX", "UNION"]
+        formatted = code
+        for kw in sorted(keywords, key=len, reverse=True):
+            formatted = re.sub(rf'\b{kw}\b', kw, formatted, flags=re.IGNORECASE)
+            formatted = re.sub(rf'\b({kw})\b', r'\n\1', formatted, flags=re.IGNORECASE)
+        formatted = re.sub(r'\n\s*\n', '\n', formatted).strip()
+        return {"formatted": formatted, "language": "sql"}
+
+    if language == "html":
+        try:
+            soup = BeautifulSoup(code, "html.parser")
+            formatted = soup.prettify()
+            return {"formatted": formatted, "language": "html"}
+        except Exception:
+            pass
+
+    return {"formatted": code, "language": language, "note": "Formatting applied where possible"}
+
+
+@app.post("/api/text/translate-code")
+async def translate_code_between_languages(request: Request):
+    """Generate equivalent code patterns between languages (Python <-> JS <-> Go <-> Rust)."""
+    body = await request.json()
+    pattern = body.get("pattern", "")
+    from_lang = body.get("from", "python")
+    to_lang = body.get("to", "javascript")
+
+    if not pattern:
+        raise HTTPException(status_code=400, detail="pattern field required")
+
+    # Common patterns lookup table
+    patterns = {
+        "http_get": {
+            "python": 'import httpx\nresponse = httpx.get("https://api.example.com/data")\ndata = response.json()',
+            "javascript": 'const response = await fetch("https://api.example.com/data");\nconst data = await response.json();',
+            "typescript": 'const response: Response = await fetch("https://api.example.com/data");\nconst data: any = await response.json();',
+            "go": 'resp, err := http.Get("https://api.example.com/data")\nif err != nil {\n    log.Fatal(err)\n}\ndefer resp.Body.Close()\nbody, _ := io.ReadAll(resp.Body)',
+            "rust": 'let response = reqwest::get("https://api.example.com/data").await?;\nlet data: serde_json::Value = response.json().await?;',
+        },
+        "read_file": {
+            "python": 'with open("file.txt", "r") as f:\n    content = f.read()',
+            "javascript": 'import { readFileSync } from "fs";\nconst content = readFileSync("file.txt", "utf-8");',
+            "typescript": 'import { readFileSync } from "fs";\nconst content: string = readFileSync("file.txt", "utf-8");',
+            "go": 'content, err := os.ReadFile("file.txt")\nif err != nil {\n    log.Fatal(err)\n}',
+            "rust": 'let content = std::fs::read_to_string("file.txt")?;',
+        },
+        "json_parse": {
+            "python": 'import json\ndata = json.loads(json_string)',
+            "javascript": 'const data = JSON.parse(jsonString);',
+            "typescript": 'const data: Record<string, unknown> = JSON.parse(jsonString);',
+            "go": 'var data map[string]interface{}\nerr := json.Unmarshal([]byte(jsonString), &data)',
+            "rust": 'let data: serde_json::Value = serde_json::from_str(&json_string)?;',
+        },
+        "hash_sha256": {
+            "python": 'import hashlib\ndigest = hashlib.sha256(data.encode()).hexdigest()',
+            "javascript": 'const { createHash } = require("crypto");\nconst digest = createHash("sha256").update(data).digest("hex");',
+            "typescript": 'import { createHash } from "crypto";\nconst digest: string = createHash("sha256").update(data).digest("hex");',
+            "go": 'h := sha256.Sum256([]byte(data))\ndigest := hex.EncodeToString(h[:])',
+            "rust": 'use sha2::{Sha256, Digest};\nlet digest = format!("{:x}", Sha256::digest(data.as_bytes()));',
+        },
+        "env_var": {
+            "python": 'import os\nvalue = os.environ.get("KEY", "default")',
+            "javascript": 'const value = process.env.KEY || "default";',
+            "typescript": 'const value: string = process.env.KEY ?? "default";',
+            "go": 'value := os.Getenv("KEY")\nif value == "" {\n    value = "default"\n}',
+            "rust": 'let value = std::env::var("KEY").unwrap_or_else(|_| "default".to_string());',
+        },
+    }
+
+    available_patterns = list(patterns.keys())
+    p = pattern.lower().replace(" ", "_").replace("-", "_")
+
+    if p in patterns:
+        result = patterns[p]
+        return {
+            "pattern": p,
+            "from": from_lang,
+            "to": to_lang,
+            "from_code": result.get(from_lang, "Pattern not available for this language"),
+            "to_code": result.get(to_lang, "Pattern not available for this language"),
+            "all_languages": {lang: code for lang, code in result.items()},
+        }
+
+    return {
+        "error": f"Pattern '{pattern}' not found",
+        "available_patterns": available_patterns,
+        "hint": "Try: http_get, read_file, json_parse, hash_sha256, env_var",
+    }
+
+
+@app.post("/api/schema/validate")
+async def validate_json_schema(request: Request):
+    """Validate JSON data against a JSON Schema."""
+    body = await request.json()
+    data = body.get("data")
+    schema = body.get("schema")
+
+    if data is None or schema is None:
+        raise HTTPException(status_code=400, detail="Both 'data' and 'schema' fields required")
+
+    errors = []
+
+    def validate(obj, sch, path="$"):
+        obj_type = sch.get("type")
+        if obj_type:
+            type_map = {"string": str, "number": (int, float), "integer": int, "boolean": bool, "array": list, "object": dict, "null": type(None)}
+            expected = type_map.get(obj_type)
+            if expected and not isinstance(obj, expected):
+                errors.append({"path": path, "message": f"Expected {obj_type}, got {type(obj).__name__}", "value": str(obj)[:100]})
+                return
+
+        if obj_type == "object" and isinstance(obj, dict):
+            required = sch.get("required", [])
+            for r in required:
+                if r not in obj:
+                    errors.append({"path": f"{path}.{r}", "message": f"Required field '{r}' is missing"})
+            props = sch.get("properties", {})
+            for key, prop_schema in props.items():
+                if key in obj:
+                    validate(obj[key], prop_schema, f"{path}.{key}")
+
+        if obj_type == "array" and isinstance(obj, list):
+            items_schema = sch.get("items")
+            min_items = sch.get("minItems", 0)
+            max_items = sch.get("maxItems", float("inf"))
+            if len(obj) < min_items:
+                errors.append({"path": path, "message": f"Array has {len(obj)} items, minimum is {min_items}"})
+            if len(obj) > max_items:
+                errors.append({"path": path, "message": f"Array has {len(obj)} items, maximum is {max_items}"})
+            if items_schema:
+                for i, item in enumerate(obj[:20]):
+                    validate(item, items_schema, f"{path}[{i}]")
+
+        if obj_type == "string" and isinstance(obj, str):
+            min_len = sch.get("minLength", 0)
+            max_len = sch.get("maxLength", float("inf"))
+            if len(obj) < min_len:
+                errors.append({"path": path, "message": f"String length {len(obj)} < minLength {min_len}"})
+            if len(obj) > max_len:
+                errors.append({"path": path, "message": f"String length {len(obj)} > maxLength {max_len}"})
+            pattern = sch.get("pattern")
+            if pattern and not re.search(pattern, obj):
+                errors.append({"path": path, "message": f"String does not match pattern: {pattern}"})
+            enum = sch.get("enum")
+            if enum and obj not in enum:
+                errors.append({"path": path, "message": f"Value must be one of: {enum}"})
+
+        if obj_type in ("number", "integer") and isinstance(obj, (int, float)):
+            minimum = sch.get("minimum")
+            maximum = sch.get("maximum")
+            if minimum is not None and obj < minimum:
+                errors.append({"path": path, "message": f"Value {obj} < minimum {minimum}"})
+            if maximum is not None and obj > maximum:
+                errors.append({"path": path, "message": f"Value {obj} > maximum {maximum}"})
+
+    try:
+        validate(data, schema)
+    except Exception as e:
+        errors.append({"path": "$", "message": f"Validation error: {str(e)}"})
+
+    return {"valid": len(errors) == 0, "errors": errors, "error_count": len(errors)}
+
+
+@app.post("/api/data/csv-analyze")
+async def analyze_csv_data(request: Request):
+    """Analyze CSV data: column types, stats, missing values, unique counts."""
+    body = await request.json()
+    csv_text = body.get("csv", "")
+    if not csv_text:
+        raise HTTPException(status_code=400, detail="csv field required (CSV text)")
+
+    import csv as csv_mod
+    import io as io_mod
+
+    reader = csv_mod.DictReader(io_mod.StringIO(csv_text))
+    rows = list(reader)
+    if not rows:
+        return {"error": "No data rows found"}
+
+    columns = {}
+    for col in rows[0].keys():
+        values = [r.get(col, "") for r in rows]
+        non_empty = [v for v in values if v.strip()]
+        missing = len(values) - len(non_empty)
+        unique = len(set(non_empty))
+
+        # Detect type
+        numeric_count = 0
+        numeric_values = []
+        for v in non_empty:
+            try:
+                numeric_values.append(float(v))
+                numeric_count += 1
+            except ValueError:
+                pass
+
+        if numeric_count == len(non_empty) and non_empty:
+            col_type = "numeric"
+            stats = {
+                "min": min(numeric_values),
+                "max": max(numeric_values),
+                "mean": round(sum(numeric_values) / len(numeric_values), 2),
+                "sum": round(sum(numeric_values), 2),
+            }
+        else:
+            col_type = "text"
+            lengths = [len(v) for v in non_empty]
+            stats = {
+                "min_length": min(lengths) if lengths else 0,
+                "max_length": max(lengths) if lengths else 0,
+                "avg_length": round(sum(lengths) / len(lengths), 1) if lengths else 0,
+            }
+
+        columns[col] = {
+            "type": col_type,
+            "total": len(values),
+            "missing": missing,
+            "unique": unique,
+            "sample": non_empty[:3],
+            "stats": stats,
+        }
+
+    return {
+        "row_count": len(rows),
+        "column_count": len(columns),
+        "columns": columns,
+    }
+
+
+@app.post("/api/security/headers-check")
+async def check_security_headers(request: Request):
+    """Analyze HTTP security headers of a URL."""
+    body = await request.json()
+    url = body.get("url", "")
+    if not url:
+        raise HTTPException(status_code=400, detail="url field required")
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not fetch URL: {str(e)}")
+
+    headers = dict(resp.headers)
+    checks = {
+        "Strict-Transport-Security": {"present": "strict-transport-security" in {k.lower() for k in headers}, "recommendation": "Add HSTS header: Strict-Transport-Security: max-age=31536000; includeSubDomains", "severity": "high"},
+        "Content-Security-Policy": {"present": "content-security-policy" in {k.lower() for k in headers}, "recommendation": "Add CSP header to prevent XSS attacks", "severity": "high"},
+        "X-Content-Type-Options": {"present": "x-content-type-options" in {k.lower() for k in headers}, "recommendation": "Add: X-Content-Type-Options: nosniff", "severity": "medium"},
+        "X-Frame-Options": {"present": "x-frame-options" in {k.lower() for k in headers}, "recommendation": "Add: X-Frame-Options: DENY or SAMEORIGIN", "severity": "medium"},
+        "X-XSS-Protection": {"present": "x-xss-protection" in {k.lower() for k in headers}, "recommendation": "Add: X-XSS-Protection: 1; mode=block", "severity": "low"},
+        "Referrer-Policy": {"present": "referrer-policy" in {k.lower() for k in headers}, "recommendation": "Add: Referrer-Policy: strict-origin-when-cross-origin", "severity": "low"},
+        "Permissions-Policy": {"present": "permissions-policy" in {k.lower() for k in headers}, "recommendation": "Add Permissions-Policy header", "severity": "low"},
+    }
+
+    passed = sum(1 for c in checks.values() if c["present"])
+    total = len(checks)
+    score = round(passed / total * 100)
+
+    return {
+        "url": url,
+        "status_code": resp.status_code,
+        "score": score,
+        "grade": "A" if score >= 85 else "B" if score >= 70 else "C" if score >= 50 else "D" if score >= 30 else "F",
+        "checks": checks,
+        "passed": passed,
+        "total": total,
+        "server": headers.get("server", "unknown"),
+    }
+
+
+@app.post("/api/generate/api-client")
+async def generate_api_client(request: Request):
+    """Generate API client code from endpoint definitions (Python, JS, cURL)."""
+    body = await request.json()
+    base_url = body.get("base_url", "https://api.example.com")
+    endpoints = body.get("endpoints", [])
+    language = body.get("language", "python")
+
+    if not endpoints:
+        raise HTTPException(status_code=400, detail="endpoints array required")
+
+    if language == "python":
+        lines = ['import httpx\n', f'BASE_URL = "{base_url}"\n', 'client = httpx.Client(base_url=BASE_URL)\n']
+        for ep in endpoints:
+            method = ep.get("method", "GET").upper()
+            path = ep.get("path", "/")
+            name = ep.get("name", path.replace("/", "_").strip("_"))
+            params = ep.get("params", [])
+            body_fields = ep.get("body", {})
+
+            param_str = ", ".join([p.get("name", "param") + ': str = ""' for p in params])
+            lines.append(f'\ndef {name}({param_str}):')
+            if method == "GET":
+                if params:
+                    param_dict = ", ".join([f'"{p.get("name")}": {p.get("name")}' for p in params])
+                    lines.append(f'    return client.get("{path}", params={{{param_dict}}}).json()')
+                else:
+                    lines.append(f'    return client.get("{path}").json()')
+            else:
+                lines.append(f'    return client.{method.lower()}("{path}", json={body_fields or {}}).json()')
+        code = "\n".join(lines)
+
+    elif language in ("javascript", "js", "typescript", "ts"):
+        lines = [f'const BASE_URL = "{base_url}";\n']
+        for ep in endpoints:
+            method = ep.get("method", "GET").upper()
+            path = ep.get("path", "/")
+            name = ep.get("name", re.sub(r'[^a-zA-Z0-9]', '_', path).strip("_"))
+            params = ep.get("params", [])
+
+            param_str = ", ".join([p.get("name", "param") for p in params])
+            lines.append(f'\nasync function {name}({param_str}) {{')
+            if method == "GET":
+                if params:
+                    qs = " + ".join([f'"&{p.get("name")}=" + encodeURIComponent({p.get("name")})' for p in params])
+                    lines.append(f'  const res = await fetch(`${{BASE_URL}}{path}?` + {qs});')
+                else:
+                    lines.append(f'  const res = await fetch(`${{BASE_URL}}{path}`);')
+            else:
+                lines.append(f'  const res = await fetch(`${{BASE_URL}}{path}`, {{')
+                lines.append(f'    method: "{method}",')
+                lines.append(f'    headers: {{"Content-Type": "application/json"}},')
+                lines.append(f'    body: JSON.stringify({{}}),')
+                lines.append(f'  }});')
+            lines.append(f'  return res.json();')
+            lines.append(f'}}')
+        code = "\n".join(lines)
+
+    elif language == "curl":
+        lines = []
+        for ep in endpoints:
+            method = ep.get("method", "GET").upper()
+            path = ep.get("path", "/")
+            if method == "GET":
+                lines.append(f'curl -s "{base_url}{path}"')
+            else:
+                lines.append(f'curl -s -X {method} "{base_url}{path}" \\')
+                lines.append(f'  -H "Content-Type: application/json" \\')
+                lines.append(f'  -d \'{{}}\'')
+            lines.append("")
+        code = "\n".join(lines)
+    else:
+        code = "Supported languages: python, javascript, typescript, curl"
+
+    return {"code": code, "language": language, "endpoint_count": len(endpoints)}
+
+
+@app.post("/api/generate/env-template")
+async def generate_env_template(request: Request):
+    """Generate a .env.example template from a list of environment variables or parse existing .env."""
+    body = await request.json()
+    env_content = body.get("env", "")
+    variables = body.get("variables", [])
+
+    if env_content:
+        # Parse existing .env and create template
+        lines = []
+        for line in env_content.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                lines.append(line)
+                continue
+            if "=" in line:
+                key = line.split("=", 1)[0].strip()
+                # Mask the value
+                if any(s in key.lower() for s in ["secret", "key", "password", "token", "auth"]):
+                    lines.append(f"{key}=your_{key.lower()}_here")
+                elif any(s in key.lower() for s in ["url", "host", "endpoint"]):
+                    lines.append(f"{key}=https://example.com")
+                elif any(s in key.lower() for s in ["port"]):
+                    lines.append(f"{key}=3000")
+                elif any(s in key.lower() for s in ["debug", "verbose", "enable"]):
+                    lines.append(f"{key}=false")
+                else:
+                    lines.append(f"{key}=")
+        return {"template": "\n".join(lines), "variable_count": sum(1 for l in lines if "=" in l and not l.startswith("#"))}
+
+    if variables:
+        lines = ["# Environment Configuration", "# Generated by ToolPipe", ""]
+        for var in variables:
+            name = var if isinstance(var, str) else var.get("name", "")
+            desc = "" if isinstance(var, str) else var.get("description", "")
+            if desc:
+                lines.append(f"# {desc}")
+            lines.append(f"{name}=")
+        return {"template": "\n".join(lines), "variable_count": len(variables)}
+
+    return {"error": "Provide 'env' (existing .env content) or 'variables' (list of var names/objects)"}
 
 
 # --- SEO Pages (catch-all for static content pages) ---

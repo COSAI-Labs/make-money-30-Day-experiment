@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "120+ developer tools via MCP: JSON, QR, hash, UUID, DNS, SSL, WHOIS, Docker, Nginx, and more",
+  "description": "135+ developer tools via MCP: code review, fake data, JSON Schema validation, security headers, API client generation, OpenAPI specs, CSV analysis, code minification, plus JSON, QR, hash, UUID, DNS, SSL, WHOIS, Docker, Nginx, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.12.0",
+  "version": "1.13.0",
   "remotes": [
     {
       "type": "streamable-http",

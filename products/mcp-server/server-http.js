@@ -46,10 +46,10 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.10.0" },
+    { name: "toolpipe", version: "1.13.0" },
     {
       capabilities: { tools: {} },
-      instructions: "ToolPipe provides 180+ developer utility APIs as 85+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT, SQL formatting, XML/YAML, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP info, password checking, color palettes, text diffing, placeholder images, favicons, sitemaps, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more.",
+      instructions: "ToolPipe provides 220+ developer utility APIs as 120+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT, SQL formatting, XML/YAML, text stats, code review, code explain, fake data generation, OpenAPI spec generation, security header checking, API client generation, CSV analysis, JSON Schema validation, code minification, and more. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99).",
     }
   );
 
@@ -113,15 +113,10 @@ function createServer() {
   server.tool("test_endpoint", "Test API endpoints with detailed response metrics and timing.", { url: z.string(), method: z.string().optional(), headers: z.record(z.string()).optional(), body: z.string().optional() }, async ({ url, method, headers, body }) => textResult(await apiCall("/api/test/endpoint", { method: "POST", body: JSON.stringify({ url, method: method || "GET", headers: headers || {}, body: body || "" }) })));
   server.tool("text_similarity", "Calculate text similarity (Jaccard, cosine, character-level).", { text1: z.string(), text2: z.string() }, async ({ text1, text2 }) => textResult(await apiCall("/api/text/similarity", { method: "POST", body: JSON.stringify({ text1, text2 }) })));
 
-  // v1.5.0 new tools
-  server.tool("ip_lookup", "Look up IP geolocation, ISP, and network info.", { ip: z.string() }, async ({ ip }) => textResult(await apiCall(`/api/ip/lookup?ip=${encodeURIComponent(ip)}`)));
-  server.tool("text_diff", "Generate unified diff between two texts.", { original: z.string(), modified: z.string(), context_lines: z.number().optional() }, async ({ original, modified, context_lines }) => textResult(await apiCall("/api/diff/text", { method: "POST", body: JSON.stringify({ original, modified, context_lines: context_lines || 3 }) })));
-  server.tool("jwt_decode", "Decode JWT tokens without verification.", { token: z.string() }, async ({ token }) => textResult(await apiCall("/api/jwt/decode", { method: "POST", body: JSON.stringify({ token }) })));
+  // v1.5.0 new tools (deduplicated: ip_lookup, text_diff, jwt_decode, regex_test, lorem_ipsum already defined above)
   server.tool("time_convert", "Convert timestamps (Unix, ISO 8601, human-readable).", { timestamp: z.string().optional() }, async ({ timestamp }) => textResult(await apiCall(`/api/time/convert${timestamp ? `?timestamp=${encodeURIComponent(timestamp)}` : ""}`)));
   server.tool("headers_analyze", "Analyze HTTP response headers for security and caching.", { url: z.string() }, async ({ url }) => textResult(await apiCall(`/api/headers/analyze?url=${encodeURIComponent(url)}`)));
   server.tool("password_check", "Check password strength with entropy and crack time.", { password: z.string() }, async ({ password }) => textResult(await apiCall("/api/password/check", { method: "POST", body: JSON.stringify({ password }) })));
-  server.tool("regex_test", "Test regex patterns with match details and groups.", { pattern: z.string(), text: z.string(), flags: z.string().optional() }, async ({ pattern, text, flags }) => textResult(await apiCall("/api/regex/test", { method: "POST", body: JSON.stringify({ pattern, text, flags: flags || "" }) })));
-  server.tool("lorem_ipsum", "Generate lorem ipsum placeholder text.", { paragraphs: z.number().optional(), format: z.string().optional() }, async ({ paragraphs, format }) => textResult(await apiCall(`/api/lorem?paragraphs=${paragraphs || 3}&format=${format || "text"}`)));
   server.tool("color_palette", "Generate color palettes from a base color.", { base_color: z.string(), scheme: z.string().optional(), count: z.number().optional() }, async ({ base_color, scheme, count }) => textResult(await apiCall(`/api/color/palette?base_color=${encodeURIComponent(base_color)}&scheme=${scheme || "complementary"}&count=${count || 5}`)));
   server.tool("slug_generate", "Generate URL-friendly slugs.", { text: z.string(), separator: z.string().optional() }, async ({ text, separator }) => textResult(await apiCall("/api/slug/generate", { method: "POST", body: JSON.stringify({ text, separator: separator || "-" }) })));
   server.tool("markdown_strip", "Strip markdown formatting to plain text.", { markdown: z.string() }, async ({ markdown }) => textResult(await apiCall("/api/markdown/strip", { method: "POST", body: JSON.stringify({ markdown }) })));
@@ -194,6 +189,19 @@ function createServer() {
   server.tool("timestamp_info", "Get timestamp info or convert Unix timestamp.", { ts: z.number().optional() }, async ({ ts }) => textResult(await apiCall(ts != null ? `/api/timestamp?ts=${ts}` : "/api/timestamp")));
   server.tool("text_diff_detailed", "Detailed text diff with additions/deletions count.", { text1: z.string(), text2: z.string() }, async ({ text1, text2 }) => textResult(await apiCall("/api/diff/text-detailed", { method: "POST", body: JSON.stringify({ text1, text2 }) })));
 
+  // v1.13.0 Premium Tools
+  server.tool("code_review", "Analyze code for bugs, security issues, and improvements. Returns score/grade.", { code: z.string(), language: z.string().optional() }, async ({ code, language }) => textResult(await apiCall("/api/code/review", { method: "POST", body: JSON.stringify({ code, language: language ?? "auto" }) })));
+  server.tool("code_explain", "Explain code: extract functions, classes, imports, and generate summary.", { code: z.string() }, async ({ code }) => textResult(await apiCall("/api/code/explain", { method: "POST", body: JSON.stringify({ code }) })));
+  server.tool("generate_openapi", "Generate OpenAPI 3.0 spec from endpoint definitions.", { title: z.string(), endpoints: z.string(), base_url: z.string().optional() }, async ({ title, endpoints, base_url }) => textResult(await apiCall("/api/openapi/generate", { method: "POST", body: JSON.stringify({ title, endpoints: JSON.parse(endpoints), base_url }) })));
+  server.tool("fake_data", "Generate realistic mock data (user, product, address, company, transaction, event).", { type: z.string().optional(), count: z.number().optional() }, async ({ type, count }) => textResult(await apiCall("/api/data/fake", { method: "POST", body: JSON.stringify({ type: type ?? "user", count: count ?? 10 }) })));
+  server.tool("code_minify", "Minify JavaScript, CSS, or HTML code.", { code: z.string(), language: z.string().optional() }, async ({ code, language }) => textResult(await apiCall("/api/code/minify", { method: "POST", body: JSON.stringify({ code, language: language ?? "auto" }) })));
+  server.tool("translate_code_pattern", "Get equivalent code in another language (http_get, read_file, json_parse, etc).", { pattern: z.string(), from: z.string().optional(), to: z.string().optional() }, async ({ pattern, from: f, to: t }) => textResult(await apiCall("/api/text/translate-code", { method: "POST", body: JSON.stringify({ pattern, from: f ?? "python", to: t ?? "javascript" }) })));
+  server.tool("validate_json_schema", "Validate JSON against a JSON Schema.", { data: z.string(), schema: z.string() }, async ({ data, schema }) => textResult(await apiCall("/api/schema/validate", { method: "POST", body: JSON.stringify({ data: JSON.parse(data), schema: JSON.parse(schema) }) })));
+  server.tool("csv_analyze", "Analyze CSV: column types, stats, missing values.", { csv: z.string() }, async ({ csv }) => textResult(await apiCall("/api/data/csv-analyze", { method: "POST", body: JSON.stringify({ csv }) })));
+  server.tool("security_headers_check", "Check HTTP security headers of a URL.", { url: z.string() }, async ({ url }) => textResult(await apiCall("/api/security/headers-check", { method: "POST", body: JSON.stringify({ url }) })));
+  server.tool("generate_api_client", "Generate API client code (Python, JS, cURL) from endpoint list.", { base_url: z.string(), endpoints: z.string(), language: z.string().optional() }, async ({ base_url, endpoints, language }) => textResult(await apiCall("/api/generate/api-client", { method: "POST", body: JSON.stringify({ base_url, endpoints: JSON.parse(endpoints), language: language ?? "python" }) })));
+  server.tool("generate_env_template", "Generate .env.example template from variables or existing .env.", { env: z.string().optional(), variables: z.string().optional() }, async ({ env, variables }) => textResult(await apiCall("/api/generate/env-template", { method: "POST", body: JSON.stringify({ env, variables: variables ? JSON.parse(variables) : undefined }) })));
+
   return server;
 }
 
@@ -214,10 +222,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.10.0",
+    version: "1.13.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 85,
+    tools: 120,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -248,5 +256,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`85 tools available. API backend: ${API_BASE}`);
+  console.log(`120+ tools available. API backend: ${API_BASE}`);
 });

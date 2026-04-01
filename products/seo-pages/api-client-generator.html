@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Client Generator - Generate Python, JS, and cURL Clients</title>
+    <meta name="description" content="Generate API client code in Python, JavaScript, or cURL from endpoint definitions. Instant client code generation. Free, no signup.">
+    <meta property="og:title" content="API Client Generator - Generate Python, JS, and cURL Clients">
+    <link rel="canonical" href="/api-client-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        select, input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; background: white; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>API Client Generator</h1>
+        <p class="subtitle">Generate ready-to-use API client code in Python, JavaScript, or cURL</p>
+        <div class="tool-box">
+            <label>Endpoints (JSON)</label>
+            <textarea id="endpoints" placeholder='[{"path": "/users", "method": "GET"}, {"path": "/users", "method": "POST", "body": {"name": "string"}}]' style="min-height:150px"></textarea>
+            <label style="margin-top:12px">Language</label>
+            <select id="language">
+                <option value="python">Python (requests)</option>
+                <option value="js">JavaScript (fetch)</option>
+                <option value="curl">cURL</option>
+            </select>
+            <label>Base URL</label>
+            <input type="text" id="base_url" placeholder="https://api.example.com">
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generateClient()">Generate Client</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>What Is an API Client?</h2>
+            <p>An API client is code that makes HTTP requests to an API. Instead of writing fetch or requests calls by hand for every endpoint, this tool generates the boilerplate for you. Define your endpoints once and get ready-to-use client code in your preferred language.</p>
+            <h2>Supported Languages</h2>
+            <p>Generate clients in Python (using the requests library), JavaScript (using fetch), or cURL commands. Each output includes proper headers, error handling patterns, and request body formatting.</p>
+            <h2>API Access</h2>
+            <p>Use our REST API: <code>POST /api/generate/api-client</code> with JSON body containing <code>endpoints</code>, <code>language</code>, and <code>base_url</code>. Returns generated client code. Free for 100 calls/day.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
+    <script>
+    async function generateClient() {
+        const endpointsRaw = document.getElementById('endpoints').value.trim();
+        const language = document.getElementById('language').value;
+        const base_url = document.getElementById('base_url').value.trim() || 'https://api.example.com';
+        if (!endpointsRaw) return alert('Enter endpoint definitions as JSON');
+        let endpoints;
+        try { endpoints = JSON.parse(endpointsRaw); } catch(e) { return alert('Invalid JSON: ' + e.message); }
+        document.getElementById('result').textContent = 'Generating...';
+        try {
+            const r = await fetch('/api/generate/api-client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoints, language, base_url })
+            });
+            const j = await r.json();
+            document.getElementById('result').textContent = JSON.stringify(j, null, 2);
+        } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+    }
+    function copyResult() {
+        const t = document.getElementById('result').textContent;
+        navigator.clipboard.writeText(t);
+    }
+    </script>
+</body>
+</html>
