@@ -149,7 +149,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 </style></head><body>
 <div class="container">
 <h1>Simple, Transparent Pricing</h1>
-<p class="subtitle">112+ API endpoints. Pay with crypto. No KYC required.</p>
+<p class="subtitle">175+ API endpoints. Pay with crypto. No KYC required.</p>
 
 <div class="plans">
 <div class="plan">
@@ -158,7 +158,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="plan-desc">Perfect for testing and personal projects</div>
 <ul class="plan-features">
 <li>100 API calls per day</li>
-<li>All 112+ endpoints</li>
+<li>All 175+ endpoints</li>
 <li>No credit card needed</li>
 <li>Email support</li>
 <li>Rate limited (100 req/min)</li>
@@ -172,7 +172,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="plan-desc">For developers and small teams shipping products</div>
 <ul class="plan-features">
 <li>10,000 API calls per day</li>
-<li>All 112+ endpoints</li>
+<li>All 175+ endpoints</li>
 <li>Priority rate limits</li>
 <li>Pay with any crypto</li>
 <li>Priority support</li>
@@ -186,7 +186,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="plan-desc">For teams and AI agents needing high throughput</div>
 <ul class="plan-features">
 <li>100,000 API calls per day</li>
-<li>All 112+ endpoints</li>
+<li>All 175+ endpoints</li>
 <li>Unlimited rate limits</li>
 <li>Pay with any crypto</li>
 <li>Dedicated support</li>
@@ -197,7 +197,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 
 <div class="agent-box">
 <h2>Built for AI Agents</h2>
-<p>ToolPipe is an MCP server that any AI agent (Claude, GPT, Gemini) can use directly. Install via npm and your agent gets 69 tools instantly.</p>
+<p>ToolPipe is an MCP server that any AI agent (Claude, GPT, Gemini) can use directly. Install via npm and your agent gets 97 tools instantly.</p>
 <code>npx @cosai-labs/toolpipe-mcp-server</code>
 <p style="margin-top:16px;font-size:0.9rem;">Agents can self-serve: register API keys, create payment orders, and verify transactions. All via API, zero human needed.</p>
 </div>
@@ -901,9 +901,9 @@ async def invoice_page():
 async def api_info():
     return {
         "service": "ToolPipe API",
-        "version": "1.7.0",
+        "version": "1.10.0",
         "status": "operational",
-        "total_endpoints": "130+",
+        "total_endpoints": "175+",
         "new_in_v1_7": [
             "/api/sql/format",
             "/api/html/strip",
@@ -927,8 +927,8 @@ async def api_info():
             "code": ["/api/code/analyze", "/api/schema/generate", "/api/regex/test", "/api/cron/parse", "/api/sql/format", "/api/env/parse"],
         },
         "mcp_server": {
-            "stdio_tools": 88,
-            "http_tools": 70,
+            "stdio_tools": 97,
+            "http_tools": 85,
             "http_endpoint": "/mcp",
         },
         "pricing": {
@@ -4262,7 +4262,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 </style></head><body>
 <div class="container">
 <h1>Simple, Transparent Pricing</h1>
-<p class="sub">70+ developer APIs. Pay with crypto. No KYC needed.</p>
+<p class="sub">175+ developer APIs. Pay with crypto. No KYC needed.</p>
 
 <div class="tiers">
 <div class="tier">
@@ -4271,7 +4271,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="period">No credit card required</div>
 <ul>
 <li>100 requests/day</li>
-<li>All 70+ endpoints</li>
+<li>All 175+ endpoints</li>
 <li>JSON, PDF, QR, hash, UUID, DNS, and more</li>
 <li>Community support</li>
 <li>Rate limited (100/min)</li>
@@ -4286,7 +4286,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="period">Billed monthly via crypto</div>
 <ul>
 <li>10,000 requests/day</li>
-<li>All 70+ endpoints</li>
+<li>All 175+ endpoints</li>
 <li>Priority support</li>
 <li>No rate limits</li>
 <li>Bulk operations</li>
@@ -4302,7 +4302,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="period">For high-volume users & AI agents</div>
 <ul>
 <li>100,000 requests/day</li>
-<li>All 70+ endpoints</li>
+<li>All 175+ endpoints</li>
 <li>Dedicated support</li>
 <li>No rate limits</li>
 <li>Bulk operations</li>
@@ -4324,7 +4324,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="faq-item"><h3>How do I get started?</h3><p>Sign up for a free API key at <a href="/api-keys" style="color:#6c63ff">/api-keys</a>. No credit card needed. Start making API calls immediately.</p></div>
 <div class="faq-item"><h3>How does crypto payment work?</h3><p>Click "Upgrade to Pro" or "Get Enterprise", enter your email, and you will be redirected to a secure crypto payment page. Once payment confirms, your API key is automatically upgraded.</p></div>
 <div class="faq-item"><h3>Can AI agents use this API?</h3><p>Yes! ToolPipe is designed for both human developers and AI agents. Use our MCP server package or call the REST API directly. Agents can self-register for API keys and upgrade via crypto.</p></div>
-<div class="faq-item"><h3>What endpoints are included?</h3><p>All plans include access to all 70+ endpoints: JSON formatting, PDF tools, QR codes, hash generation, UUID, DNS lookup, image processing, text analysis, and more. See <a href="/docs" style="color:#6c63ff">/docs</a> for the full list.</p></div>
+<div class="faq-item"><h3>What endpoints are included?</h3><p>All plans include access to all 175+ endpoints: JSON formatting, PDF tools, QR codes, hash generation, UUID, DNS lookup, image processing, text analysis, and more. See <a href="/docs" style="color:#6c63ff">/docs</a> for the full list.</p></div>
 <div class="faq-item"><h3>Is there a refund policy?</h3><p>Due to the nature of crypto payments, refunds are handled case-by-case. Contact toolpipe-ads@sharebot.net.</p></div>
 </div>
 
@@ -7991,6 +7991,700 @@ async function runEndpoint(e, id) {
 }
 </script>
 </body></html>"""))
+
+
+# --- AI/Text Processing APIs ---
+
+@app.post("/api/text/summarize")
+async def text_summarize(request: Request):
+    """Summarize text using extractive summarization (no AI model needed)."""
+    body = await request.json()
+    text = body.get("text", "")
+    max_sentences = body.get("max_sentences", 3)
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    import re as _re
+    sentences = _re.split(r'(?<=[.!?])\s+', text.strip())
+    if len(sentences) <= max_sentences:
+        return {"summary": text, "sentence_count": len(sentences), "original_sentences": len(sentences)}
+    # Score sentences by word frequency
+    words = _re.findall(r'\w+', text.lower())
+    freq = {}
+    stopwords = {'the','a','an','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','need','dare','ought','used','to','of','in','for','on','with','at','by','from','as','into','through','during','before','after','above','below','between','out','off','over','under','again','further','then','once','here','there','when','where','why','how','all','each','every','both','few','more','most','other','some','such','no','nor','not','only','own','same','so','than','too','very','just','because','but','and','or','if','while','that','this','it','its','i','me','my','we','our','you','your','he','him','his','she','her','they','them','their','what','which','who','whom'}
+    for w in words:
+        if w not in stopwords and len(w) > 2:
+            freq[w] = freq.get(w, 0) + 1
+    scores = []
+    for i, s in enumerate(sentences):
+        s_words = _re.findall(r'\w+', s.lower())
+        score = sum(freq.get(w, 0) for w in s_words)
+        if i == 0:
+            score *= 1.5  # First sentence bonus
+        scores.append((i, score, s))
+    scores.sort(key=lambda x: x[1], reverse=True)
+    top = sorted(scores[:max_sentences], key=lambda x: x[0])
+    summary = " ".join(s for _, _, s in top)
+    return {"summary": summary, "sentence_count": len(top), "original_sentences": len(sentences)}
+
+
+@app.post("/api/text/keywords")
+async def text_keywords(request: Request):
+    """Extract keywords from text using TF-based scoring."""
+    body = await request.json()
+    text = body.get("text", "")
+    top_n = min(body.get("top_n", 10), 50)
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    import re as _re
+    words = _re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
+    stopwords = {'the','and','for','are','but','not','you','all','any','can','had','her','was','one','our','out','has','its','let','say','she','too','use','way','who','how','man','new','now','old','see','get','make','like','just','over','such','take','than','them','very','when','come','could','than','look','only','into','year','also','back','been','call','what','with','this','that','have','from','they','will','would','there','their','which','about','after','other','these','being','first','think','those','might','where','while','still','every','should','before','through','between','because','through','before','between'}
+    filtered = [w for w in words if w not in stopwords]
+    freq = {}
+    for w in filtered:
+        freq[w] = freq.get(w, 0) + 1
+    sorted_kw = sorted(freq.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    return {"keywords": [{"word": w, "count": c, "relevance": round(c / max(len(filtered), 1), 4)} for w, c in sorted_kw], "total_words": len(words), "unique_words": len(freq)}
+
+
+@app.post("/api/text/readability")
+async def text_readability(request: Request):
+    """Calculate readability scores (Flesch-Kincaid, Coleman-Liau, ARI)."""
+    body = await request.json()
+    text = body.get("text", "")
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    import re as _re
+    sentences = _re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    words = _re.findall(r'\b\w+\b', text)
+    syllable_count = 0
+    for word in words:
+        w = word.lower()
+        count = 0
+        vowels = 'aeiouy'
+        if w[0] in vowels:
+            count += 1
+        for i in range(1, len(w)):
+            if w[i] in vowels and w[i-1] not in vowels:
+                count += 1
+        if w.endswith('e'):
+            count -= 1
+        if count == 0:
+            count = 1
+        syllable_count += count
+    n_sent = max(len(sentences), 1)
+    n_words = max(len(words), 1)
+    chars = sum(len(w) for w in words)
+    # Flesch-Kincaid Grade Level
+    fk_grade = 0.39 * (n_words / n_sent) + 11.8 * (syllable_count / n_words) - 15.59
+    # Flesch Reading Ease
+    fk_ease = 206.835 - 1.015 * (n_words / n_sent) - 84.6 * (syllable_count / n_words)
+    # Coleman-Liau Index
+    L = (chars / n_words) * 100
+    S = (n_sent / n_words) * 100
+    cli = 0.0588 * L - 0.296 * S - 15.8
+    # Automated Readability Index
+    ari = 4.71 * (chars / n_words) + 0.5 * (n_words / n_sent) - 21.43
+    return {
+        "flesch_kincaid_grade": round(fk_grade, 1),
+        "flesch_reading_ease": round(max(0, min(100, fk_ease)), 1),
+        "coleman_liau_index": round(cli, 1),
+        "automated_readability_index": round(ari, 1),
+        "stats": {"sentences": n_sent, "words": n_words, "syllables": syllable_count, "characters": chars},
+        "difficulty": "Easy" if fk_ease >= 60 else "Moderate" if fk_ease >= 30 else "Difficult"
+    }
+
+
+# --- Data Transform APIs ---
+
+@app.post("/api/transform/json-to-csv")
+async def json_to_csv(request: Request):
+    """Convert JSON array to CSV format."""
+    body = await request.json()
+    data = body.get("data", [])
+    delimiter = body.get("delimiter", ",")
+    if not isinstance(data, list) or not data:
+        raise HTTPException(status_code=400, detail="data must be a non-empty JSON array")
+    if not isinstance(data[0], dict):
+        raise HTTPException(status_code=400, detail="Array elements must be objects")
+    headers = list(data[0].keys())
+    for item in data[1:]:
+        for k in item:
+            if k not in headers:
+                headers.append(k)
+    lines = [delimiter.join(headers)]
+    for item in data:
+        row = []
+        for h in headers:
+            val = str(item.get(h, ""))
+            if delimiter in val or '"' in val or '\n' in val:
+                val = '"' + val.replace('"', '""') + '"'
+            row.append(val)
+        lines.append(delimiter.join(row))
+    csv_text = "\n".join(lines)
+    return {"csv": csv_text, "rows": len(data), "columns": len(headers), "headers": headers}
+
+
+@app.post("/api/transform/csv-to-json")
+async def csv_to_json_transform(request: Request):
+    """Convert CSV text to JSON array."""
+    body = await request.json()
+    csv_text = body.get("csv", "")
+    delimiter = body.get("delimiter", ",")
+    if not csv_text:
+        raise HTTPException(status_code=400, detail="csv is required")
+    import csv as _csv
+    reader = _csv.DictReader(io.StringIO(csv_text), delimiter=delimiter)
+    rows = list(reader)
+    return {"data": rows, "rows": len(rows), "columns": reader.fieldnames}
+
+
+@app.post("/api/transform/xml-to-json")
+async def xml_to_json_transform(request: Request):
+    """Convert XML to JSON."""
+    body = await request.json()
+    xml_text = body.get("xml", "")
+    if not xml_text:
+        raise HTTPException(status_code=400, detail="xml is required")
+    import xml.etree.ElementTree as ET
+    def elem_to_dict(elem):
+        result = {}
+        if elem.attrib:
+            result["@attributes"] = dict(elem.attrib)
+        if elem.text and elem.text.strip():
+            if not list(elem):
+                return elem.text.strip()
+            result["#text"] = elem.text.strip()
+        for child in elem:
+            child_data = elem_to_dict(child)
+            if child.tag in result:
+                if not isinstance(result[child.tag], list):
+                    result[child.tag] = [result[child.tag]]
+                result[child.tag].append(child_data)
+            else:
+                result[child.tag] = child_data
+        return result or None
+    try:
+        root = ET.fromstring(xml_text)
+        return {"json": {root.tag: elem_to_dict(root)}}
+    except ET.ParseError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid XML: {e}")
+
+
+# --- Code Generation APIs ---
+
+@app.post("/api/generate/typescript-interface")
+async def generate_ts_interface(request: Request):
+    """Generate TypeScript interface from JSON object."""
+    body = await request.json()
+    json_data = body.get("data", body.get("json"))
+    name = body.get("name", "Generated")
+    if json_data is None:
+        raise HTTPException(status_code=400, detail="data (JSON object) is required")
+    def infer_type(val, depth=0):
+        if val is None:
+            return "null"
+        if isinstance(val, bool):
+            return "boolean"
+        if isinstance(val, int) or isinstance(val, float):
+            return "number"
+        if isinstance(val, str):
+            return "string"
+        if isinstance(val, list):
+            if not val:
+                return "any[]"
+            types = set(infer_type(v, depth+1) for v in val[:5])
+            if len(types) == 1:
+                return f"{types.pop()}[]"
+            return f"({' | '.join(types)})[]"
+        if isinstance(val, dict):
+            if depth > 3:
+                return "Record<string, any>"
+            props = []
+            for k, v in val.items():
+                props.append(f"  {'  ' * depth}{k}: {infer_type(v, depth+1)};")
+            return "{\n" + "\n".join(props) + f"\n{'  ' * depth}}}"
+        return "any"
+    if isinstance(json_data, dict):
+        props = []
+        for k, v in json_data.items():
+            props.append(f"  {k}: {infer_type(v, 1)};")
+        interface = f"interface {name} {{\n" + "\n".join(props) + "\n}"
+    elif isinstance(json_data, list) and json_data and isinstance(json_data[0], dict):
+        merged = {}
+        for item in json_data[:10]:
+            for k, v in item.items():
+                if k not in merged:
+                    merged[k] = v
+        props = []
+        for k, v in merged.items():
+            props.append(f"  {k}: {infer_type(v, 1)};")
+        interface = f"interface {name} {{\n" + "\n".join(props) + "\n}"
+    else:
+        interface = f"type {name} = {infer_type(json_data)};"
+    return {"typescript": interface, "name": name}
+
+
+@app.post("/api/generate/sql-create")
+async def generate_sql_create(request: Request):
+    """Generate SQL CREATE TABLE from JSON schema or sample data."""
+    body = await request.json()
+    table_name = body.get("table", "my_table")
+    data = body.get("data")
+    columns = body.get("columns")
+    dialect = body.get("dialect", "postgresql")
+    if columns:
+        col_defs = []
+        for col in columns:
+            name = col.get("name", "col")
+            dtype = col.get("type", "TEXT")
+            nullable = col.get("nullable", True)
+            pk = col.get("primary_key", False)
+            default = col.get("default")
+            line = f"  {name} {dtype.upper()}"
+            if pk:
+                line += " PRIMARY KEY"
+            if not nullable:
+                line += " NOT NULL"
+            if default is not None:
+                line += f" DEFAULT {default}"
+            col_defs.append(line)
+    elif data and isinstance(data, (dict, list)):
+        sample = data[0] if isinstance(data, list) else data
+        col_defs = []
+        type_map = {str: "TEXT", int: "INTEGER", float: "REAL", bool: "BOOLEAN"}
+        for k, v in sample.items():
+            sql_type = type_map.get(type(v), "TEXT")
+            col_defs.append(f"  {k} {sql_type}")
+    else:
+        raise HTTPException(status_code=400, detail="Provide 'columns' or 'data'")
+    sql = f"CREATE TABLE {table_name} (\n" + ",\n".join(col_defs) + "\n);"
+    return {"sql": sql, "table": table_name, "column_count": len(col_defs), "dialect": dialect}
+
+
+# --- Security/Crypto APIs ---
+
+@app.post("/api/security/csp-generate")
+async def csp_generate(request: Request):
+    """Generate Content Security Policy header from rules."""
+    body = await request.json()
+    directives = body.get("directives", {})
+    report_uri = body.get("report_uri")
+    report_only = body.get("report_only", False)
+    if not directives:
+        directives = {
+            "default-src": ["'self'"],
+            "script-src": ["'self'"],
+            "style-src": ["'self'", "'unsafe-inline'"],
+            "img-src": ["'self'", "data:", "https:"],
+            "font-src": ["'self'"],
+            "connect-src": ["'self'"],
+            "frame-ancestors": ["'none'"],
+            "base-uri": ["'self'"],
+            "form-action": ["'self'"],
+        }
+    parts = []
+    for directive, values in directives.items():
+        if isinstance(values, list):
+            parts.append(f"{directive} {' '.join(values)}")
+        else:
+            parts.append(f"{directive} {values}")
+    if report_uri:
+        parts.append(f"report-uri {report_uri}")
+    csp = "; ".join(parts)
+    header_name = "Content-Security-Policy-Report-Only" if report_only else "Content-Security-Policy"
+    return {"csp": csp, "header_name": header_name, "header": f"{header_name}: {csp}", "directives_count": len(directives)}
+
+
+@app.post("/api/security/cors-headers")
+async def cors_headers_generate(request: Request):
+    """Generate CORS headers configuration."""
+    body = await request.json()
+    origins = body.get("origins", ["*"])
+    methods = body.get("methods", ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+    headers_list = body.get("headers", ["Content-Type", "Authorization"])
+    credentials = body.get("credentials", False)
+    max_age = body.get("max_age", 86400)
+    result_headers = {
+        "Access-Control-Allow-Origin": ", ".join(origins) if len(origins) <= 1 else origins[0],
+        "Access-Control-Allow-Methods": ", ".join(methods),
+        "Access-Control-Allow-Headers": ", ".join(headers_list),
+        "Access-Control-Max-Age": str(max_age),
+    }
+    if credentials:
+        result_headers["Access-Control-Allow-Credentials"] = "true"
+    nginx = f"""location /api {{
+    add_header 'Access-Control-Allow-Origin' '{origins[0]}';
+    add_header 'Access-Control-Allow-Methods' '{", ".join(methods)}';
+    add_header 'Access-Control-Allow-Headers' '{", ".join(headers_list)}';
+    add_header 'Access-Control-Max-Age' '{max_age}';
+}}"""
+    return {"headers": result_headers, "nginx_config": nginx}
+
+
+# --- Encoding/Hashing APIs ---
+
+@app.get("/api/encode/url")
+async def url_encode(text: str = Query(...)):
+    """URL-encode a string."""
+    from urllib.parse import quote
+    return {"original": text, "encoded": quote(text, safe="")}
+
+
+@app.get("/api/decode/url")
+async def url_decode(text: str = Query(...)):
+    """URL-decode a string."""
+    from urllib.parse import unquote
+    return {"original": text, "decoded": unquote(text)}
+
+
+@app.get("/api/encode/html")
+async def html_encode(text: str = Query(...)):
+    """HTML-encode a string."""
+    import html as _html
+    return {"original": text, "encoded": _html.escape(text)}
+
+
+@app.get("/api/decode/html")
+async def html_decode(text: str = Query(...)):
+    """HTML-decode a string."""
+    import html as _html
+    return {"original": text, "decoded": _html.unescape(text)}
+
+
+@app.get("/api/hash/file")
+async def hash_text_multiple(text: str = Query(...)):
+    """Generate multiple hash digests for a string at once."""
+    data = text.encode()
+    return {
+        "input": text,
+        "md5": hashlib.md5(data).hexdigest(),
+        "sha1": hashlib.sha1(data).hexdigest(),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "sha512": hashlib.sha512(data).hexdigest(),
+        "blake2b": hashlib.blake2b(data).hexdigest(),
+        "blake2s": hashlib.blake2s(data).hexdigest(),
+    }
+
+
+# --- Network/Web APIs ---
+
+@app.get("/api/ssl/check")
+async def ssl_check(domain: str = Query(...)):
+    """Check SSL certificate details for a domain."""
+    import ssl
+    import socket
+    try:
+        ctx = ssl.create_default_context()
+        with ctx.wrap_socket(socket.socket(), server_hostname=domain) as s:
+            s.settimeout(5)
+            s.connect((domain, 443))
+            cert = s.getpeercert()
+        subject = dict(x[0] for x in cert.get("subject", ()))
+        issuer = dict(x[0] for x in cert.get("issuer", ()))
+        not_before = cert.get("notBefore", "")
+        not_after = cert.get("notAfter", "")
+        sans = []
+        for san_type, san_value in cert.get("subjectAltName", ()):
+            sans.append(san_value)
+        return {
+            "domain": domain,
+            "valid": True,
+            "subject": subject,
+            "issuer": issuer,
+            "not_before": not_before,
+            "not_after": not_after,
+            "serial_number": cert.get("serialNumber"),
+            "version": cert.get("version"),
+            "sans": sans,
+        }
+    except Exception as e:
+        return {"domain": domain, "valid": False, "error": str(e)}
+
+
+@app.get("/api/whois")
+async def whois_lookup(domain: str = Query(...)):
+    """Basic WHOIS information for a domain."""
+    import subprocess
+    try:
+        result = subprocess.run(["whois", domain], capture_output=True, text=True, timeout=10)
+        output = result.stdout
+        info = {}
+        for line in output.splitlines():
+            if ":" in line and not line.startswith("%") and not line.startswith("#"):
+                key, _, val = line.partition(":")
+                key = key.strip().lower().replace(" ", "_")
+                val = val.strip()
+                if key and val and key not in info:
+                    info[key] = val
+        return {"domain": domain, "raw": output[:3000], "parsed": info}
+    except FileNotFoundError:
+        raise HTTPException(status_code=503, detail="whois command not available")
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="WHOIS lookup timed out")
+
+
+@app.get("/api/headers/get")
+async def get_http_headers(url: str = Query(...)):
+    """Fetch HTTP response headers from a URL."""
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.head(url, headers={"User-Agent": "ToolPipe-Bot/1.0"})
+            return {
+                "url": str(resp.url),
+                "status_code": resp.status_code,
+                "headers": dict(resp.headers),
+                "redirected": str(resp.url) != url,
+            }
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch: {e}")
+
+
+# --- Utility/Developer APIs ---
+
+@app.get("/api/timestamp")
+async def timestamp_info(ts: Optional[float] = None):
+    """Get current timestamp or convert a Unix timestamp to multiple formats."""
+    if ts is None:
+        ts = time.time()
+    dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+    return {
+        "unix": ts,
+        "unix_ms": int(ts * 1000),
+        "iso8601": dt.isoformat(),
+        "rfc2822": dt.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+        "date": dt.strftime("%Y-%m-%d"),
+        "time": dt.strftime("%H:%M:%S"),
+        "day_of_week": dt.strftime("%A"),
+        "day_of_year": dt.timetuple().tm_yday,
+        "week_number": dt.isocalendar()[1],
+        "utc": True,
+    }
+
+
+@app.post("/api/diff/text-detailed")
+async def diff_text_detailed(request: Request):
+    """Detailed text diff with line-by-line changes."""
+    body = await request.json()
+    text1 = body.get("text1", body.get("original", ""))
+    text2 = body.get("text2", body.get("modified", ""))
+    if not text1 and not text2:
+        raise HTTPException(status_code=400, detail="text1 and text2 required")
+    import difflib
+    lines1 = text1.splitlines(keepends=True)
+    lines2 = text2.splitlines(keepends=True)
+    unified = list(difflib.unified_diff(lines1, lines2, fromfile="original", tofile="modified", lineterm=""))
+    additions = sum(1 for l in unified if l.startswith("+") and not l.startswith("+++"))
+    deletions = sum(1 for l in unified if l.startswith("-") and not l.startswith("---"))
+    return {
+        "diff": "\n".join(unified),
+        "additions": additions,
+        "deletions": deletions,
+        "changes": additions + deletions,
+        "identical": additions == 0 and deletions == 0,
+    }
+
+
+@app.post("/api/generate/package-json")
+async def generate_package_json(request: Request):
+    """Generate a package.json file from project metadata."""
+    body = await request.json()
+    name = body.get("name", "my-project")
+    version = body.get("version", "1.0.0")
+    description = body.get("description", "")
+    author = body.get("author", "")
+    license_val = body.get("license", "MIT")
+    deps = body.get("dependencies", {})
+    dev_deps = body.get("devDependencies", {})
+    scripts = body.get("scripts", {"start": "node index.js", "test": "echo \"Error: no test\" && exit 1"})
+    main = body.get("main", "index.js")
+    pkg = {
+        "name": name,
+        "version": version,
+        "description": description,
+        "main": main,
+        "scripts": scripts,
+        "author": author,
+        "license": license_val,
+    }
+    if deps:
+        pkg["dependencies"] = deps
+    if dev_deps:
+        pkg["devDependencies"] = dev_deps
+    return {"package_json": json.dumps(pkg, indent=2), "parsed": pkg}
+
+
+@app.post("/api/generate/github-actions")
+async def generate_github_actions(request: Request):
+    """Generate a GitHub Actions workflow YAML."""
+    body = await request.json()
+    name = body.get("name", "CI")
+    language = body.get("language", "node").lower()
+    trigger = body.get("trigger", "push")
+    node_version = body.get("node_version", "20")
+    python_version = body.get("python_version", "3.12")
+    if language in ("node", "javascript", "typescript"):
+        workflow = f"""name: {name}
+
+on:
+  {trigger}:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '{node_version}'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+      - run: npm run build --if-present
+"""
+    elif language == "python":
+        workflow = f"""name: {name}
+
+on:
+  {trigger}:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '{python_version}'
+      - run: pip install -r requirements.txt
+      - run: python -m pytest
+"""
+    else:
+        workflow = f"""name: {name}
+
+on:
+  {trigger}:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Add your build steps here"
+"""
+    return {"workflow": workflow, "language": language, "filename": f".github/workflows/{name.lower().replace(' ', '-')}.yml"}
+
+
+@app.post("/api/generate/nginx-config")
+async def generate_nginx_config(request: Request):
+    """Generate an Nginx server configuration."""
+    body = await request.json()
+    domain = body.get("domain", "example.com")
+    upstream_port = body.get("upstream_port", 3000)
+    ssl = body.get("ssl", True)
+    static_root = body.get("static_root")
+    gzip = body.get("gzip", True)
+    config_parts = []
+    if gzip:
+        config_parts.append("""    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml;
+    gzip_min_length 256;""")
+    if ssl:
+        config = f"""server {{
+    listen 80;
+    server_name {domain};
+    return 301 https://$server_name$request_uri;
+}}
+
+server {{
+    listen 443 ssl http2;
+    server_name {domain};
+
+    ssl_certificate /etc/letsencrypt/live/{domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{domain}/privkey.pem;
+
+{'    ' + chr(10).join(config_parts) if config_parts else ''}
+
+    location / {{
+        proxy_pass http://127.0.0.1:{upstream_port};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }}
+{f'''
+    location /static {{
+        alias {static_root};
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }}''' if static_root else ''}
+}}"""
+    else:
+        config = f"""server {{
+    listen 80;
+    server_name {domain};
+
+{'    ' + chr(10).join(config_parts) if config_parts else ''}
+
+    location / {{
+        proxy_pass http://127.0.0.1:{upstream_port};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }}
+}}"""
+    return {"config": config, "domain": domain, "ssl": ssl}
+
+
+@app.post("/api/generate/docker-compose")
+async def generate_docker_compose(request: Request):
+    """Generate a docker-compose.yml from service definitions."""
+    body = await request.json()
+    services = body.get("services", [])
+    version = body.get("version", "3.8")
+    if not services:
+        services = [{"name": "app", "image": "node:20-alpine", "ports": ["3000:3000"], "environment": {"NODE_ENV": "production"}}]
+    svc_yaml = {}
+    for svc in services:
+        name = svc.get("name", "service")
+        entry = {}
+        if "image" in svc:
+            entry["image"] = svc["image"]
+        if "build" in svc:
+            entry["build"] = svc["build"]
+        if "ports" in svc:
+            entry["ports"] = svc["ports"]
+        if "environment" in svc:
+            entry["environment"] = svc["environment"]
+        if "volumes" in svc:
+            entry["volumes"] = svc["volumes"]
+        if "depends_on" in svc:
+            entry["depends_on"] = svc["depends_on"]
+        if "restart" not in svc:
+            entry["restart"] = "unless-stopped"
+        else:
+            entry["restart"] = svc["restart"]
+        svc_yaml[name] = entry
+    import yaml
+    compose = {"version": version, "services": svc_yaml}
+    try:
+        yaml_str = yaml.dump(compose, default_flow_style=False, sort_keys=False)
+    except Exception:
+        yaml_str = json.dumps(compose, indent=2)
+    return {"docker_compose": yaml_str, "service_count": len(services)}
 
 
 # --- SEO Pages (catch-all for static content pages) ---

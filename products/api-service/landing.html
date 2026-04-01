@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToolPipe - 50+ Free Developer Tools & APIs</title>
-    <meta name="description" content="50+ free developer tools and 70+ REST API endpoints. JSON formatter, PDF tools, regex tester, JWT decoder, QR generator, crypto prices, and more. Browser-based, no signup needed.">
-    <meta name="keywords" content="developer tools, free api, qr code api, pdf tools, json formatter, uuid generator, developer utilities, free online tools, jwt decoder, regex tester, base64 encoder, csv converter, yaml validator, git cheat sheet, regex cheat sheet">
+    <title>ToolPipe - 175+ Free Developer Tools & APIs | MCP Server for AI Agents</title>
+    <meta name="description" content="175+ free developer tools and REST API endpoints. JSON formatter, PDF tools, regex tester, JWT decoder, QR generator, SSL checker, TypeScript generator, Docker Compose builder, and more. Also an MCP server with 120+ tools for AI agents. No signup needed.">
+    <meta name="keywords" content="developer tools, free api, mcp server, ai agent tools, qr code api, pdf tools, json formatter, uuid generator, developer utilities, ssl checker, whois lookup, typescript generator, docker compose generator, nginx config, github actions, readability score">
     <link rel="canonical" href="https://toolpipe.dev/">
-    <meta property="og:title" content="ToolPipe - 50+ Free Developer Tools & APIs">
-    <meta property="og:description" content="50+ free browser-based developer tools and 70+ REST API endpoints. JSON, PDF, regex, JWT, QR codes, crypto prices, and more. No signup needed.">
+    <meta property="og:title" content="ToolPipe - 175+ Free Developer Tools & APIs">
+    <meta property="og:description" content="175+ free developer tools and REST APIs. Also an MCP server with 120+ tools for AI agents like Claude, GPT, and Gemini. No signup needed.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://toolpipe.dev/">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ToolPipe - 50+ Free Developer Tools & APIs">
-    <meta name="twitter:description" content="50+ free browser-based developer tools and 70+ REST API endpoints. No signup needed.">
+    <meta name="twitter:title" content="ToolPipe - 175+ Free Developer Tools & APIs">
+    <meta name="twitter:description" content="175+ free developer tools, REST APIs, and 120+ MCP tools for AI agents. No signup needed.">
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"WebSite","name":"ToolPipe","url":"https://toolpipe.dev","description":"Free developer utility APIs and online tools. QR codes, PDF processing, text analysis, and more.","potentialAction":{"@type":"SearchAction","target":"https://toolpipe.dev/docs?q={search_term_string}","query-input":"required name=search_term_string"}}
+    {"@context":"https://schema.org","@type":"WebSite","name":"ToolPipe","url":"https://toolpipe.dev","description":"175+ free developer utility APIs, online tools, and MCP server for AI agents.","potentialAction":{"@type":"SearchAction","target":"https://toolpipe.dev/docs?q={search_term_string}","query-input":"required name=search_term_string"}}
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,7 +26,7 @@
             color: white; padding: 80px 20px; text-align: center;
         }
         .hero h1 { font-size: 3rem; margin-bottom: 16px; letter-spacing: -1px; }
-        .hero p { font-size: 1.25rem; opacity: 0.85; max-width: 600px; margin: 0 auto 32px; }
+        .hero p { font-size: 1.25rem; opacity: 0.85; max-width: 700px; margin: 0 auto 32px; line-height: 1.6; }
         .hero .cta {
             display: inline-block; padding: 14px 32px; background: #6c63ff; color: white;
             border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;
@@ -37,8 +37,26 @@
             display: inline-block; padding: 14px 32px; color: white; text-decoration: none;
             font-weight: 500; margin-left: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
         }
+        .hero .secondary:hover { background: rgba(255,255,255,0.1); }
+        .stats { display: flex; justify-content: center; gap: 48px; margin-top: 48px; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 2.5rem; font-weight: 800; color: #6c63ff; }
+        .stat-label { font-size: 0.9rem; opacity: 0.7; margin-top: 4px; }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        .mcp-banner {
+            background: linear-gradient(135deg, #1a1a2e, #0f172a);
+            padding: 60px 20px; color: white; text-align: center;
+            border-bottom: 1px solid rgba(108,99,255,0.3);
+        }
+        .mcp-banner h2 { font-size: 2rem; margin-bottom: 12px; }
+        .mcp-banner p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto 24px; line-height: 1.6; }
+        .mcp-banner code {
+            display: inline-block; background: #111; color: #22c55e; padding: 12px 24px;
+            border-radius: 8px; font-size: 1rem; margin: 8px 0;
+        }
+        .mcp-banner .badge { display: inline-block; background: #6c63ff; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 16px; }
 
         .endpoints { padding: 80px 20px; }
         .endpoints h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
@@ -51,11 +69,23 @@
         .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: #302b63; }
         .card .method { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; }
         .card .method.post { background: #fff3e0; color: #e65100; }
+        .card .method.new { background: #e3f2fd; color: #1565c0; }
         .card p { color: #666; font-size: 0.95rem; line-height: 1.5; }
         .card code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
 
+        .try-it { padding: 80px 20px; }
+        .try-it h2 { text-align: center; font-size: 2rem; margin-bottom: 32px; }
+        .demo-box {
+            max-width: 700px; margin: 0 auto; background: #1a1a2e; border-radius: 12px;
+            padding: 24px; color: #a5d6a7; font-family: 'Courier New', monospace; font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        .demo-box .comment { color: #666; }
+        .demo-box .url { color: #81d4fa; }
+
         .pricing { padding: 80px 20px; background: white; }
-        .pricing h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
+        .pricing h2 { text-align: center; font-size: 2rem; margin-bottom: 16px; }
+        .pricing .sub { text-align: center; color: #666; margin-bottom: 48px; }
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
         .price-card {
             border: 2px solid #eee; border-radius: 12px; padding: 32px; text-align: center;
@@ -75,99 +105,115 @@
             display: block; padding: 12px; background: #6c63ff; color: white;
             border-radius: 8px; text-decoration: none; font-weight: 600;
         }
+        .price-card a:hover { background: #5b52e0; }
 
-        .try-it { padding: 80px 20px; }
-        .try-it h2 { text-align: center; font-size: 2rem; margin-bottom: 32px; }
-        .demo-box {
-            max-width: 700px; margin: 0 auto; background: #1a1a2e; border-radius: 12px;
-            padding: 24px; color: #a5d6a7; font-family: 'Courier New', monospace; font-size: 0.9rem;
-            overflow-x: auto;
-        }
-        .demo-box .comment { color: #666; }
-        .demo-box .url { color: #81d4fa; }
-        .demo-box .response { color: #fff; }
+        .tools-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 
         footer {
             background: #1a1a2e; color: #aaa; padding: 40px 20px; text-align: center;
             font-size: 0.9rem;
         }
         footer a { color: #6c63ff; text-decoration: none; }
+
+        @media(max-width:700px) {
+            .hero h1 { font-size: 2rem; }
+            .stats { flex-direction: column; gap: 20px; }
+        }
     </style>
 </head>
 <body>
     <div class="hero">
         <div class="container">
             <h1>ToolPipe</h1>
-            <p>50+ free developer tools, 70+ REST API endpoints, and developer cheat sheets. JSON, PDF, regex, JWT, QR codes, crypto prices, and more. All browser-based, all free.</p>
-            <a href="/docs" class="cta">API Docs (65+ Endpoints)</a>
+            <p>175+ free developer tools, REST API endpoints, and an MCP server with 120+ tools for AI agents. JSON, PDF, regex, JWT, QR codes, SSL checker, TypeScript generator, Docker Compose builder, and more. All free, no signup needed.</p>
+            <a href="/docs" class="cta">API Docs (175+ Endpoints)</a>
             <a href="/api-keys" class="secondary">Get Free API Key</a>
+            <div class="stats">
+                <div class="stat"><div class="stat-num">175+</div><div class="stat-label">API Endpoints</div></div>
+                <div class="stat"><div class="stat-num">120+</div><div class="stat-label">MCP Tools</div></div>
+                <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Online Tools</div></div>
+                <div class="stat"><div class="stat-num">$0</div><div class="stat-label">Free Tier</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mcp-banner">
+        <div class="container">
+            <div class="badge">NEW: MCP Server for AI Agents</div>
+            <h2>Built for AI Agents</h2>
+            <p>ToolPipe is an MCP server that Claude, GPT, Gemini, and any AI agent can use directly. Install via npm and your agent gets 120+ developer tools instantly.</p>
+            <code>npx @cosai-labs/toolpipe-mcp-server</code>
+            <p style="margin-top:16px;font-size:0.9rem;">Agents can self-serve: register API keys, create payments, verify transactions. All via API, zero human needed. <a href="/pricing" style="color:#6c63ff">See pricing</a></p>
         </div>
     </div>
 
     <div class="endpoints">
         <div class="container">
-            <h2>65+ Endpoints, One API</h2>
+            <h2>175+ Endpoints, One API</h2>
             <div class="grid">
+                <div class="card">
+                    <span class="method new">NEW</span>
+                    <h3>/api/generate/typescript-interface</h3>
+                    <p>Generate TypeScript interfaces from JSON data. Perfect for API response typing.</p>
+                </div>
+                <div class="card">
+                    <span class="method new">NEW</span>
+                    <h3>/api/ssl/check</h3>
+                    <p>Check SSL certificate details, expiry, issuer, and SANs for any domain.</p>
+                </div>
+                <div class="card">
+                    <span class="method new">NEW</span>
+                    <h3>/api/generate/docker-compose</h3>
+                    <p>Generate docker-compose.yml from service definitions. Multi-service support.</p>
+                </div>
+                <div class="card">
+                    <span class="method new">NEW</span>
+                    <h3>/api/generate/github-actions</h3>
+                    <p>Generate CI/CD workflow YAML for Node.js, Python, and more.</p>
+                </div>
+                <div class="card">
+                    <span class="method new">NEW</span>
+                    <h3>/api/text/readability</h3>
+                    <p>Flesch-Kincaid, Coleman-Liau, ARI readability scores for any text.</p>
+                </div>
+                <div class="card">
+                    <span class="method new">NEW</span>
+                    <h3>/api/whois</h3>
+                    <p>WHOIS lookup for any domain. Parsed results with raw output.</p>
+                </div>
                 <div class="card">
                     <span class="method post">POST</span>
                     <h3>/qr/generate</h3>
-                    <p>Generate QR codes as PNG images. Configurable size and error correction. Also available as GET.</p>
+                    <p>Generate QR codes as PNG images. Configurable size and error correction.</p>
                 </div>
                 <div class="card">
                     <span class="method">GET</span>
                     <h3>/meta/extract</h3>
-                    <p>Extract Open Graph, Twitter Card, title, description, favicon from any URL. Perfect for link previews.</p>
+                    <p>Extract Open Graph, Twitter Card, title, description from any URL.</p>
                 </div>
                 <div class="card">
                     <span class="method post">POST</span>
-                    <h3>/text/analyze</h3>
-                    <p>Word count, reading time, Flesch readability score, sentence stats. Everything you need for content analysis.</p>
-                </div>
-                <div class="card">
-                    <span class="method post">POST</span>
-                    <h3>/markdown/to-html</h3>
-                    <p>Convert Markdown to clean HTML with support for extensions like code highlighting and table of contents.</p>
-                </div>
-                <div class="card">
-                    <span class="method post">POST</span>
-                    <h3>/image/resize</h3>
-                    <p>Resize images on-the-fly. Supports PNG, JPEG, WebP. Just pass a URL and dimensions.</p>
+                    <h3>/json/format</h3>
+                    <p>Format, validate, and pretty-print JSON with configurable indentation.</p>
                 </div>
                 <div class="card">
                     <span class="method post">POST</span>
                     <h3>/hash/generate</h3>
-                    <p>Generate MD5, SHA256, SHA512, and more. Multiple algorithms in one request.</p>
-                </div>
-                <div class="card">
-                    <span class="method post">POST</span>
-                    <h3>/json/to-csv</h3>
-                    <p>Convert JSON arrays to CSV format instantly. Custom delimiters supported.</p>
+                    <p>Generate MD5, SHA256, SHA512, BLAKE2 hashes. Multiple algorithms at once.</p>
                 </div>
                 <div class="card">
                     <span class="method">GET</span>
                     <h3>/uuid/generate</h3>
-                    <p>Generate UUID v1 or v4. Batch generate up to 100 at once.</p>
+                    <p>Generate UUID v4. Batch generate up to 100 at once.</p>
                 </div>
                 <div class="card">
                     <span class="method">GET</span>
                     <h3>/dns/lookup</h3>
-                    <p>DNS resolution for any domain. Returns all A and AAAA records.</p>
+                    <p>DNS resolution for any domain. A, AAAA, MX, NS, TXT records.</p>
                 </div>
-                <div class="card">
-                    <span class="method">GET</span>
-                    <h3>/color/convert</h3>
-                    <p>Convert hex colors to RGB and HSL. Full color space conversion.</p>
-                </div>
-                <div class="card">
-                    <span class="method post">POST</span>
-                    <h3>/base64</h3>
-                    <p>Encode and decode Base64 strings. Simple and fast.</p>
-                </div>
-                <div class="card">
-                    <span class="method">GET</span>
-                    <h3>/health</h3>
-                    <p>Health check endpoint for monitoring. Returns status and timestamp.</p>
-                </div>
+            </div>
+            <div style="text-align:center;margin-top:32px">
+                <a href="/docs" style="color:#6c63ff;font-weight:600;font-size:1.1rem">View all 175+ endpoints in API docs</a>
             </div>
         </div>
     </div>
@@ -176,16 +222,18 @@
         <div class="container">
             <h2>Try It Now</h2>
             <div class="demo-box">
-                <div class="comment"># Generate a QR code</div>
-                <div>curl <span class="url">http://api.toolpipe.dev/qr/generate?data=https://example.com</span></div>
+                <div class="comment"># Check SSL certificate</div>
+                <div>curl "<span class="url">https://toolpipe.dev/api/ssl/check?domain=github.com</span>"</div>
                 <br>
-                <div class="comment"># Extract metadata from a URL</div>
-                <div>curl "<span class="url">http://api.toolpipe.dev/meta/extract?url=https://github.com</span>"</div>
-                <br>
-                <div class="comment"># Analyze text readability</div>
-                <div>curl -X POST <span class="url">http://api.toolpipe.dev/text/analyze</span> \</div>
+                <div class="comment"># Generate TypeScript interface from JSON</div>
+                <div>curl -X POST <span class="url">https://toolpipe.dev/api/generate/typescript-interface</span> \</div>
                 <div>&nbsp;&nbsp;-H "Content-Type: application/json" \</div>
-                <div>&nbsp;&nbsp;-d '{"text": "Your content here..."}'</div>
+                <div>&nbsp;&nbsp;-d '{"data":{"id":1,"name":"User","active":true},"name":"User"}'</div>
+                <br>
+                <div class="comment"># Extract keywords from text</div>
+                <div>curl -X POST <span class="url">https://toolpipe.dev/api/text/keywords</span> \</div>
+                <div>&nbsp;&nbsp;-H "Content-Type: application/json" \</div>
+                <div>&nbsp;&nbsp;-d '{"text":"Your content here...","top_n":5}'</div>
             </div>
         </div>
     </div>
@@ -193,39 +241,40 @@
     <div class="pricing" id="pricing">
         <div class="container">
             <h2>Simple Pricing</h2>
+            <p class="sub">Pay with crypto. No KYC required. Perfect for AI agents and developers.</p>
             <div class="pricing-grid">
                 <div class="price-card">
                     <h3>Free</h3>
                     <div class="price">$0<span>/mo</span></div>
                     <ul>
-                        <li>100 requests/minute</li>
-                        <li>All endpoints included</li>
-                        <li>Community support</li>
-                        <li>No API key required</li>
+                        <li>100 requests/day</li>
+                        <li>All 175+ endpoints</li>
+                        <li>MCP server access</li>
+                        <li>No credit card needed</li>
                     </ul>
-                    <a href="/docs">Get Started</a>
+                    <a href="/api-keys">Get Free API Key</a>
                 </div>
                 <div class="price-card featured">
                     <h3>Pro</h3>
                     <div class="price">$9.99<span>/mo</span></div>
                     <ul>
-                        <li>1,000 requests/minute</li>
-                        <li>Priority processing</li>
-                        <li>API key authentication</li>
-                        <li>Email support</li>
+                        <li>10,000 requests/day</li>
+                        <li>All 175+ endpoints</li>
+                        <li>Priority rate limits</li>
+                        <li>Pay with any crypto</li>
                     </ul>
-                    <a href="#" id="pro-signup">Subscribe via RapidAPI</a>
+                    <a href="/pricing">Upgrade to Pro</a>
                 </div>
                 <div class="price-card">
                     <h3>Enterprise</h3>
                     <div class="price">$49.99<span>/mo</span></div>
                     <ul>
-                        <li>Unlimited requests</li>
-                        <li>Custom endpoints</li>
+                        <li>100,000 requests/day</li>
+                        <li>Unlimited rate limits</li>
                         <li>SLA guarantee</li>
                         <li>Dedicated support</li>
                     </ul>
-                    <a href="#" id="enterprise-signup">Contact Us</a>
+                    <a href="/pricing">Get Enterprise</a>
                 </div>
             </div>
         </div>
@@ -233,39 +282,39 @@
 
     <div style="padding:80px 20px;background:#f8f9fa">
         <div class="container">
-            <h2 style="text-align:center;font-size:2rem;margin-bottom:48px">More Tools</h2>
+            <h2 style="text-align:center;font-size:2rem;margin-bottom:48px">Products & Tools</h2>
             <div class="grid">
                 <a href="/tools" style="text-decoration:none;color:inherit" class="card">
-                    <h3>DevTools Online</h3>
-                    <p>12 free developer tools: JSON formatter, Base64, hash generator, regex tester, and more.</p>
+                    <h3>Online Dev Tools</h3>
+                    <p>50+ free developer tools: JSON formatter, Base64, hash generator, regex tester, and more.</p>
+                </a>
+                <a href="/playground" style="text-decoration:none;color:inherit" class="card">
+                    <h3>API Playground</h3>
+                    <p>Interactive playground to test all 175+ API endpoints. Search, run, export curl.</p>
                 </a>
                 <a href="/pdf" style="text-decoration:none;color:inherit" class="card">
                     <h3>PDF Tools</h3>
-                    <p>Merge, split, compress, rotate, watermark, and protect PDFs. Free, fast, no signup.</p>
+                    <p>Merge, split, compress, rotate, watermark, and protect PDFs. Free, no signup.</p>
                 </a>
                 <a href="/webhooks" style="text-decoration:none;color:inherit" class="card">
                     <h3>WebhookBin</h3>
-                    <p>Create unique URLs to capture and inspect HTTP requests in real-time. Debug webhooks instantly.</p>
+                    <p>Create unique URLs to capture and inspect HTTP requests in real-time.</p>
                 </a>
                 <a href="/seo" style="text-decoration:none;color:inherit" class="card">
                     <h3>SEO Analyzer</h3>
-                    <p>Comprehensive SEO audit for any website. Meta tags, headings, images, links, and technical analysis.</p>
+                    <p>Comprehensive SEO audit for any website. Meta tags, headings, images, links.</p>
                 </a>
                 <a href="/invoice" style="text-decoration:none;color:inherit" class="card">
                     <h3>QuickInvoice</h3>
-                    <p>Create professional invoices in seconds. Print to PDF. No signup required.</p>
+                    <p>Create professional invoices in seconds. Print to PDF. No signup.</p>
                 </a>
                 <a href="/short" style="text-decoration:none;color:inherit" class="card">
                     <h3>URL Shortener</h3>
-                    <p>Shorten URLs with click analytics. Custom aliases, referrer tracking. Free, no signup.</p>
-                </a>
-                <a href="/paste" style="text-decoration:none;color:inherit" class="card">
-                    <h3>PasteBin</h3>
-                    <p>Share code snippets with syntax highlighting. Auto-expire options. Free, instant sharing.</p>
+                    <p>Shorten URLs with click analytics. Custom aliases, referrer tracking.</p>
                 </a>
                 <a href="/monitor" style="text-decoration:none;color:inherit" class="card">
                     <h3>PingPulse</h3>
-                    <p>Free uptime monitoring for websites and APIs. 5-minute checks, 24-hour history.</p>
+                    <p>Free uptime monitoring for websites and APIs. 5-minute checks.</p>
                 </a>
             </div>
         </div>
@@ -273,79 +322,50 @@
 
     <div style="padding:60px 20px;background:white">
         <div class="container">
-            <h2 style="text-align:center;font-size:2rem;margin-bottom:32px">Free Online Developer Tools</h2>
-            <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+            <h2 style="text-align:center;font-size:2rem;margin-bottom:32px">50+ Free Online Developer Tools</h2>
+            <div class="grid tools-grid">
                 <a href="/qr-code-generator" style="text-decoration:none;color:inherit" class="card"><h3>QR Code Generator</h3><p>Generate QR codes instantly</p></a>
                 <a href="/json-formatter" style="text-decoration:none;color:inherit" class="card"><h3>JSON Formatter</h3><p>Format and validate JSON</p></a>
                 <a href="/base64-encoder" style="text-decoration:none;color:inherit" class="card"><h3>Base64 Encoder</h3><p>Encode and decode Base64</p></a>
-                <a href="/uuid-generator" style="text-decoration:none;color:inherit" class="card"><h3>UUID Generator</h3><p>Generate UUID v1 and v4</p></a>
+                <a href="/uuid-generator" style="text-decoration:none;color:inherit" class="card"><h3>UUID Generator</h3><p>Generate UUID v4</p></a>
                 <a href="/regex-tester" style="text-decoration:none;color:inherit" class="card"><h3>Regex Tester</h3><p>Test regex with live matching</p></a>
-                <a href="/cron-expression-generator" style="text-decoration:none;color:inherit" class="card"><h3>Cron Generator</h3><p>Build cron expressions visually</p></a>
+                <a href="/cron-expression-generator" style="text-decoration:none;color:inherit" class="card"><h3>Cron Generator</h3><p>Build cron expressions</p></a>
                 <a href="/color-picker" style="text-decoration:none;color:inherit" class="card"><h3>Color Picker</h3><p>HEX, RGB, HSL converter</p></a>
-                <a href="/lorem-ipsum-generator" style="text-decoration:none;color:inherit" class="card"><h3>Lorem Ipsum Generator</h3><p>Generate placeholder text</p></a>
                 <a href="/password-generator" style="text-decoration:none;color:inherit" class="card"><h3>Password Generator</h3><p>Strong random passwords</p></a>
                 <a href="/whats-my-ip" style="text-decoration:none;color:inherit" class="card"><h3>What's My IP</h3><p>IP lookup with geolocation</p></a>
                 <a href="/merge-pdf" style="text-decoration:none;color:inherit" class="card"><h3>Merge PDF</h3><p>Combine PDF files online</p></a>
                 <a href="/webhook-tester" style="text-decoration:none;color:inherit" class="card"><h3>Webhook Tester</h3><p>Inspect HTTP requests</p></a>
                 <a href="/hash-generator" style="text-decoration:none;color:inherit" class="card"><h3>Hash Generator</h3><p>MD5, SHA256, SHA512</p></a>
                 <a href="/url-encoder" style="text-decoration:none;color:inherit" class="card"><h3>URL Encoder</h3><p>Encode/decode URLs</p></a>
-                <a href="/epoch-converter" style="text-decoration:none;color:inherit" class="card"><h3>Epoch Converter</h3><p>Unix timestamp to date</p></a>
                 <a href="/jwt-decoder" style="text-decoration:none;color:inherit" class="card"><h3>JWT Decoder</h3><p>Decode JSON Web Tokens</p></a>
-                <a href="/markdown-preview" style="text-decoration:none;color:inherit" class="card"><h3>Markdown Editor</h3><p>Live preview editor</p></a>
-                <a href="/css-minifier" style="text-decoration:none;color:inherit" class="card"><h3>CSS Minifier</h3><p>Compress CSS code</p></a>
-                <a href="/javascript-minifier" style="text-decoration:none;color:inherit" class="card"><h3>JS Minifier</h3><p>Minify JavaScript</p></a>
-                <a href="/json-to-yaml" style="text-decoration:none;color:inherit" class="card"><h3>JSON to YAML</h3><p>Convert JSON and YAML</p></a>
-                <a href="/image-to-base64" style="text-decoration:none;color:inherit" class="card"><h3>Image to Base64</h3><p>Convert images to Base64</p></a>
-                <a href="/html-entity-encoder" style="text-decoration:none;color:inherit" class="card"><h3>HTML Encoder</h3><p>Encode HTML entities</p></a>
-                <a href="/text-diff" style="text-decoration:none;color:inherit" class="card"><h3>Text Diff</h3><p>Compare text side-by-side</p></a>
-                <a href="/word-counter" style="text-decoration:none;color:inherit" class="card"><h3>Word Counter</h3><p>Count words and characters</p></a>
-                <a href="/compress-pdf" style="text-decoration:none;color:inherit" class="card"><h3>Compress PDF</h3><p>Reduce PDF file size</p></a>
-                <a href="/split-pdf" style="text-decoration:none;color:inherit" class="card"><h3>Split PDF</h3><p>Extract PDF pages</p></a>
                 <a href="/sql-formatter" style="text-decoration:none;color:inherit" class="card"><h3>SQL Formatter</h3><p>Beautify SQL queries</p></a>
-                <a href="/html-to-markdown" style="text-decoration:none;color:inherit" class="card"><h3>HTML to Markdown</h3><p>Convert HTML to MD</p></a>
-                <a href="/json-path-tester" style="text-decoration:none;color:inherit" class="card"><h3>JSONPath Tester</h3><p>Evaluate JSONPath</p></a>
-                <a href="/chmod-calculator" style="text-decoration:none;color:inherit" class="card"><h3>Chmod Calculator</h3><p>Unix permissions</p></a>
-                <a href="/polymarket" style="text-decoration:none;color:inherit" class="card"><h3>Polymarket Dashboard</h3><p>Live prediction markets</p></a>
-                <a href="/xml-formatter" style="text-decoration:none;color:inherit" class="card"><h3>XML Formatter</h3><p>Format and validate XML</p></a>
-                <a href="/hex-to-rgb" style="text-decoration:none;color:inherit" class="card"><h3>HEX to RGB</h3><p>Color code converter</p></a>
-                <a href="/yaml-validator" style="text-decoration:none;color:inherit" class="card"><h3>YAML Validator</h3><p>Validate YAML syntax</p></a>
-                <a href="/timestamp-converter" style="text-decoration:none;color:inherit" class="card"><h3>Timestamp Converter</h3><p>Date/time conversions</p></a>
-                <a href="/csv-to-json" style="text-decoration:none;color:inherit" class="card"><h3>CSV to JSON</h3><p>Convert CSV data</p></a>
-                <a href="/diff-checker" style="text-decoration:none;color:inherit" class="card"><h3>Diff Checker</h3><p>Compare text differences</p></a>
-                <a href="/ip-address-lookup" style="text-decoration:none;color:inherit" class="card"><h3>IP Address Lookup</h3><p>IP geolocation info</p></a>
-                <a href="/http-status-codes" style="text-decoration:none;color:inherit" class="card"><h3>HTTP Status Codes</h3><p>Status code reference</p></a>
-                <a href="/ai-automation-consulting" style="text-decoration:none;color:inherit" class="card"><h3>AI Consulting</h3><p>Custom automation</p></a>
-                <a href="/polymarket-dashboard" style="text-decoration:none;color:inherit" class="card"><h3>Market Analysis</h3><p>Prediction market data</p></a>
-                <a href="/base32-encoder" style="text-decoration:none;color:inherit" class="card"><h3>Base32 Encoder</h3><p>Encode/decode Base32</p></a>
-                <a href="/jwt-generator" style="text-decoration:none;color:inherit" class="card"><h3>JWT Generator</h3><p>Create JWT tokens</p></a>
-                <a href="/html-beautifier" style="text-decoration:none;color:inherit" class="card"><h3>HTML Beautifier</h3><p>Format HTML code</p></a>
                 <a href="/css-gradient-generator" style="text-decoration:none;color:inherit" class="card"><h3>CSS Gradient</h3><p>Visual gradient builder</p></a>
-                <a href="/svg-to-png" style="text-decoration:none;color:inherit" class="card"><h3>SVG to PNG</h3><p>Convert SVG images</p></a>
-                <a href="/unix-permissions-calculator" style="text-decoration:none;color:inherit" class="card"><h3>Unix Permissions</h3><p>Visual rwx calculator</p></a>
+                <a href="/csv-to-json" style="text-decoration:none;color:inherit" class="card"><h3>CSV to JSON</h3><p>Convert CSV data</p></a>
+                <a href="/yaml-validator" style="text-decoration:none;color:inherit" class="card"><h3>YAML Validator</h3><p>Validate YAML syntax</p></a>
                 <a href="/dns-lookup" style="text-decoration:none;color:inherit" class="card"><h3>DNS Lookup</h3><p>DNS record checker</p></a>
+                <a href="/http-status-codes" style="text-decoration:none;color:inherit" class="card"><h3>HTTP Status Codes</h3><p>Status code reference</p></a>
             </div>
             <div style="text-align:center;margin-top:24px">
-                <a href="/api-keys" style="display:inline-block;padding:14px 32px;background:#6c63ff;color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:1.1rem;">Get Free API Key (100+ endpoints)</a>
-                <a href="/blog-free-developer-tools" style="display:inline-block;padding:14px 32px;color:#6c63ff;text-decoration:none;font-weight:500;margin-left:12px;">See all tools</a>
+                <a href="/tools" style="display:inline-block;padding:14px 32px;background:#6c63ff;color:white;border-radius:8px;text-decoration:none;font-weight:600;">View all 50+ tools</a>
             </div>
         </div>
     </div>
 
-    <div style="padding:60px 20px;background:white">
+    <div style="padding:60px 20px;background:#f8f9fa">
         <div class="container">
             <h2 style="text-align:center;font-size:2rem;margin-bottom:32px">Developer Cheat Sheets</h2>
             <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
                 <a href="/api-reference-cheat-sheet" style="text-decoration:none;color:inherit" class="card">
                     <h3>REST API Cheat Sheet</h3>
-                    <p>HTTP methods, status codes, headers, authentication, curl examples. The complete reference.</p>
+                    <p>HTTP methods, status codes, headers, authentication, curl examples.</p>
                 </a>
                 <a href="/regex-cheat-sheet" style="text-decoration:none;color:inherit" class="card">
                     <h3>Regex Cheat Sheet</h3>
-                    <p>Patterns, character classes, quantifiers, lookahead/lookbehind, common patterns for email, URL, IP.</p>
+                    <p>Patterns, character classes, quantifiers, lookahead/lookbehind.</p>
                 </a>
                 <a href="/git-commands-cheat-sheet" style="text-decoration:none;color:inherit" class="card">
                     <h3>Git Commands Cheat Sheet</h3>
-                    <p>Basics, branching, merging, remote, stashing, undoing. Copy-to-clipboard on every command.</p>
+                    <p>Basics, branching, merging, remote, stashing, undoing.</p>
                 </a>
             </div>
         </div>
@@ -353,9 +373,8 @@
 
     <footer>
         <div class="container">
-            <p>ToolPipe &copy; 2026 | <a href="/docs">API Docs</a> | <a href="/tools">Dev Tools</a> | <a href="/pdf">PDF Tools</a> | <a href="/webhooks">WebhookBin</a> | <a href="/short">URL Shortener</a> | <a href="/seo">SEO Analyzer</a> | <a href="/invoice">Invoice</a> | <a href="/monitor">Uptime Monitor</a></p>
-            <p style="margin-top:8px"><a href="/api-reference-cheat-sheet">API Cheat Sheet</a> | <a href="/regex-cheat-sheet">Regex Cheat Sheet</a> | <a href="/git-commands-cheat-sheet">Git Cheat Sheet</a> | <a href="/uuid-generator">UUID Generator</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/color-picker">Color Picker</a> | <a href="/password-generator">Password Generator</a> | <a href="/whats-my-ip">What's My IP</a></p>
-            <p style="margin-top:8px"><a href="/pricing">Pricing</a> | <a href="/donate">Support Us</a> | <a href="/api-keys">Free API Key</a></p>
+            <p>ToolPipe 2026 | <a href="/docs">API Docs</a> | <a href="/tools">Dev Tools</a> | <a href="/playground">API Playground</a> | <a href="/pdf">PDF Tools</a> | <a href="/webhooks">WebhookBin</a> | <a href="/short">URL Shortener</a> | <a href="/seo">SEO Analyzer</a> | <a href="/pricing">Pricing</a></p>
+            <p style="margin-top:8px"><a href="/api-keys">Free API Key</a> | <a href="/donate">Support Us</a> | <a href="https://github.com/COSAI-Labs/make-money-30day-challenge">GitHub</a></p>
         </div>
     </footer>
 </body>

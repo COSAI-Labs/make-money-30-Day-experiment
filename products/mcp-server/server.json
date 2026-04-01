@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "97+ developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, webhooks, mock data, crontab, placeholder images, favicons, sitemaps, README gen, CSS gradients, meta tags, and more",
+  "description": "120+ developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, webhooks, mock data, crontab, placeholder images, favicons, sitemaps, README gen, CSS gradients, meta tags, TypeScript interface gen, Docker Compose gen, Nginx config, GitHub Actions, SSL check, WHOIS, CSP headers, readability scoring, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.10.0",
+  "version": "1.11.0",
   "remoteEndpoints": [
     {
       "url": "https://toolpipe.dev/mcp",
@@ -108,6 +108,28 @@
     {"name": "css_gradient", "description": "Generate CSS gradient code from colors"},
     {"name": "metatags_generate", "description": "Generate Open Graph and Twitter Card meta tags"},
     {"name": "robots_generate", "description": "Generate robots.txt files from rules"},
-    {"name": "htaccess_generate", "description": "Generate Apache .htaccess rules"}
+    {"name": "htaccess_generate", "description": "Generate Apache .htaccess rules"},
+    {"name": "text_keywords", "description": "Extract keywords from text with relevance scoring"},
+    {"name": "text_readability", "description": "Calculate readability scores (Flesch-Kincaid, Coleman-Liau, ARI)"},
+    {"name": "json_to_csv_transform", "description": "Convert JSON array to CSV format"},
+    {"name": "csv_to_json_transform", "description": "Convert CSV text to JSON array"},
+    {"name": "generate_ts_interface", "description": "Generate TypeScript interface from JSON data"},
+    {"name": "generate_sql_create", "description": "Generate SQL CREATE TABLE from sample data"},
+    {"name": "generate_github_actions", "description": "Generate GitHub Actions CI/CD workflow"},
+    {"name": "generate_nginx_config", "description": "Generate Nginx server configuration with SSL"},
+    {"name": "generate_docker_compose", "description": "Generate docker-compose.yml from services"},
+    {"name": "generate_package_json", "description": "Generate package.json from project metadata"},
+    {"name": "csp_generate", "description": "Generate Content Security Policy headers"},
+    {"name": "cors_headers", "description": "Generate CORS headers configuration"},
+    {"name": "ssl_check", "description": "Check SSL certificate details for a domain"},
+    {"name": "whois_lookup", "description": "WHOIS lookup for a domain"},
+    {"name": "http_headers_get", "description": "Fetch HTTP response headers from URL"},
+    {"name": "url_encode", "description": "URL-encode a string"},
+    {"name": "url_decode", "description": "URL-decode a string"},
+    {"name": "html_encode", "description": "HTML-encode special characters"},
+    {"name": "html_decode", "description": "HTML-decode entities"},
+    {"name": "hash_multiple", "description": "Generate MD5, SHA1, SHA256, SHA512, BLAKE2 hashes at once"},
+    {"name": "timestamp_info", "description": "Get timestamp info or convert Unix timestamp"},
+    {"name": "text_diff_detailed", "description": "Detailed text diff with additions/deletions count"}
   ]
 }

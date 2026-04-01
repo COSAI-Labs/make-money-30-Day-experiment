@@ -3,7 +3,7 @@
 /**
  * ToolPipe MCP Server
  *
- * Exposes 97+ developer utility tools via Model Context Protocol.
+ * Exposes 120+ developer utility tools via Model Context Protocol.
  * AI agents can discover and use these tools for JSON formatting,
  * QR code generation, hashing, UUID generation, DNS lookup, and more.
  *
@@ -52,10 +52,10 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.10.0" },
+  { name: "toolpipe", version: "1.11.0" },
   {
     capabilities: { tools: {} },
-    instructions: "ToolPipe provides 180+ developer utility APIs as 97 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, placeholder images, favicon extraction, sitemap generation, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
+    instructions: "ToolPipe provides 200+ developer utility APIs as 120+ MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, placeholder images, favicon extraction, sitemap generation, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
   }
 );
 
@@ -1652,6 +1652,370 @@ server.tool(
     const result = await apiCall("/api/htaccess/generate", {
       method: "POST",
       body: JSON.stringify({ force_https, www_redirect, gzip, cache_static }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Text Processing Tools ---
+
+server.tool(
+  "text_summarize",
+  "Summarize text using extractive summarization. Returns key sentences.",
+  {
+    text: z.string().describe("Text to summarize"),
+    max_sentences: z.number().optional().describe("Max sentences in summary (default: 3)"),
+  },
+  async ({ text, max_sentences }) => {
+    const result = await apiCall("/api/text/summarize", {
+      method: "POST",
+      body: JSON.stringify({ text, max_sentences }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_keywords",
+  "Extract keywords from text with relevance scoring.",
+  {
+    text: z.string().describe("Text to extract keywords from"),
+    top_n: z.number().optional().describe("Number of keywords to return (default: 10)"),
+  },
+  async ({ text, top_n }) => {
+    const result = await apiCall("/api/text/keywords", {
+      method: "POST",
+      body: JSON.stringify({ text, top_n }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_readability",
+  "Calculate readability scores (Flesch-Kincaid, Coleman-Liau, ARI).",
+  {
+    text: z.string().describe("Text to analyze for readability"),
+  },
+  async ({ text }) => {
+    const result = await apiCall("/api/text/readability", {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Data Transform Tools ---
+
+server.tool(
+  "json_to_csv",
+  "Convert a JSON array of objects to CSV format.",
+  {
+    data: z.array(z.record(z.any())).describe("Array of objects to convert"),
+    delimiter: z.string().optional().describe("CSV delimiter (default: comma)"),
+  },
+  async ({ data, delimiter }) => {
+    const result = await apiCall("/api/transform/json-to-csv", {
+      method: "POST",
+      body: JSON.stringify({ data, delimiter }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "csv_to_json",
+  "Convert CSV text to a JSON array of objects.",
+  {
+    csv: z.string().describe("CSV text to convert"),
+    delimiter: z.string().optional().describe("CSV delimiter (default: comma)"),
+  },
+  async ({ csv, delimiter }) => {
+    const result = await apiCall("/api/transform/csv-to-json", {
+      method: "POST",
+      body: JSON.stringify({ csv, delimiter }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "xml_to_json",
+  "Convert XML text to JSON.",
+  {
+    xml: z.string().describe("XML text to convert"),
+  },
+  async ({ xml }) => {
+    const result = await apiCall("/api/transform/xml-to-json", {
+      method: "POST",
+      body: JSON.stringify({ xml }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Code Generation Tools ---
+
+server.tool(
+  "generate_typescript_interface",
+  "Generate TypeScript interface/type from a JSON object or array.",
+  {
+    data: z.any().describe("JSON data to generate TypeScript interface from"),
+    name: z.string().optional().describe("Interface name (default: Generated)"),
+  },
+  async ({ data, name }) => {
+    const result = await apiCall("/api/generate/typescript-interface", {
+      method: "POST",
+      body: JSON.stringify({ data, name }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_sql_create",
+  "Generate SQL CREATE TABLE from column definitions or sample data.",
+  {
+    table: z.string().optional().describe("Table name"),
+    data: z.any().optional().describe("Sample JSON data to infer columns from"),
+    columns: z.array(z.object({
+      name: z.string(),
+      type: z.string(),
+      nullable: z.boolean().optional(),
+      primary_key: z.boolean().optional(),
+    })).optional().describe("Column definitions"),
+    dialect: z.string().optional().describe("SQL dialect (postgresql, mysql, sqlite)"),
+  },
+  async ({ table, data, columns, dialect }) => {
+    const result = await apiCall("/api/generate/sql-create", {
+      method: "POST",
+      body: JSON.stringify({ table, data, columns, dialect }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_github_actions",
+  "Generate a GitHub Actions CI/CD workflow YAML.",
+  {
+    name: z.string().optional().describe("Workflow name (default: CI)"),
+    language: z.string().optional().describe("Language: node, python, etc."),
+    trigger: z.string().optional().describe("Trigger event (default: push)"),
+  },
+  async ({ name, language, trigger }) => {
+    const result = await apiCall("/api/generate/github-actions", {
+      method: "POST",
+      body: JSON.stringify({ name, language, trigger }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_nginx_config",
+  "Generate an Nginx server configuration with SSL and proxy settings.",
+  {
+    domain: z.string().optional().describe("Domain name"),
+    upstream_port: z.number().optional().describe("Upstream port (default: 3000)"),
+    ssl: z.boolean().optional().describe("Enable SSL (default: true)"),
+  },
+  async ({ domain, upstream_port, ssl }) => {
+    const result = await apiCall("/api/generate/nginx-config", {
+      method: "POST",
+      body: JSON.stringify({ domain, upstream_port, ssl }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_docker_compose",
+  "Generate a docker-compose.yml from service definitions.",
+  {
+    services: z.array(z.object({
+      name: z.string().describe("Service name"),
+      image: z.string().optional().describe("Docker image"),
+      ports: z.array(z.string()).optional().describe("Port mappings"),
+      environment: z.record(z.string()).optional().describe("Environment variables"),
+    })).describe("Service definitions"),
+  },
+  async ({ services }) => {
+    const result = await apiCall("/api/generate/docker-compose", {
+      method: "POST",
+      body: JSON.stringify({ services }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_package_json",
+  "Generate a package.json from project metadata.",
+  {
+    name: z.string().optional().describe("Package name"),
+    description: z.string().optional().describe("Package description"),
+    dependencies: z.record(z.string()).optional().describe("Dependencies"),
+  },
+  async ({ name, description, dependencies }) => {
+    const result = await apiCall("/api/generate/package-json", {
+      method: "POST",
+      body: JSON.stringify({ name, description, dependencies }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Security Tools ---
+
+server.tool(
+  "csp_generate",
+  "Generate Content Security Policy headers from rules.",
+  {
+    directives: z.record(z.array(z.string())).optional().describe("CSP directives"),
+    report_only: z.boolean().optional().describe("Report-only mode"),
+  },
+  async ({ directives, report_only }) => {
+    const result = await apiCall("/api/security/csp-generate", {
+      method: "POST",
+      body: JSON.stringify({ directives, report_only }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "cors_headers",
+  "Generate CORS headers configuration with Nginx example.",
+  {
+    origins: z.array(z.string()).optional().describe("Allowed origins"),
+    methods: z.array(z.string()).optional().describe("Allowed methods"),
+    credentials: z.boolean().optional().describe("Allow credentials"),
+  },
+  async ({ origins, methods, credentials }) => {
+    const result = await apiCall("/api/security/cors-headers", {
+      method: "POST",
+      body: JSON.stringify({ origins, methods, credentials }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Network Tools ---
+
+server.tool(
+  "ssl_check",
+  "Check SSL certificate details for a domain.",
+  {
+    domain: z.string().describe("Domain name to check SSL certificate for"),
+  },
+  async ({ domain }) => {
+    const result = await apiCall(`/api/ssl/check?domain=${encodeURIComponent(domain)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "whois_lookup",
+  "WHOIS lookup for a domain.",
+  {
+    domain: z.string().describe("Domain to look up"),
+  },
+  async ({ domain }) => {
+    const result = await apiCall(`/api/whois?domain=${encodeURIComponent(domain)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "http_headers",
+  "Fetch HTTP response headers from a URL.",
+  {
+    url: z.string().describe("URL to fetch headers from"),
+  },
+  async ({ url }) => {
+    const result = await apiCall(`/api/headers/get?url=${encodeURIComponent(url)}`);
+    return textResult(result);
+  }
+);
+
+// --- Encoding Tools ---
+
+server.tool(
+  "url_encode",
+  "URL-encode a string.",
+  { text: z.string().describe("Text to URL-encode") },
+  async ({ text }) => {
+    const result = await apiCall(`/api/encode/url?text=${encodeURIComponent(text)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "url_decode",
+  "URL-decode a string.",
+  { text: z.string().describe("Text to URL-decode") },
+  async ({ text }) => {
+    const result = await apiCall(`/api/decode/url?text=${encodeURIComponent(text)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "html_encode",
+  "HTML-encode a string (escape special characters).",
+  { text: z.string().describe("Text to HTML-encode") },
+  async ({ text }) => {
+    const result = await apiCall(`/api/encode/html?text=${encodeURIComponent(text)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "html_decode",
+  "HTML-decode a string (unescape entities).",
+  { text: z.string().describe("Text to HTML-decode") },
+  async ({ text }) => {
+    const result = await apiCall(`/api/decode/html?text=${encodeURIComponent(text)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "hash_multiple",
+  "Generate MD5, SHA1, SHA256, SHA512, BLAKE2b, BLAKE2s hashes for text.",
+  { text: z.string().describe("Text to hash") },
+  async ({ text }) => {
+    const result = await apiCall(`/api/hash/file?text=${encodeURIComponent(text)}`);
+    return textResult(result);
+  }
+);
+
+// --- Utility Tools ---
+
+server.tool(
+  "timestamp",
+  "Get current timestamp or convert Unix timestamp to multiple formats.",
+  { ts: z.number().optional().describe("Unix timestamp to convert (omit for current time)") },
+  async ({ ts }) => {
+    const url = ts != null ? `/api/timestamp?ts=${ts}` : "/api/timestamp";
+    const result = await apiCall(url);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_diff_detailed",
+  "Detailed text diff with line-by-line additions and deletions.",
+  {
+    text1: z.string().describe("Original text"),
+    text2: z.string().describe("Modified text"),
+  },
+  async ({ text1, text2 }) => {
+    const result = await apiCall("/api/diff/text-detailed", {
+      method: "POST",
+      body: JSON.stringify({ text1, text2 }),
     });
     return textResult(result);
   }
