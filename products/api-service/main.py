@@ -35,8 +35,8 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="220+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
-    version="1.14.0",
+    description="225+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
+    version="1.15.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -9656,6 +9656,662 @@ async def generate_env_template(request: Request):
         return {"template": "\n".join(lines), "variable_count": len(variables)}
 
     return {"error": "Provide 'env' (existing .env content) or 'variables' (list of var names/objects)"}
+
+
+# --- New Premium Endpoints v1.15.0 ---
+
+@app.post("/api/prompt/engineer")
+async def prompt_engineer(request: Request):
+    """Transform a basic prompt into an optimized, structured prompt for LLMs.
+    Applies prompt engineering best practices: role, context, constraints, output format."""
+    data = await request.json()
+    prompt = data.get("prompt", "").strip()
+    model = data.get("model", "general").lower()
+    style = data.get("style", "detailed").lower()
+
+    if not prompt:
+        raise HTTPException(status_code=400, detail="'prompt' field required")
+
+    # Analyze the prompt
+    word_count = len(prompt.split())
+    has_role = any(w in prompt.lower() for w in ["you are", "act as", "pretend", "role"])
+    has_context = any(w in prompt.lower() for w in ["context", "background", "given that"])
+    has_constraints = any(w in prompt.lower() for w in ["must", "should", "don't", "avoid", "limit", "constraint"])
+    has_output_format = any(w in prompt.lower() for w in ["format", "json", "markdown", "table", "list", "output"])
+    has_examples = any(w in prompt.lower() for w in ["example", "for instance", "such as", "e.g."])
+
+    improvements = []
+    if not has_role:
+        improvements.append("Add a role/persona (e.g., 'You are an expert software engineer')")
+    if not has_context:
+        improvements.append("Add context about the task or domain")
+    if not has_constraints:
+        improvements.append("Add constraints (length, tone, what to avoid)")
+    if not has_output_format:
+        improvements.append("Specify desired output format (JSON, markdown, list, etc.)")
+    if not has_examples:
+        improvements.append("Include examples of expected input/output")
+    if word_count < 20:
+        improvements.append("Expand the prompt with more specific details")
+
+    # Build optimized version
+    sections = []
+    if not has_role:
+        sections.append("## Role\nYou are an expert assistant specialized in this task.\n")
+    sections.append(f"## Task\n{prompt}\n")
+    if not has_context:
+        sections.append("## Context\n[Add relevant background information here]\n")
+    if not has_constraints:
+        sections.append("## Constraints\n- Be concise and accurate\n- Focus on actionable information\n- Avoid unnecessary filler\n")
+    if not has_output_format:
+        sections.append("## Output Format\nProvide your response in a clear, structured format.\n")
+
+    optimized = "\n".join(sections)
+
+    score = 0
+    if has_role: score += 20
+    if has_context: score += 20
+    if has_constraints: score += 20
+    if has_output_format: score += 20
+    if has_examples: score += 10
+    if word_count >= 20: score += 10
+
+    return {
+        "original_prompt": prompt,
+        "optimized_prompt": optimized,
+        "quality_score": score,
+        "word_count": word_count,
+        "analysis": {
+            "has_role": has_role,
+            "has_context": has_context,
+            "has_constraints": has_constraints,
+            "has_output_format": has_output_format,
+            "has_examples": has_examples,
+        },
+        "improvements": improvements,
+        "tips": [
+            "Use specific, concrete language instead of vague terms",
+            "Break complex tasks into numbered steps",
+            "Provide examples of expected output",
+            "Specify edge cases to handle",
+            "Define the audience for the output",
+        ],
+    }
+
+
+@app.post("/api/changelog/generate")
+async def generate_changelog(request: Request):
+    """Generate a changelog from git commit messages or a list of changes."""
+    data = await request.json()
+    commits = data.get("commits", [])
+    version = data.get("version", "1.0.0")
+    date = data.get("date", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+    format_type = data.get("format", "keepachangelog")
+
+    if not commits:
+        raise HTTPException(status_code=400, detail="'commits' array required (list of commit messages or objects with 'message' and optional 'type')")
+
+    categories = {
+        "Added": [],
+        "Changed": [],
+        "Fixed": [],
+        "Removed": [],
+        "Security": [],
+        "Deprecated": [],
+        "Other": [],
+    }
+
+    for commit in commits:
+        msg = commit if isinstance(commit, str) else commit.get("message", "")
+        msg = msg.strip()
+        if not msg:
+            continue
+
+        explicit_type = commit.get("type", "") if isinstance(commit, dict) else ""
+        lower = msg.lower()
+
+        if explicit_type:
+            type_map = {"feat": "Added", "fix": "Fixed", "security": "Security", "remove": "Removed", "deprecate": "Deprecated"}
+            cat = type_map.get(explicit_type, "Changed")
+        elif any(lower.startswith(w) for w in ["add", "feat", "new", "create", "implement"]):
+            cat = "Added"
+        elif any(lower.startswith(w) for w in ["fix", "bug", "patch", "resolve", "correct"]):
+            cat = "Fixed"
+        elif any(lower.startswith(w) for w in ["remove", "delete", "drop"]):
+            cat = "Removed"
+        elif any(lower.startswith(w) for w in ["security", "vuln", "cve"]):
+            cat = "Security"
+        elif any(lower.startswith(w) for w in ["deprecat"]):
+            cat = "Deprecated"
+        elif any(lower.startswith(w) for w in ["update", "change", "refactor", "improve", "upgrade", "bump"]):
+            cat = "Changed"
+        else:
+            cat = "Other"
+
+        categories[cat].append(msg)
+
+    if format_type == "keepachangelog":
+        lines = [f"## [{version}] - {date}\n"]
+        for cat, items in categories.items():
+            if items:
+                lines.append(f"### {cat}")
+                for item in items:
+                    clean = item.lstrip("- ")
+                    lines.append(f"- {clean}")
+                lines.append("")
+        changelog = "\n".join(lines)
+    else:
+        lines = [f"# {version} ({date})\n"]
+        for cat, items in categories.items():
+            if items:
+                lines.append(f"**{cat}:**")
+                for item in items:
+                    lines.append(f"  - {item}")
+                lines.append("")
+        changelog = "\n".join(lines)
+
+    total = sum(len(v) for v in categories.values())
+    return {
+        "changelog": changelog,
+        "version": version,
+        "date": date,
+        "total_entries": total,
+        "categories": {k: len(v) for k, v in categories.items() if v},
+    }
+
+
+@app.post("/api/license/generate")
+async def generate_license(request: Request):
+    """Generate a LICENSE file for your project."""
+    data = await request.json()
+    license_type = data.get("type", "MIT").upper()
+    name = data.get("name", "Your Name")
+    year = data.get("year", datetime.now(timezone.utc).year)
+
+    templates = {
+        "MIT": f"""MIT License
+
+Copyright (c) {year} {name}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.""",
+        "APACHE-2.0": f"""                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+Copyright {year} {name}
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.""",
+        "GPL-3.0": f"""Copyright (C) {year} {name}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.""",
+        "BSD-3-CLAUSE": f"""BSD 3-Clause License
+
+Copyright (c) {year}, {name}
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""",
+        "ISC": f"""ISC License
+
+Copyright (c) {year}, {name}
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.""",
+        "UNLICENSE": f"""This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <https://unlicense.org>""",
+    }
+
+    if license_type not in templates:
+        return {
+            "error": f"Unknown license type. Available: {', '.join(templates.keys())}",
+            "available_licenses": list(templates.keys()),
+        }
+
+    return {
+        "license": templates[license_type],
+        "type": license_type,
+        "name": name,
+        "year": year,
+        "spdx_id": license_type,
+    }
+
+
+@app.post("/api/commit/message")
+async def generate_commit_message(request: Request):
+    """Generate a conventional commit message from a diff or description."""
+    data = await request.json()
+    diff = data.get("diff", "")
+    description = data.get("description", "")
+    style = data.get("style", "conventional")
+
+    if not diff and not description:
+        raise HTTPException(status_code=400, detail="Provide 'diff' or 'description'")
+
+    text = diff or description
+    lower = text.lower()
+
+    # Detect commit type
+    if any(w in lower for w in ["fix", "bug", "error", "crash", "issue", "patch"]):
+        commit_type = "fix"
+        emoji = "bug"
+    elif any(w in lower for w in ["add", "new", "feature", "implement", "create"]):
+        commit_type = "feat"
+        emoji = "sparkles"
+    elif any(w in lower for w in ["refactor", "clean", "restructure", "reorganize"]):
+        commit_type = "refactor"
+        emoji = "recycle"
+    elif any(w in lower for w in ["test", "spec", "coverage"]):
+        commit_type = "test"
+        emoji = "white_check_mark"
+    elif any(w in lower for w in ["doc", "readme", "comment", "changelog"]):
+        commit_type = "docs"
+        emoji = "memo"
+    elif any(w in lower for w in ["style", "format", "lint", "whitespace"]):
+        commit_type = "style"
+        emoji = "art"
+    elif any(w in lower for w in ["perf", "optim", "speed", "fast"]):
+        commit_type = "perf"
+        emoji = "zap"
+    elif any(w in lower for w in ["ci", "pipeline", "workflow", "deploy"]):
+        commit_type = "ci"
+        emoji = "construction_worker"
+    elif any(w in lower for w in ["build", "deps", "dependency", "upgrade", "bump"]):
+        commit_type = "build"
+        emoji = "package"
+    else:
+        commit_type = "chore"
+        emoji = "wrench"
+
+    # Detect scope from file paths
+    scope = ""
+    import re as _re
+    file_patterns = _re.findall(r'[\w/]+\.\w+', text)
+    if file_patterns:
+        first_file = file_patterns[0]
+        parts = first_file.split("/")
+        if len(parts) > 1:
+            scope = parts[-2] if parts[-2] not in ("src", "lib", "app") else parts[-1].split(".")[0]
+        else:
+            scope = first_file.split(".")[0]
+
+    # Generate summary
+    words = (description or diff[:200]).split()
+    summary = " ".join(words[:12]).rstrip(".")
+    if len(summary) > 72:
+        summary = summary[:69] + "..."
+
+    scope_part = f"({scope})" if scope else ""
+
+    messages = {
+        "conventional": f"{commit_type}{scope_part}: {summary.lower()}",
+        "gitmoji": f":{emoji}: {summary}",
+        "simple": summary,
+    }
+
+    return {
+        "message": messages.get(style, messages["conventional"]),
+        "type": commit_type,
+        "scope": scope or None,
+        "summary": summary,
+        "all_styles": messages,
+        "detected_files": file_patterns[:10] if file_patterns else [],
+    }
+
+
+@app.post("/api/api-spec/compare")
+async def compare_api_specs(request: Request):
+    """Compare two OpenAPI specs and detect breaking changes."""
+    data = await request.json()
+    old_spec = data.get("old", {})
+    new_spec = data.get("new", {})
+
+    if not old_spec or not new_spec:
+        raise HTTPException(status_code=400, detail="Both 'old' and 'new' OpenAPI spec objects required")
+
+    old_paths = old_spec.get("paths", {})
+    new_paths = new_spec.get("paths", {})
+
+    breaking = []
+    non_breaking = []
+
+    # Check removed paths
+    for path in old_paths:
+        if path not in new_paths:
+            breaking.append({"type": "path_removed", "path": path, "severity": "breaking"})
+        else:
+            old_methods = set(old_paths[path].keys())
+            new_methods = set(new_paths[path].keys())
+            for method in old_methods - new_methods:
+                breaking.append({"type": "method_removed", "path": path, "method": method, "severity": "breaking"})
+
+    # Check added paths
+    for path in new_paths:
+        if path not in old_paths:
+            non_breaking.append({"type": "path_added", "path": path, "severity": "non-breaking"})
+        else:
+            old_methods = set(old_paths[path].keys())
+            new_methods = set(new_paths[path].keys())
+            for method in new_methods - old_methods:
+                non_breaking.append({"type": "method_added", "path": path, "method": method, "severity": "non-breaking"})
+
+    old_version = old_spec.get("info", {}).get("version", "unknown")
+    new_version = new_spec.get("info", {}).get("version", "unknown")
+
+    return {
+        "old_version": old_version,
+        "new_version": new_version,
+        "breaking_changes": breaking,
+        "non_breaking_changes": non_breaking,
+        "total_breaking": len(breaking),
+        "total_non_breaking": len(non_breaking),
+        "is_breaking": len(breaking) > 0,
+        "summary": f"{len(breaking)} breaking, {len(non_breaking)} non-breaking changes between {old_version} and {new_version}",
+    }
+
+
+@app.post("/api/regex/generate")
+async def generate_regex(request: Request):
+    """Generate regex patterns from natural language descriptions."""
+    data = await request.json()
+    description = data.get("description", "").strip().lower()
+    test_string = data.get("test", "")
+
+    if not description:
+        raise HTTPException(status_code=400, detail="'description' field required")
+
+    # Common regex patterns mapped from descriptions
+    patterns = {
+        "email": {"pattern": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", "description": "Email address"},
+        "url": {"pattern": r"https?://[^\s<>\"']+", "description": "HTTP/HTTPS URL"},
+        "phone": {"pattern": r"\+?1?\s*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}", "description": "US phone number"},
+        "ip": {"pattern": r"\b(?:\d{1,3}\.){3}\d{1,3}\b", "description": "IPv4 address"},
+        "ipv6": {"pattern": r"(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}", "description": "IPv6 address"},
+        "date": {"pattern": r"\d{4}-\d{2}-\d{2}", "description": "ISO date (YYYY-MM-DD)"},
+        "time": {"pattern": r"\d{2}:\d{2}(:\d{2})?", "description": "Time (HH:MM or HH:MM:SS)"},
+        "hex": {"pattern": r"#?[0-9a-fA-F]{6}", "description": "Hex color code"},
+        "uuid": {"pattern": r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", "description": "UUID v4"},
+        "zip": {"pattern": r"\b\d{5}(-\d{4})?\b", "description": "US ZIP code"},
+        "ssn": {"pattern": r"\b\d{3}-\d{2}-\d{4}\b", "description": "SSN format (XXX-XX-XXXX)"},
+        "credit": {"pattern": r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b", "description": "Credit card number"},
+        "domain": {"pattern": r"[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}", "description": "Domain name"},
+        "slug": {"pattern": r"[a-z0-9]+(?:-[a-z0-9]+)*", "description": "URL slug"},
+        "semver": {"pattern": r"\bv?\d+\.\d+\.\d+(?:-[\w.]+)?(?:\+[\w.]+)?\b", "description": "Semantic version"},
+        "jwt": {"pattern": r"eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", "description": "JWT token"},
+        "mac": {"pattern": r"([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}", "description": "MAC address"},
+        "password": {"pattern": r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", "description": "Strong password (8+ chars, upper, lower, digit, special)"},
+        "number": {"pattern": r"-?\d+(?:,\d{3})*(?:\.\d+)?", "description": "Number with optional commas and decimals"},
+        "word": {"pattern": r"\b\w+\b", "description": "Single word"},
+        "sentence": {"pattern": r"[A-Z][^.!?]*[.!?]", "description": "Sentence"},
+        "hashtag": {"pattern": r"#\w+", "description": "Hashtag"},
+        "mention": {"pattern": r"@\w+", "description": "@ mention"},
+        "markdown_link": {"pattern": r"\[([^\]]+)\]\(([^)]+)\)", "description": "Markdown link"},
+        "html_tag": {"pattern": r"<\/?[a-zA-Z][^>]*>", "description": "HTML tag"},
+    }
+
+    # Find matching pattern
+    matched = []
+    for key, val in patterns.items():
+        if key in description or any(w in description for w in key.split("_")):
+            matched.append(val)
+
+    if not matched:
+        # Try to find partial matches
+        for key, val in patterns.items():
+            if any(w in description for w in [key[:4]]):
+                matched.append(val)
+
+    if not matched:
+        matched = [{"pattern": r".*", "description": "Could not determine pattern from description. Try using keywords like: email, url, phone, ip, date, uuid, hex, domain, password, number"}]
+
+    # Test against string if provided
+    results = []
+    for m in matched:
+        entry = {"pattern": m["pattern"], "description": m["description"]}
+        if test_string:
+            import re as _re
+            matches = _re.findall(m["pattern"], test_string)
+            entry["matches"] = matches[:20]
+            entry["match_count"] = len(matches)
+        results.append(entry)
+
+    return {
+        "query": description,
+        "patterns": results,
+        "total_patterns": len(results),
+    }
+
+
+# --- A2A (Agent-to-Agent) Protocol Discovery ---
+
+@app.get("/.well-known/agent.json")
+async def a2a_agent_card():
+    """A2A Agent Card: allows other AI agents to discover ToolPipe capabilities."""
+    return {
+        "name": "ToolPipe",
+        "description": "225+ developer utility APIs accessible to AI agents. JSON formatting, QR codes, hashing, PDF tools, code review, fake data generation, DNS lookup, JWT handling, SSL checks, and more.",
+        "url": "https://toolpipe.dev",
+        "version": "1.15.0",
+        "protocol_version": "0.1",
+        "capabilities": {
+            "streaming": False,
+            "pushNotifications": False,
+        },
+        "authentication": {
+            "schemes": ["apiKey"],
+            "credentials": "Get free API key at POST /api-keys/register with {email}. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo crypto).",
+        },
+        "skills": [
+            {"id": "json_tools", "name": "JSON Tools", "description": "Format, validate, minify, diff JSON. Convert JSON to CSV, XML, TypeScript interfaces, SQL schemas."},
+            {"id": "code_tools", "name": "Code Tools", "description": "Code review, explain, minify, format (Python/JS/SQL/CSS/HTML). Generate GitHub Actions, Dockerfiles, nginx configs."},
+            {"id": "text_tools", "name": "Text Tools", "description": "Summarize, extract keywords, readability analysis, diff, transform (case, reverse, ROT13), lorem ipsum."},
+            {"id": "crypto_tools", "name": "Crypto & Hash", "description": "SHA256/MD5/bcrypt hashing, JWT create/decode, password strength, UUID generation."},
+            {"id": "web_tools", "name": "Web Tools", "description": "DNS lookup, WHOIS, SSL check, HTTP headers, meta tag extraction, sitemap generation, SEO analysis."},
+            {"id": "data_tools", "name": "Data Generation", "description": "Fake data (users, companies, addresses), mock API responses, CSV analysis, .env templates."},
+            {"id": "pdf_tools", "name": "PDF Tools", "description": "Merge, split, compress, watermark, protect PDF files."},
+            {"id": "qr_tools", "name": "QR & Image", "description": "QR code generation, placeholder images, favicon extraction, CSS gradients."},
+            {"id": "security_tools", "name": "Security", "description": "CSP generation, CORS headers, security headers audit, robots.txt generation."},
+            {"id": "payment", "name": "Payment", "description": "Accept crypto payments. Create invoices, verify on-chain transactions across 7 EVM chains + Solana."},
+        ],
+        "endpoints": {
+            "openapi": "/openapi-toolpipe.json",
+            "api_catalog": "/apis.json",
+            "mcp_config": "/.well-known/mcp.json",
+            "pricing": "/api/pricing",
+            "register": "/api-keys/register",
+            "pay": "/payments/agent-pay",
+        },
+        "provider": {
+            "organization": "COSAI Labs",
+            "email": "toolpipe-ads@sharebot.net",
+        },
+    }
+
+
+@app.post("/payments/agent-pay")
+async def agent_pay(request: Request):
+    """Simplified payment flow for AI agents. One-call payment initiation.
+
+    POST with {"email": "agent@example.com", "tier": "pro"} to get payment instructions.
+    Then send crypto and POST /payments/verify-tx with {order_id, tx_hash}.
+    """
+    try:
+        data = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="JSON body required: {email, tier}")
+
+    email = (data.get("email") or "").strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email required")
+
+    tier = (data.get("tier") or "pro").lower()
+    if tier not in PRICING_TIERS:
+        raise HTTPException(status_code=400, detail=f"Tiers: {', '.join(PRICING_TIERS.keys())}")
+
+    tier_info = PRICING_TIERS[tier]
+    order_id = f"tp-agent-{tier}-{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        conn.execute(
+            "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, created_at) VALUES (?, ?, ?, ?, ?, 'awaiting_payment', ?)",
+            (order_id, order_id, email, tier, tier_info["amount"], now)
+        )
+        conn.commit()
+        conn.close()
+
+    return {
+        "status": "awaiting_payment",
+        "order_id": order_id,
+        "tier": tier,
+        "amount_usd": tier_info["amount"],
+        "daily_limit": tier_info["daily_limit"],
+        "payment_addresses": {
+            "evm": WALLET_ADDRESS,
+            "solana": SOLANA_WALLET,
+        },
+        "accepted_tokens": {
+            "evm": ["ETH", "USDC", "USDT", "DAI", "WETH", "any ERC-20"],
+            "evm_networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism", "BSC", "Avalanche"],
+            "solana": ["SOL", "USDC-SPL"],
+        },
+        "next_step": f"Send ${tier_info['amount']} USD equivalent in crypto to one of the addresses above, then POST /payments/verify-tx with {{\"order_id\": \"{order_id}\", \"tx_hash\": \"0x...\"}}",
+        "verify_endpoint": "/payments/verify-tx",
+        "qr_codes": {
+            "evm": f"/qr/generate?text=ethereum:{WALLET_ADDRESS}&size=300",
+            "solana": f"/qr/generate?text=solana:{SOLANA_WALLET}&size=300",
+        },
+    }
+
+
+@app.get("/api/agent/discover")
+async def agent_discover():
+    """Discovery endpoint for AI agents. Returns available tools, pricing, and how to get started."""
+    return {
+        "service": "ToolPipe",
+        "tagline": "220+ developer APIs for AI agents and developers",
+        "version": "1.15.0",
+        "total_endpoints": 220,
+        "free_tier": {
+            "daily_limit": 100,
+            "signup": "POST /api-keys/register with {\"email\": \"your@email.com\"}",
+            "no_credit_card": True,
+        },
+        "pro_tier": {
+            "price": "$9.99/month",
+            "daily_limit": 10000,
+            "payment": "Crypto only (no KYC). POST /payments/agent-pay",
+        },
+        "popular_tools": [
+            {"endpoint": "POST /json/format", "description": "Format/validate/minify JSON"},
+            {"endpoint": "GET /qr/generate?text=hello", "description": "Generate QR codes"},
+            {"endpoint": "POST /hash/generate", "description": "SHA256/MD5/bcrypt hashing"},
+            {"endpoint": "GET /uuid/generate", "description": "Generate UUIDs"},
+            {"endpoint": "POST /api/code/review", "description": "AI-powered code review"},
+            {"endpoint": "POST /api/data/fake", "description": "Generate fake data"},
+            {"endpoint": "GET /api/dns?domain=example.com", "description": "DNS lookup"},
+            {"endpoint": "POST /api/jwt/create", "description": "Create JWT tokens"},
+            {"endpoint": "GET /api/ssl/check?domain=example.com", "description": "SSL certificate check"},
+            {"endpoint": "POST /api/text/summarize", "description": "Text summarization"},
+        ],
+        "mcp_server": {
+            "npm": "npx @cosai-labs/toolpipe-mcp-server",
+            "github": "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
+            "config": "/.well-known/mcp.json",
+        },
+        "documentation": "/docs",
+        "openapi": "/openapi-toolpipe.json",
+    }
 
 
 # --- SEO Pages (catch-all for static content pages) ---

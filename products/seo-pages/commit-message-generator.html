@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commit Message Generator - Conventional Commits & Gitmoji</title>
+    <meta name="description" content="Generate conventional commit messages from descriptions or diffs. Supports conventional commits, gitmoji, and simple styles. Auto-detects feat, fix, refactor, and more.">
+    <meta property="og:title" content="Commit Message Generator - Conventional Commits & Gitmoji">
+    <link rel="canonical" href="/commit-message-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, select:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; margin-top: 12px; }
+        select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; background: white; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .result-msg { background: #1a1a2e; color: #22c55e; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 1rem; margin: 12px 0; }
+        .styles { display: flex; gap: 8px; margin: 8px 0; }
+        .style-tag { background: #f0f0ff; color: #6c63ff; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; border: 1px solid #ddd; }
+        .style-tag:hover { background: #6c63ff; color: white; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>Commit Message Generator</h1>
+        <p class="subtitle">Generate conventional commit messages from descriptions or diffs</p>
+        <div class="tool-box">
+            <label>Describe your changes</label>
+            <textarea id="desc" placeholder="Add user authentication with JWT tokens and password hashing"></textarea>
+            <label>Style</label>
+            <select id="style">
+                <option value="conventional">Conventional Commits (feat: ...)</option>
+                <option value="gitmoji">Gitmoji (:sparkles: ...)</option>
+                <option value="simple">Simple</option>
+            </select>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generate()">Generate Message</button>
+                <button class="btn btn-copy" onclick="copyMsg()">Copy Message</button>
+            </div>
+            <div id="result"></div>
+        </div>
+        <div class="content">
+            <h2>What Are Conventional Commits?</h2>
+            <p>Conventional Commits is a specification for adding human and machine readable meaning to commit messages. It uses prefixes like feat:, fix:, refactor:, docs:, test:, chore: to categorize changes. This enables automatic changelog generation and semantic versioning.</p>
+            <h2>API Access</h2>
+            <p>Use via API: <code>POST /api/commit/message</code> with <code>{"description": "your changes", "style": "conventional"}</code>. <a href="/pricing">Pro plans</a> for higher rate limits.</p>
+        </div>
+    </div>
+    <footer>Powered by <a href="/">ToolPipe API</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a></footer>
+    <script>
+    async function generate() {
+        const desc = document.getElementById('desc').value;
+        const style = document.getElementById('style').value;
+        if (!desc) return;
+        const res = await fetch('/api/commit/message', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({description: desc, style}) });
+        const data = await res.json();
+        let html = '<div class="result-msg" id="msg">' + (data.message || '') + '</div>';
+        html += '<p style="color:#666;font-size:0.9rem">Type: <strong>' + (data.type || '') + '</strong>' + (data.scope ? ' | Scope: <strong>' + data.scope + '</strong>' : '') + '</p>';
+        if (data.all_styles) {
+            html += '<div class="styles">';
+            Object.entries(data.all_styles).forEach(([k,v]) => html += '<span class="style-tag" onclick="setMsg(\'' + v.replace(/'/g,"\\'") + '\')">' + k + '</span>');
+            html += '</div>';
+        }
+        document.getElementById('result').innerHTML = html;
+    }
+    function setMsg(m) { document.querySelector('.result-msg').textContent = m; }
+    function copyMsg() { const el = document.getElementById('msg'); if (el) navigator.clipboard.writeText(el.textContent); }
+    </script>
+</body>
+</html>

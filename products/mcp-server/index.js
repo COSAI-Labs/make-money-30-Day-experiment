@@ -52,7 +52,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.14.0" },
+  { name: "toolpipe", version: "1.15.0" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 200+ developer utility APIs as 120+ MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, placeholder images, favicon extraction, sitemap generation, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
@@ -2222,6 +2222,181 @@ server.tool(
       method: "POST",
       body: JSON.stringify({ env, variables }),
     });
+    return textResult(result);
+  }
+);
+
+// --- New v1.15.0 Tools ---
+
+server.tool(
+  "prompt_engineer",
+  "Analyze and optimize an LLM prompt. Checks for role, context, constraints, output format, and examples. Returns improved version with quality score.",
+  {
+    prompt: z.string().describe("The prompt to analyze and optimize"),
+    model: z.string().optional().default("general").describe("Target model: general, claude, gpt"),
+    style: z.string().optional().default("detailed").describe("Style: detailed, concise"),
+  },
+  async ({ prompt, model, style }) => {
+    const result = await apiCall("/api/prompt/engineer", {
+      method: "POST",
+      body: JSON.stringify({ prompt, model, style }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "changelog_generate",
+  "Generate a formatted changelog from commit messages. Automatically categorizes into Added, Changed, Fixed, Removed, Security.",
+  {
+    commits: z.array(z.union([
+      z.string(),
+      z.object({ message: z.string(), type: z.string().optional() })
+    ])).describe("Array of commit messages or objects with message and optional type"),
+    version: z.string().optional().default("1.0.0").describe("Version number"),
+    date: z.string().optional().describe("Release date (YYYY-MM-DD)"),
+    format: z.string().optional().default("keepachangelog").describe("Format: keepachangelog, simple"),
+  },
+  async ({ commits, version, date, format }) => {
+    const result = await apiCall("/api/changelog/generate", {
+      method: "POST",
+      body: JSON.stringify({ commits, version, date, format }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "license_generate",
+  "Generate a LICENSE file. Supports MIT, Apache-2.0, GPL-3.0, BSD-3-Clause, ISC, Unlicense.",
+  {
+    type: z.string().optional().default("MIT").describe("License type: MIT, APACHE-2.0, GPL-3.0, BSD-3-CLAUSE, ISC, UNLICENSE"),
+    name: z.string().optional().default("Your Name").describe("Copyright holder name"),
+    year: z.number().optional().describe("Copyright year"),
+  },
+  async ({ type, name, year }) => {
+    const result = await apiCall("/api/license/generate", {
+      method: "POST",
+      body: JSON.stringify({ type, name, year }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "commit_message",
+  "Generate a conventional commit message from a diff or description. Detects type (feat/fix/refactor/etc.) and scope automatically.",
+  {
+    diff: z.string().optional().describe("Git diff content"),
+    description: z.string().optional().describe("Description of changes"),
+    style: z.string().optional().default("conventional").describe("Style: conventional, gitmoji, simple"),
+  },
+  async ({ diff, description, style }) => {
+    const result = await apiCall("/api/commit/message", {
+      method: "POST",
+      body: JSON.stringify({ diff, description, style }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "api_spec_compare",
+  "Compare two OpenAPI specs and detect breaking vs non-breaking changes.",
+  {
+    old: z.record(z.any()).describe("Old OpenAPI spec object"),
+    new: z.record(z.any()).describe("New OpenAPI spec object"),
+  },
+  async ({ old: oldSpec, new: newSpec }) => {
+    const result = await apiCall("/api/api-spec/compare", {
+      method: "POST",
+      body: JSON.stringify({ old: oldSpec, new: newSpec }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "regex_generate",
+  "Generate regex patterns from natural language. Supports: email, url, phone, ip, date, uuid, hex, domain, password, number, and more.",
+  {
+    description: z.string().describe("Natural language description (e.g., 'email address', 'phone number', 'url')"),
+    test: z.string().optional().describe("Test string to match against the generated pattern"),
+  },
+  async ({ description, test }) => {
+    const result = await apiCall("/api/regex/generate", {
+      method: "POST",
+      body: JSON.stringify({ description, test }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Agent Discovery & Payment Tools ---
+
+server.tool(
+  "agent_discover",
+  "Discover all available ToolPipe tools, pricing, and how to get started. Use this first to understand what tools are available.",
+  {},
+  async () => {
+    const result = await apiCall("/api/agent/discover");
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "agent_register",
+  "Register for a free API key (100 calls/day, no credit card needed). Returns your API key immediately.",
+  {
+    email: z.string().describe("Email address to register with"),
+  },
+  async ({ email }) => {
+    const result = await apiCall("/api-keys/register", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "agent_pay",
+  "Initiate payment to upgrade to Pro tier (10,000 calls/day). Returns crypto payment addresses and instructions.",
+  {
+    email: z.string().describe("Email address associated with your API key"),
+    tier: z.string().optional().default("pro").describe("Pricing tier: pro ($9.99/mo)"),
+  },
+  async ({ email, tier }) => {
+    const result = await apiCall("/payments/agent-pay", {
+      method: "POST",
+      body: JSON.stringify({ email, tier }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "verify_payment",
+  "Verify a crypto payment on-chain. Submit your transaction hash after sending payment.",
+  {
+    order_id: z.string().describe("Order ID from agent_pay response"),
+    tx_hash: z.string().describe("Transaction hash from your crypto payment"),
+  },
+  async ({ order_id, tx_hash }) => {
+    const result = await apiCall("/payments/verify-tx", {
+      method: "POST",
+      body: JSON.stringify({ order_id, tx_hash }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "pricing_info",
+  "Get detailed pricing information for all tiers.",
+  {},
+  async () => {
+    const result = await apiCall("/api/pricing");
     return textResult(result);
   }
 );

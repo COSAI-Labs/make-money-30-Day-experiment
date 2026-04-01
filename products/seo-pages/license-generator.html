@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Generator - Generate MIT, Apache, GPL License Files</title>
+    <meta name="description" content="Generate LICENSE files for your open source projects. Supports MIT, Apache 2.0, GPL 3.0, BSD 3-Clause, ISC, and Unlicense. Free, instant generation.">
+    <meta property="og:title" content="License Generator - MIT, Apache, GPL, BSD License Files">
+    <link rel="canonical" href="/license-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; background: white; }
+        input:focus, select:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>License Generator</h1>
+        <p class="subtitle">Generate LICENSE files for your open source projects</p>
+        <div class="tool-box">
+            <label>License Type</label>
+            <select id="type">
+                <option value="MIT">MIT (most popular, permissive)</option>
+                <option value="APACHE-2.0">Apache 2.0 (permissive with patent grant)</option>
+                <option value="GPL-3.0">GPL 3.0 (copyleft)</option>
+                <option value="BSD-3-CLAUSE">BSD 3-Clause (permissive)</option>
+                <option value="ISC">ISC (simplified MIT)</option>
+                <option value="UNLICENSE">Unlicense (public domain)</option>
+            </select>
+            <label>Your Name / Organization</label>
+            <input type="text" id="name" placeholder="John Doe" value="">
+            <label>Year</label>
+            <input type="text" id="year" value="">
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generate()">Generate License</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy to Clipboard</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>Choosing a License</h2>
+            <p><strong>MIT</strong>: The most popular open source license. Very permissive, lets anyone do anything with attribution. <strong>Apache 2.0</strong>: Like MIT but includes a patent grant. <strong>GPL 3.0</strong>: Copyleft, requires derivatives to also be open source. <strong>BSD 3-Clause</strong>: Similar to MIT. <strong>ISC</strong>: Simplified version of MIT. <strong>Unlicense</strong>: Public domain dedication.</p>
+            <h2>API Access</h2>
+            <p>Use via API: <code>POST /api/license/generate</code> with <code>{"type": "MIT", "name": "Your Name", "year": 2026}</code>. <a href="/pricing">Pro plans</a> for higher rate limits.</p>
+        </div>
+    </div>
+    <footer>Powered by <a href="/">ToolPipe API</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a></footer>
+    <script>
+    document.getElementById('year').value = new Date().getFullYear();
+    async function generate() {
+        const type = document.getElementById('type').value;
+        const name = document.getElementById('name').value || 'Your Name';
+        const year = parseInt(document.getElementById('year').value) || new Date().getFullYear();
+        document.getElementById('result').textContent = 'Generating...';
+        const res = await fetch('/api/license/generate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type, name, year}) });
+        const data = await res.json();
+        document.getElementById('result').textContent = data.license || JSON.stringify(data, null, 2);
+    }
+    function copyResult() { navigator.clipboard.writeText(document.getElementById('result').textContent); }
+    </script>
+</body>
+</html>

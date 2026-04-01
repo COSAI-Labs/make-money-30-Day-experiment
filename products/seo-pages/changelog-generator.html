@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog Generator - Create CHANGELOG.md from Commits</title>
+    <meta name="description" content="Generate a formatted changelog from git commit messages. Auto-categorizes into Added, Changed, Fixed, Removed. Keep a Changelog format. Free, no signup needed.">
+    <meta property="og:title" content="Changelog Generator - Create CHANGELOG.md from Commits">
+    <link rel="canonical" href="/changelog-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 150px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; }
+        .row { display: flex; gap: 12px; }
+        .row > div { flex: 1; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>Changelog Generator</h1>
+        <p class="subtitle">Generate a formatted CHANGELOG.md from your commit messages</p>
+        <div class="tool-box">
+            <label>Commit Messages (one per line)</label>
+            <textarea id="commits" placeholder="Add user authentication
+Fix login redirect bug
+Update database schema for users table
+Remove deprecated API endpoint
+Add password reset flow"></textarea>
+            <div class="row">
+                <div><label>Version</label><input type="text" id="version" value="1.0.0"></div>
+                <div><label>Date</label><input type="text" id="date" value=""></div>
+            </div>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generate()">Generate Changelog</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Markdown</button>
+            </div>
+            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+        </div>
+        <div class="content">
+            <h2>What Is a Changelog?</h2>
+            <p>A changelog is a file that lists notable changes for each version of a project. It helps users and developers understand what changed between releases. The most popular format is "Keep a Changelog" (keepachangelog.com).</p>
+            <h2>How It Works</h2>
+            <p>Paste your commit messages and this tool automatically categorizes them into Added, Changed, Fixed, Removed, Security, and Deprecated. It detects the type from keywords in each commit message and formats everything in standard changelog format.</p>
+            <h2>API Access</h2>
+            <p>Use via API: <code>POST /api/changelog/generate</code> with <code>{"commits": ["Add X", "Fix Y"], "version": "1.0.0"}</code>. Free: 100 calls/day. <a href="/pricing">Pro plans</a> available.</p>
+        </div>
+    </div>
+    <footer>Powered by <a href="/">ToolPipe API</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a></footer>
+    <script>
+    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+    async function generate() {
+        const raw = document.getElementById('commits').value.trim();
+        if (!raw) return;
+        const commits = raw.split('\n').filter(l => l.trim());
+        const version = document.getElementById('version').value || '1.0.0';
+        const date = document.getElementById('date').value;
+        document.getElementById('result').textContent = 'Generating...';
+        const res = await fetch('/api/changelog/generate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({commits, version, date}) });
+        const data = await res.json();
+        document.getElementById('result').textContent = data.changelog || JSON.stringify(data, null, 2);
+    }
+    function copyResult() { navigator.clipboard.writeText(document.getElementById('result').textContent); }
+    </script>
+</body>
+</html>

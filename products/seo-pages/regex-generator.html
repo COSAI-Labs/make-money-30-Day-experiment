@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Generator - Generate Regex from Plain English</title>
+    <meta name="description" content="Generate regular expressions from natural language descriptions. Type 'email address' or 'phone number' and get the regex pattern instantly. Free regex generator with live testing.">
+    <meta property="og:title" content="Regex Generator - Generate Regex from Plain English">
+    <link rel="canonical" href="/regex-generator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 12px; }
+        textarea { min-height: 80px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-encode { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .pattern { background: #1a1a2e; color: #22c55e; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 1.1rem; margin: 12px 0; word-break: break-all; }
+        .matches { margin: 12px 0; }
+        .match { display: inline-block; background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; margin: 2px; font-family: monospace; font-size: 0.85rem; }
+        .examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .example { background: #f0f0ff; color: #6c63ff; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; border: 1px solid #ddd; }
+        .example:hover { background: #6c63ff; color: white; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
+    <div class="container">
+        <h1>Regex Generator</h1>
+        <p class="subtitle">Describe what you want to match in plain English. Get the regex instantly.</p>
+        <div class="tool-box">
+            <label>What do you want to match?</label>
+            <input type="text" id="desc" placeholder="e.g., email address, phone number, URL, IP address, UUID...">
+            <div class="examples">
+                <span class="example" onclick="setDesc('email address')">email</span>
+                <span class="example" onclick="setDesc('url')">URL</span>
+                <span class="example" onclick="setDesc('phone number')">phone</span>
+                <span class="example" onclick="setDesc('ip address')">IP</span>
+                <span class="example" onclick="setDesc('date')">date</span>
+                <span class="example" onclick="setDesc('uuid')">UUID</span>
+                <span class="example" onclick="setDesc('hex color')">hex color</span>
+                <span class="example" onclick="setDesc('domain name')">domain</span>
+                <span class="example" onclick="setDesc('credit card number')">credit card</span>
+                <span class="example" onclick="setDesc('semver version')">semver</span>
+                <span class="example" onclick="setDesc('jwt token')">JWT</span>
+                <span class="example" onclick="setDesc('strong password')">password</span>
+            </div>
+            <label>Test String (optional)</label>
+            <textarea id="test" placeholder="Paste text to find matches in..."></textarea>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generate()">Generate Regex</button>
+                <button class="btn btn-copy" onclick="copyPattern()">Copy Pattern</button>
+            </div>
+            <div id="result"></div>
+        </div>
+        <div class="content">
+            <h2>What Is a Regular Expression?</h2>
+            <p>A regular expression (regex) is a sequence of characters that defines a search pattern. Regex is used in programming, text editors, and command-line tools to find, match, and manipulate text. Writing regex can be tricky, so this tool generates patterns from plain English descriptions.</p>
+            <h2>Supported Pattern Types</h2>
+            <p>This generator supports 25+ common patterns: email addresses, URLs, phone numbers, IP addresses (v4 and v6), dates, UUIDs, hex colors, domain names, ZIP codes, credit card numbers, semantic versions, JWT tokens, MAC addresses, strong passwords, numbers, words, sentences, hashtags, mentions, markdown links, HTML tags, and more.</p>
+            <h2>API Access</h2>
+            <p>Use this tool via API: <code>POST /api/regex/generate</code> with <code>{"description": "email", "test": "your text"}</code>. Free: 100 calls/day. <a href="/pricing">Pro plans</a> for higher limits.</p>
+        </div>
+    </div>
+    <footer>Powered by <a href="/">ToolPipe API</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a></footer>
+    <script>
+    function setDesc(d) { document.getElementById('desc').value = d; generate(); }
+    async function generate() {
+        const desc = document.getElementById('desc').value;
+        const test = document.getElementById('test').value;
+        if (!desc) return;
+        document.getElementById('result').innerHTML = '<p>Generating...</p>';
+        const res = await fetch('/api/regex/generate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({description: desc, test}) });
+        const data = await res.json();
+        let html = '';
+        (data.patterns || []).forEach(p => {
+            html += '<div class="pattern">' + p.pattern + '</div>';
+            html += '<p style="color:#666;font-size:0.9rem">' + p.description + '</p>';
+            if (p.matches && p.matches.length) {
+                html += '<div class="matches"><strong>Matches found:</strong><br>';
+                p.matches.forEach(m => html += '<span class="match">' + m + '</span>');
+                html += '</div>';
+            }
+        });
+        document.getElementById('result').innerHTML = html;
+    }
+    function copyPattern() {
+        const el = document.querySelector('.pattern');
+        if (el) navigator.clipboard.writeText(el.textContent);
+    }
+    </script>
+</body>
+</html>

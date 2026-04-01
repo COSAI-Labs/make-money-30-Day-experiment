@@ -1,6 +1,9 @@
 # ToolPipe MCP Server
 
-135+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). Code review, fake data generation, JSON Schema validation, security headers checking, API client generation, OpenAPI spec generation, CSV analysis, code minification, code formatting, JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, text summarization, keyword extraction, SSL checking, WHOIS lookup, TypeScript generation, Docker Compose generation, GitHub Actions workflows, Nginx configs, and more.
+145+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). Code review, fake data generation, JSON Schema validation, security headers checking, API client generation, OpenAPI spec generation, CSV analysis, code minification, code formatting, JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, text summarization, keyword extraction, SSL checking, WHOIS lookup, TypeScript generation, Docker Compose generation, GitHub Actions workflows, Nginx configs, and more.
+
+[![npm version](https://img.shields.io/npm/v/@cosai-labs/toolpipe-mcp-server)](https://www.npmjs.com/package/@cosai-labs/toolpipe-mcp-server)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Works with Claude, Cursor, Windsurf, VS Code, Cline, or any MCP-compatible client.
 
