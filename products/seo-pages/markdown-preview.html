@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Markdown Editor & Preview Online | ToolPipe</title>
+    <meta name="description" content="Write and preview Markdown in real-time. Free online Markdown editor with live preview, export to HTML. No signup required.">
+    <meta name="keywords" content="markdown editor, markdown preview, markdown online, markdown to html, markdown renderer, live markdown">
+    <link rel="canonical" href="https://toolpipe.dev/markdown-preview">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Markdown Editor","url":"https://toolpipe.dev/markdown-preview","description":"Write and preview Markdown in real-time with live rendering.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 40px 20px; text-align: center; }
+        .hero h1 { font-size: 2rem; margin-bottom: 8px; }
+        .hero p { opacity: 0.85; font-size: 1rem; }
+        .editor-container { display: grid; grid-template-columns: 1fr 1fr; max-width: 1200px; margin: 0 auto; height: calc(100vh - 180px); min-height: 500px; }
+        .panel { display: flex; flex-direction: column; }
+        .panel-header { background: #1a1a2e; color: white; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .panel-header button { background: #6c63ff; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        #editor { flex: 1; width: 100%; border: none; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.95rem; resize: none; outline: none; border-right: 1px solid #ddd; line-height: 1.6; }
+        #preview { flex: 1; padding: 16px; overflow-y: auto; background: white; line-height: 1.7; }
+        #preview h1 { font-size: 1.8rem; margin: 16px 0 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        #preview h2 { font-size: 1.4rem; margin: 14px 0 6px; border-bottom: 1px solid #f0f0f0; padding-bottom: 6px; }
+        #preview h3 { font-size: 1.2rem; margin: 12px 0 4px; }
+        #preview p { margin: 8px 0; color: #333; }
+        #preview code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+        #preview pre { background: #1a1a2e; color: #a5d6a7; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; }
+        #preview pre code { background: none; padding: 0; color: inherit; }
+        #preview blockquote { border-left: 4px solid #6c63ff; padding-left: 16px; margin: 12px 0; color: #555; }
+        #preview ul, #preview ol { padding-left: 24px; margin: 8px 0; }
+        #preview li { margin: 4px 0; }
+        #preview a { color: #6c63ff; }
+        #preview img { max-width: 100%; border-radius: 8px; }
+        #preview table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+        #preview th, #preview td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        #preview th { background: #f5f5f5; }
+        #preview hr { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+        #preview strong { font-weight: 700; }
+        #preview em { font-style: italic; }
+        footer { text-align: center; padding: 20px; color: #888; font-size: 0.85rem; background: white; border-top: 1px solid #eee; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media (max-width: 768px) { .editor-container { grid-template-columns: 1fr; height: auto; } .panel { min-height: 300px; } }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Markdown Editor & Preview</h1>
+        <p>Write Markdown on the left, see rendered output on the right. Real-time preview.</p>
+    </div>
+
+    <div class="editor-container">
+        <div class="panel">
+            <div class="panel-header">
+                <span>Markdown</span>
+                <button onclick="copyMd()">Copy MD</button>
+            </div>
+            <textarea id="editor" oninput="render()">
+# Welcome to ToolPipe Markdown Editor
+
+## Features
+
+- **Real-time preview** as you type
+- Supports all standard Markdown syntax
+- Export to HTML with one click
+- No signup required
+
+## Formatting
+
+You can make text **bold**, *italic*, or ~~strikethrough~~.
+
+### Code Blocks
+
+Inline `code` looks like this.
+
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+```
+
+### Lists
+
+1. First item
+2. Second item
+3. Third item
+
+- Bullet point
+- Another point
+  - Nested item
+
+### Links & Images
+
+[Visit ToolPipe](https://toolpipe.dev)
+
+### Blockquotes
+
+> "The best way to predict the future is to create it."
+> - Peter Drucker
+
+### Tables
+
+| Feature | Free | Pro |
+|---------|------|-----|
+| API Access | Yes | Yes |
+| Rate Limit | 100/min | 1000/min |
+| Support | Community | Email |
+
+---
+
+*Made with ToolPipe*
+</textarea>
+        </div>
+        <div class="panel">
+            <div class="panel-header">
+                <span>Preview</span>
+                <button onclick="copyHtml()">Copy HTML</button>
+            </div>
+            <div id="preview"></div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/base64-encoder">Base64 Encoder</a>
+    </footer>
+
+    <script>
+    // Simple Markdown parser
+    function parseMd(md) {
+        let html = md
+            // Code blocks
+            .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+                `<pre><code class="language-${lang}">${esc(code.trim())}</code></pre>`)
+            // Inline code
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // Headers
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            // Bold, italic, strikethrough
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/~~(.+?)~~/g, '<del>$1</del>')
+            // Links
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+            // Images
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+            // HR
+            .replace(/^---$/gm, '<hr>')
+            // Blockquotes
+            .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+            // Unordered lists
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/^  - (.+)$/gm, '<li style="margin-left:20px">$1</li>')
+            // Ordered lists
+            .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+            // Tables
+            .replace(/^\|(.+)\|$/gm, (match) => {
+                const cells = match.split('|').filter(c => c.trim());
+                if (cells.every(c => /^[-:\s]+$/.test(c))) return '';
+                const tag = match.includes('---') ? 'td' : 'td';
+                return '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+            });
+
+        // Wrap consecutive li in ul/ol
+        html = html.replace(/(<li>[\s\S]*?<\/li>\n?)+/g, match => `<ul>${match}</ul>`);
+        // Wrap consecutive tr in table
+        html = html.replace(/(<tr>[\s\S]*?<\/tr>\n?)+/g, match => `<table>${match}</table>`);
+        // Merge consecutive blockquotes
+        html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br>');
+        // Paragraphs
+        html = html.split('\n\n').map(block => {
+            block = block.trim();
+            if (!block) return '';
+            if (/^<[hupoltbdi]/.test(block)) return block;
+            return `<p>${block}</p>`;
+        }).join('\n');
+
+        return html;
+    }
+
+    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function render() {
+        document.getElementById('preview').innerHTML = parseMd(document.getElementById('editor').value);
+    }
+
+    function copyMd() {
+        navigator.clipboard.writeText(document.getElementById('editor').value);
+    }
+
+    function copyHtml() {
+        navigator.clipboard.writeText(document.getElementById('preview').innerHTML);
+    }
+
+    render();
+    </script>
+</body>
+</html>
