@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crontab Guru - Cron Expression Generator &amp; Explainer</title>
+    <meta name="description" content="Free cron expression generator and explainer. Build crontab schedules visually, see human-readable descriptions and next 5 run times. Like crontab.guru.">
+    <meta property="og:title" content="Crontab Guru - Cron Expression Generator">
+    <meta property="og:description" content="Build, explain, and test cron expressions with next run time predictions.">
+    <link rel="canonical" href="/crontab-guru">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Crontab Guru - Cron Expression Generator",
+        "description": "Build and explain cron expressions with next run time predictions.",
+        "url": "https://toolpipe.com/crontab-guru",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .cron-input { display: flex; gap: 8px; margin: 16px 0; align-items: center; flex-wrap: wrap; }
+        .cron-input input { width: 70px; text-align: center; padding: 12px 8px; border: 2px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1.2rem; }
+        .cron-input input:focus { outline: none; border-color: #6c63ff; }
+        .cron-input span { color: #999; font-size: 0.8rem; text-align: center; width: 70px; display: inline-block; }
+        .field-labels { display: flex; gap: 8px; flex-wrap: wrap; }
+        .explain-box { background: #f0f0ff; border: 1px solid #d0d0ff; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 1.1rem; font-weight: 500; min-height: 48px; }
+        .next-runs { margin: 16px 0; }
+        .next-runs h3 { font-size: 0.95rem; margin-bottom: 8px; color: #555; }
+        .next-runs ul { list-style: none; }
+        .next-runs li { padding: 6px 0; border-bottom: 1px solid #eee; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        .presets { margin: 16px 0; }
+        .presets h3 { font-size: 0.95rem; margin-bottom: 8px; color: #555; }
+        .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .preset { padding: 6px 12px; background: #eee; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-family: 'Courier New', monospace; }
+        .preset:hover { background: #d0d0ff; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.9rem; }
+        .ref-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+        .ref-table th, .ref-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.85rem; }
+        .ref-table th { background: #f0f0ff; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>Crontab Guru</h1>
+        <p class="subtitle">Build, explain, and test cron expressions with next run time predictions</p>
+        <div class="tool-box">
+            <div class="cron-input">
+                <div style="text-align:center"><input id="f0" value="*" oninput="update()"><br><span>Minute</span></div>
+                <div style="text-align:center"><input id="f1" value="*" oninput="update()"><br><span>Hour</span></div>
+                <div style="text-align:center"><input id="f2" value="*" oninput="update()"><br><span>Day (M)</span></div>
+                <div style="text-align:center"><input id="f3" value="*" oninput="update()"><br><span>Month</span></div>
+                <div style="text-align:center"><input id="f4" value="*" oninput="update()"><br><span>Day (W)</span></div>
+            </div>
+
+            <div class="explain-box" id="explain">Every minute</div>
+            <div id="status-bar"></div>
+
+            <div class="next-runs">
+                <h3>Next 5 Run Times</h3>
+                <ul id="next-list"></ul>
+            </div>
+
+            <div class="btns">
+                <button class="btn btn-secondary" onclick="copyCron()">Copy Expression</button>
+            </div>
+
+            <div class="presets">
+                <h3>Common Presets</h3>
+                <div class="preset-grid">
+                    <button class="preset" onclick="setPreset('* * * * *')">* * * * *</button>
+                    <button class="preset" onclick="setPreset('0 * * * *')">0 * * * *</button>
+                    <button class="preset" onclick="setPreset('0 0 * * *')">0 0 * * *</button>
+                    <button class="preset" onclick="setPreset('0 0 * * 0')">0 0 * * 0</button>
+                    <button class="preset" onclick="setPreset('0 0 1 * *')">0 0 1 * *</button>
+                    <button class="preset" onclick="setPreset('*/5 * * * *')">*/5 * * * *</button>
+                    <button class="preset" onclick="setPreset('*/15 * * * *')">*/15 * * * *</button>
+                    <button class="preset" onclick="setPreset('0 */2 * * *')">0 */2 * * *</button>
+                    <button class="preset" onclick="setPreset('0 9-17 * * 1-5')">0 9-17 * * 1-5</button>
+                    <button class="preset" onclick="setPreset('30 4 * * *')">30 4 * * *</button>
+                    <button class="preset" onclick="setPreset('0 0 * * 1-5')">0 0 * * 1-5</button>
+                    <button class="preset" onclick="setPreset('0 8,12,18 * * *')">0 8,12,18 * * *</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Cron Expression Format</h2>
+            <p>A cron expression consists of 5 fields separated by spaces. Each field can contain a number, a range, a list, or a step value.</p>
+            <table class="ref-table">
+                <tr><th>Field</th><th>Allowed Values</th><th>Special Characters</th></tr>
+                <tr><td>Minute</td><td>0-59</td><td>* , - /</td></tr>
+                <tr><td>Hour</td><td>0-23</td><td>* , - /</td></tr>
+                <tr><td>Day of Month</td><td>1-31</td><td>* , - /</td></tr>
+                <tr><td>Month</td><td>1-12</td><td>* , - /</td></tr>
+                <tr><td>Day of Week</td><td>0-7 (0 and 7 are Sunday)</td><td>* , - /</td></tr>
+            </table>
+            <h2>Special Characters</h2>
+            <p><code>*</code> means every value. <code>,</code> separates a list (e.g. 1,3,5). <code>-</code> defines a range (e.g. 1-5). <code>/</code> defines a step (e.g. */15 means every 15 units).</p>
+            <h2>Common Cron Schedules</h2>
+            <p><code>* * * * *</code> runs every minute. <code>0 * * * *</code> runs at the start of every hour. <code>0 0 * * *</code> runs at midnight every day. <code>0 0 * * 0</code> runs at midnight every Sunday. <code>0 0 1 * *</code> runs at midnight on the first of every month.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/text-to-binary">Text to Binary</a></p></footer>
+    <script>
+    var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var monthNames = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function getFields() {
+        return [0,1,2,3,4].map(function(i) { return document.getElementById('f'+i).value.trim(); });
+    }
+
+    function parseField(s, min, max) {
+        var values = [];
+        s.split(',').forEach(function(part) {
+            part = part.trim();
+            var stepMatch = part.match(/^(.+)\/(\d+)$/);
+            var step = 1, range;
+            if (stepMatch) { range = stepMatch[1]; step = parseInt(stepMatch[2]); }
+            else { range = part; }
+
+            if (range === '*') {
+                for (var i = min; i <= max; i += step) values.push(i);
+            } else if (range.indexOf('-') !== -1) {
+                var ends = range.split('-');
+                var from = parseInt(ends[0]), to = parseInt(ends[1]);
+                if (isNaN(from) || isNaN(to)) throw new Error('Invalid range');
+                for (var i = from; i <= to; i += step) values.push(i);
+            } else {
+                var n = parseInt(range);
+                if (isNaN(n)) throw new Error('Invalid value: ' + range);
+                values.push(n);
+            }
+        });
+        return values;
+    }
+
+    function explainField(s, unit, names) {
+        if (s === '*') return 'every ' + unit;
+        if (s.match(/^\*\/\d+$/)) return 'every ' + s.split('/')[1] + ' ' + unit + 's';
+        if (s.indexOf(',') !== -1) {
+            var parts = s.split(',').map(function(v) { return names ? (names[parseInt(v)] || v) : v; });
+            return unit + ' ' + parts.join(', ');
+        }
+        if (s.indexOf('-') !== -1) {
+            var ends = s.split('-');
+            var from = names ? (names[parseInt(ends[0])] || ends[0]) : ends[0];
+            var to = names ? (names[parseInt(ends[1])] || ends[1]) : ends[1];
+            return unit + ' ' + from + ' through ' + to;
+        }
+        if (s.match(/^\d+-\d+\/\d+$/)) return s;
+        var val = names ? (names[parseInt(s)] || s) : s;
+        return 'at ' + unit + ' ' + val;
+    }
+
+    function explain(fields) {
+        var m = fields[0], h = fields[1], dom = fields[2], mon = fields[3], dow = fields[4];
+        if (m === '*' && h === '*' && dom === '*' && mon === '*' && dow === '*') return 'Every minute';
+        var parts = [];
+        if (m !== '*') parts.push(explainField(m, 'minute'));
+        if (h !== '*') parts.push(explainField(h, 'hour'));
+        if (dom !== '*') parts.push(explainField(dom, 'day-of-month'));
+        if (mon !== '*') parts.push(explainField(mon, 'month', monthNames));
+        if (dow !== '*') parts.push(explainField(dow, 'day-of-week', dayNames));
+        if (parts.length === 0) return 'Every minute';
+        var desc = parts.join(', ');
+        return desc.charAt(0).toUpperCase() + desc.slice(1);
+    }
+
+    function matchesField(val, fieldStr, min, max) {
+        try {
+            var allowed = parseField(fieldStr, min, max);
+            return allowed.indexOf(val) !== -1;
+        } catch(e) { return false; }
+    }
+
+    function getNextRuns(fields, count) {
+        var runs = [];
+        var d = new Date();
+        d.setSeconds(0, 0);
+        d.setMinutes(d.getMinutes() + 1);
+        var limit = 525600;
+        while (runs.length < count && limit-- > 0) {
+            var dow = d.getDay();
+            if (matchesField(d.getMonth()+1, fields[3], 1, 12) &&
+                matchesField(d.getDate(), fields[2], 1, 31) &&
+                matchesField(dow === 0 ? 7 : dow, fields[4].replace(/7/g,'0').replace(/0/g,'7') ? fields[4] : fields[4], 0, 7) &&
+                matchesField(d.getHours(), fields[1], 0, 23) &&
+                matchesField(d.getMinutes(), fields[0], 0, 59)) {
+                // Day of week: 0 and 7 both mean Sunday
+                var dowVal = d.getDay();
+                var dowField = fields[4];
+                if (dowField === '*' || matchesField(dowVal, dowField, 0, 7) || (dowVal === 0 && matchesField(7, dowField, 0, 7))) {
+                    runs.push(new Date(d));
+                }
+            }
+            d.setMinutes(d.getMinutes() + 1);
+        }
+        return runs;
+    }
+
+    function update() {
+        var fields = getFields();
+        try {
+            parseField(fields[0], 0, 59);
+            parseField(fields[1], 0, 23);
+            parseField(fields[2], 1, 31);
+            parseField(fields[3], 1, 12);
+            parseField(fields[4], 0, 7);
+        } catch(e) {
+            document.getElementById('explain').textContent = 'Invalid expression';
+            document.getElementById('status-bar').innerHTML = '<div class="status invalid">Error: ' + e.message + '</div>';
+            document.getElementById('next-list').innerHTML = '';
+            return;
+        }
+        document.getElementById('explain').textContent = explain(fields);
+        document.getElementById('status-bar').innerHTML = '<div class="status valid">' + fields.join(' ') + '</div>';
+
+        var runs = getNextRuns(fields, 5);
+        var html = '';
+        runs.forEach(function(d) {
+            html += '<li>' + d.toLocaleString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + '</li>';
+        });
+        if (runs.length === 0) html = '<li>No runs found in the next year</li>';
+        document.getElementById('next-list').innerHTML = html;
+    }
+
+    function setPreset(expr) {
+        var parts = expr.split(' ');
+        for (var i = 0; i < 5; i++) document.getElementById('f'+i).value = parts[i];
+        update();
+    }
+
+    function copyCron() {
+        var expr = getFields().join(' ');
+        navigator.clipboard.writeText(expr);
+        document.getElementById('status-bar').innerHTML = '<div class="status valid">Copied: ' + expr + '</div>';
+    }
+
+    update();
+    </script>
+</body>
+</html>

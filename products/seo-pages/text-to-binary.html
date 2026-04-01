@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Binary Converter - Free Online Text/Binary/Hex/Octal Tool</title>
+    <meta name="description" content="Convert text to binary, hexadecimal, octal, and back. Free online multi-format text converter. No signup required.">
+    <meta property="og:title" content="Free Text to Binary Converter">
+    <meta property="og:description" content="Convert between text, binary, hex, and octal formats instantly.">
+    <link rel="canonical" href="/text-to-binary">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Text to Binary Converter",
+        "description": "Convert text to binary, hexadecimal, octal, and back. Multi-format text converter.",
+        "url": "https://toolpipe.com/text-to-binary",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .section { margin-top: 16px; }
+        .section label { font-weight: 500; display: block; margin-bottom: 6px; }
+        .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+        .output-card { background: #f8f9fa; border: 1px solid #eee; border-radius: 8px; padding: 12px; }
+        .output-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .output-card h3 button { padding: 3px 8px; font-size: 0.75rem; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .output-card textarea { min-height: 80px; background: white; }
+        .mode-tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; }
+        .mode-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-size: 0.9rem; font-weight: 500; background: #f8f9fa; border: none; }
+        .mode-tab.active { background: #6c63ff; color: white; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .status.invalid { background: #f8d7da; color: #721c24; }
+        @media (max-width: 600px) { .output-grid { grid-template-columns: 1fr; } }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.9rem; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>Text to Binary Converter</h1>
+        <p class="subtitle">Convert between text, binary, hexadecimal, and octal formats</p>
+        <div class="tool-box">
+            <div class="mode-tabs">
+                <button class="mode-tab active" onclick="setMode('text')" id="tab-text">Text to Binary</button>
+                <button class="mode-tab" onclick="setMode('binary')" id="tab-binary">Binary to Text</button>
+            </div>
+
+            <div class="section">
+                <label id="input-label">Enter Text</label>
+                <textarea id="input" placeholder="Type or paste text here..." oninput="convert()"></textarea>
+            </div>
+
+            <div class="btns">
+                <button class="btn btn-primary" onclick="convert()">Convert</button>
+                <button class="btn btn-secondary" onclick="swapMode()">Swap Direction</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="status-bar"></div>
+
+            <div class="output-grid">
+                <div class="output-card">
+                    <h3>Binary <button onclick="copyField('out-binary')">Copy</button></h3>
+                    <textarea id="out-binary" readonly></textarea>
+                </div>
+                <div class="output-card">
+                    <h3>Hexadecimal <button onclick="copyField('out-hex')">Copy</button></h3>
+                    <textarea id="out-hex" readonly></textarea>
+                </div>
+                <div class="output-card">
+                    <h3>Octal <button onclick="copyField('out-octal')">Copy</button></h3>
+                    <textarea id="out-octal" readonly></textarea>
+                </div>
+                <div class="output-card">
+                    <h3>Decimal (ASCII) <button onclick="copyField('out-decimal')">Copy</button></h3>
+                    <textarea id="out-decimal" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>How Binary Encoding Works</h2>
+            <p>Every character in text has a numeric value in the ASCII or Unicode table. For example, the letter "A" is 65 in decimal, which is <code>01000001</code> in binary. This tool converts each character to its binary, hex, octal, and decimal representations.</p>
+            <h2>Understanding Number Bases</h2>
+            <p>Binary (base-2) uses only 0 and 1. Hexadecimal (base-16) uses 0-9 and A-F. Octal (base-8) uses 0-7. Decimal (base-10) is the standard number system. Each base is useful in different computing contexts: binary for low-level hardware, hex for memory addresses and colors, octal for Unix file permissions.</p>
+            <h2>Common Uses</h2>
+            <p>Developers use binary converters for debugging data encoding issues, understanding character sets, working with network protocols, and learning about how computers represent text internally. This tool supports full Unicode text, not just ASCII.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/crontab-guru">Crontab Guru</a></p></footer>
+    <script>
+    var mode = 'text';
+
+    function setMode(m) {
+        mode = m;
+        document.querySelectorAll('.mode-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.getElementById('tab-' + m).classList.add('active');
+        if (m === 'text') {
+            document.getElementById('input-label').textContent = 'Enter Text';
+            document.getElementById('input').placeholder = 'Type or paste text here...';
+        } else {
+            document.getElementById('input-label').textContent = 'Enter Binary (space-separated bytes)';
+            document.getElementById('input').placeholder = '01001000 01100101 01101100 01101100 01101111';
+        }
+        clearAll();
+    }
+
+    function swapMode() {
+        setMode(mode === 'text' ? 'binary' : 'text');
+    }
+
+    function convert() {
+        var input = document.getElementById('input').value;
+        if (!input) { clearOutputs(); return; }
+
+        try {
+            if (mode === 'text') {
+                textToAll(input);
+            } else {
+                binaryToAll(input);
+            }
+        } catch(e) {
+            showStatus('Error: ' + e.message, false);
+            clearOutputs();
+        }
+    }
+
+    function textToAll(text) {
+        var bins = [], hexs = [], octs = [], decs = [];
+        for (var i = 0; i < text.length; i++) {
+            var code = text.charCodeAt(i);
+            bins.push(code.toString(2).padStart(8, '0'));
+            hexs.push(code.toString(16).padStart(2, '0').toUpperCase());
+            octs.push(code.toString(8).padStart(3, '0'));
+            decs.push(code.toString(10));
+        }
+        document.getElementById('out-binary').value = bins.join(' ');
+        document.getElementById('out-hex').value = hexs.join(' ');
+        document.getElementById('out-octal').value = octs.join(' ');
+        document.getElementById('out-decimal').value = decs.join(' ');
+        showStatus('Converted ' + text.length + ' characters', true);
+    }
+
+    function binaryToAll(binStr) {
+        var bytes = binStr.trim().split(/\s+/);
+        var text = '', hexs = [], octs = [], decs = [];
+        bytes.forEach(function(b) {
+            var num = parseInt(b, 2);
+            if (isNaN(num)) throw new Error('Invalid binary value: ' + b);
+            text += String.fromCharCode(num);
+            hexs.push(num.toString(16).padStart(2, '0').toUpperCase());
+            octs.push(num.toString(8).padStart(3, '0'));
+            decs.push(num.toString(10));
+        });
+        document.getElementById('out-binary').value = bytes.join(' ');
+        document.getElementById('out-hex').value = hexs.join(' ');
+        document.getElementById('out-octal').value = octs.join(' ');
+        document.getElementById('out-decimal').value = decs.join(' ');
+        showStatus('Decoded ' + bytes.length + ' bytes: "' + text + '"', true);
+    }
+
+    function clearOutputs() {
+        ['out-binary','out-hex','out-octal','out-decimal'].forEach(function(id) {
+            document.getElementById(id).value = '';
+        });
+    }
+
+    function clearAll() {
+        document.getElementById('input').value = '';
+        clearOutputs();
+        document.getElementById('status-bar').innerHTML = '';
+    }
+
+    function copyField(id) {
+        navigator.clipboard.writeText(document.getElementById(id).value);
+        showStatus('Copied to clipboard', true);
+    }
+
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+    </script>
+</body>
+</html>
