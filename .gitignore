@@ -6,3 +6,4 @@ node_modules/
 *.log
 .pm2/
 cloudflared
+products/uptime-monitor/data/
