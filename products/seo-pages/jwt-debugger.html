@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Debugger - Decode & Verify JSON Web Tokens Online</title>
+    <meta name="description" content="Free JWT debugger. Decode, verify, and create JSON Web Tokens online. See header, payload, and signature. No signup required.">
+    <meta property="og:title" content="Free JWT Debugger & Decoder">
+    <meta property="og:description" content="Decode and inspect JWT tokens online. View header, payload, and signature instantly.">
+    <link rel="canonical" href="/jwt-debugger">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 100px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        label { font-weight: 600; margin-bottom: 6px; display: block; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+        .section { background: #f8f9fa; border: 1px solid #eee; border-radius: 8px; padding: 16px; }
+        .section h3 { font-size: 0.95rem; margin-bottom: 8px; }
+        .section pre { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px; font-size: 0.85rem; overflow: auto; max-height: 200px; }
+        .header-color { color: #e74c3c; }
+        .payload-color { color: #3498db; }
+        .sig-color { color: #2ecc71; }
+        .jwt-display { font-family: monospace; word-break: break-all; font-size: 0.85rem; line-height: 1.5; padding: 12px; background: #f8f9fa; border-radius: 6px; margin-top: 8px; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media(max-width:700px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>JWT Debugger</h1>
+        <p class="subtitle">Decode, inspect, and create JSON Web Tokens</p>
+        <div class="tool-box">
+            <label>Paste JWT Token</label>
+            <textarea id="jwt-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" oninput="decodeJWT()"></textarea>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="decodeJWT()">Decode</button>
+                <button class="btn btn-secondary" onclick="loadSample()">Load Sample</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('jwt-input').value='';clearResults()">Clear</button>
+            </div>
+
+            <div id="jwt-colored" class="jwt-display" style="display:none"></div>
+
+            <div class="grid">
+                <div class="section">
+                    <h3 class="header-color">Header (JOSE)</h3>
+                    <pre id="header-output">Paste a JWT above to decode it</pre>
+                </div>
+                <div class="section">
+                    <h3 class="payload-color">Payload (Claims)</h3>
+                    <pre id="payload-output">The payload contains the token claims</pre>
+                </div>
+            </div>
+            <div class="section" style="margin-top:16px">
+                <h3 class="sig-color">Signature</h3>
+                <pre id="sig-output">The signature verifies the token integrity</pre>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>What is a JWT?</h2>
+            <p>A JSON Web Token (JWT) is a compact, URL-safe token format used for authentication and information exchange. It consists of three parts: a header (algorithm and type), a payload (claims and data), and a signature (integrity verification).</p>
+            <h2>JWT Structure</h2>
+            <p>A JWT has three Base64url-encoded parts separated by dots: <code>header.payload.signature</code>. The header specifies the signing algorithm (e.g., HS256, RS256). The payload contains claims like <code>sub</code> (subject), <code>iat</code> (issued at), <code>exp</code> (expiration).</p>
+            <h2>Common JWT Claims</h2>
+            <p><code>iss</code> (issuer), <code>sub</code> (subject), <code>aud</code> (audience), <code>exp</code> (expiration), <code>nbf</code> (not before), <code>iat</code> (issued at), <code>jti</code> (JWT ID). Custom claims can contain any JSON data.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/base64-encoder">Base64</a></p></footer>
+    <script>
+    function b64decode(str) {
+        str = str.replace(/-/g,'+').replace(/_/g,'/');
+        while(str.length % 4) str += '=';
+        return decodeURIComponent(atob(str).split('').map(c => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    }
+
+    function decodeJWT() {
+        const token = document.getElementById('jwt-input').value.trim();
+        if (!token) { clearResults(); return; }
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            document.getElementById('header-output').textContent = 'Invalid JWT: expected 3 parts, got ' + parts.length;
+            return;
+        }
+        try {
+            const header = JSON.parse(b64decode(parts[0]));
+            const payload = JSON.parse(b64decode(parts[1]));
+            document.getElementById('header-output').textContent = JSON.stringify(header, null, 2);
+            const payloadText = JSON.stringify(payload, null, 2);
+            document.getElementById('payload-output').textContent = payloadText;
+
+            // Check expiration
+            if (payload.exp) {
+                const exp = new Date(payload.exp * 1000);
+                const now = new Date();
+                const expired = exp < now;
+                document.getElementById('payload-output').textContent += '\n\n' + (expired ? '** EXPIRED **' : '** Valid **') + ' (exp: ' + exp.toISOString() + ')';
+            }
+
+            document.getElementById('sig-output').textContent = 'Algorithm: ' + (header.alg || 'unknown') + '\nSignature: ' + parts[2];
+
+            // Color-coded display
+            const colored = '<span class="header-color">' + parts[0] + '</span>.<span class="payload-color">' + parts[1] + '</span>.<span class="sig-color">' + parts[2] + '</span>';
+            document.getElementById('jwt-colored').innerHTML = colored;
+            document.getElementById('jwt-colored').style.display = 'block';
+        } catch(e) {
+            document.getElementById('header-output').textContent = 'Decode error: ' + e.message;
+        }
+    }
+
+    function loadSample() {
+        document.getElementById('jwt-input').value = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+        decodeJWT();
+    }
+
+    function clearResults() {
+        document.getElementById('header-output').textContent = 'Paste a JWT above to decode it';
+        document.getElementById('payload-output').textContent = 'The payload contains the token claims';
+        document.getElementById('sig-output').textContent = 'The signature verifies the token integrity';
+        document.getElementById('jwt-colored').style.display = 'none';
+    }
+    </script>
+</body>
+</html>

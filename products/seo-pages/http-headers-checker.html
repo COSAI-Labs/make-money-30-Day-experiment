@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Headers Checker - View Response Headers Online</title>
+    <meta name="description" content="Free HTTP headers checker. View all response headers for any URL. Check security headers, caching, content type. No signup required.">
+    <link rel="canonical" href="/http-headers-checker">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .row { display: flex; gap: 8px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        input:focus { outline: none; border-color: #6c63ff; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; background: #6c63ff; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        th { background: #f0f0f5; }
+        .security { margin-top: 16px; }
+        .check { padding: 8px 12px; border-radius: 6px; margin: 4px 0; font-size: 0.9rem; }
+        .check.pass { background: #d4edda; color: #155724; }
+        .check.fail { background: #f8d7da; color: #721c24; }
+        .check.warn { background: #fff3cd; color: #856404; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>HTTP Headers Checker</h1>
+        <p class="subtitle">Inspect HTTP response headers and security headers for any URL</p>
+        <div class="tool-box">
+            <div class="row">
+                <input id="url" type="text" placeholder="https://example.com" value="https://google.com">
+                <button class="btn" onclick="checkHeaders()">Check</button>
+            </div>
+            <div id="results"></div>
+        </div>
+        <div class="content">
+            <h2>What are HTTP Headers?</h2>
+            <p>HTTP headers are metadata sent with every HTTP request and response. They contain information about content type, caching, security policies, encoding, and more. Security headers like Strict-Transport-Security, Content-Security-Policy, and X-Frame-Options protect against common web attacks.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/ssl-checker">SSL Checker</a> | <a href="/dns-checker">DNS Checker</a></p></footer>
+    <script>
+    async function checkHeaders() {
+        const url = document.getElementById('url').value.trim();
+        if (!url) return;
+        document.getElementById('results').innerHTML = '<p style="padding:12px;color:#666">Checking...</p>';
+        try {
+            const r = await fetch('/api/http/request', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({url: url, method: 'HEAD'})
+            });
+            const d = await r.json();
+            const headers = d.headers || {};
+            let html = '<table><tr><th>Header</th><th>Value</th></tr>';
+            Object.entries(headers).forEach(([k,v]) => {
+                html += '<tr><td style="font-weight:600">' + k + '</td><td style="font-family:monospace;word-break:break-all">' + v + '</td></tr>';
+            });
+            html += '</table>';
+
+            // Security header checks
+            const secHeaders = {
+                'strict-transport-security': 'HSTS',
+                'content-security-policy': 'CSP',
+                'x-frame-options': 'X-Frame-Options',
+                'x-content-type-options': 'X-Content-Type-Options',
+                'referrer-policy': 'Referrer-Policy',
+                'permissions-policy': 'Permissions-Policy',
+            };
+            html += '<div class="security"><h3 style="margin:12px 0">Security Headers</h3>';
+            const lowerHeaders = {};
+            Object.keys(headers).forEach(k => lowerHeaders[k.toLowerCase()] = headers[k]);
+            Object.entries(secHeaders).forEach(([key, label]) => {
+                if (lowerHeaders[key]) {
+                    html += '<div class="check pass">Present: ' + label + '</div>';
+                } else {
+                    html += '<div class="check fail">Missing: ' + label + '</div>';
+                }
+            });
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        } catch(e) {
+            document.getElementById('results').innerHTML = '<p style="color:red;padding:12px">Error: ' + e.message + '</p>';
+        }
+    }
+    </script>
+</body>
+</html>

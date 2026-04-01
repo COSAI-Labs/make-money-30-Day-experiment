@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free API Tester - Test REST APIs Online</title>
+    <meta name="description" content="Free online API tester. Send GET, POST, PUT, DELETE requests. View response headers, status codes, and body. No signup required.">
+    <meta property="og:title" content="Free Online API Tester">
+    <meta property="og:description" content="Test any REST API endpoint with GET, POST, PUT, DELETE methods. Free, no signup.">
+    <link rel="canonical" href="/api-tester">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .row { display: flex; gap: 8px; margin-bottom: 12px; }
+        select, input, textarea { padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        select { width: 120px; font-weight: 600; }
+        input { flex: 1; }
+        textarea { width: 100%; min-height: 120px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        .btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; font-size: 0.9rem; }
+        .response { margin-top: 16px; }
+        .response-header { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+        .status-badge { padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; }
+        .s2xx { background: #d4edda; color: #155724; }
+        .s3xx { background: #fff3cd; color: #856404; }
+        .s4xx { background: #f8d7da; color: #721c24; }
+        .s5xx { background: #f5c6cb; color: #721c24; }
+        .time { color: #666; font-size: 0.85rem; }
+        .tabs { display: flex; gap: 0; margin-bottom: 8px; }
+        .tab { padding: 8px 16px; cursor: pointer; border: 1px solid #ddd; background: #f8f9fa; font-size: 0.85rem; }
+        .tab:first-child { border-radius: 6px 0 0 6px; }
+        .tab:last-child { border-radius: 0 6px 6px 0; }
+        .tab.active { background: #6c63ff; color: white; border-color: #6c63ff; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>API Tester</h1>
+        <p class="subtitle">Send HTTP requests to any API endpoint and inspect the response</p>
+        <div class="tool-box">
+            <div class="row">
+                <select id="method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                <input id="url" type="text" placeholder="https://api.example.com/endpoint" value="/api/info">
+                <button class="btn btn-primary" onclick="sendRequest()">Send</button>
+            </div>
+            <div style="margin-bottom:12px">
+                <label>Headers (JSON)</label>
+                <textarea id="headers" style="min-height:60px" placeholder='{"Content-Type": "application/json"}'>{}</textarea>
+            </div>
+            <div id="body-section">
+                <label>Request Body (JSON)</label>
+                <textarea id="body" placeholder='{"key": "value"}'></textarea>
+            </div>
+
+            <div class="response" id="response" style="display:none">
+                <div class="response-header">
+                    <span class="status-badge" id="status-badge"></span>
+                    <span class="time" id="resp-time"></span>
+                    <span class="time" id="resp-size"></span>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('body-tab')">Body</div>
+                    <div class="tab" onclick="showTab('headers-tab')">Headers</div>
+                </div>
+                <div id="body-tab">
+                    <textarea id="resp-body" readonly style="min-height:200px"></textarea>
+                </div>
+                <div id="headers-tab" style="display:none">
+                    <textarea id="resp-headers" readonly style="min-height:120px"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>What is an API Tester?</h2>
+            <p>An API tester lets you send HTTP requests to any API endpoint and inspect the response. It's essential for debugging APIs, testing endpoints during development, and verifying API integrations.</p>
+            <h2>Supported Methods</h2>
+            <p>This tool supports GET, POST, PUT, PATCH, and DELETE HTTP methods. Add custom headers and request bodies in JSON format. View response status codes, headers, and body content.</p>
+            <h2>Try Our APIs</h2>
+            <p>ToolPipe offers 230+ free API endpoints. Try them here: <code>/api/info</code>, <code>/uuid/generate</code>, <code>/ip/my</code>, <code>/api/crypto/prices</code>, and many more.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/pricing">API Pricing</a></p></footer>
+    <script>
+    async function sendRequest() {
+        const method = document.getElementById('method').value;
+        let url = document.getElementById('url').value.trim();
+        if (!url) { alert('Enter a URL'); return; }
+        if (url.startsWith('/')) url = location.origin + url;
+
+        let headers = {};
+        try { headers = JSON.parse(document.getElementById('headers').value || '{}'); } catch(e) {}
+
+        const opts = { method, headers };
+        if (['POST','PUT','PATCH'].includes(method)) {
+            const body = document.getElementById('body').value.trim();
+            if (body) {
+                opts.body = body;
+                if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+                opts.headers = headers;
+            }
+        }
+
+        const start = performance.now();
+        try {
+            const resp = await fetch(url, opts);
+            const elapsed = Math.round(performance.now() - start);
+            const text = await resp.text();
+            const size = new Blob([text]).size;
+
+            document.getElementById('response').style.display = 'block';
+            const badge = document.getElementById('status-badge');
+            badge.textContent = resp.status + ' ' + resp.statusText;
+            badge.className = 'status-badge s' + Math.floor(resp.status/100) + 'xx';
+            document.getElementById('resp-time').textContent = elapsed + 'ms';
+            document.getElementById('resp-size').textContent = size > 1024 ? (size/1024).toFixed(1) + ' KB' : size + ' B';
+
+            try { document.getElementById('resp-body').value = JSON.stringify(JSON.parse(text), null, 2); }
+            catch(e) { document.getElementById('resp-body').value = text; }
+
+            let headerText = '';
+            resp.headers.forEach((v,k) => headerText += k + ': ' + v + '\n');
+            document.getElementById('resp-headers').value = headerText;
+        } catch(e) {
+            document.getElementById('response').style.display = 'block';
+            document.getElementById('status-badge').textContent = 'Error';
+            document.getElementById('status-badge').className = 'status-badge s5xx';
+            document.getElementById('resp-body').value = 'Request failed: ' + e.message;
+        }
+    }
+
+    function showTab(id) {
+        document.getElementById('body-tab').style.display = id === 'body-tab' ? 'block' : 'none';
+        document.getElementById('headers-tab').style.display = id === 'headers-tab' ? 'block' : 'none';
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+    </script>
+</body>
+</html>

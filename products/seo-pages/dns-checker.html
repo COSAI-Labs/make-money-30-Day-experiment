@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Checker - Free DNS Lookup Tool Online</title>
+    <meta name="description" content="Free DNS checker. Look up A, AAAA, MX, CNAME, NS, TXT, SOA records for any domain. Check DNS propagation instantly.">
+    <link rel="canonical" href="/dns-checker">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .row { display: flex; gap: 8px; margin-bottom: 12px; }
+        select, input { padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        select { width: 100px; }
+        input { flex: 1; }
+        input:focus { outline: none; border-color: #6c63ff; }
+        .btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; background: #6c63ff; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        th { background: #f0f0f5; font-weight: 600; }
+        td { font-family: monospace; word-break: break-all; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>DNS Checker</h1>
+        <p class="subtitle">Look up DNS records for any domain</p>
+        <div class="tool-box">
+            <div class="row">
+                <input id="domain" type="text" placeholder="example.com" value="google.com">
+                <select id="type">
+                    <option>A</option><option>AAAA</option><option>MX</option><option>CNAME</option>
+                    <option>NS</option><option>TXT</option><option>SOA</option>
+                </select>
+                <button class="btn" onclick="lookup()">Lookup</button>
+            </div>
+            <div id="results"></div>
+        </div>
+        <div class="content">
+            <h2>What is DNS?</h2>
+            <p>DNS (Domain Name System) translates domain names (like example.com) into IP addresses that computers use to communicate. DNS records include A (IPv4), AAAA (IPv6), MX (mail servers), CNAME (aliases), NS (nameservers), TXT (text records), and SOA (authority).</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/ssl-checker">SSL Checker</a></p></footer>
+    <script>
+    async function lookup() {
+        const domain = document.getElementById('domain').value.trim();
+        const type = document.getElementById('type').value;
+        if (!domain) return;
+        document.getElementById('results').innerHTML = '<p style="color:#666;padding:12px">Loading...</p>';
+        try {
+            const r = await fetch('/dns/lookup?domain=' + encodeURIComponent(domain) + '&type=' + type);
+            const d = await r.json();
+            if (d.records && d.records.length > 0) {
+                let html = '<table><tr><th>Type</th><th>Value</th><th>TTL</th></tr>';
+                d.records.forEach(rec => {
+                    const val = typeof rec === 'object' ? (rec.value || rec.exchange || rec.data || JSON.stringify(rec)) : rec;
+                    const ttl = typeof rec === 'object' ? (rec.ttl || '') : '';
+                    html += '<tr><td>' + type + '</td><td>' + val + '</td><td>' + ttl + '</td></tr>';
+                });
+                html += '</table>';
+                document.getElementById('results').innerHTML = html;
+            } else {
+                document.getElementById('results').innerHTML = '<p style="color:#666;padding:12px">No ' + type + ' records found for ' + domain + '</p>';
+            }
+        } catch(e) {
+            document.getElementById('results').innerHTML = '<p style="color:red;padding:12px">Error: ' + e.message + '</p>';
+        }
+    }
+    </script>
+</body>
+</html>
