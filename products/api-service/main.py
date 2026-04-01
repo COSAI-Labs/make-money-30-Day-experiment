@@ -504,7 +504,7 @@ def check_api_key(key: str) -> dict | None:
 
 # --- OxaPay Crypto Payment Integration ---
 OXAPAY_MERCHANT_KEY = os.environ.get("OXAPAY_MERCHANT_KEY", "sandbox")
-OXAPAY_API_URL = "https://api.oxapay.com/v1/payment/invoice"
+OXAPAY_API_URL = "https://api.oxapay.com/merchants/request"
 PAYMENTS_DB = Path(__file__).parent / "data" / "payments.db"
 _payments_lock = threading.Lock()
 
@@ -537,15 +537,13 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
         "amount": amount,
         "currency": "USD",
         "lifetime": 60,
-        "callback_url": callback_url,
-        "return_url": return_url,
+        "callbackUrl": callback_url,
+        "returnUrl": return_url,
         "email": email,
-        "order_id": order_id,
+        "orderId": order_id,
         "description": f"ToolPipe {tier.title()} Plan",
-        "fee_paid_by_payer": 1,
+        "feePaidByPayer": 1,
     }
-    if OXAPAY_MERCHANT_KEY == "sandbox":
-        payload["sandbox"] = True
 
     now = datetime.now(timezone.utc).isoformat()
     crypto_addresses = {
@@ -560,9 +558,9 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
                 resp = await client.post(OXAPAY_API_URL, json=payload)
                 data = resp.json()
 
-            if data.get("status") == 200 and data.get("data"):
-                track_id = data["data"].get("track_id", "")
-                payment_url = data["data"].get("payment_url", "")
+            if data.get("result") == 100:
+                track_id = data.get("trackId", "")
+                payment_url = data.get("payLink", "")
                 with _payments_lock:
                     conn = sqlite3.connect(str(PAYMENTS_DB))
                     conn.execute(
@@ -589,8 +587,8 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
         "payment_method": "crypto_direct",
         "crypto_addresses": crypto_addresses,
         "evm_address": WALLET_ADDRESS,
-        "accepted_evm": ["ETH", "USDC", "USDT", "DAI", "WETH", "any ERC-20"],
-        "evm_networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism"],
+        "accepted_evm": ["ETH", "USDC", "USDT", "DAI", "BUSD", "WETH", "BNB", "AVAX", "any ERC-20"],
+        "evm_networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism", "BSC", "Avalanche"],
         "amount_usd": amount,
         "order_id": order_id,
         "qr_code_url": f"/qr/generate?text=ethereum:{WALLET_ADDRESS}&size=300",
@@ -3741,6 +3739,8 @@ CHAIN_RPC = {
     "arbitrum": "https://arb1.arbitrum.io/rpc",
     "base": "https://mainnet.base.org",
     "optimism": "https://mainnet.optimism.io",
+    "bsc": "https://bsc-dataseed.binance.org",
+    "avalanche": "https://api.avax.network/ext/bc/C/rpc",
 }
 
 # Stablecoin contract addresses (for ERC-20 transfer verification)
@@ -3760,6 +3760,15 @@ STABLECOIN_CONTRACTS = {
     "arbitrum": {
         "USDC": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
         "USDT": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    },
+    "bsc": {
+        "USDC": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        "USDT": "0x55d398326f99059fF775485246999027B3197955",
+        "BUSD": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    },
+    "avalanche": {
+        "USDC": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+        "USDT": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
     },
 }
 

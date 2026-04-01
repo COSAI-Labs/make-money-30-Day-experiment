@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHOIS Lookup - Free Domain Information Tool</title>
-    <meta name="description" content="Look up WHOIS data for any domain. Find registration dates, registrar, nameservers, and more. Free online tool.">
-    <meta property="og:title" content="WHOIS Lookup - Free Domain Information Tool">
-    <link rel="canonical" href="/whois-lookup">
+    <title>SQL CREATE TABLE Generator - JSON to SQL</title>
+    <meta name="description" content="Generate SQL CREATE TABLE statements from JSON data. Auto-detect column types. Free online tool for developers.">
+    <meta property="og:title" content="SQL CREATE TABLE Generator - JSON to SQL">
+    <link rel="canonical" href="/sql-create-generator">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -34,39 +34,42 @@
 <body>
     <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
     <div class="container">
-        <h1>WHOIS Lookup</h1>
-        <p class="subtitle">Look up domain registration information and WHOIS records</p>
+        <h1>SQL CREATE TABLE Generator</h1>
+        <p class="subtitle">Generate SQL table definitions from JSON data automatically</p>
         <div class="tool-box">
             
-            <label>Domain</label>
-            <input type="text" id="domain" placeholder="example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
-            <div class="btns"><button class="btn btn-encode" onclick="whoisLookup()">Lookup WHOIS</button></div>
-            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+            <label>JSON Input (sample row)</label>
+            <textarea id="input" placeholder='{"id": 1, "name": "John", "email": "john@example.com", "active": true}'></textarea>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="generate()">Generate SQL</button>
+                <button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy SQL</button>
+            </div>
+            <label>SQL CREATE TABLE</label>
+            <textarea id="output" placeholder="SQL output..." readonly></textarea>
         
         </div>
         <div class="content">
             
-            <h2>What is WHOIS?</h2>
-            <p>WHOIS is a query protocol that provides registration information for domain names. It reveals who registered a domain, when it was registered, when it expires, and which registrar manages it.</p>
-            <h2>What You Can Find</h2>
-            <p>Our WHOIS lookup returns the registrar name, registration and expiration dates, nameservers, domain status codes, and available contact information. Useful for domain research, cybersecurity investigations, and competitive analysis.</p>
+            <h2>Auto-Generate SQL from JSON</h2>
+            <p>Paste a JSON object and get a SQL CREATE TABLE statement with properly typed columns. The generator infers column types from the JSON values: strings become VARCHAR, numbers become INTEGER or DECIMAL, booleans become BOOLEAN.</p>
+            <h2>Supported Dialects</h2>
+            <p>Generates standard SQL compatible with PostgreSQL, MySQL, SQLite, and other databases. You can specify a table name and the generator handles proper column naming and type mapping.</p>
             <h2>API Access</h2>
-            <p>Use our REST API: <code>GET /api/whois?domain=example.com</code>. Returns structured JSON with WHOIS data. Free for 100 calls/day.</p>
+            <p>Use our REST API: <code>POST /api/generate/sql-create</code> with <code>{"json_input": "...", "table_name": "users"}</code>. Free for 100 calls/day.</p>
         
         </div>
     </div>
     <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
     <script>
     
-async function whoisLookup() {
-    const d = document.getElementById('domain').value.trim();
-    if (!d) return alert('Enter a domain');
-    document.getElementById('result').textContent = 'Looking up...';
+async function generate() {
+    const input = document.getElementById('input').value.trim();
+    if (!input) return alert('Paste some JSON');
     try {
-        const r = await fetch('/api/whois?domain=' + encodeURIComponent(d));
+        const r = await fetch('/api/generate/sql-create', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({json_input: input, table_name: 'my_table'})});
         const j = await r.json();
-        document.getElementById('result').textContent = JSON.stringify(j, null, 2);
-    } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+        document.getElementById('output').value = j.sql || JSON.stringify(j, null, 2);
+    } catch(e) { document.getElementById('output').value = 'Error: ' + e.message; }
 }
         
     </script>

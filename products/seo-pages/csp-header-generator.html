@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHOIS Lookup - Free Domain Information Tool</title>
-    <meta name="description" content="Look up WHOIS data for any domain. Find registration dates, registrar, nameservers, and more. Free online tool.">
-    <meta property="og:title" content="WHOIS Lookup - Free Domain Information Tool">
-    <link rel="canonical" href="/whois-lookup">
+    <title>CSP Header Generator - Content Security Policy Tool</title>
+    <meta name="description" content="Generate Content Security Policy headers for your website. Configure directives with a visual builder. Free tool.">
+    <meta property="og:title" content="CSP Header Generator - Content Security Policy Tool">
+    <link rel="canonical" href="/csp-header-generator">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -34,39 +34,39 @@
 <body>
     <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
     <div class="container">
-        <h1>WHOIS Lookup</h1>
-        <p class="subtitle">Look up domain registration information and WHOIS records</p>
+        <h1>CSP Header Generator</h1>
+        <p class="subtitle">Generate Content Security Policy headers for web security</p>
         <div class="tool-box">
             
-            <label>Domain</label>
-            <input type="text" id="domain" placeholder="example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
-            <div class="btns"><button class="btn btn-encode" onclick="whoisLookup()">Lookup WHOIS</button></div>
-            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+            <label>Site URL</label>
+            <input type="text" id="site" placeholder="https://example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
+            <div class="btns"><button class="btn btn-encode" onclick="generate()">Generate CSP</button><button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy Header</button></div>
+            <label>CSP Header</label>
+            <textarea id="output" placeholder="Generated CSP header..." readonly style="min-height:120px"></textarea>
         
         </div>
         <div class="content">
             
-            <h2>What is WHOIS?</h2>
-            <p>WHOIS is a query protocol that provides registration information for domain names. It reveals who registered a domain, when it was registered, when it expires, and which registrar manages it.</p>
-            <h2>What You Can Find</h2>
-            <p>Our WHOIS lookup returns the registrar name, registration and expiration dates, nameservers, domain status codes, and available contact information. Useful for domain research, cybersecurity investigations, and competitive analysis.</p>
+            <h2>What is Content Security Policy?</h2>
+            <p>CSP is a security standard that helps prevent cross-site scripting (XSS), clickjacking, and other code injection attacks. It tells browsers which sources of content are allowed to load on your pages.</p>
+            <h2>Why You Need CSP</h2>
+            <p>A proper CSP header is required for security compliance (OWASP, PCI-DSS) and improves your site's security rating. This generator creates a policy based on your site's requirements.</p>
             <h2>API Access</h2>
-            <p>Use our REST API: <code>GET /api/whois?domain=example.com</code>. Returns structured JSON with WHOIS data. Free for 100 calls/day.</p>
+            <p>Use our REST API: <code>POST /api/security/csp-generate</code> with <code>{"site_url": "..."}</code>. Free for 100 calls/day.</p>
         
         </div>
     </div>
     <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
     <script>
     
-async function whoisLookup() {
-    const d = document.getElementById('domain').value.trim();
-    if (!d) return alert('Enter a domain');
-    document.getElementById('result').textContent = 'Looking up...';
+async function generate() {
+    const site = document.getElementById('site').value.trim();
+    if (!site) return alert('Enter a site URL');
     try {
-        const r = await fetch('/api/whois?domain=' + encodeURIComponent(d));
+        const r = await fetch('/api/security/csp-generate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({site_url: site})});
         const j = await r.json();
-        document.getElementById('result').textContent = JSON.stringify(j, null, 2);
-    } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+        document.getElementById('output').value = j.csp_header || JSON.stringify(j, null, 2);
+    } catch(e) { document.getElementById('output').value = 'Error: ' + e.message; }
 }
         
     </script>

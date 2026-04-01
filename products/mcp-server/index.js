@@ -52,7 +52,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.11.0" },
+  { name: "toolpipe", version: "1.12.0" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 200+ developer utility APIs as 120+ MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, placeholder images, favicon extraction, sitemap generation, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",

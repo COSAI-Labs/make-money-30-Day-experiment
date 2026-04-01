@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHOIS Lookup - Free Domain Information Tool</title>
-    <meta name="description" content="Look up WHOIS data for any domain. Find registration dates, registrar, nameservers, and more. Free online tool.">
-    <meta property="og:title" content="WHOIS Lookup - Free Domain Information Tool">
-    <link rel="canonical" href="/whois-lookup">
+    <title>JSON to CSV Converter - Free Online Tool</title>
+    <meta name="description" content="Convert JSON arrays to CSV format instantly. Download or copy CSV output. Free online converter, no signup.">
+    <meta property="og:title" content="JSON to CSV Converter - Free Online Tool">
+    <link rel="canonical" href="/json-to-csv">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -34,39 +34,42 @@
 <body>
     <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
     <div class="container">
-        <h1>WHOIS Lookup</h1>
-        <p class="subtitle">Look up domain registration information and WHOIS records</p>
+        <h1>JSON to CSV Converter</h1>
+        <p class="subtitle">Convert JSON arrays to CSV format instantly</p>
         <div class="tool-box">
             
-            <label>Domain</label>
-            <input type="text" id="domain" placeholder="example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
-            <div class="btns"><button class="btn btn-encode" onclick="whoisLookup()">Lookup WHOIS</button></div>
-            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+            <label>JSON Input (array of objects)</label>
+            <textarea id="input" placeholder='[{"name":"John","age":30},{"name":"Jane","age":25}]'></textarea>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="convert()">Convert to CSV</button>
+                <button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy CSV</button>
+            </div>
+            <label>CSV Output</label>
+            <textarea id="output" placeholder="CSV output..." readonly></textarea>
         
         </div>
         <div class="content">
             
-            <h2>What is WHOIS?</h2>
-            <p>WHOIS is a query protocol that provides registration information for domain names. It reveals who registered a domain, when it was registered, when it expires, and which registrar manages it.</p>
-            <h2>What You Can Find</h2>
-            <p>Our WHOIS lookup returns the registrar name, registration and expiration dates, nameservers, domain status codes, and available contact information. Useful for domain research, cybersecurity investigations, and competitive analysis.</p>
+            <h2>When to Use JSON to CSV</h2>
+            <p>CSV (Comma-Separated Values) is the universal format for spreadsheets and data analysis tools. Convert JSON API responses to CSV for Excel, Google Sheets, or pandas DataFrames.</p>
+            <h2>How It Works</h2>
+            <p>Paste a JSON array of objects. The converter extracts all unique keys as column headers and maps each object to a CSV row. Nested objects are serialized as JSON strings.</p>
             <h2>API Access</h2>
-            <p>Use our REST API: <code>GET /api/whois?domain=example.com</code>. Returns structured JSON with WHOIS data. Free for 100 calls/day.</p>
+            <p>Use our REST API: <code>POST /api/transform/json-to-csv</code> with <code>{"json_input": "[...]"}</code>. Free for 100 calls/day.</p>
         
         </div>
     </div>
     <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
     <script>
     
-async function whoisLookup() {
-    const d = document.getElementById('domain').value.trim();
-    if (!d) return alert('Enter a domain');
-    document.getElementById('result').textContent = 'Looking up...';
+async function convert() {
+    const input = document.getElementById('input').value.trim();
+    if (!input) return alert('Paste some JSON');
     try {
-        const r = await fetch('/api/whois?domain=' + encodeURIComponent(d));
+        const r = await fetch('/api/transform/json-to-csv', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({json_input: input})});
         const j = await r.json();
-        document.getElementById('result').textContent = JSON.stringify(j, null, 2);
-    } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+        document.getElementById('output').value = j.csv || JSON.stringify(j, null, 2);
+    } catch(e) { document.getElementById('output').value = 'Error: ' + e.message; }
 }
         
     </script>

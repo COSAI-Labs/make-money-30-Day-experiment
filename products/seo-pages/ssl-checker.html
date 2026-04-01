@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHOIS Lookup - Free Domain Information Tool</title>
-    <meta name="description" content="Look up WHOIS data for any domain. Find registration dates, registrar, nameservers, and more. Free online tool.">
-    <meta property="og:title" content="WHOIS Lookup - Free Domain Information Tool">
-    <link rel="canonical" href="/whois-lookup">
+    <title>SSL Certificate Checker - Free Online Tool</title>
+    <meta name="description" content="Check SSL/TLS certificates for any domain. View expiry dates, issuer info, and certificate chain. Free, no signup.">
+    <meta property="og:title" content="SSL Certificate Checker - Free Online Tool">
+    <link rel="canonical" href="/ssl-checker">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -34,36 +34,36 @@
 <body>
     <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
     <div class="container">
-        <h1>WHOIS Lookup</h1>
-        <p class="subtitle">Look up domain registration information and WHOIS records</p>
+        <h1>SSL Certificate Checker</h1>
+        <p class="subtitle">Check SSL/TLS certificate details for any domain instantly</p>
         <div class="tool-box">
             
             <label>Domain</label>
             <input type="text" id="domain" placeholder="example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
-            <div class="btns"><button class="btn btn-encode" onclick="whoisLookup()">Lookup WHOIS</button></div>
+            <div class="btns"><button class="btn btn-encode" onclick="checkSSL()">Check SSL</button></div>
             <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
         
         </div>
         <div class="content">
             
-            <h2>What is WHOIS?</h2>
-            <p>WHOIS is a query protocol that provides registration information for domain names. It reveals who registered a domain, when it was registered, when it expires, and which registrar manages it.</p>
-            <h2>What You Can Find</h2>
-            <p>Our WHOIS lookup returns the registrar name, registration and expiration dates, nameservers, domain status codes, and available contact information. Useful for domain research, cybersecurity investigations, and competitive analysis.</p>
+            <h2>What is an SSL Certificate?</h2>
+            <p>SSL (Secure Sockets Layer) certificates authenticate a website's identity and enable encrypted connections. They are essential for HTTPS, protecting sensitive data like login credentials and payment information during transmission.</p>
+            <h2>What This Tool Checks</h2>
+            <p>Our SSL checker verifies the certificate validity, expiration date, issuer organization, subject details, and supported protocols. It helps developers and system administrators ensure their domains have properly configured SSL/TLS certificates.</p>
             <h2>API Access</h2>
-            <p>Use our REST API: <code>GET /api/whois?domain=example.com</code>. Returns structured JSON with WHOIS data. Free for 100 calls/day.</p>
+            <p>Use our REST API: <code>GET /api/ssl/check?domain=example.com</code>. Returns JSON with certificate details. Free for 100 calls/day.</p>
         
         </div>
     </div>
     <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
     <script>
     
-async function whoisLookup() {
+async function checkSSL() {
     const d = document.getElementById('domain').value.trim();
     if (!d) return alert('Enter a domain');
-    document.getElementById('result').textContent = 'Looking up...';
+    document.getElementById('result').textContent = 'Checking...';
     try {
-        const r = await fetch('/api/whois?domain=' + encodeURIComponent(d));
+        const r = await fetch('/api/ssl/check?domain=' + encodeURIComponent(d));
         const j = await r.json();
         document.getElementById('result').textContent = JSON.stringify(j, null, 2);
     } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }

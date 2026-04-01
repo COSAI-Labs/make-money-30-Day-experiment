@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHOIS Lookup - Free Domain Information Tool</title>
-    <meta name="description" content="Look up WHOIS data for any domain. Find registration dates, registrar, nameservers, and more. Free online tool.">
-    <meta property="og:title" content="WHOIS Lookup - Free Domain Information Tool">
-    <link rel="canonical" href="/whois-lookup">
+    <title>Text Summarizer - Free Online Summarization Tool</title>
+    <meta name="description" content="Summarize long text into key points automatically. Extractive summarization with sentence scoring. Free, no signup.">
+    <meta property="og:title" content="Text Summarizer - Free Online Summarization Tool">
+    <link rel="canonical" href="/text-summarizer">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -34,39 +34,42 @@
 <body>
     <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
     <div class="container">
-        <h1>WHOIS Lookup</h1>
-        <p class="subtitle">Look up domain registration information and WHOIS records</p>
+        <h1>Text Summarizer</h1>
+        <p class="subtitle">Automatically extract key sentences from long text</p>
         <div class="tool-box">
             
-            <label>Domain</label>
-            <input type="text" id="domain" placeholder="example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
-            <div class="btns"><button class="btn btn-encode" onclick="whoisLookup()">Lookup WHOIS</button></div>
-            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+            <label>Text to Summarize</label>
+            <textarea id="input" placeholder="Paste your long text here..." style="min-height:180px"></textarea>
+            <div class="btns">
+                <button class="btn btn-encode" onclick="summarize()">Summarize</button>
+                <button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy Summary</button>
+            </div>
+            <label>Summary</label>
+            <textarea id="output" placeholder="Summary will appear here..." readonly style="min-height:100px"></textarea>
         
         </div>
         <div class="content">
             
-            <h2>What is WHOIS?</h2>
-            <p>WHOIS is a query protocol that provides registration information for domain names. It reveals who registered a domain, when it was registered, when it expires, and which registrar manages it.</p>
-            <h2>What You Can Find</h2>
-            <p>Our WHOIS lookup returns the registrar name, registration and expiration dates, nameservers, domain status codes, and available contact information. Useful for domain research, cybersecurity investigations, and competitive analysis.</p>
+            <h2>How Text Summarization Works</h2>
+            <p>Our summarizer uses extractive summarization: it scores each sentence based on word frequency, position, and relevance, then selects the most important sentences to create a concise summary. No AI hallucination, just the original words.</p>
+            <h2>Use Cases</h2>
+            <p>Summarize articles, research papers, meeting notes, documentation, or any long text. Choose how many sentences you want in the summary (default: 3).</p>
             <h2>API Access</h2>
-            <p>Use our REST API: <code>GET /api/whois?domain=example.com</code>. Returns structured JSON with WHOIS data. Free for 100 calls/day.</p>
+            <p>Use our REST API: <code>POST /api/text/summarize</code> with <code>{"text": "...", "sentences": 3}</code>. Free for 100 calls/day.</p>
         
         </div>
     </div>
     <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
     <script>
     
-async function whoisLookup() {
-    const d = document.getElementById('domain').value.trim();
-    if (!d) return alert('Enter a domain');
-    document.getElementById('result').textContent = 'Looking up...';
+async function summarize() {
+    const text = document.getElementById('input').value.trim();
+    if (!text) return alert('Paste some text');
     try {
-        const r = await fetch('/api/whois?domain=' + encodeURIComponent(d));
+        const r = await fetch('/api/text/summarize', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text, sentences: 3})});
         const j = await r.json();
-        document.getElementById('result').textContent = JSON.stringify(j, null, 2);
-    } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+        document.getElementById('output').value = j.summary || JSON.stringify(j, null, 2);
+    } catch(e) { document.getElementById('output').value = 'Error: ' + e.message; }
 }
         
     </script>

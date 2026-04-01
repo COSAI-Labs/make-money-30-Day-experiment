@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHOIS Lookup - Free Domain Information Tool</title>
-    <meta name="description" content="Look up WHOIS data for any domain. Find registration dates, registrar, nameservers, and more. Free online tool.">
-    <meta property="og:title" content="WHOIS Lookup - Free Domain Information Tool">
-    <link rel="canonical" href="/whois-lookup">
+    <title>GitHub Actions Generator - CI/CD Workflow Builder</title>
+    <meta name="description" content="Generate GitHub Actions CI/CD workflows for Node.js, Python, Docker, and more. Free online workflow generator.">
+    <meta property="og:title" content="GitHub Actions Generator - CI/CD Workflow Builder">
+    <link rel="canonical" href="/github-actions-generator">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
@@ -34,39 +34,39 @@
 <body>
     <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/pricing">Pro Plans</a></div></nav>
     <div class="container">
-        <h1>WHOIS Lookup</h1>
-        <p class="subtitle">Look up domain registration information and WHOIS records</p>
+        <h1>GitHub Actions Generator</h1>
+        <p class="subtitle">Generate CI/CD workflows for GitHub Actions</p>
         <div class="tool-box">
             
-            <label>Domain</label>
-            <input type="text" id="domain" placeholder="example.com" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
-            <div class="btns"><button class="btn btn-encode" onclick="whoisLookup()">Lookup WHOIS</button></div>
-            <pre id="result" style="background:#f5f5f5;padding:16px;border-radius:8px;min-height:100px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap"></pre>
+            <label>Project Description</label>
+            <input type="text" id="desc" placeholder="node.js app with tests, lint, and docker build" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:12px">
+            <div class="btns"><button class="btn btn-encode" onclick="generate()">Generate Workflow</button><button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy YAML</button></div>
+            <label>GitHub Actions Workflow (.github/workflows/ci.yml)</label>
+            <textarea id="output" placeholder="Generated workflow..." readonly style="min-height:200px"></textarea>
         
         </div>
         <div class="content">
             
-            <h2>What is WHOIS?</h2>
-            <p>WHOIS is a query protocol that provides registration information for domain names. It reveals who registered a domain, when it was registered, when it expires, and which registrar manages it.</p>
-            <h2>What You Can Find</h2>
-            <p>Our WHOIS lookup returns the registrar name, registration and expiration dates, nameservers, domain status codes, and available contact information. Useful for domain research, cybersecurity investigations, and competitive analysis.</p>
+            <h2>GitHub Actions CI/CD</h2>
+            <p>GitHub Actions automates your build, test, and deployment pipeline. Instead of writing YAML from scratch, describe your project and get a production-ready CI/CD workflow.</p>
+            <h2>Supported Workflows</h2>
+            <p>Node.js testing and linting, Python with pytest, Docker build and push, multi-stage deployments, caching, matrix builds, and more. Each workflow follows GitHub Actions best practices.</p>
             <h2>API Access</h2>
-            <p>Use our REST API: <code>GET /api/whois?domain=example.com</code>. Returns structured JSON with WHOIS data. Free for 100 calls/day.</p>
+            <p>Use our REST API: <code>POST /api/generate/github-actions</code> with <code>{"description": "..."}</code>. Free for 100 calls/day.</p>
         
         </div>
     </div>
     <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pricing">Pro Plans</a> | <a href="/api-keys">Free API Key</a></p></footer>
     <script>
     
-async function whoisLookup() {
-    const d = document.getElementById('domain').value.trim();
-    if (!d) return alert('Enter a domain');
-    document.getElementById('result').textContent = 'Looking up...';
+async function generate() {
+    const desc = document.getElementById('desc').value.trim();
+    if (!desc) return alert('Describe your project');
     try {
-        const r = await fetch('/api/whois?domain=' + encodeURIComponent(d));
+        const r = await fetch('/api/generate/github-actions', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({description: desc})});
         const j = await r.json();
-        document.getElementById('result').textContent = JSON.stringify(j, null, 2);
-    } catch(e) { document.getElementById('result').textContent = 'Error: ' + e.message; }
+        document.getElementById('output').value = j.workflow || j.yaml || JSON.stringify(j, null, 2);
+    } catch(e) { document.getElementById('output').value = 'Error: ' + e.message; }
 }
         
     </script>

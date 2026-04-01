@@ -1,8 +1,8 @@
 # ToolPipe MCP Server
 
-95+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, webhook testing, mock data generation, crontab generation, web scraping, code analysis, and more.
+120+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, text summarization, keyword extraction, SSL checking, WHOIS lookup, TypeScript generation, Docker Compose generation, GitHub Actions workflows, Nginx configs, and more.
 
-Works with Claude, Cursor, Windsurf, VS Code, or any MCP-compatible client.
+Works with Claude, Cursor, Windsurf, VS Code, Cline, or any MCP-compatible client.
 
 ## Quick Start
 
@@ -65,7 +65,7 @@ Add to `.cursor/mcp.json` or `.vscode/mcp.json`:
 
 Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "you@example.com"}`. No signup beyond email.
 
-## 95+ Tools
+## 120+ Tools
 
 ### Data and Formatting
 | Tool | Description |
@@ -108,8 +108,11 @@ Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "y
 |------|-------------|
 | `hash_text` | Hash text: MD5, SHA-1, SHA-256, SHA-512 (local) |
 | `base64_encode_decode` | Encode/decode Base64 (local) |
-| `url_encode_decode` | URL encode/decode |
-| `html_encode_decode` | HTML entity encode/decode |
+| `url_encode` | URL encode strings |
+| `url_decode` | URL decode strings |
+| `html_encode` | HTML entity encode |
+| `html_decode` | HTML entity decode |
+| `hash_multiple` | Multi-hash (MD5, SHA1, SHA256, SHA512, BLAKE2) |
 | `jwt_decode` | Decode JWT tokens |
 | `jwt_create` | Create JWT tokens for testing |
 | `generate_uuid` | Generate UUIDs v4 (local) |
@@ -135,6 +138,9 @@ Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "y
 | `http_status` | HTTP status code reference |
 | `my_ip` | Get caller's IP address |
 | `test_endpoint` | Test API endpoints with timing |
+| `ssl_check` | Check SSL certificates for any domain |
+| `whois_lookup` | WHOIS domain registration lookup |
+| `http_headers` | Fetch HTTP response headers |
 
 ### Code and DevOps
 | Tool | Description |
@@ -145,6 +151,14 @@ Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "y
 | `generate_dockerfile` | Generate Dockerfiles |
 | `generate_env_file` | Generate env files |
 | `generate_openapi` | Generate OpenAPI specs |
+| `generate_typescript_interface` | Generate TypeScript interfaces from JSON |
+| `generate_sql_create` | Generate SQL CREATE TABLE from JSON |
+| `generate_github_actions` | Generate GitHub Actions CI workflows |
+| `generate_nginx_config` | Generate Nginx server configs |
+| `generate_docker_compose` | Generate docker-compose.yml |
+| `generate_package_json` | Generate package.json |
+| `csp_generate` | Generate Content Security Policy headers |
+| `cors_headers` | Generate CORS configuration |
 
 ### Media and Visual
 | Tool | Description |
@@ -161,6 +175,10 @@ Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "y
 | `get_crypto_prices` | Live crypto prices |
 | `css_minify` | Minify CSS |
 | `js_minify` | Minify JavaScript |
+| `text_summarize` | Extractive text summarization |
+| `text_keywords` | Keyword extraction with relevance scoring |
+| `text_readability` | Readability scores (Flesch-Kincaid, ARI) |
+| `text_diff_detailed` | Detailed text diff with counts |
 | `get_random_quote` | Random quotes |
 | `generate_fake_data` | Generate mock data |
 | `template_render` | Render templates with variables |
@@ -198,7 +216,7 @@ Pay with crypto (ETH, USDC, USDT, DAI). No KYC needed. AI agents can pay program
 
 ## API
 
-The underlying REST API has 130+ endpoints. Interactive docs at `/docs`. Quick start guide at `/quickstart`.
+The underlying REST API has 200+ endpoints. Interactive docs at `/docs`. Quick start guide at `/quickstart`.
 
 ## License
 
