@@ -2966,6 +2966,38 @@ async function submitDonateWaitlist() {
 </body></html>""")
 
 
+# --- JSON Validate API ---
+
+@app.post("/api/json/validate")
+async def json_validate(request: Request):
+    """Validate JSON syntax and return formatted JSON or error with line number."""
+    try:
+        body = await request.body()
+        text = body.decode("utf-8")
+        # Try to extract json field if it's a JSON request
+        try:
+            payload = json.loads(text)
+            if isinstance(payload, dict) and "json" in payload:
+                text = payload["json"]
+        except Exception:
+            pass
+        parsed = json.loads(text)
+        formatted = json.dumps(parsed, indent=2)
+        return {
+            "valid": True,
+            "formatted": formatted,
+            "type": "array" if isinstance(parsed, list) else "object" if isinstance(parsed, dict) else type(parsed).__name__,
+            "size": len(formatted),
+        }
+    except json.JSONDecodeError as e:
+        return JSONResponse(
+            status_code=200,
+            content={"valid": False, "error": str(e), "line": e.lineno, "column": e.colno, "position": e.pos},
+        )
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"valid": False, "error": str(e)})
+
+
 # --- SEO Pages (catch-all for static content pages) ---
 
 @app.get("/{page_name}", response_class=HTMLResponse)

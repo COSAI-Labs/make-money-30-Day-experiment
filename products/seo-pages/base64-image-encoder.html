@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Image Encoder - Convert Image to Base64 Online</title>
+    <meta name="description" content="Convert images (PNG, JPG, GIF, SVG, WebP) to Base64 data URI strings online. Drag and drop or paste images. Free, no upload to server.">
+    <meta property="og:title" content="Free Base64 Image Encoder - PNG, JPG to Base64">
+    <link rel="canonical" href="/base64-image-encoder">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .dropzone { border: 2px dashed #ccc; border-radius: 12px; padding: 48px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .dropzone:hover, .dropzone.active { border-color: #6c63ff; background: #f0f0ff; }
+        .dropzone p { color: #666; margin-bottom: 12px; }
+        .dropzone .formats { color: #999; font-size: 0.8rem; }
+        .preview { margin: 16px 0; text-align: center; }
+        .preview img { max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid #eee; }
+        .info { display: flex; gap: 24px; margin: 12px 0; justify-content: center; font-size: 0.85rem; color: #666; }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem; resize: vertical; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        label { display: block; font-weight: 500; margin: 12px 0 6px; font-size: 0.9rem; }
+        .tabs { display: flex; gap: 4px; margin: 8px 0; }
+        .tab { padding: 6px 14px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .tab.active { background: #6c63ff; color: white; border-color: #6c63ff; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div><a href="/tools">All Tools</a> | <a href="/base64-encoder">Base64 Text</a> | <a href="/image-to-base64">Image to Base64</a> | <a href="/pricing">Pro Plans</a></div>
+    </nav>
+    <div class="container">
+        <h1>Base64 Image Encoder</h1>
+        <p class="subtitle">Convert any image to a Base64 data URI string. Runs entirely in your browser, nothing uploaded.</p>
+        <div class="tool-box">
+            <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                <p>Drop an image here or click to browse</p>
+                <p class="formats">PNG, JPG, GIF, SVG, WebP, BMP, ICO</p>
+                <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this.files[0])">
+            </div>
+            <div class="preview" id="preview" style="display:none"></div>
+            <div class="info" id="info" style="display:none"></div>
+            <div class="tabs" id="formatTabs" style="display:none">
+                <div class="tab active" onclick="setFormat('datauri',this)">Data URI</div>
+                <div class="tab" onclick="setFormat('base64',this)">Raw Base64</div>
+                <div class="tab" onclick="setFormat('html',this)">HTML &lt;img&gt;</div>
+                <div class="tab" onclick="setFormat('css',this)">CSS background</div>
+            </div>
+            <textarea id="output" style="display:none" readonly></textarea>
+            <div class="btns" id="btns" style="display:none">
+                <button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy to Clipboard</button>
+                <button class="btn btn-copy" onclick="downloadBase64()">Download .txt</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>When to Use Base64 Images</h2>
+            <p>Base64-encoded images are useful for embedding small images directly in HTML/CSS (avoiding extra HTTP requests), email templates, storing images in JSON/databases, and data URIs in web applications.</p>
+            <h2>Related Tools</h2>
+            <p><a href="/base64-encoder" style="color:#6c63ff">Base64 Text Encoder</a> | <a href="/image-to-base64" style="color:#6c63ff">Image to Base64</a> | <a href="/svg-to-png" style="color:#6c63ff">SVG to PNG</a> | <a href="/qr-code-generator" style="color:#6c63ff">QR Code Generator</a></p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+    </footer>
+    <script>
+    let currentData = '', currentMime = '', currentFormat = 'datauri';
+    const dz = document.getElementById('dropzone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('active'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('active'));
+    dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('active'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+    function handleFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        currentMime = file.type;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentData = e.target.result;
+            document.getElementById('preview').innerHTML = `<img src="${currentData}" alt="Preview">`;
+            document.getElementById('preview').style.display = 'block';
+            const b64 = currentData.split(',')[1];
+            const sizeKb = (b64.length * 0.75 / 1024).toFixed(1);
+            document.getElementById('info').innerHTML = `<span>Type: ${file.type}</span><span>Original: ${(file.size/1024).toFixed(1)} KB</span><span>Base64: ${sizeKb} KB (~${Math.round(sizeKb/((file.size/1024))*100)}% of original)</span>`;
+            document.getElementById('info').style.display = 'flex';
+            document.getElementById('formatTabs').style.display = 'flex';
+            document.getElementById('btns').style.display = 'flex';
+            updateOutput();
+        };
+        reader.readAsDataURL(file);
+    }
+    function setFormat(fmt, el) {
+        currentFormat = fmt;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        updateOutput();
+    }
+    function updateOutput() {
+        const out = document.getElementById('output');
+        out.style.display = 'block';
+        const b64 = currentData.split(',')[1];
+        if (currentFormat === 'datauri') out.value = currentData;
+        else if (currentFormat === 'base64') out.value = b64;
+        else if (currentFormat === 'html') out.value = `<img src="${currentData}" alt="image" />`;
+        else if (currentFormat === 'css') out.value = `background-image: url(${currentData});`;
+    }
+    function downloadBase64() {
+        const a = document.createElement('a');
+        a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(document.getElementById('output').value);
+        a.download = 'base64-image.txt';
+        a.click();
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicode Converter - Text to Unicode, Hex, UTF-8 Online</title>
+    <meta name="description" content="Convert text to Unicode code points, hex, UTF-8 bytes, HTML entities and back. Free online Unicode converter tool. No signup required.">
+    <meta property="og:title" content="Free Unicode Converter - Text, Hex, UTF-8, HTML Entities">
+    <link rel="canonical" href="/unicode-converter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea, input[type=text] { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        textarea { min-height: 80px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin: 12px 0 6px; font-size: 0.9rem; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; background: #6c63ff; color: white; margin-top: 8px; }
+        .result-grid { display: grid; gap: 12px; margin-top: 16px; }
+        .result-item { background: #f8f9fa; border: 1px solid #eee; border-radius: 8px; padding: 12px; }
+        .result-item .label { font-size: 0.8rem; color: #666; font-weight: 600; margin-bottom: 4px; }
+        .result-item .value { font-family: monospace; font-size: 0.85rem; word-break: break-all; }
+        .result-item .copy-btn { float: right; background: #eee; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div><a href="/tools">All Tools</a> | <a href="/base64-encoder">Base64</a> | <a href="/url-encoder">URL Encoder</a> | <a href="/pricing">Pro Plans</a></div>
+    </nav>
+    <div class="container">
+        <h1>Unicode Converter</h1>
+        <p class="subtitle">Convert text to Unicode code points, hex, decimal, UTF-8 bytes, HTML entities, and more.</p>
+        <div class="tool-box">
+            <label>Enter text:</label>
+            <textarea id="input" placeholder="Hello World!" oninput="convert()">Hello World!</textarea>
+            <div class="result-grid" id="results"></div>
+            <hr style="margin:24px 0;border:none;border-top:1px solid #eee">
+            <label>Decode Unicode (paste U+XXXX, \uXXXX, or &#xXXXX;):</label>
+            <input type="text" id="decode-input" placeholder="U+0048 U+0065 U+006C U+006C U+006F" oninput="decode()">
+            <div id="decode-result" style="margin-top:12px;font-size:1.2rem;font-family:monospace"></div>
+        </div>
+
+        <div class="content">
+            <h2>What is Unicode?</h2>
+            <p>Unicode is a universal character encoding standard that assigns a unique number (code point) to every character in every writing system. It supports over 149,000 characters across 161 scripts.</p>
+            <h2>Related Tools</h2>
+            <p><a href="/base64-encoder" style="color:#6c63ff">Base64 Encoder</a> | <a href="/url-encoder" style="color:#6c63ff">URL Encoder</a> | <a href="/html-entity-encoder" style="color:#6c63ff">HTML Entity Encoder</a> | <a href="/text-to-binary" style="color:#6c63ff">Text to Binary</a></p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+    </footer>
+    <script>
+    function copyVal(id) { navigator.clipboard.writeText(document.getElementById(id).textContent); }
+    function convert() {
+        const text = document.getElementById('input').value;
+        if (!text) { document.getElementById('results').innerHTML = ''; return; }
+        const codepoints = [...text].map(c => 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'));
+        const hex = [...text].map(c => '0x' + c.codePointAt(0).toString(16).toUpperCase().padStart(2, '0'));
+        const decimal = [...text].map(c => c.codePointAt(0));
+        const utf8 = [...text].map(c => { const e = new TextEncoder().encode(c); return Array.from(e).map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' '); });
+        const htmlEntities = [...text].map(c => '&#x' + c.codePointAt(0).toString(16) + ';');
+        const htmlDec = [...text].map(c => '&#' + c.codePointAt(0) + ';');
+        const jsEscape = [...text].map(c => { const cp = c.codePointAt(0); return cp > 0xFFFF ? '\\u{' + cp.toString(16) + '}' : '\\u' + cp.toString(16).padStart(4, '0'); });
+        const items = [
+            { label: 'Unicode Code Points', value: codepoints.join(' '), id: 'cp' },
+            { label: 'Hex', value: hex.join(' '), id: 'hx' },
+            { label: 'Decimal', value: decimal.join(' '), id: 'dec' },
+            { label: 'UTF-8 Bytes', value: utf8.join(' | '), id: 'utf8' },
+            { label: 'HTML Hex Entities', value: htmlEntities.join(''), id: 'htmlhex' },
+            { label: 'HTML Decimal Entities', value: htmlDec.join(''), id: 'htmldec' },
+            { label: 'JavaScript Escape', value: jsEscape.join(''), id: 'jse' },
+        ];
+        document.getElementById('results').innerHTML = items.map(i => `<div class="result-item"><div class="label">${i.label} <button class="copy-btn" onclick="copyVal('${i.id}')">Copy</button></div><div class="value" id="${i.id}">${i.value}</div></div>`).join('');
+    }
+    function decode() {
+        const input = document.getElementById('decode-input').value.trim();
+        if (!input) { document.getElementById('decode-result').textContent = ''; return; }
+        let text = input;
+        text = text.replace(/U\+([0-9A-Fa-f]+)/g, (_, h) => String.fromCodePoint(parseInt(h, 16)));
+        text = text.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (_, h) => String.fromCodePoint(parseInt(h, 16)));
+        text = text.replace(/\\u([0-9A-Fa-f]{4})/g, (_, h) => String.fromCodePoint(parseInt(h, 16)));
+        text = text.replace(/&#x([0-9A-Fa-f]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)));
+        text = text.replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d)));
+        document.getElementById('decode-result').textContent = text;
+    }
+    convert();
+    </script>
+</body>
+</html>

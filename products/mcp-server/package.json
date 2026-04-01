@@ -1,6 +1,6 @@
 {
-  "name": "@toolpipe/mcp-server",
-  "version": "1.0.0",
+  "name": "@cosai-labs/toolpipe-mcp-server",
+  "version": "1.0.1",
   "description": "MCP server for ToolPipe: 70+ developer utility APIs (JSON, PDF, QR, hash, UUID, DNS, and more) accessible to AI agents via Model Context Protocol",
   "type": "module",
   "main": "index.js",
@@ -24,12 +24,16 @@
     "ai-agent",
     "toolpipe"
   ],
-  "author": "ToolPipe <toolpipe-ads@sharebot.net>",
+  "author": "COSAI Labs",
   "license": "MIT",
-  "homepage": "https://toolpipe.dev",
+  "homepage": "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   "repository": {
     "type": "git",
-    "url": "https://github.com/COSAI-Labs/make-money-30day-challenge"
+    "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
+    "directory": "products/mcp-server"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "engines": {
     "node": ">=18.0.0"
