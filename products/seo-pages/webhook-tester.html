@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Tester Online Free - Inspect HTTP Requests | ToolPipe</title>
+    <meta name="description" content="Free webhook testing tool. Create unique URLs to capture and inspect HTTP requests in real-time. Debug Stripe, GitHub, Slack webhooks instantly. No signup.">
+    <meta name="keywords" content="webhook tester, request bin, requestbin alternative, webhook debug, http request inspector, webhook.site alternative">
+    <meta property="og:title" content="Webhook Tester - Free HTTP Request Inspector">
+    <meta property="og:description" content="Create unique URLs to capture and inspect HTTP requests. Debug webhooks instantly.">
+    <link rel="canonical" href="/webhook-tester">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; }
+        .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 4rem 2rem; text-align: center; }
+        .hero h1 { font-size: 2.5rem; color: #fff; margin-bottom: 1rem; }
+        .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem; }
+        .cta-btn { display: inline-block; background: #3b82f6; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; }
+        .content { max-width: 800px; margin: 0 auto; padding: 3rem 2rem; }
+        .content h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem; }
+        .content p { color: #94a3b8; line-height: 1.8; margin-bottom: 1rem; }
+        .content ul { padding-left: 1.5rem; color: #94a3b8; margin-bottom: 1rem; }
+        .content li { margin-bottom: 0.5rem; line-height: 1.6; }
+        .content code { background: #1a1a1a; padding: 2px 8px; border-radius: 4px; color: #60a5fa; }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Webhook Tester</h1>
+        <p>Create unique URLs to capture and inspect HTTP requests in real-time. The easiest way to debug webhooks.</p>
+        <a href="/webhooks" class="cta-btn">Create a Webhook Bin</a>
+    </div>
+
+    <div class="content">
+        <h2>How It Works</h2>
+        <ul>
+            <li><strong>Create a bin:</strong> Click the button to get a unique URL.</li>
+            <li><strong>Point your webhook:</strong> Use the URL as your webhook endpoint in Stripe, GitHub, Slack, or any service.</li>
+            <li><strong>Inspect requests:</strong> See every HTTP request in real-time, including headers, body, and query parameters.</li>
+        </ul>
+
+        <h2>Perfect For</h2>
+        <p><strong>Stripe webhook testing:</strong> Verify that Stripe is sending the correct events (payment_intent.succeeded, checkout.session.completed, etc.) with the right payload.</p>
+        <p><strong>GitHub webhook debugging:</strong> Inspect push events, pull request hooks, and deployment notifications.</p>
+        <p><strong>Slack integrations:</strong> Debug incoming and outgoing webhooks, slash commands, and event subscriptions.</p>
+        <p><strong>API development:</strong> Use as a mock endpoint to see exactly what your application sends.</p>
+        <p><strong>CI/CD pipelines:</strong> Verify notification webhooks from Jenkins, GitHub Actions, or CircleCI.</p>
+
+        <h2>API Access</h2>
+        <p>You can also use our webhook testing via API:</p>
+        <ul>
+            <li><code>POST /webhook/create</code> to create a new bin</li>
+            <li><code>GET /webhook/bin/{id}/requests</code> to retrieve captured requests</li>
+            <li><code>POST /webhook/bin/{id}/clear</code> to clear all requests</li>
+        </ul>
+
+        <h2>RequestBin Alternative</h2>
+        <p>WebhookBin is a free alternative to RequestBin and Webhook.site. No signup required, no limits on the number of bins, and all data is automatically deleted after 24 hours for your privacy.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/webhooks">WebhookBin</a> | <a href="/tools">Developer Tools</a> | <a href="/pdf">PDF Tools</a></p>
+    </footer>
+</body>
+</html>

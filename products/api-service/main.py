@@ -787,6 +787,7 @@ async def sitemap():
     urls = [
         "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/docs",
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
+        "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
     ]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
