@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Formatter - Free Online SQL Beautifier & Formatter</title>
-    <meta name="description" content="Free online SQL formatter and beautifier. Format, indent, and clean up SQL queries instantly. Supports SELECT, INSERT, UPDATE, DELETE, CREATE TABLE. No signup required.">
-    <meta property="og:title" content="Free SQL Formatter & Beautifier">
-    <meta property="og:description" content="Format and beautify SQL queries online for free.">
-    <link rel="canonical" href="/sql-formatter">
+    <title>Free Online SQL Formatter & Beautifier - ToolPipe</title>
+    <meta name="description" content="Free online SQL formatter and beautifier. Format, indent, and clean up messy SQL queries instantly with uppercase keywords. Supports SELECT, INSERT, UPDATE, DELETE, CREATE TABLE and all major SQL dialects. No signup required.">
+    <meta property="og:title" content="Free Online SQL Formatter & Beautifier">
+    <meta property="og:description" content="Format and beautify SQL queries online for free. Uppercase keywords, clean indentation, instant results.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://toolpipe.com/sql-formatter">
+    <link rel="canonical" href="https://toolpipe.com/sql-formatter">
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"WebApplication","name":"SQL Formatter","description":"Free online SQL query formatter and beautifier","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    {"@context":"https://schema.org","@type":"WebApplication","name":"SQL Formatter","description":"Free online SQL query formatter and beautifier with API access","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
         nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
         nav a { color: #6c63ff; text-decoration: none; }
+        nav .nav-links { display: flex; gap: 16px; }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
         h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
         .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
@@ -28,45 +31,36 @@
         .btn-primary:hover { background: #5a52d5; }
         .btn-secondary { background: #eee; color: #333; }
         .btn-secondary:hover { background: #ddd; }
-        .options { display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap; align-items: center; font-size: 0.9rem; }
-        select { padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
         .output textarea { background: #f0fdf4; }
+        .error { color: #ef4444; font-size: 0.9rem; margin-top: 8px; display: none; }
+        .loading { opacity: 0.6; pointer-events: none; }
         .content { margin-top: 48px; line-height: 1.7; }
         .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
         .content p { margin-bottom: 12px; color: #555; }
         .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
         .content pre { background: #1a1a2e; color: #a5b4fc; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        .faq-item { margin-bottom: 20px; }
+        .faq-item h3 { font-size: 1.05rem; margin-bottom: 6px; color: #333; }
         footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
         footer a { color: #6c63ff; text-decoration: none; }
     </style>
 </head>
 <body>
-<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<nav>
+    <a href="/">ToolPipe</a>
+    <div class="nav-links"><a href="/">Home</a> <a href="/tools">Tools</a></div>
+</nav>
 <div class="container">
-    <h1>SQL Formatter</h1>
-    <p class="subtitle">Beautify and format SQL queries online. Supports all major SQL dialects.</p>
+    <h1>Free Online SQL Formatter & Beautifier</h1>
+    <p class="subtitle">Paste your messy SQL and get clean, formatted output with uppercase keywords instantly.</p>
 
     <div class="tool-box">
         <label><strong>Input SQL:</strong></label>
         <textarea id="input" placeholder="SELECT u.id, u.name, o.total FROM users u INNER JOIN orders o ON u.id = o.user_id WHERE o.total > 100 AND u.active = 1 ORDER BY o.total DESC LIMIT 10"></textarea>
 
-        <div class="options">
-            <label>Indent: <select id="indent-size">
-                <option value="2">2 spaces</option>
-                <option value="4" selected>4 spaces</option>
-                <option value="tab">Tab</option>
-            </select></label>
-            <label>Keywords: <select id="keyword-case">
-                <option value="upper" selected>UPPERCASE</option>
-                <option value="lower">lowercase</option>
-                <option value="preserve">Preserve</option>
-            </select></label>
-        </div>
-
         <div class="btns">
             <button class="btn btn-primary" onclick="formatSQL()">Format SQL</button>
-            <button class="btn btn-secondary" onclick="minifySQL()">Minify SQL</button>
-            <button class="btn btn-secondary" onclick="copyOutput()">Copy</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy Output</button>
             <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
         </div>
 
@@ -74,124 +68,97 @@
             <label><strong>Formatted SQL:</strong></label>
             <textarea id="output" readonly placeholder="Formatted SQL will appear here..."></textarea>
         </div>
+        <div class="error" id="error"></div>
     </div>
 
     <div class="content">
-        <h2>Why Format SQL?</h2>
-        <p>Well-formatted SQL queries are easier to read, debug, and maintain. Consistent formatting helps teams collaborate on complex queries and reduces errors in production SQL.</p>
+        <h2>Why Format SQL Queries?</h2>
+        <p>Well-formatted SQL queries are significantly easier to read, debug, and maintain. When working in teams, consistent formatting reduces confusion and helps developers quickly understand complex queries with multiple joins, subqueries, and conditions. Our SQL formatter automatically applies uppercase keywords and clean indentation so your queries look professional every time.</p>
 
-        <h2>Example</h2>
-        <p>Before formatting:</p>
-        <pre>SELECT u.id,u.name,o.total FROM users u INNER JOIN orders o ON u.id=o.user_id WHERE o.total>100 ORDER BY o.total DESC</pre>
-        <p>After formatting:</p>
-        <pre>SELECT
-    u.id,
-    u.name,
-    o.total
-FROM users u
-INNER JOIN orders o
-    ON u.id = o.user_id
-WHERE
-    o.total > 100
-ORDER BY
-    o.total DESC</pre>
+        <p>Whether you are writing ad-hoc queries in a database console, building stored procedures, or reviewing SQL in a pull request, a formatter saves you time and mental energy. Instead of manually aligning keywords and indenting clauses, paste your SQL and let the tool do the work.</p>
 
-        <h2>Supported SQL Features</h2>
-        <p>SELECT, FROM, WHERE, JOIN (INNER, LEFT, RIGHT, FULL, CROSS), GROUP BY, HAVING, ORDER BY, LIMIT, OFFSET, UNION, INSERT INTO, UPDATE, DELETE, CREATE TABLE, ALTER TABLE, subqueries, CTEs (WITH), and more.</p>
+        <h2>How It Works</h2>
+        <p>Paste any SQL query into the input box and click "Format SQL." The tool sends your query to the ToolPipe API endpoint <code>POST /api/sql/format</code> with uppercase keyword conversion enabled. The API parses the SQL, identifies keywords, clauses, and expressions, then returns a cleanly indented version. The formatted result appears in the output box, ready to copy.</p>
+
+        <h2>API Access</h2>
+        <p>Need to format SQL programmatically? Use the API directly:</p>
+        <pre>curl -X POST https://toolpipe.com/api/sql/format \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "select * from users where id=1", "uppercase_keywords": true}'</pre>
+
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h3>What SQL dialects are supported?</h3>
+            <p>The formatter supports standard SQL syntax including MySQL, PostgreSQL, SQLite, SQL Server, and Oracle. It handles SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, ALTER, JOINs, CTEs, subqueries, and more.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Is my SQL data stored or logged?</h3>
+            <p>No. Your SQL is processed in real time and not stored on our servers. The tool is completely stateless.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Can I use this tool without an API key?</h3>
+            <p>Yes. The web tool works without any signup or API key. For programmatic API access, a free key gives you 100 requests per day.</p>
+        </div>
 
         <h2>Related Tools</h2>
-        <p><a href="/json-formatter">JSON Formatter</a> | <a href="/css-minifier">CSS Minifier</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/api-keys">Free API Key</a></p>
+        <p><a href="/json-formatter">JSON Formatter</a> | <a href="/xml-to-json">XML to JSON</a> | <a href="/css-minifier">CSS Minifier</a> | <a href="/text-analyzer">Text Analyzer</a></p>
     </div>
 </div>
 
 <footer>
-    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON</a> | <a href="/css-minifier">CSS</a> | <a href="/api-keys">API</a>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/xml-to-json">XML to JSON</a> | <a href="/tools">All Tools</a>
     <br>Free developer tools. No signup, no tracking.
 </footer>
 
 <script>
-const SQL_KEYWORDS = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','EXISTS','BETWEEN',
-    'LIKE','IS','NULL','AS','ON','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','CROSS',
-    'GROUP','BY','HAVING','ORDER','ASC','DESC','LIMIT','OFFSET','UNION','ALL',
-    'INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','ALTER','ADD',
-    'DROP','INDEX','VIEW','WITH','CASE','WHEN','THEN','ELSE','END','DISTINCT',
-    'COUNT','SUM','AVG','MIN','MAX','TOP','FETCH','NEXT','ROWS','ONLY'];
+async function formatSQL() {
+    const input = document.getElementById('input').value.trim();
+    const output = document.getElementById('output');
+    const error = document.getElementById('error');
+    error.style.display = 'none';
 
-const MAJOR_KEYWORDS = ['SELECT','FROM','WHERE','GROUP BY','HAVING','ORDER BY','LIMIT','OFFSET',
-    'UNION','UNION ALL','INSERT INTO','UPDATE','DELETE FROM','SET','VALUES','WITH',
-    'INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','CROSS JOIN','LEFT OUTER JOIN','RIGHT OUTER JOIN'];
+    if (!input) { error.textContent = 'Please enter some SQL to format.'; error.style.display = 'block'; return; }
 
-function formatSQL() {
-    let sql = document.getElementById('input').value.trim();
-    if (!sql) return;
+    const btn = document.querySelector('.btn-primary');
+    btn.textContent = 'Formatting...';
+    btn.classList.add('loading');
 
-    const indentVal = document.getElementById('indent-size').value;
-    const indent = indentVal === 'tab' ? '\t' : ' '.repeat(parseInt(indentVal));
-    const keyCase = document.getElementById('keyword-case').value;
-
-    // Normalize whitespace
-    sql = sql.replace(/\s+/g, ' ');
-
-    // Handle keyword case
-    if (keyCase === 'upper') {
-        SQL_KEYWORDS.forEach(kw => {
-            sql = sql.replace(new RegExp('\\b' + kw + '\\b', 'gi'), kw.toUpperCase());
+    try {
+        const res = await fetch('/api/sql/format', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql: input, uppercase_keywords: true })
         });
-    } else if (keyCase === 'lower') {
-        SQL_KEYWORDS.forEach(kw => {
-            sql = sql.replace(new RegExp('\\b' + kw + '\\b', 'gi'), kw.toLowerCase());
-        });
-    }
-
-    // Add newlines before major keywords
-    const majorPattern = MAJOR_KEYWORDS.map(k => k.replace(/ /g, '\\s+')).join('|');
-    const caseFlag = keyCase === 'lower' ? 'gi' : 'gi';
-    sql = sql.replace(new RegExp('\\b(' + majorPattern + ')\\b', caseFlag), '\n$1');
-
-    // Indent columns after SELECT
-    const lines = sql.split('\n').map(l => l.trim()).filter(l => l);
-    let result = [];
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        // Indent ON clauses
-        if (/^\b(ON)\b/i.test(line)) {
-            line = indent + line;
+        const data = await res.json();
+        if (res.ok && data.result) {
+            output.value = data.result;
+        } else if (data.formatted) {
+            output.value = data.formatted;
+        } else if (data.output) {
+            output.value = data.output;
+        } else {
+            output.value = JSON.stringify(data, null, 2);
         }
-        // Split comma-separated items after SELECT
-        if (/^SELECT/i.test(line)) {
-            const afterSelect = line.replace(/^SELECT\s+(DISTINCT\s+)?/i, '');
-            const prefix = line.match(/^SELECT\s+(DISTINCT\s+)?/i)[0];
-            const cols = afterSelect.split(',').map(c => c.trim());
-            if (cols.length > 1) {
-                result.push(prefix);
-                cols.forEach((col, idx) => {
-                    result.push(indent + col + (idx < cols.length - 1 ? ',' : ''));
-                });
-                continue;
-            }
-        }
-        // Handle AND/OR
-        line = line.replace(/\b(AND|OR)\b/gi, '\n' + indent + '$1');
-        result.push(line);
+    } catch (e) {
+        error.textContent = 'Error connecting to API: ' + e.message;
+        error.style.display = 'block';
+    } finally {
+        btn.textContent = 'Format SQL';
+        btn.classList.remove('loading');
     }
-
-    document.getElementById('output').value = result.join('\n').replace(/\n{3,}/g, '\n\n').trim();
-}
-
-function minifySQL() {
-    const sql = document.getElementById('input').value.trim();
-    if (!sql) return;
-    document.getElementById('output').value = sql.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ',').trim();
 }
 
 function copyOutput() {
-    document.getElementById('output').select();
-    document.execCommand('copy');
+    const output = document.getElementById('output');
+    if (output.value) {
+        navigator.clipboard.writeText(output.value);
+    }
 }
 
 function clearAll() {
     document.getElementById('input').value = '';
     document.getElementById('output').value = '';
+    document.getElementById('error').style.display = 'none';
 }
 </script>
 </body>

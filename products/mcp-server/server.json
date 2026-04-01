@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "74 dev tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, scraping, code analysis & more",
+  "description": "88 developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.6.0",
+  "version": "1.7.0",
   "remoteEndpoints": [
     {
       "url": "https://toolpipe.dev/mcp",
@@ -83,6 +83,16 @@
     {"name": "check_api_usage", "description": "Check API key usage, remaining quota, and tier info"},
     {"name": "create_payment", "description": "Create crypto payment order for Pro or Enterprise plan"},
     {"name": "verify_payment", "description": "Verify crypto payment on-chain and upgrade API key"},
-    {"name": "get_pricing", "description": "Get API pricing tiers and payment information"}
+    {"name": "get_pricing", "description": "Get API pricing tiers and payment information"},
+    {"name": "sql_format", "description": "Format and prettify SQL queries"},
+    {"name": "html_strip", "description": "Strip HTML tags to plain text"},
+    {"name": "text_stats", "description": "Text statistics: word count, reading time, readability"},
+    {"name": "number_format", "description": "Format numbers: comma, words, roman, scientific, binary, hex"},
+    {"name": "xml_to_json", "description": "Convert XML to JSON"},
+    {"name": "yaml_validate", "description": "Validate YAML and convert to JSON"},
+    {"name": "env_parse", "description": "Parse .env file content to JSON"},
+    {"name": "http_status", "description": "Get info about HTTP status codes"},
+    {"name": "jwt_create", "description": "Create JWT tokens for testing"},
+    {"name": "my_ip", "description": "Get caller's IP address"}
   ]
 }

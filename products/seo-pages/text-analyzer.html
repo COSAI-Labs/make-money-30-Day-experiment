@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Text Analyzer - Word Count, Reading Time, Readability Score</title>
+    <meta name="description" content="Free text analyzer tool. Get word count, character count, sentence count, reading time, speaking time, and Flesch readability score instantly. Perfect for writers, students, and content creators. No signup required.">
+    <meta property="og:title" content="Free Text Analyzer - Word Count, Reading Time, Readability">
+    <meta property="og:description" content="Analyze any text for word count, reading time, readability score, and more. Free, instant, no signup.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://toolpipe.com/text-analyzer">
+    <link rel="canonical" href="https://toolpipe.com/text-analyzer">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Text Analyzer","description":"Free text analysis tool with word count, reading time, and readability scoring","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        nav .nav-links { display: flex; gap: 16px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 200px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.95rem; resize: vertical; line-height: 1.6; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 16px; }
+        .stat-card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: #6c63ff; }
+        .stat-label { font-size: 0.85rem; color: #666; margin-top: 4px; }
+        .error { color: #ef4444; font-size: 0.9rem; margin-top: 8px; display: none; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .content pre { background: #1a1a2e; color: #a5b4fc; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        .faq-item { margin-bottom: 20px; }
+        .faq-item h3 { font-size: 1.05rem; margin-bottom: 6px; color: #333; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/">ToolPipe</a>
+    <div class="nav-links"><a href="/">Home</a> <a href="/tools">Tools</a></div>
+</nav>
+<div class="container">
+    <h1>Free Text Analyzer</h1>
+    <p class="subtitle">Get word count, reading time, readability score, and detailed text statistics instantly.</p>
+
+    <div class="tool-box">
+        <label><strong>Paste or type your text:</strong></label>
+        <textarea id="input" placeholder="Paste your text here to analyze word count, character count, reading time, speaking time, readability score, and more..."></textarea>
+
+        <div class="btns">
+            <button class="btn btn-primary" id="analyze-btn" onclick="analyzeText()">Analyze Text</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="stats-grid" id="stats" style="display: none;">
+            <div class="stat-card"><div class="stat-value" id="s-words">0</div><div class="stat-label">Words</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-chars">0</div><div class="stat-label">Characters</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-chars-no-spaces">0</div><div class="stat-label">Characters (no spaces)</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-sentences">0</div><div class="stat-label">Sentences</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-paragraphs">0</div><div class="stat-label">Paragraphs</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-lines">0</div><div class="stat-label">Lines</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-reading">0</div><div class="stat-label">Reading Time</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-speaking">0</div><div class="stat-label">Speaking Time</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-flesch">0</div><div class="stat-label">Flesch Score</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-avg-word">0</div><div class="stat-label">Avg Word Length</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-avg-sentence">0</div><div class="stat-label">Avg Words/Sentence</div></div>
+            <div class="stat-card"><div class="stat-value" id="s-syllables">0</div><div class="stat-label">Syllables</div></div>
+        </div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <div class="content">
+        <h2>What Does This Text Analyzer Do?</h2>
+        <p>This tool gives you a comprehensive breakdown of any text you paste. It counts words, characters (with and without spaces), sentences, paragraphs, and lines. It also calculates estimated reading time (based on 238 words per minute), speaking time (based on 150 words per minute), average word length, average sentence length, and the Flesch readability score.</p>
+
+        <p>Writers use reading time estimates to gauge how long their blog posts or articles will take readers. Students use word and character counts to meet assignment requirements. Content marketers use readability scores to ensure their copy is accessible to their target audience. This tool covers all of those needs in one place.</p>
+
+        <h2>Understanding the Flesch Readability Score</h2>
+        <p>The Flesch Reading Ease score ranges from 0 to 100. Higher scores mean the text is easier to read. A score of 60 to 70 is considered ideal for general audiences. Scores above 80 are very easy to read (suitable for 5th graders), while scores below 30 indicate very difficult text (academic or legal writing). The score is calculated using sentence length and syllable count per word.</p>
+
+        <h2>API Access</h2>
+        <pre>curl -X POST https://toolpipe.com/api/text/stats \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Your text goes here. It can be multiple sentences."}'</pre>
+
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h3>How is reading time calculated?</h3>
+            <p>Reading time is based on the average adult reading speed of approximately 238 words per minute. The word count is divided by 238 and rounded to the nearest minute or shown in seconds for short texts.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What is the Flesch readability score used for?</h3>
+            <p>The Flesch score helps you understand how accessible your writing is. It is commonly used in content marketing, UX writing, journalism, and education to match writing complexity to the target audience.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Does this tool support languages other than English?</h3>
+            <p>Word count, character count, and basic metrics work for any language. However, the Flesch readability score is designed for English text and may not produce meaningful results for other languages.</p>
+        </div>
+
+        <h2>Related Tools</h2>
+        <p><a href="/word-counter">Word Counter</a> | <a href="/character-counter">Character Counter</a> | <a href="/text-case-converter">Text Case Converter</a> | <a href="/whitespace-remover">Whitespace Remover</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/word-counter">Word Counter</a> | <a href="/character-counter">Character Counter</a> | <a href="/tools">All Tools</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+async function analyzeText() {
+    const input = document.getElementById('input').value.trim();
+    const error = document.getElementById('error');
+    const stats = document.getElementById('stats');
+    error.style.display = 'none';
+
+    if (!input) { error.textContent = 'Please enter some text to analyze.'; error.style.display = 'block'; stats.style.display = 'none'; return; }
+
+    const btn = document.getElementById('analyze-btn');
+    btn.textContent = 'Analyzing...';
+    btn.classList.add('loading');
+
+    try {
+        const res = await fetch('/api/text/stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: input })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            const d = data.result || data.stats || data;
+            document.getElementById('s-words').textContent = d.words || d.word_count || d.wordCount || 0;
+            document.getElementById('s-chars').textContent = d.characters || d.char_count || d.charCount || d.chars || 0;
+            document.getElementById('s-chars-no-spaces').textContent = d.characters_no_spaces || d.charsNoSpaces || d.chars_no_spaces || 0;
+            document.getElementById('s-sentences').textContent = d.sentences || d.sentence_count || d.sentenceCount || 0;
+            document.getElementById('s-paragraphs').textContent = d.paragraphs || d.paragraph_count || d.paragraphCount || 0;
+            document.getElementById('s-lines').textContent = d.lines || d.line_count || d.lineCount || 0;
+            document.getElementById('s-reading').textContent = d.reading_time || d.readingTime || d.read_time || '0s';
+            document.getElementById('s-speaking').textContent = d.speaking_time || d.speakingTime || d.speak_time || '0s';
+            document.getElementById('s-flesch').textContent = d.flesch_score || d.fleschScore || d.flesch || d.readability || 0;
+            document.getElementById('s-avg-word').textContent = d.avg_word_length || d.avgWordLength || d.average_word_length || 0;
+            document.getElementById('s-avg-sentence').textContent = d.avg_sentence_length || d.avgSentenceLength || d.average_sentence_length || 0;
+            document.getElementById('s-syllables').textContent = d.syllables || d.syllable_count || d.syllableCount || 0;
+            stats.style.display = 'grid';
+        } else {
+            error.textContent = data.error || data.message || 'Analysis failed. Please try again.';
+            error.style.display = 'block';
+        }
+    } catch (e) {
+        error.textContent = 'Error connecting to API: ' + e.message;
+        error.style.display = 'block';
+    } finally {
+        btn.textContent = 'Analyze Text';
+        btn.classList.remove('loading');
+    }
+}
+
+function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('stats').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+}
+</script>
+</body>
+</html>

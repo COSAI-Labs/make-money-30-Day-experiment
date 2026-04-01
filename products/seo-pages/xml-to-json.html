@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free XML to JSON Converter Online - ToolPipe</title>
+    <meta name="description" content="Convert XML to JSON online for free. Paste your XML data and get clean, formatted JSON output instantly. Supports nested elements, attributes, arrays, and namespaces. No signup required.">
+    <meta property="og:title" content="Free XML to JSON Converter Online">
+    <meta property="og:description" content="Convert XML to JSON instantly. Paste XML, get JSON. Free, fast, no signup.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://toolpipe.com/xml-to-json">
+    <link rel="canonical" href="https://toolpipe.com/xml-to-json">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"XML to JSON Converter","description":"Free online XML to JSON converter with API access","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        nav .nav-links { display: flex; gap: 16px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .panels { grid-template-columns: 1fr; } }
+        textarea { width: 100%; min-height: 280px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output textarea { background: #f0fdf4; }
+        .error { color: #ef4444; font-size: 0.9rem; margin-top: 8px; display: none; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .content pre { background: #1a1a2e; color: #a5b4fc; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        .faq-item { margin-bottom: 20px; }
+        .faq-item h3 { font-size: 1.05rem; margin-bottom: 6px; color: #333; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/">ToolPipe</a>
+    <div class="nav-links"><a href="/">Home</a> <a href="/tools">Tools</a></div>
+</nav>
+<div class="container">
+    <h1>Free XML to JSON Converter Online</h1>
+    <p class="subtitle">Paste your XML on the left, get clean JSON on the right. Instant conversion, no signup.</p>
+
+    <div class="tool-box">
+        <div class="panels">
+            <div>
+                <label><strong>XML Input:</strong></label>
+                <textarea id="input" placeholder='<?xml version="1.0" encoding="UTF-8"?>
+<users>
+  <user id="1">
+    <name>John Doe</name>
+    <email>john@example.com</email>
+    <role>admin</role>
+  </user>
+  <user id="2">
+    <name>Jane Smith</name>
+    <email>jane@example.com</email>
+    <role>editor</role>
+  </user>
+</users>'></textarea>
+            </div>
+            <div class="output">
+                <label><strong>JSON Output:</strong></label>
+                <textarea id="output" readonly placeholder="JSON will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="btns">
+            <button class="btn btn-primary" id="convert-btn" onclick="convertXmlToJson()">Convert to JSON</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy JSON</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <div class="content">
+        <h2>What Is XML to JSON Conversion?</h2>
+        <p>XML (eXtensible Markup Language) and JSON (JavaScript Object Notation) are both widely used data interchange formats. XML uses a tag-based hierarchical structure, while JSON uses key-value pairs and arrays. Converting between the two is a common task when integrating systems that speak different data formats, migrating legacy APIs, or transforming configuration files.</p>
+
+        <p>This tool handles nested elements, attributes, text content, arrays of repeated elements, and mixed content. It produces clean, well-formatted JSON output that you can use directly in your applications, APIs, or data pipelines.</p>
+
+        <h2>How It Works</h2>
+        <p>Paste your XML into the input area and click "Convert to JSON." The tool sends your XML to the ToolPipe API endpoint <code>POST /api/xml/to-json</code>, which parses the XML tree and maps it to a JSON structure. Element attributes are typically prefixed with <code>@</code>, and text content is stored under a <code>#text</code> key when mixed with child elements.</p>
+
+        <h2>API Access</h2>
+        <pre>curl -X POST https://toolpipe.com/api/xml/to-json \
+  -H "Content-Type: application/json" \
+  -d '{"xml": "&lt;root&gt;&lt;item&gt;hello&lt;/item&gt;&lt;/root&gt;"}'</pre>
+
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h3>Does this tool preserve XML attributes?</h3>
+            <p>Yes. Attributes are converted to JSON keys, typically prefixed with <code>@</code> to distinguish them from child elements. For example, <code>&lt;user id="1"&gt;</code> becomes <code>{"@id": "1"}</code>.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How are repeated XML elements handled?</h3>
+            <p>When an XML element appears more than once under the same parent, those elements are automatically grouped into a JSON array. A single element remains as an object.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Can I convert JSON back to XML?</h3>
+            <p>Yes. Check out our <a href="/json-to-xml">JSON to XML Converter</a> for the reverse operation.</p>
+        </div>
+
+        <h2>Related Tools</h2>
+        <p><a href="/json-to-xml">JSON to XML</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/xml-formatter">XML Formatter</a> | <a href="/json-to-yaml">JSON to YAML</a> | <a href="/csv-to-json">CSV to JSON</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/json-to-xml">JSON to XML</a> | <a href="/tools">All Tools</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+async function convertXmlToJson() {
+    const input = document.getElementById('input').value.trim();
+    const output = document.getElementById('output');
+    const error = document.getElementById('error');
+    error.style.display = 'none';
+
+    if (!input) { error.textContent = 'Please enter some XML to convert.'; error.style.display = 'block'; return; }
+
+    const btn = document.getElementById('convert-btn');
+    btn.textContent = 'Converting...';
+    btn.classList.add('loading');
+
+    try {
+        const res = await fetch('/api/xml/to-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ xml: input })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            if (data.result) {
+                output.value = typeof data.result === 'string' ? data.result : JSON.stringify(data.result, null, 2);
+            } else if (data.json) {
+                output.value = typeof data.json === 'string' ? data.json : JSON.stringify(data.json, null, 2);
+            } else if (data.output) {
+                output.value = typeof data.output === 'string' ? data.output : JSON.stringify(data.output, null, 2);
+            } else {
+                output.value = JSON.stringify(data, null, 2);
+            }
+        } else {
+            error.textContent = data.error || data.message || 'Conversion failed. Check your XML syntax.';
+            error.style.display = 'block';
+        }
+    } catch (e) {
+        error.textContent = 'Error connecting to API: ' + e.message;
+        error.style.display = 'block';
+    } finally {
+        btn.textContent = 'Convert to JSON';
+        btn.classList.remove('loading');
+    }
+}
+
+function copyOutput() {
+    const output = document.getElementById('output');
+    if (output.value) navigator.clipboard.writeText(output.value);
+}
+
+function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+    document.getElementById('error').style.display = 'none';
+}
+</script>
+</body>
+</html>

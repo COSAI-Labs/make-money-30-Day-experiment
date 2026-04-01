@@ -35,8 +35,8 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="112+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID generation, DNS lookup, regex testing, JWT decoding, IP geolocation, password checking, code analysis, web scraping, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
-    version="1.6.0",
+    description="130+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT create/decode, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP geolocation, password checking, code analysis, web scraping, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
+    version="1.7.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -891,36 +891,34 @@ async def invoice_page():
 async def api_info():
     return {
         "service": "ToolPipe API",
-        "version": "1.5.0",
+        "version": "1.7.0",
         "status": "operational",
-        "total_endpoints": "110+",
-        "new_in_v1_5": [
-            "/api/ip/lookup",
-            "/api/cron/parse",
-            "/api/diff/text",
-            "/api/jwt/decode",
-            "/api/time/convert",
-            "/api/headers/analyze",
-            "/api/password/check",
-            "/api/regex/test",
-            "/api/lorem",
-            "/api/color/palette",
-            "/api/slug/generate",
-            "/api/markdown/strip",
+        "total_endpoints": "130+",
+        "new_in_v1_7": [
+            "/api/sql/format",
+            "/api/html/strip",
+            "/api/text/stats",
+            "/api/number/format",
+            "/api/xml/to-json",
+            "/api/yaml/validate",
+            "/api/env/parse",
+            "/api/http-status/{code}",
+            "/api/jwt/create",
+            "/api/myip",
         ],
         "categories": {
             "json": ["/json/format", "/json/validate", "/api/json/query", "/api/json/to-schema", "/api/diff/json"],
-            "text": ["/text/analyze", "/api/text/count", "/api/text/similarity", "/api/diff/text", "/api/lorem", "/api/slug/generate", "/api/markdown/strip"],
-            "crypto_hash": ["/hash/generate", "/api/jwt/decode", "/api/password/check"],
-            "web": ["/meta/extract", "/seo/analyze", "/api/web/extract", "/api/headers/analyze", "/api/test/endpoint"],
-            "convert": ["/base64", "/api/convert/json-to-yaml", "/api/convert/csv-to-json", "/api/time/convert", "/color/convert", "/api/color/palette"],
-            "generate": ["/qr/generate", "/uuid/generate", "/api/fake/generate", "/api/gitignore/generate", "/api/dockerfile/generate"],
-            "network": ["/dns/lookup", "/api/ip/lookup", "/api/validate/ip", "/api/validate/email"],
-            "code": ["/api/code/analyze", "/api/schema/generate", "/api/regex/test", "/api/cron/parse"],
+            "text": ["/text/analyze", "/api/text/count", "/api/text/similarity", "/api/text/stats", "/api/diff/text", "/api/lorem", "/api/slug/generate", "/api/markdown/strip", "/api/html/strip"],
+            "crypto_hash": ["/hash/generate", "/api/jwt/decode", "/api/jwt/create", "/api/password/check"],
+            "web": ["/meta/extract", "/seo/analyze", "/api/web/extract", "/api/headers/analyze", "/api/test/endpoint", "/api/myip"],
+            "convert": ["/base64", "/api/convert/json-to-yaml", "/api/convert/csv-to-json", "/api/time/convert", "/color/convert", "/api/color/palette", "/api/xml/to-json", "/api/yaml/validate", "/api/number/format"],
+            "generate": ["/qr/generate", "/uuid/generate", "/api/fake/generate", "/api/gitignore/generate", "/api/dockerfile/generate", "/api/lorem"],
+            "network": ["/dns/lookup", "/api/ip/lookup", "/api/validate/ip", "/api/validate/email", "/api/http-status/{code}"],
+            "code": ["/api/code/analyze", "/api/schema/generate", "/api/regex/test", "/api/cron/parse", "/api/sql/format", "/api/env/parse"],
         },
         "mcp_server": {
-            "stdio_tools": 69,
-            "http_tools": 51,
+            "stdio_tools": 88,
+            "http_tools": 70,
             "http_endpoint": "/mcp",
         },
         "pricing": {
@@ -6341,6 +6339,371 @@ async def convert_units(req: ConvertUnitsRequest = None, value: float = 0, from_
         "to": to_unit,
         "result": round(result, 6),
         "formula": f"{value} {from_unit} = {round(result, 6)} {to_unit}",
+    }
+
+
+# --- New Endpoints: Batch 3 (session 17) ---
+
+class SqlFormatRequest(BaseModel):
+    sql: str
+    uppercase_keywords: bool = True
+    indent: int = 2
+
+@app.post("/api/sql/format")
+async def sql_format(req: SqlFormatRequest):
+    """Format and prettify SQL queries."""
+    keywords = [
+        "SELECT", "FROM", "WHERE", "AND", "OR", "JOIN", "LEFT JOIN", "RIGHT JOIN",
+        "INNER JOIN", "OUTER JOIN", "CROSS JOIN", "ON", "GROUP BY", "ORDER BY",
+        "HAVING", "LIMIT", "OFFSET", "INSERT INTO", "VALUES", "UPDATE", "SET",
+        "DELETE FROM", "CREATE TABLE", "ALTER TABLE", "DROP TABLE", "CREATE INDEX",
+        "UNION", "UNION ALL", "EXCEPT", "INTERSECT", "AS", "IN", "NOT IN",
+        "EXISTS", "NOT EXISTS", "BETWEEN", "LIKE", "IS NULL", "IS NOT NULL",
+        "CASE", "WHEN", "THEN", "ELSE", "END", "DISTINCT", "COUNT", "SUM",
+        "AVG", "MIN", "MAX", "ASC", "DESC", "WITH",
+    ]
+    sql = req.sql.strip()
+    # Normalize whitespace
+    sql = re.sub(r'\s+', ' ', sql)
+    indent = " " * req.indent
+    # Add newlines before major clauses
+    major_clauses = ["SELECT", "FROM", "WHERE", "GROUP BY", "ORDER BY", "HAVING",
+                     "LIMIT", "OFFSET", "UNION", "UNION ALL", "EXCEPT", "INTERSECT",
+                     "INSERT INTO", "VALUES", "UPDATE", "SET", "DELETE FROM",
+                     "CREATE TABLE", "ALTER TABLE", "DROP TABLE", "WITH"]
+    for clause in sorted(major_clauses, key=len, reverse=True):
+        pattern = re.compile(r'\b' + clause + r'\b', re.IGNORECASE)
+        sql = pattern.sub(f"\n{clause if req.uppercase_keywords else clause.lower()}", sql)
+    # Add newlines before JOIN clauses
+    join_clauses = ["LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "OUTER JOIN", "CROSS JOIN", "JOIN"]
+    for clause in sorted(join_clauses, key=len, reverse=True):
+        pattern = re.compile(r'\b' + clause + r'\b', re.IGNORECASE)
+        sql = pattern.sub(f"\n{indent}{clause if req.uppercase_keywords else clause.lower()}", sql)
+    # Indent AND/OR
+    for kw in ["AND", "OR"]:
+        pattern = re.compile(r'\b' + kw + r'\b', re.IGNORECASE)
+        sql = pattern.sub(f"\n{indent}{kw if req.uppercase_keywords else kw.lower()}", sql)
+    # Uppercase keywords if requested
+    if req.uppercase_keywords:
+        for kw in keywords:
+            pattern = re.compile(r'\b' + kw + r'\b', re.IGNORECASE)
+            sql = pattern.sub(kw, sql)
+    return {"formatted": sql.strip(), "original_length": len(req.sql), "formatted_length": len(sql.strip())}
+
+
+class HtmlStripRequest(BaseModel):
+    html: str
+    preserve_links: bool = False
+
+@app.post("/api/html/strip")
+async def html_strip(req: HtmlStripRequest):
+    """Strip HTML tags and return plain text. Optionally preserve link URLs."""
+    if req.preserve_links:
+        text = re.sub(r'<a[^>]*href=["\']([^"\']*)["\'][^>]*>(.*?)</a>', r'\2 (\1)', req.html, flags=re.IGNORECASE)
+    else:
+        text = req.html
+    text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'</(p|div|h[1-6]|li|tr)>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'&nbsp;', ' ', text)
+    text = re.sub(r'&amp;', '&', text)
+    text = re.sub(r'&lt;', '<', text)
+    text = re.sub(r'&gt;', '>', text)
+    text = re.sub(r'&quot;', '"', text)
+    text = re.sub(r'&#39;', "'", text)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = text.strip()
+    return {"text": text, "original_length": len(req.html), "text_length": len(text)}
+
+
+class TextStatsRequest(BaseModel):
+    text: str
+
+@app.post("/api/text/stats")
+async def text_statistics(req: TextStatsRequest):
+    """Get detailed text statistics: word count, char count, reading time, sentence count, etc."""
+    text = req.text
+    words = text.split()
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+    lines = text.split('\n')
+
+    word_count = len(words)
+    char_count = len(text)
+    char_no_spaces = len(text.replace(" ", "").replace("\n", "").replace("\t", ""))
+    sentence_count = len(sentences)
+    paragraph_count = len(paragraphs)
+    line_count = len(lines)
+    avg_word_length = round(sum(len(w) for w in words) / max(word_count, 1), 1)
+    avg_sentence_length = round(word_count / max(sentence_count, 1), 1)
+    reading_time_minutes = round(word_count / 238, 1)  # avg adult reading speed
+    speaking_time_minutes = round(word_count / 150, 1)  # avg speaking speed
+
+    # Readability (Flesch-Kincaid approximation)
+    syllable_count = sum(max(1, len(re.findall(r'[aeiouy]+', w.lower()))) for w in words)
+    if word_count > 0 and sentence_count > 0:
+        fk_grade = round(0.39 * (word_count/sentence_count) + 11.8 * (syllable_count/word_count) - 15.59, 1)
+        flesch_reading = round(206.835 - 1.015 * (word_count/sentence_count) - 84.6 * (syllable_count/word_count), 1)
+    else:
+        fk_grade = 0
+        flesch_reading = 0
+
+    return {
+        "characters": char_count,
+        "characters_no_spaces": char_no_spaces,
+        "words": word_count,
+        "sentences": sentence_count,
+        "paragraphs": paragraph_count,
+        "lines": line_count,
+        "avg_word_length": avg_word_length,
+        "avg_sentence_length": avg_sentence_length,
+        "syllables": syllable_count,
+        "reading_time_minutes": reading_time_minutes,
+        "speaking_time_minutes": speaking_time_minutes,
+        "flesch_reading_ease": flesch_reading,
+        "flesch_kincaid_grade": fk_grade,
+    }
+
+
+class NumberFormatRequest(BaseModel):
+    number: float
+    format: str = "comma"  # comma, words, roman, scientific, binary, hex, octal
+
+@app.post("/api/number/format")
+async def number_format(req: NumberFormatRequest):
+    """Format numbers in various ways: comma-separated, words, roman numerals, scientific, binary, hex, octal."""
+    n = req.number
+    result = {}
+
+    if req.format == "comma" or req.format == "all":
+        result["comma"] = f"{n:,.2f}" if n != int(n) else f"{int(n):,}"
+
+    if req.format == "scientific" or req.format == "all":
+        result["scientific"] = f"{n:.6e}"
+
+    if req.format == "binary" or req.format == "all":
+        if n == int(n) and n >= 0:
+            result["binary"] = bin(int(n))
+        else:
+            result["binary"] = "N/A (positive integers only)"
+
+    if req.format == "hex" or req.format == "all":
+        if n == int(n) and n >= 0:
+            result["hex"] = hex(int(n))
+        else:
+            result["hex"] = "N/A (positive integers only)"
+
+    if req.format == "octal" or req.format == "all":
+        if n == int(n) and n >= 0:
+            result["octal"] = oct(int(n))
+        else:
+            result["octal"] = "N/A (positive integers only)"
+
+    if req.format == "roman" or req.format == "all":
+        if 0 < n <= 3999 and n == int(n):
+            val = int(n)
+            roman = ""
+            for (v, s) in [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),(40,"XL"),(10,"X"),(9,"IX"),(5,"V"),(4,"IV"),(1,"I")]:
+                while val >= v:
+                    roman += s
+                    val -= v
+            result["roman"] = roman
+        else:
+            result["roman"] = "N/A (1-3999 only)"
+
+    if req.format == "words" or req.format == "all":
+        # Simple English words for numbers
+        if n == int(n) and abs(n) < 1e15:
+            ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+                    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+                    "seventeen", "eighteen", "nineteen"]
+            tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+            def num_to_words(num):
+                if num == 0: return "zero"
+                if num < 0: return "negative " + num_to_words(-num)
+                if num < 20: return ones[num]
+                if num < 100: return tens[num//10] + ("-" + ones[num%10] if num%10 else "")
+                if num < 1000: return ones[num//100] + " hundred" + (" and " + num_to_words(num%100) if num%100 else "")
+                for val, name in [(10**12, "trillion"), (10**9, "billion"), (10**6, "million"), (10**3, "thousand")]:
+                    if num >= val:
+                        return num_to_words(num//val) + " " + name + (" " + num_to_words(num%val) if num%val else "")
+                return str(num)
+            result["words"] = num_to_words(int(n))
+        else:
+            result["words"] = "N/A (integers up to trillions)"
+
+    if not result:
+        result[req.format] = f"{n}"
+
+    result["original"] = n
+    return result
+
+
+class XmlToJsonRequest(BaseModel):
+    xml: str
+
+@app.post("/api/xml/to-json")
+async def xml_to_json(req: XmlToJsonRequest):
+    """Convert XML to JSON."""
+    import xml.etree.ElementTree as ET
+    try:
+        root = ET.fromstring(req.xml)
+    except ET.ParseError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid XML: {e}")
+
+    def elem_to_dict(elem):
+        d = {}
+        if elem.attrib:
+            d["@attributes"] = dict(elem.attrib)
+        children = list(elem)
+        if children:
+            child_dict = {}
+            for child in children:
+                tag = child.tag
+                val = elem_to_dict(child)
+                if tag in child_dict:
+                    if not isinstance(child_dict[tag], list):
+                        child_dict[tag] = [child_dict[tag]]
+                    child_dict[tag].append(val)
+                else:
+                    child_dict[tag] = val
+            d.update(child_dict)
+        elif elem.text and elem.text.strip():
+            if d:
+                d["#text"] = elem.text.strip()
+            else:
+                return elem.text.strip()
+        return d if d else None
+
+    return {"root_tag": root.tag, "data": {root.tag: elem_to_dict(root)}}
+
+
+class YamlValidateRequest(BaseModel):
+    yaml_text: str
+
+@app.post("/api/yaml/validate")
+async def yaml_validate(req: YamlValidateRequest):
+    """Validate YAML syntax and convert to JSON."""
+    try:
+        import yaml
+        data = yaml.safe_load(req.yaml_text)
+        return {"valid": True, "json": data, "type": type(data).__name__}
+    except ImportError:
+        # Manual basic YAML validation
+        lines = req.yaml_text.strip().split('\n')
+        result = {}
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if ':' in line:
+                key, _, val = line.partition(':')
+                result[key.strip()] = val.strip()
+        return {"valid": True, "json": result, "note": "Basic parsing (PyYAML not available)"}
+    except Exception as e:
+        return {"valid": False, "error": str(e)}
+
+
+class EnvParseRequest(BaseModel):
+    env_text: str
+
+@app.post("/api/env/parse")
+async def env_parse(req: EnvParseRequest):
+    """Parse .env file content to JSON. Handles comments, quotes, multiline."""
+    result = {}
+    for line in req.env_text.split('\n'):
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        if '=' not in line:
+            continue
+        key, _, value = line.partition('=')
+        key = key.strip()
+        value = value.strip()
+        # Remove surrounding quotes
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        result[key] = value
+    return {"variables": result, "count": len(result)}
+
+
+@app.get("/api/http-status/{code}")
+async def http_status_info(code: int):
+    """Get information about an HTTP status code."""
+    statuses = {
+        100: ("Continue", "The server has received the request headers and the client should proceed to send the request body."),
+        101: ("Switching Protocols", "The server is switching protocols as requested by the client."),
+        200: ("OK", "The request has succeeded."),
+        201: ("Created", "The request has been fulfilled and a new resource has been created."),
+        204: ("No Content", "The server has fulfilled the request but there is no content to return."),
+        301: ("Moved Permanently", "The requested resource has been permanently moved to a new URL."),
+        302: ("Found", "The requested resource temporarily resides at a different URL."),
+        304: ("Not Modified", "The resource has not been modified since the last request."),
+        400: ("Bad Request", "The server cannot process the request due to a client error."),
+        401: ("Unauthorized", "Authentication is required and has failed or not been provided."),
+        403: ("Forbidden", "The server understood the request but refuses to authorize it."),
+        404: ("Not Found", "The requested resource could not be found."),
+        405: ("Method Not Allowed", "The request method is not supported for the requested resource."),
+        408: ("Request Timeout", "The server timed out waiting for the request."),
+        409: ("Conflict", "The request could not be completed due to a conflict with the current state."),
+        410: ("Gone", "The requested resource is no longer available and will not be available again."),
+        413: ("Payload Too Large", "The request is larger than the server is willing to process."),
+        415: ("Unsupported Media Type", "The media format of the requested data is not supported."),
+        418: ("I'm a Teapot", "The server refuses to brew coffee because it is a teapot (RFC 2324)."),
+        422: ("Unprocessable Entity", "The request was well-formed but could not be followed due to semantic errors."),
+        429: ("Too Many Requests", "The user has sent too many requests in a given amount of time."),
+        500: ("Internal Server Error", "The server encountered an unexpected condition that prevented it from fulfilling the request."),
+        502: ("Bad Gateway", "The server received an invalid response from the upstream server."),
+        503: ("Service Unavailable", "The server is not ready to handle the request, often due to maintenance or overload."),
+        504: ("Gateway Timeout", "The server did not receive a timely response from the upstream server."),
+    }
+    if code in statuses:
+        name, desc = statuses[code]
+        category = "Informational" if code < 200 else "Success" if code < 300 else "Redirection" if code < 400 else "Client Error" if code < 500 else "Server Error"
+        return {"code": code, "name": name, "description": desc, "category": category}
+    raise HTTPException(status_code=404, detail=f"Unknown HTTP status code: {code}")
+
+
+class JwtCreateRequest(BaseModel):
+    payload: dict
+    secret: str = "your-secret-key"
+    algorithm: str = "HS256"
+
+@app.post("/api/jwt/create")
+async def jwt_create(req: JwtCreateRequest):
+    """Create a JWT token from a payload (for testing/development purposes)."""
+    import hmac
+    header = {"alg": req.algorithm, "typ": "JWT"}
+    header_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b"=").decode()
+    # Add standard claims if not present
+    payload = dict(req.payload)
+    if "iat" not in payload:
+        payload["iat"] = int(time.time())
+    if "exp" not in payload:
+        payload["exp"] = int(time.time()) + 3600  # 1 hour
+    payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
+    signing_input = f"{header_b64}.{payload_b64}"
+    signature = hmac.new(req.secret.encode(), signing_input.encode(), hashlib.sha256).digest()
+    sig_b64 = base64.urlsafe_b64encode(signature).rstrip(b"=").decode()
+    token = f"{header_b64}.{payload_b64}.{sig_b64}"
+    return {"token": token, "header": header, "payload": payload, "expires_in": 3600}
+
+
+class IpInfoRequest(BaseModel):
+    ip: str = ""
+
+@app.get("/api/myip")
+async def my_ip(request: Request):
+    """Get the caller's IP address and basic info."""
+    ip = request.headers.get("x-forwarded-for", request.headers.get("x-real-ip", request.client.host))
+    if "," in ip:
+        ip = ip.split(",")[0].strip()
+    return {
+        "ip": ip,
+        "user_agent": request.headers.get("user-agent", ""),
+        "accept_language": request.headers.get("accept-language", ""),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

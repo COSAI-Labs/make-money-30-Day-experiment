@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free .env File Parser - Convert Environment Variables to JSON</title>
+    <meta name="description" content="Free .env file parser. Convert environment variables from .env format to JSON instantly. Parse dotenv files, validate syntax, and export as structured JSON. No signup required.">
+    <meta property="og:title" content="Free .env File Parser - Convert Environment Variables to JSON">
+    <meta property="og:description" content="Parse .env files to JSON instantly. Validate dotenv syntax and export structured data. Free, no signup.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://toolpipe.com/env-parser">
+    <link rel="canonical" href="https://toolpipe.com/env-parser">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":".env File Parser","description":"Free online .env file parser that converts environment variables to JSON","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        nav .nav-links { display: flex; gap: 16px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .panels { grid-template-columns: 1fr; } }
+        textarea { width: 100%; min-height: 280px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .output textarea { background: #f0fdf4; }
+        .error { color: #ef4444; font-size: 0.9rem; margin-top: 8px; display: none; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .content pre { background: #1a1a2e; color: #a5b4fc; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        .faq-item { margin-bottom: 20px; }
+        .faq-item h3 { font-size: 1.05rem; margin-bottom: 6px; color: #333; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/">ToolPipe</a>
+    <div class="nav-links"><a href="/">Home</a> <a href="/tools">Tools</a></div>
+</nav>
+<div class="container">
+    <h1>Free .env File Parser</h1>
+    <p class="subtitle">Convert environment variables from .env format to structured JSON instantly.</p>
+
+    <div class="tool-box">
+        <div class="panels">
+            <div>
+                <label><strong>.env Input:</strong></label>
+                <textarea id="input" placeholder="# Database configuration
+DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+DATABASE_POOL_SIZE=10
+
+# API Keys
+API_KEY=sk-abc123def456
+API_SECRET='my-secret-value'
+
+# App Settings
+NODE_ENV=production
+PORT=3000
+DEBUG=false
+APP_NAME=&quot;My Cool App&quot;"></textarea>
+            </div>
+            <div class="output">
+                <label><strong>JSON Output:</strong></label>
+                <textarea id="output" readonly placeholder="Parsed JSON will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="btns">
+            <button class="btn btn-primary" id="parse-btn" onclick="parseEnv()">Parse .env</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy JSON</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <div class="content">
+        <h2>What Is a .env File?</h2>
+        <p>A .env (dotenv) file is a simple text file used to store environment variables for an application. Each line contains a key-value pair in the format <code>KEY=value</code>. These files are commonly used in Node.js, Python, Ruby, PHP, and other frameworks to manage configuration that varies between environments (development, staging, production) without hardcoding sensitive values in source code.</p>
+
+        <p>This tool parses .env file content and converts it to a structured JSON object. This is useful when you need to migrate configuration to a JSON-based system, validate your .env syntax, compare environment configurations, or generate config objects for deployment scripts.</p>
+
+        <h2>How It Works</h2>
+        <p>Paste your .env file content into the input area and click "Parse .env." The tool sends the content to the ToolPipe API endpoint <code>POST /api/env/parse</code>. The API handles comments (lines starting with #), quoted values (single and double quotes), empty lines, and inline comments. The result is a clean JSON object mapping each variable name to its value.</p>
+
+        <h2>Supported .env Syntax</h2>
+        <pre># Comments are ignored
+KEY=value
+QUOTED="value with spaces"
+SINGLE_QUOTED='another value'
+EMPTY_VALUE=
+# Inline comments after values
+PORT=3000 # server port</pre>
+
+        <h2>API Access</h2>
+        <pre>curl -X POST https://toolpipe.com/api/env/parse \
+  -H "Content-Type: application/json" \
+  -d '{"env_text": "DB_HOST=localhost\nDB_PORT=5432"}'</pre>
+
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h3>Are my environment variables stored or logged?</h3>
+            <p>No. Your .env content is processed in real time and never stored on our servers. However, as a best practice, avoid pasting production secrets into any web tool. Use this for development configs, validation, and format conversion.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Does this handle multiline values?</h3>
+            <p>The parser handles standard single-line key=value pairs. Multiline values (using quotes spanning multiple lines) depend on the API implementation. For most use cases, each variable should be on its own line.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What frameworks use .env files?</h3>
+            <p>Nearly all modern frameworks support .env files: Node.js (dotenv), Python (python-dotenv), Ruby (dotenv gem), PHP (vlucas/phpdotenv), Go (godotenv), Rust (dotenv), and many more. Docker Compose also reads .env files for variable substitution.</p>
+        </div>
+
+        <h2>Related Tools</h2>
+        <p><a href="/json-formatter">JSON Formatter</a> | <a href="/json-to-yaml">JSON to YAML</a> | <a href="/yaml-validator">YAML Validator</a> | <a href="/text-analyzer">Text Analyzer</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/json-to-yaml">JSON to YAML</a> | <a href="/tools">All Tools</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+async function parseEnv() {
+    const input = document.getElementById('input').value.trim();
+    const output = document.getElementById('output');
+    const error = document.getElementById('error');
+    error.style.display = 'none';
+
+    if (!input) { error.textContent = 'Please enter .env content to parse.'; error.style.display = 'block'; return; }
+
+    const btn = document.getElementById('parse-btn');
+    btn.textContent = 'Parsing...';
+    btn.classList.add('loading');
+
+    try {
+        const res = await fetch('/api/env/parse', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ env_text: input })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            if (data.result) {
+                output.value = typeof data.result === 'string' ? data.result : JSON.stringify(data.result, null, 2);
+            } else if (data.parsed) {
+                output.value = typeof data.parsed === 'string' ? data.parsed : JSON.stringify(data.parsed, null, 2);
+            } else if (data.output) {
+                output.value = typeof data.output === 'string' ? data.output : JSON.stringify(data.output, null, 2);
+            } else if (data.variables) {
+                output.value = JSON.stringify(data.variables, null, 2);
+            } else {
+                output.value = JSON.stringify(data, null, 2);
+            }
+        } else {
+            error.textContent = data.error || data.message || 'Parsing failed. Check your .env syntax.';
+            error.style.display = 'block';
+        }
+    } catch (e) {
+        error.textContent = 'Error connecting to API: ' + e.message;
+        error.style.display = 'block';
+    } finally {
+        btn.textContent = 'Parse .env';
+        btn.classList.remove('loading');
+    }
+}
+
+function copyOutput() {
+    const output = document.getElementById('output');
+    if (output.value) navigator.clipboard.writeText(output.value);
+}
+
+function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+    document.getElementById('error').style.display = 'none';
+}
+</script>
+</body>
+</html>

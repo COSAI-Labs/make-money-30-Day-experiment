@@ -132,6 +132,18 @@ function createServer() {
   server.tool("text_compare", "Compare strings for similarity using Levenshtein distance.", { items: z.array(z.string()) }, async ({ items }) => textResult(await apiCall("/api/text/compare", { method: "POST", body: JSON.stringify({ items }) })));
   server.tool("convert_units", "Convert units: length, weight, temperature, volume, speed, data.", { value: z.number(), from_unit: z.string(), to_unit: z.string() }, async ({ value, from_unit, to_unit }) => textResult(await apiCall("/api/convert/units", { method: "POST", body: JSON.stringify({ value, from_unit, to_unit }) })));
 
+  // New tools: Batch 3 (session 17)
+  server.tool("sql_format", "Format and prettify SQL queries.", { sql: z.string(), uppercase_keywords: z.boolean().optional() }, async ({ sql, uppercase_keywords }) => textResult(await apiCall("/api/sql/format", { method: "POST", body: JSON.stringify({ sql, uppercase_keywords: uppercase_keywords ?? true }) })));
+  server.tool("html_strip", "Strip HTML tags to plain text.", { html: z.string(), preserve_links: z.boolean().optional() }, async ({ html, preserve_links }) => textResult(await apiCall("/api/html/strip", { method: "POST", body: JSON.stringify({ html, preserve_links: preserve_links ?? false }) })));
+  server.tool("text_stats", "Text statistics: word count, reading time, readability scores.", { text: z.string() }, async ({ text }) => textResult(await apiCall("/api/text/stats", { method: "POST", body: JSON.stringify({ text }) })));
+  server.tool("number_format", "Format numbers: comma, words, roman, scientific, binary, hex.", { number: z.number(), format: z.string().optional() }, async ({ number, format }) => textResult(await apiCall("/api/number/format", { method: "POST", body: JSON.stringify({ number, format: format ?? "all" }) })));
+  server.tool("xml_to_json", "Convert XML to JSON.", { xml: z.string() }, async ({ xml }) => textResult(await apiCall("/api/xml/to-json", { method: "POST", body: JSON.stringify({ xml }) })));
+  server.tool("yaml_validate", "Validate YAML and convert to JSON.", { yaml_text: z.string() }, async ({ yaml_text }) => textResult(await apiCall("/api/yaml/validate", { method: "POST", body: JSON.stringify({ yaml_text }) })));
+  server.tool("env_parse", "Parse .env file content to JSON.", { env_text: z.string() }, async ({ env_text }) => textResult(await apiCall("/api/env/parse", { method: "POST", body: JSON.stringify({ env_text }) })));
+  server.tool("http_status", "Get info about an HTTP status code.", { code: z.number() }, async ({ code }) => textResult(await apiCall(`/api/http-status/${code}`)));
+  server.tool("jwt_create", "Create a JWT token for testing.", { payload: z.string(), secret: z.string().optional() }, async ({ payload, secret }) => textResult(await apiCall("/api/jwt/create", { method: "POST", body: JSON.stringify({ payload: JSON.parse(payload), secret: secret ?? "your-secret-key" }) })));
+  server.tool("my_ip", "Get caller's IP address.", {}, async () => textResult(await apiCall("/api/myip")));
+
   // API Key & Payment Management (self-service for AI agents)
   server.tool("register_api_key", "Register a free API key (100 calls/day).", { email: z.string() }, async ({ email }) => textResult(await apiCall("/api-keys/register", { method: "POST", body: JSON.stringify({ email }) })));
   server.tool("check_api_usage", "Check API key usage and remaining quota.", { api_key: z.string().optional(), email: z.string().optional() }, async ({ api_key, email }) => { const p = new URLSearchParams(); if (api_key) p.set("api_key", api_key); if (email) p.set("email", email); return textResult(await apiCall(`/api-keys/usage?${p.toString()}`)); });
@@ -162,7 +174,7 @@ app.get("/", (req, res) => {
     version: "1.6.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 60,
+    tools: 70,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });

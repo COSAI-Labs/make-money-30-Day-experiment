@@ -50,10 +50,10 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.6.0" },
+  { name: "toolpipe", version: "1.7.0" },
   {
     capabilities: { tools: {} },
-    instructions: "ToolPipe provides 110+ developer utility APIs as 69 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, text analysis, fake data, Dockerfile/gitignore generation, IP geolocation, cron parsing, JWT decoding, regex testing, password checking, color palettes, text diffing, timestamp conversion, HTTP header analysis, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
+    instructions: "ToolPipe provides 130+ developer utility APIs as 88 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats/readability, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
   }
 );
 
@@ -1216,6 +1216,154 @@ server.tool(
   {},
   async () => {
     const result = await apiCall("/api/pricing");
+    return textResult(result);
+  }
+);
+
+// --- New Tools: Batch 3 (session 17) ---
+
+server.tool(
+  "sql_format",
+  "Format and prettify SQL queries with proper indentation and keyword casing.",
+  {
+    sql: z.string().describe("SQL query to format"),
+    uppercase_keywords: z.boolean().optional().describe("Uppercase SQL keywords (default true)"),
+  },
+  async ({ sql, uppercase_keywords }) => {
+    const result = await apiCall("/api/sql/format", {
+      method: "POST",
+      body: JSON.stringify({ sql, uppercase_keywords: uppercase_keywords ?? true }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "html_strip",
+  "Strip HTML tags and return plain text. Optionally preserve link URLs.",
+  {
+    html: z.string().describe("HTML content to strip"),
+    preserve_links: z.boolean().optional().describe("Keep link URLs in output (default false)"),
+  },
+  async ({ html, preserve_links }) => {
+    const result = await apiCall("/api/html/strip", {
+      method: "POST",
+      body: JSON.stringify({ html, preserve_links: preserve_links ?? false }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_stats",
+  "Get detailed text statistics: word count, char count, reading time, readability scores.",
+  {
+    text: z.string().describe("Text to analyze"),
+  },
+  async ({ text }) => {
+    const result = await apiCall("/api/text/stats", {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "number_format",
+  "Format numbers: comma-separated, words, roman numerals, scientific, binary, hex, octal.",
+  {
+    number: z.number().describe("Number to format"),
+    format: z.string().optional().describe("Format: comma, words, roman, scientific, binary, hex, octal, all (default: all)"),
+  },
+  async ({ number, format }) => {
+    const result = await apiCall("/api/number/format", {
+      method: "POST",
+      body: JSON.stringify({ number, format: format ?? "all" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "xml_to_json",
+  "Convert XML to JSON.",
+  {
+    xml: z.string().describe("XML content to convert"),
+  },
+  async ({ xml }) => {
+    const result = await apiCall("/api/xml/to-json", {
+      method: "POST",
+      body: JSON.stringify({ xml }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "yaml_validate",
+  "Validate YAML syntax and convert to JSON.",
+  {
+    yaml_text: z.string().describe("YAML content to validate"),
+  },
+  async ({ yaml_text }) => {
+    const result = await apiCall("/api/yaml/validate", {
+      method: "POST",
+      body: JSON.stringify({ yaml_text }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "env_parse",
+  "Parse .env file content to JSON. Handles comments, quotes.",
+  {
+    env_text: z.string().describe(".env file content to parse"),
+  },
+  async ({ env_text }) => {
+    const result = await apiCall("/api/env/parse", {
+      method: "POST",
+      body: JSON.stringify({ env_text }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "http_status",
+  "Get information about an HTTP status code.",
+  {
+    code: z.number().describe("HTTP status code (e.g., 200, 404, 500)"),
+  },
+  async ({ code }) => {
+    const result = await apiCall(`/api/http-status/${code}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "jwt_create",
+  "Create a JWT token from a payload (for testing/development).",
+  {
+    payload: z.string().describe("JSON string of the JWT payload"),
+    secret: z.string().optional().describe("Secret key for signing (default: your-secret-key)"),
+  },
+  async ({ payload, secret }) => {
+    const result = await apiCall("/api/jwt/create", {
+      method: "POST",
+      body: JSON.stringify({ payload: JSON.parse(payload), secret: secret ?? "your-secret-key" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "my_ip",
+  "Get the caller's IP address and request info.",
+  {},
+  async () => {
+    const result = await apiCall("/api/myip");
     return textResult(result);
   }
 );
