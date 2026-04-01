@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to PDF Converter - Free Online Tool</title>
+    <meta name="description" content="Convert HTML to PDF online for free. Paste HTML code and download a clean PDF. Supports CSS styling, images, tables, and responsive layouts. No signup needed.">
+    <meta property="og:title" content="Free HTML to PDF Converter Online">
+    <link rel="canonical" href="/html-to-pdf">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 250px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; flex-wrap: wrap; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-secondary { background: #22c55e; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        .preview { margin: 16px 0; border: 1px solid #ddd; border-radius: 8px; min-height: 200px; background: white; }
+        .preview iframe { width: 100%; min-height: 300px; border: none; border-radius: 8px; }
+        .options { display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap; }
+        .options label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+        .options select, .options input { padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div><a href="/tools">All Tools</a> | <a href="/merge-pdf">PDF Tools</a> | <a href="/html-to-markdown">HTML to MD</a> | <a href="/pricing">Pro Plans</a></div>
+    </nav>
+    <div class="container">
+        <h1>HTML to PDF Converter</h1>
+        <p class="subtitle">Paste HTML code below and download it as a clean PDF. Supports CSS, images, and tables.</p>
+        <div class="tool-box">
+            <label>HTML Input:</label>
+            <textarea id="input" placeholder="<h1>My Document</h1>
+<p>Paste your HTML here...</p>
+<table>
+  <tr><th>Name</th><th>Value</th></tr>
+  <tr><td>Example</td><td>Data</td></tr>
+</table>"></textarea>
+            <div class="options">
+                <label>Paper: <select id="paperSize">
+                    <option value="a4">A4</option>
+                    <option value="letter">Letter</option>
+                    <option value="legal">Legal</option>
+                </select></label>
+                <label>Orientation: <select id="orientation">
+                    <option value="portrait">Portrait</option>
+                    <option value="landscape">Landscape</option>
+                </select></label>
+                <label>Margin: <input type="text" id="margin" value="10mm" style="width:60px"></label>
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="preview()">Preview</button>
+                <button class="btn btn-secondary" onclick="downloadPDF()">Download PDF</button>
+                <button class="btn btn-copy" onclick="document.getElementById('input').value=''">Clear</button>
+            </div>
+            <div class="preview" id="previewArea"></div>
+        </div>
+
+        <div class="content">
+            <h2>How It Works</h2>
+            <p>This tool renders your HTML in an iframe and uses the browser's built-in print functionality to generate a PDF. All processing happens in your browser, nothing is uploaded to any server.</p>
+            <h2>Tips for Better PDFs</h2>
+            <ul style="margin:12px 0 12px 24px;color:#555">
+                <li>Include CSS in a &lt;style&gt; tag within your HTML</li>
+                <li>Use @media print CSS rules for print-specific styling</li>
+                <li>Use page-break-before/after for multi-page documents</li>
+                <li>Set explicit widths on tables for consistent rendering</li>
+            </ul>
+            <h2>HTML to PDF API</h2>
+            <p>Need to convert HTML to PDF programmatically? Use our API endpoint:</p>
+            <pre style="background:#1e293b;color:#e2e8f0;padding:16px;border-radius:8px;font-size:0.85rem;overflow-x:auto;margin:12px 0">curl -X POST /api/html/to-pdf \
+  -H "Content-Type: application/json" \
+  -d '{"html": "&lt;h1&gt;Hello&lt;/h1&gt;", "paper": "a4"}'</pre>
+            <h2>Related Tools</h2>
+            <p><a href="/merge-pdf" style="color:#6c63ff">Merge PDF</a> | <a href="/compress-pdf" style="color:#6c63ff">Compress PDF</a> | <a href="/html-to-markdown" style="color:#6c63ff">HTML to Markdown</a> | <a href="/markdown-preview" style="color:#6c63ff">Markdown Preview</a></p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+    </footer>
+    <script>
+    function preview() {
+        const html = document.getElementById('input').value;
+        if (!html.trim()) return;
+        const area = document.getElementById('previewArea');
+        area.innerHTML = '<iframe id="previewFrame"></iframe>';
+        const frame = document.getElementById('previewFrame');
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        doc.open();
+        doc.write(html);
+        doc.close();
+    }
+    function downloadPDF() {
+        const html = document.getElementById('input').value;
+        if (!html.trim()) { alert('Please enter some HTML first.'); return; }
+        const win = window.open('', '_blank');
+        win.document.write(`<html><head><style>@page{size:${document.getElementById('paperSize').value} ${document.getElementById('orientation').value};margin:${document.getElementById('margin').value};}body{font-family:system-ui,sans-serif;}</style></head><body>${html}</body></html>`);
+        win.document.close();
+        setTimeout(() => { win.print(); }, 500);
+    }
+    </script>
+</body>
+</html>

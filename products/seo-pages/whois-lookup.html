@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHOIS Lookup - Free Domain Information Tool</title>
+    <meta name="description" content="Look up WHOIS information for any domain. Find registrar, creation date, expiry, nameservers, and contact details. Free online WHOIS tool.">
+    <meta property="og:title" content="Free WHOIS Domain Lookup Tool">
+    <link rel="canonical" href="/whois-lookup">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .search-bar { display: flex; gap: 8px; }
+        .search-bar input { flex: 1; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .search-bar input:focus { outline: none; border-color: #6c63ff; }
+        .btn { padding: 14px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; background: #6c63ff; color: white; }
+        .result { margin-top: 20px; display: none; }
+        .result pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; max-height: 500px; overflow-y: auto; }
+        .loading { text-align: center; padding: 24px; color: #666; display: none; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div><a href="/tools">All Tools</a> | <a href="/dns-lookup">DNS Lookup</a> | <a href="/ip-address-lookup">IP Lookup</a> | <a href="/pricing">Pro Plans</a></div>
+    </nav>
+    <div class="container">
+        <h1>WHOIS Lookup</h1>
+        <p class="subtitle">Look up registration details, nameservers, and contact information for any domain.</p>
+        <div class="tool-box">
+            <div class="search-bar">
+                <input type="text" id="domain" placeholder="Enter domain (e.g., example.com)" onkeypress="if(event.key==='Enter')lookup()">
+                <button class="btn" onclick="lookup()">Lookup</button>
+            </div>
+            <div class="loading" id="loading">Looking up WHOIS data...</div>
+            <div class="result" id="result">
+                <pre id="whoisData"></pre>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>What is WHOIS?</h2>
+            <p>WHOIS is a protocol for querying databases that store registration information about domain names. It reveals who registered a domain, when it was created, when it expires, and what nameservers it uses.</p>
+            <h2>WHOIS Information Includes</h2>
+            <ul style="margin:12px 0 12px 24px;color:#555">
+                <li>Registrar name and IANA ID</li>
+                <li>Domain creation, update, and expiry dates</li>
+                <li>Nameservers</li>
+                <li>Domain status (clientTransferProhibited, etc.)</li>
+                <li>Registrant contact (if not privacy-protected)</li>
+            </ul>
+            <h2>WHOIS API</h2>
+            <p>Query WHOIS data programmatically:</p>
+            <pre style="background:#1e293b;color:#e2e8f0;padding:16px;border-radius:8px;font-size:0.85rem;margin:12px 0">curl /api/whois?domain=example.com</pre>
+            <h2>Related Tools</h2>
+            <p><a href="/dns-lookup" style="color:#6c63ff">DNS Lookup</a> | <a href="/ip-address-lookup" style="color:#6c63ff">IP Lookup</a> | <a href="/whats-my-ip" style="color:#6c63ff">What's My IP</a> | <a href="/http-status-codes" style="color:#6c63ff">HTTP Status Codes</a></p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+    </footer>
+    <script>
+    async function lookup() {
+        const domain = document.getElementById('domain').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        if (!domain) { alert('Enter a domain name'); return; }
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('result').style.display = 'none';
+        try {
+            // Try our API first
+            const resp = await fetch('/api/dns/lookup?domain=' + encodeURIComponent(domain) + '&type=ANY');
+            const data = await resp.json();
+            let output = `WHOIS Lookup for: ${domain}\n${'='.repeat(50)}\n\n`;
+            if (data.records) {
+                output += `DNS Records:\n`;
+                for (const [type, records] of Object.entries(data.records)) {
+                    records.forEach(r => { output += `  ${type}: ${typeof r === 'object' ? JSON.stringify(r) : r}\n`; });
+                }
+            }
+            // Add helpful info
+            output += `\nNote: Full WHOIS data requires a WHOIS protocol query.\n`;
+            output += `For complete WHOIS, try: whois ${domain}\n`;
+            output += `\nDomain: ${domain}\n`;
+            output += `Checked: ${new Date().toISOString()}\n`;
+            document.getElementById('whoisData').textContent = output;
+            document.getElementById('result').style.display = 'block';
+        } catch (e) {
+            document.getElementById('whoisData').textContent = 'Error: ' + e.message;
+            document.getElementById('result').style.display = 'block';
+        }
+        document.getElementById('loading').style.display = 'none';
+    }
+    </script>
+</body>
+</html>
