@@ -2804,6 +2804,256 @@ async def markdown_table(req: MarkdownTableRequest):
     return {"table": table, "rows": len(req.rows), "columns": len(req.headers)}
 
 
+# --- Additional Developer Utilities ---
+
+
+@app.post("/api/validate/email")
+async def validate_email(request: Request):
+    """Validate email address format and check domain MX records."""
+    data = await request.json()
+    email = data.get("email", "").strip()
+    if not email:
+        raise HTTPException(400, "Email is required")
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    is_valid = bool(re.match(pattern, email))
+    result = {"email": email, "valid_format": is_valid}
+    if is_valid:
+        domain = email.split("@")[1]
+        import dns.resolver
+        try:
+            mx_records = dns.resolver.resolve(domain, 'MX')
+            result["has_mx"] = True
+            result["mx_records"] = [str(r.exchange).rstrip('.') for r in mx_records]
+        except Exception:
+            result["has_mx"] = False
+            result["mx_records"] = []
+        disposable_domains = {"tempmail.com", "throwaway.email", "guerrillamail.com", "mailinator.com", "10minutemail.com", "yopmail.com", "dispostable.com", "trashmail.com"}
+        result["disposable"] = domain.lower() in disposable_domains
+    return result
+
+
+@app.post("/api/validate/ip")
+async def validate_ip(request: Request):
+    """Validate and classify an IP address (IPv4/IPv6, private/public, etc.)."""
+    data = await request.json()
+    ip_str = data.get("ip", "").strip()
+    if not ip_str:
+        raise HTTPException(400, "IP address is required")
+    import ipaddress
+    try:
+        ip = ipaddress.ip_address(ip_str)
+        return {
+            "ip": ip_str,
+            "valid": True,
+            "version": ip.version,
+            "is_private": ip.is_private,
+            "is_loopback": ip.is_loopback,
+            "is_multicast": ip.is_multicast,
+            "is_reserved": ip.is_reserved,
+            "is_link_local": ip.is_link_local,
+            "is_global": ip.is_global,
+            "compressed": str(ip),
+        }
+    except ValueError:
+        try:
+            net = ipaddress.ip_network(ip_str, strict=False)
+            return {
+                "input": ip_str,
+                "valid": True,
+                "is_network": True,
+                "version": net.version,
+                "network_address": str(net.network_address),
+                "broadcast_address": str(net.broadcast_address),
+                "num_addresses": net.num_addresses,
+                "prefixlen": net.prefixlen,
+            }
+        except ValueError:
+            return {"ip": ip_str, "valid": False}
+
+
+@app.get("/api/useragent/parse")
+async def parse_useragent(ua: str = "", request: Request = None):
+    """Parse a User-Agent string to extract browser, OS, and device info."""
+    if not ua and request:
+        ua = request.headers.get("user-agent", "")
+    if not ua:
+        raise HTTPException(400, "User-Agent string required (pass as 'ua' query param)")
+    result = {"raw": ua}
+    ua_lower = ua.lower()
+    # Browser detection
+    browsers = [
+        ("Edg/", "Microsoft Edge"), ("OPR/", "Opera"), ("Vivaldi/", "Vivaldi"),
+        ("Chrome/", "Chrome"), ("Firefox/", "Firefox"), ("Safari/", "Safari"),
+        ("MSIE", "Internet Explorer"), ("Trident/", "Internet Explorer"),
+    ]
+    result["browser"] = "Unknown"
+    for sig, name in browsers:
+        if sig.lower() in ua_lower:
+            result["browser"] = name
+            break
+    # OS detection
+    os_sigs = [
+        ("Windows NT 10", "Windows 10/11"), ("Windows NT 6.3", "Windows 8.1"),
+        ("Windows NT 6.1", "Windows 7"), ("Mac OS X", "macOS"),
+        ("Android", "Android"), ("iPhone", "iOS"), ("iPad", "iPadOS"),
+        ("Linux", "Linux"), ("CrOS", "ChromeOS"),
+    ]
+    result["os"] = "Unknown"
+    for sig, name in os_sigs:
+        if sig.lower() in ua_lower:
+            result["os"] = name
+            break
+    result["is_mobile"] = any(m in ua_lower for m in ["mobile", "android", "iphone", "ipad"])
+    result["is_bot"] = any(b in ua_lower for b in ["bot", "crawl", "spider", "scraper", "curl", "wget", "python-requests"])
+    return result
+
+
+@app.post("/api/diff/json")
+async def json_diff(request: Request):
+    """Compare two JSON objects and return the differences."""
+    data = await request.json()
+    json1_str = data.get("json1", "")
+    json2_str = data.get("json2", "")
+    if not json1_str or not json2_str:
+        raise HTTPException(400, "Both json1 and json2 are required")
+    try:
+        obj1 = json.loads(json1_str) if isinstance(json1_str, str) else json1_str
+        obj2 = json.loads(json2_str) if isinstance(json2_str, str) else json2_str
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON: {e}")
+
+    def diff_objects(a, b, path=""):
+        changes = []
+        if isinstance(a, dict) and isinstance(b, dict):
+            for key in set(list(a.keys()) + list(b.keys())):
+                p = f"{path}.{key}" if path else key
+                if key not in a:
+                    changes.append({"path": p, "type": "added", "value": b[key]})
+                elif key not in b:
+                    changes.append({"path": p, "type": "removed", "value": a[key]})
+                else:
+                    changes.extend(diff_objects(a[key], b[key], p))
+        elif isinstance(a, list) and isinstance(b, list):
+            for i in range(max(len(a), len(b))):
+                p = f"{path}[{i}]"
+                if i >= len(a):
+                    changes.append({"path": p, "type": "added", "value": b[i]})
+                elif i >= len(b):
+                    changes.append({"path": p, "type": "removed", "value": a[i]})
+                else:
+                    changes.extend(diff_objects(a[i], b[i], p))
+        elif a != b:
+            changes.append({"path": path or "(root)", "type": "changed", "old": a, "new": b})
+        return changes
+
+    changes = diff_objects(obj1, obj2)
+    return {"total_changes": len(changes), "identical": len(changes) == 0, "changes": changes}
+
+
+@app.post("/api/convert/csv-to-json")
+async def csv_to_json(request: Request):
+    """Convert CSV text to JSON array."""
+    data = await request.json()
+    csv_text = data.get("csv", "")
+    if not csv_text:
+        raise HTTPException(400, "CSV text is required")
+    import csv as csv_module
+    import io as io_module
+    reader = csv_module.DictReader(io_module.StringIO(csv_text))
+    rows = [row for row in reader]
+    return {"rows": len(rows), "columns": list(rows[0].keys()) if rows else [], "data": rows}
+
+
+@app.post("/api/convert/yaml-to-json")
+async def yaml_to_json(request: Request):
+    """Convert YAML text to JSON."""
+    data = await request.json()
+    yaml_text = data.get("yaml", "")
+    if not yaml_text:
+        raise HTTPException(400, "YAML text is required")
+    try:
+        import yaml
+        parsed = yaml.safe_load(yaml_text)
+        return {"json": json.dumps(parsed, indent=2), "valid": True}
+    except Exception as e:
+        return {"valid": False, "error": str(e)}
+
+
+@app.post("/api/text/count")
+async def text_count(request: Request):
+    """Count specific patterns in text (words, characters, lines, sentences, paragraphs)."""
+    data = await request.json()
+    text = data.get("text", "")
+    if not text:
+        raise HTTPException(400, "Text is required")
+    words = text.split()
+    lines = text.split("\n")
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    return {
+        "characters": len(text),
+        "characters_no_spaces": len(text.replace(" ", "").replace("\n", "")),
+        "words": len(words),
+        "unique_words": len(set(w.lower() for w in words)),
+        "lines": len(lines),
+        "sentences": len(sentences),
+        "paragraphs": len(paragraphs),
+        "avg_word_length": round(sum(len(w) for w in words) / max(len(words), 1), 1),
+        "reading_time_minutes": round(len(words) / 238, 1),
+        "speaking_time_minutes": round(len(words) / 150, 1),
+    }
+
+
+@app.post("/api/number/convert")
+async def number_convert(request: Request):
+    """Convert numbers between decimal, binary, octal, hex, and roman numerals."""
+    data = await request.json()
+    value = data.get("value", "")
+    from_base = data.get("from", "decimal")
+    if not value:
+        raise HTTPException(400, "Value is required")
+    try:
+        if from_base == "binary":
+            num = int(str(value), 2)
+        elif from_base == "octal":
+            num = int(str(value), 8)
+        elif from_base == "hex":
+            num = int(str(value), 16)
+        elif from_base == "roman":
+            roman_vals = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+            num = 0
+            s = str(value).upper()
+            for i, c in enumerate(s):
+                if i + 1 < len(s) and roman_vals.get(c, 0) < roman_vals.get(s[i + 1], 0):
+                    num -= roman_vals.get(c, 0)
+                else:
+                    num += roman_vals.get(c, 0)
+        else:
+            num = int(float(str(value)))
+
+        # To roman
+        roman = ""
+        if 0 < num < 4000:
+            vals = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
+                    (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+            n = num
+            for v, s in vals:
+                while n >= v:
+                    roman += s
+                    n -= v
+
+        return {
+            "decimal": num,
+            "binary": bin(num),
+            "octal": oct(num),
+            "hex": hex(num),
+            "roman": roman or "N/A (out of range 1-3999)",
+        }
+    except (ValueError, TypeError) as e:
+        raise HTTPException(400, f"Invalid number: {e}")
+
+
 # --- Analytics Endpoints ---
 
 class TrackRequest(BaseModel):
@@ -3541,11 +3791,20 @@ async def api_info():
     }
 
 
+# --- APIs.json for API discovery ---
+
+@app.get("/apis.json")
+async def apis_json():
+    apis_file = Path(__file__).parent / "apis.json"
+    if apis_file.exists():
+        return JSONResponse(json.loads(apis_file.read_text()))
+    return JSONResponse({"error": "not found"}, status_code=404)
+
+
 # --- SEO Pages (catch-all for static content pages) ---
 
 @app.get("/{page_name}", response_class=HTMLResponse)
 async def seo_page_handler(page_name: str):
-    # Only serve known SEO pages to avoid catching API routes
     page_file = SEO_PAGES_DIR / f"{page_name}.html"
     if page_file.exists():
         return HTMLResponse(inject_snippet(page_file.read_text()))

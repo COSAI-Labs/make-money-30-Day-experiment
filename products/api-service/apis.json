@@ -1,0 +1,43 @@
+{
+  "name": "ToolPipe",
+  "description": "50+ free developer tools and 80+ REST API endpoints. JSON formatter, QR codes, UUID generator, hash functions, DNS lookup, PDF tools, regex tester, JWT decoder, crypto prices, and more.",
+  "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com",
+  "created": "2026-04-01",
+  "modified": "2026-04-01",
+  "specificationVersion": "0.18",
+  "apis": [
+    {
+      "name": "ToolPipe Developer API",
+      "description": "80+ REST API endpoints for developer utilities including QR code generation, JSON formatting, UUID generation, hashing, DNS lookup, text analysis, and more.",
+      "humanURL": "https://assessing-scoop-authorities-sheet.trycloudflare.com/docs",
+      "baseURL": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api",
+      "tags": ["developer-tools", "api", "json", "qr-code", "uuid", "hash", "dns", "pdf", "regex", "jwt"],
+      "properties": [
+        {
+          "type": "Documentation",
+          "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/docs"
+        },
+        {
+          "type": "OpenAPI",
+          "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/openapi.json"
+        },
+        {
+          "type": "Pricing",
+          "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/pricing"
+        }
+      ],
+      "contact": [
+        {
+          "FN": "ToolPipe",
+          "email": "toolpipe-ads@sharebot.net"
+        }
+      ]
+    }
+  ],
+  "maintainers": [
+    {
+      "FN": "COSAI Labs",
+      "email": "toolpipe-ads@sharebot.net"
+    }
+  ]
+}
