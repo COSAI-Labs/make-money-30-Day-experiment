@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diff Checker - Free Online Text Comparison Tool</title>
+    <meta name="description" content="Compare two texts online and find differences instantly. Free diff checker with line-by-line comparison, word-level highlighting, and side-by-side view. No signup required.">
+    <link rel="canonical" href="/diff-checker">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Diff Checker","description":"Free online text comparison and diff tool","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        textarea { width: 100%; min-height: 250px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-secondary { background: #eee; color: #333; }
+        .diff-result { margin-top: 16px; font-family: monospace; font-size: 0.85rem; }
+        .diff-line { padding: 4px 12px; border-bottom: 1px solid #f0f0f0; }
+        .diff-line.added { background: #d4edda; color: #155724; }
+        .diff-line.removed { background: #f8d7da; color: #721c24; }
+        .diff-line.unchanged { background: #fff; color: #666; }
+        .stats { display: flex; gap: 16px; margin: 12px 0; font-size: 0.85rem; }
+        .stat { background: #f0f0ff; padding: 6px 14px; border-radius: 6px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>Diff Checker</h1>
+    <p class="subtitle">Compare two texts and find every difference. Line-by-line comparison with color highlighting.</p>
+
+    <div class="tool-box">
+        <div class="panels">
+            <div><label><strong>Original Text</strong></label><textarea id="text1" placeholder="Paste original text here..."></textarea></div>
+            <div><label><strong>Modified Text</strong></label><textarea id="text2" placeholder="Paste modified text here..."></textarea></div>
+        </div>
+
+        <div class="btns">
+            <button class="btn btn-primary" onclick="compare()">Find Differences</button>
+            <button class="btn btn-secondary" onclick="swap()">Swap</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="stats" id="stats" style="display:none">
+            <div class="stat">Added: <strong id="added-count">0</strong> lines</div>
+            <div class="stat">Removed: <strong id="removed-count">0</strong> lines</div>
+            <div class="stat">Unchanged: <strong id="unchanged-count">0</strong> lines</div>
+        </div>
+
+        <div class="diff-result" id="diff-result"></div>
+    </div>
+
+    <div class="content">
+        <h2>About This Tool</h2>
+        <p>This diff checker compares two texts line by line and highlights additions (green), removals (red), and unchanged lines (white). It uses a simple line-based comparison algorithm.</p>
+
+        <h2>Use Cases</h2>
+        <p>Compare code changes, configuration file differences, document revisions, API response changes, or any two text blocks to find what changed.</p>
+
+        <h2>Related Tools</h2>
+        <p><a href="/text-diff">Text Diff</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/api-keys">Free API Key</a></p>
+    </div>
+</div>
+
+<footer><a href="/">ToolPipe</a> | <a href="/text-diff">Text Diff</a> | <a href="/json-formatter">JSON</a> | <a href="/api-keys">API</a></footer>
+
+<script>
+function compare() {
+    const lines1 = document.getElementById('text1').value.split('\n');
+    const lines2 = document.getElementById('text2').value.split('\n');
+    const result = document.getElementById('diff-result');
+
+    // Simple LCS-based diff
+    const lcs = computeLCS(lines1, lines2);
+    let html = '';
+    let added = 0, removed = 0, unchanged = 0;
+
+    let i = 0, j = 0, k = 0;
+    while (i < lines1.length || j < lines2.length) {
+        if (k < lcs.length && i < lines1.length && j < lines2.length && lines1[i] === lcs[k] && lines2[j] === lcs[k]) {
+            html += `<div class="diff-line unchanged">&nbsp; ${esc(lines1[i])}</div>`;
+            i++; j++; k++; unchanged++;
+        } else if (j < lines2.length && (k >= lcs.length || lines2[j] !== lcs[k])) {
+            html += `<div class="diff-line added">+ ${esc(lines2[j])}</div>`;
+            j++; added++;
+        } else if (i < lines1.length && (k >= lcs.length || lines1[i] !== lcs[k])) {
+            html += `<div class="diff-line removed">- ${esc(lines1[i])}</div>`;
+            i++; removed++;
+        } else { break; }
+    }
+
+    result.innerHTML = html || '<div class="diff-line unchanged">No differences found.</div>';
+    document.getElementById('added-count').textContent = added;
+    document.getElementById('removed-count').textContent = removed;
+    document.getElementById('unchanged-count').textContent = unchanged;
+    document.getElementById('stats').style.display = 'flex';
+}
+
+function computeLCS(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length: m+1}, () => Array(n+1).fill(0));
+    for (let i = 1; i <= m; i++)
+        for (let j = 1; j <= n; j++)
+            dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+
+    const result = [];
+    let i = m, j = n;
+    while (i > 0 && j > 0) {
+        if (a[i-1] === b[j-1]) { result.unshift(a[i-1]); i--; j--; }
+        else if (dp[i-1][j] > dp[i][j-1]) i--;
+        else j--;
+    }
+    return result;
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function swap() { const t = document.getElementById('text1').value; document.getElementById('text1').value = document.getElementById('text2').value; document.getElementById('text2').value = t; }
+function clearAll() { document.getElementById('text1').value = ''; document.getElementById('text2').value = ''; document.getElementById('diff-result').innerHTML = ''; document.getElementById('stats').style.display = 'none'; }
+</script>
+</body>
+</html>
