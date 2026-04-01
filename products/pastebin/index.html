@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PasteBin - Share Code Snippets Online Free | ToolPipe</title>
+    <meta name="description" content="Free online pastebin. Share code snippets with syntax highlighting. No signup, auto-expire options. Fast and private.">
+    <meta name="keywords" content="pastebin, code sharing, paste code online, snippet sharing, pastebin alternative">
+    <link rel="canonical" href="/paste">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 2rem; text-align: center; }
+        .header h1 { font-size: 2rem; color: #fff; margin-bottom: 0.3rem; }
+        .header p { color: #94a3b8; font-size: 0.95rem; }
+        .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+        .editor-section { margin-bottom: 1.5rem; }
+        textarea { width: 100%; height: 350px; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 1rem; border-radius: 8px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 0.9rem; resize: vertical; tab-size: 4; }
+        textarea:focus { outline: none; border-color: #3b82f6; }
+        .options { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin: 1rem 0; }
+        .options label { color: #94a3b8; font-size: 0.85rem; }
+        .options select, .options input { background: #1a1a1a; color: #e0e0e0; border: 1px solid #2a2a2a; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.7rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #2563eb; }
+        .btn-secondary { background: #374151; }
+        .result-box { background: #1a2e1a; border: 1px solid #22c55e; border-radius: 10px; padding: 1.25rem; margin: 1.5rem 0; display: none; }
+        .result-box.active { display: block; }
+        .result-box a { color: #22c55e; font-weight: 600; word-break: break-all; }
+        .btn-copy { background: #374151; padding: 0.4rem 1rem; border-radius: 6px; color: #e0e0e0; border: none; cursor: pointer; font-size: 0.85rem; margin-left: 1rem; }
+        .paste-view { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+        .paste-view pre { white-space: pre-wrap; word-break: break-all; font-size: 0.9rem; line-height: 1.5; }
+        .paste-meta { color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PasteBin</h1>
+        <p>Share code and text snippets instantly. No signup required.</p>
+    </div>
+
+    <div class="container" id="createView">
+        <div class="editor-section">
+            <textarea id="content" placeholder="Paste your code or text here..."></textarea>
+        </div>
+        <div class="options">
+            <label>Title: <input type="text" id="title" placeholder="Optional title" style="width:200px;"></label>
+            <label>Language:
+                <select id="language">
+                    <option value="text">Plain Text</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="json">JSON</option>
+                    <option value="bash">Bash</option>
+                    <option value="sql">SQL</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="swift">Swift</option>
+                    <option value="yaml">YAML</option>
+                    <option value="xml">XML</option>
+                    <option value="markdown">Markdown</option>
+                </select>
+            </label>
+            <label>Expires:
+                <select id="expiry">
+                    <option value="never">Never</option>
+                    <option value="1h">1 Hour</option>
+                    <option value="24h" selected>24 Hours</option>
+                    <option value="7d">7 Days</option>
+                    <option value="30d">30 Days</option>
+                </select>
+            </label>
+        </div>
+        <button class="btn" onclick="createPaste()">Create Paste</button>
+
+        <div class="result-box" id="resultBox">
+            <span>Paste created: </span>
+            <a id="pasteUrl" href="#" target="_blank"></a>
+            <button class="btn-copy" onclick="copyUrl()">Copy Link</button>
+        </div>
+    </div>
+
+    <div class="container" id="viewSection" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <div>
+                <h2 id="pasteTitle" style="color:#fff;font-size:1.3rem;"></h2>
+                <div class="paste-meta" id="pasteMeta"></div>
+            </div>
+            <div>
+                <button class="btn-copy" onclick="copyContent()">Copy</button>
+                <button class="btn-copy" onclick="downloadContent()">Download</button>
+                <a href="/paste" class="btn-copy" style="text-decoration:none;display:inline-block;">New Paste</a>
+            </div>
+        </div>
+        <div class="paste-view">
+            <pre id="pasteContent"></pre>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/pdf">PDF Tools</a> | <a href="/docs">API Docs</a></p>
+    </footer>
+
+    <script>
+    let currentPaste = null;
+
+    async function createPaste() {
+        const content = document.getElementById('content').value;
+        if (!content.trim()) { alert('Please enter some content.'); return; }
+
+        const body = {
+            content,
+            title: document.getElementById('title').value || undefined,
+            language: document.getElementById('language').value,
+            expiry: document.getElementById('expiry').value,
+        };
+
+        const resp = await fetch('/paste/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        const data = await resp.json();
+        if (!resp.ok) { alert(data.detail || 'Error'); return; }
+
+        const url = window.location.origin + '/paste/' + data.id;
+        document.getElementById('pasteUrl').href = url;
+        document.getElementById('pasteUrl').textContent = url;
+        document.getElementById('resultBox').classList.add('active');
+    }
+
+    function copyUrl() {
+        navigator.clipboard.writeText(document.getElementById('pasteUrl').textContent);
+    }
+
+    function copyContent() {
+        if (currentPaste) navigator.clipboard.writeText(currentPaste.content);
+    }
+
+    function downloadContent() {
+        if (!currentPaste) return;
+        const blob = new Blob([currentPaste.content], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (currentPaste.title || 'paste') + '.txt';
+        a.click();
+    }
+
+    // Check if viewing a paste
+    async function checkViewMode() {
+        const path = window.location.pathname;
+        const match = path.match(/^\/paste\/([a-zA-Z0-9]+)$/);
+        if (match) {
+            const resp = await fetch('/paste/' + match[1] + '/raw');
+            if (resp.ok) {
+                currentPaste = await resp.json();
+                document.getElementById('createView').style.display = 'none';
+                document.getElementById('viewSection').style.display = 'block';
+                document.getElementById('pasteTitle').textContent = currentPaste.title || 'Untitled Paste';
+                document.getElementById('pasteMeta').textContent =
+                    currentPaste.language + ' | ' + currentPaste.created_at + ' | ' + currentPaste.views + ' views';
+                document.getElementById('pasteContent').textContent = currentPaste.content;
+            }
+        }
+    }
+    checkViewMode();
+    </script>
+</body>
+</html>

@@ -82,6 +82,7 @@ MONITOR_HTML = Path(__file__).parent.parent / "uptime-monitor" / "index.html"
 PDF_HTML = Path(__file__).parent.parent / "pdf-tools" / "index.html"
 WEBHOOK_HTML = Path(__file__).parent.parent / "webhook-tester" / "index.html"
 SHORTENER_HTML = Path(__file__).parent.parent / "url-shortener" / "index.html"
+PASTE_HTML = Path(__file__).parent.parent / "pastebin" / "index.html"
 SEO_PAGES_DIR = Path(__file__).parent.parent / "seo-pages"
 
 # Import external modules
@@ -788,7 +789,7 @@ async def analyze_seo(url: str = Query(...)):
 async def sitemap():
     base = "http://187.77.213.192:8081"
     urls = [
-        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/docs",
+        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/docs",
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
         "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
     ]
@@ -1218,6 +1219,75 @@ async def redirect_short_url(short_code: str, request: Request):
         referer=request.headers.get("referer", ""),
     )
     return RedirectResponse(url=url_data["long_url"], status_code=302)
+
+
+# --- PasteBin ---
+
+paste_store: dict[str, dict] = {}
+PASTE_EXPIRY_MAP = {"1h": 3600, "24h": 86400, "7d": 604800, "30d": 2592000, "never": 0}
+PASTE_MAX_SIZE = 500000  # 500KB
+
+
+def _clean_expired_pastes():
+    now = time.time()
+    expired = [k for k, v in paste_store.items() if v["expiry_time"] and now > v["expiry_time"]]
+    for k in expired:
+        del paste_store[k]
+
+
+@app.get("/paste", response_class=HTMLResponse)
+async def paste_page():
+    if PASTE_HTML.exists():
+        return HTMLResponse(PASTE_HTML.read_text())
+    return HTMLResponse("<h1>PasteBin coming soon</h1>")
+
+
+class PasteRequest(BaseModel):
+    content: str
+    title: Optional[str] = None
+    language: str = "text"
+    expiry: str = "24h"
+
+
+@app.post("/paste/create")
+async def create_paste(req: PasteRequest):
+    _clean_expired_pastes()
+    if len(req.content) > PASTE_MAX_SIZE:
+        raise HTTPException(status_code=400, detail="Content too large. Max 500KB.")
+    if len(paste_store) > 10000:
+        raise HTTPException(status_code=503, detail="Service at capacity. Try again later.")
+
+    paste_id = uuid.uuid4().hex[:8]
+    expiry_seconds = PASTE_EXPIRY_MAP.get(req.expiry, 86400)
+    expiry_time = time.time() + expiry_seconds if expiry_seconds > 0 else None
+
+    paste_store[paste_id] = {
+        "content": req.content,
+        "title": req.title or "",
+        "language": req.language,
+        "created_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "expiry": req.expiry,
+        "expiry_time": expiry_time,
+        "views": 0,
+    }
+    return {"id": paste_id}
+
+
+@app.get("/paste/{paste_id}/raw")
+async def get_paste_raw(paste_id: str):
+    _clean_expired_pastes()
+    paste = paste_store.get(paste_id)
+    if not paste:
+        raise HTTPException(status_code=404, detail="Paste not found or expired.")
+    paste["views"] += 1
+    return paste
+
+
+@app.get("/paste/{paste_id}", response_class=HTMLResponse)
+async def view_paste(paste_id: str):
+    if PASTE_HTML.exists():
+        return HTMLResponse(PASTE_HTML.read_text())
+    raise HTTPException(status_code=404, detail="Paste not found.")
 
 
 # --- SEO Pages (catch-all for static content pages) ---
