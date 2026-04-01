@@ -46,6 +46,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# x402 crypto payments (USDC on Base)
+try:
+    from fastapi_x402 import init_x402, pay
+    WALLET_ADDRESS = "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6"
+    init_x402(
+        app=app,
+        pay_to=WALLET_ADDRESS,
+        network="base-sepolia",
+        default_asset="USDC",
+        default_expires_in=300,
+        auto_add_middleware=True,
+    )
+    X402_ENABLED = True
+    print(f"x402 payments enabled. Pay to: {WALLET_ADDRESS}")
+except Exception as e:
+    X402_ENABLED = False
+    print(f"x402 not available: {e}. All endpoints free.")
+
 # Rate limiting (simple in-memory)
 rate_limits: dict[str, list[float]] = {}
 RATE_LIMIT = 100  # requests per minute
@@ -966,6 +984,7 @@ async def seo_page():
 
 
 @app.get("/seo/analyze")
+@pay("$0.001") if X402_ENABLED else lambda f: f
 async def analyze_seo(url: str = Query(...)):
     parsed = urlparse(url)
     if not parsed.scheme:
