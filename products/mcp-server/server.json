@@ -11,7 +11,7 @@
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "toolpipe-mcp-server",
+      "identifier": "@cosai-labs/toolpipe-mcp-server",
       "version": "1.2.0",
       "transport": {
         "type": "stdio"
