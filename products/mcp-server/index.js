@@ -3,7 +3,7 @@
 /**
  * ToolPipe MCP Server
  *
- * Exposes 89 developer utility tools via Model Context Protocol.
+ * Exposes 97+ developer utility tools via Model Context Protocol.
  * AI agents can discover and use these tools for JSON formatting,
  * QR code generation, hashing, UUID generation, DNS lookup, and more.
  *
@@ -52,10 +52,10 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.9.1" },
+  { name: "toolpipe", version: "1.10.0" },
   {
     capabilities: { tools: {} },
-    instructions: "ToolPipe provides 130+ developer utility APIs as 88 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats/readability, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
+    instructions: "ToolPipe provides 180+ developer utility APIs as 97 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, placeholder images, favicon extraction, sitemap generation, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
   }
 );
 
@@ -1490,6 +1490,169 @@ server.tool(
   {},
   async () => {
     const result = await apiCall("/api/stats");
+    return textResult(result);
+  }
+);
+
+// --- Placeholder Image ---
+
+server.tool(
+  "placeholder_image",
+  "Generate a placeholder image URL. Returns a URL you can use in HTML/Markdown. Supports custom size, colors, and text.",
+  {
+    width: z.number().describe("Image width in pixels (1-4000)"),
+    height: z.number().optional().describe("Image height in pixels (defaults to width)"),
+    bg: z.string().optional().describe("Background color hex (default: cccccc)"),
+    fg: z.string().optional().describe("Text color hex (default: 333333)"),
+    text: z.string().optional().describe("Custom text on the image"),
+  },
+  async ({ width, height, bg, fg, text }) => {
+    const h = height ?? width;
+    const params = new URLSearchParams();
+    if (bg) params.set("bg", bg);
+    if (fg) params.set("fg", fg);
+    if (text) params.set("text", text);
+    const qs = params.toString() ? "?" + params.toString() : "";
+    const url = `${BASE_URL}/api/placeholder/${width}x${h}${qs}`;
+    return textResult({ url, width, height: h, usage: `<img src="${url}" alt="placeholder">` });
+  }
+);
+
+// --- Favicon Extractor ---
+
+server.tool(
+  "favicon_extract",
+  "Extract favicon URL(s) from any website. Returns all found favicons and a Google proxy fallback.",
+  {
+    url: z.string().describe("Website URL to extract favicon from (e.g. github.com)"),
+  },
+  async ({ url }) => {
+    const result = await apiCall(`/api/favicon?url=${encodeURIComponent(url)}`);
+    return textResult(result);
+  }
+);
+
+// --- Sitemap Generator ---
+
+server.tool(
+  "sitemap_generate",
+  "Generate an XML sitemap from a list of URLs. Returns valid sitemap XML.",
+  {
+    base_url: z.string().describe("Base URL of the website (e.g. https://example.com)"),
+    urls: z.array(z.string()).describe("Array of URL paths (e.g. ['/', '/about', '/pricing'])"),
+    changefreq: z.string().optional().describe("Change frequency: always, hourly, daily, weekly, monthly, yearly, never"),
+  },
+  async ({ base_url, urls, changefreq }) => {
+    const result = await apiCall("/api/sitemap/generate", {
+      method: "POST",
+      body: JSON.stringify({ base_url, urls, changefreq: changefreq ?? "weekly" }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- README Generator ---
+
+server.tool(
+  "readme_generate",
+  "Generate a README.md file from project metadata. Returns formatted Markdown.",
+  {
+    name: z.string().describe("Project name"),
+    description: z.string().optional().describe("Project description"),
+    features: z.array(z.string()).optional().describe("List of features"),
+    install: z.string().optional().describe("Installation command"),
+    usage: z.string().optional().describe("Usage example"),
+    license: z.string().optional().describe("License name (default: MIT)"),
+    tech_stack: z.array(z.string()).optional().describe("Technologies used"),
+  },
+  async ({ name, description, features, install, usage, license, tech_stack }) => {
+    const result = await apiCall("/api/readme/generate", {
+      method: "POST",
+      body: JSON.stringify({ name, description, features, install, usage, license, tech_stack }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- CSS Gradient Generator ---
+
+server.tool(
+  "css_gradient",
+  "Generate CSS gradient code from colors. Returns CSS property and preview SVG.",
+  {
+    colors: z.string().describe("Comma-separated hex colors (e.g. 'ff0000,00ff00,0000ff')"),
+    direction: z.string().optional().describe("Gradient direction (e.g. '135deg', 'to right')"),
+    type: z.string().optional().describe("Gradient type: linear or radial"),
+  },
+  async ({ colors, direction, type }) => {
+    const params = new URLSearchParams({ colors });
+    if (direction) params.set("direction", direction);
+    if (type) params.set("type", type);
+    const result = await apiCall(`/api/gradient?${params.toString()}`);
+    return textResult(result);
+  }
+);
+
+// --- Meta Tags Generator ---
+
+server.tool(
+  "metatags_generate",
+  "Generate Open Graph and Twitter Card meta tags for a webpage.",
+  {
+    title: z.string().describe("Page title"),
+    description: z.string().optional().describe("Page description"),
+    url: z.string().optional().describe("Page URL"),
+    image: z.string().optional().describe("OG image URL"),
+    site_name: z.string().optional().describe("Site name"),
+    twitter_handle: z.string().optional().describe("Twitter handle (e.g. @example)"),
+  },
+  async ({ title, description, url, image, site_name, twitter_handle }) => {
+    const result = await apiCall("/api/metatags/generate", {
+      method: "POST",
+      body: JSON.stringify({ title, description, url, image, site_name, twitter_handle }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Robots.txt Generator ---
+
+server.tool(
+  "robots_generate",
+  "Generate a robots.txt file from rules.",
+  {
+    rules: z.array(z.object({
+      user_agent: z.string().describe("User agent (e.g. '*', 'Googlebot')"),
+      allow: z.array(z.string()).optional().describe("Allowed paths"),
+      disallow: z.array(z.string()).optional().describe("Disallowed paths"),
+    })).optional().describe("Robots rules"),
+    sitemap: z.string().optional().describe("Sitemap URL"),
+  },
+  async ({ rules, sitemap }) => {
+    const result = await apiCall("/api/robots/generate", {
+      method: "POST",
+      body: JSON.stringify({ rules, sitemap }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Htaccess Generator ---
+
+server.tool(
+  "htaccess_generate",
+  "Generate Apache .htaccess rules for redirects, HTTPS, caching, and more.",
+  {
+    force_https: z.boolean().optional().describe("Force HTTPS redirect (default: true)"),
+    www_redirect: z.string().optional().describe("WWW redirect: to_www, to_non_www, or none"),
+    gzip: z.boolean().optional().describe("Enable gzip compression (default: true)"),
+    cache_static: z.boolean().optional().describe("Cache static files (default: true)"),
+  },
+  async ({ force_https, www_redirect, gzip, cache_static }) => {
+    const result = await apiCall("/api/htaccess/generate", {
+      method: "POST",
+      body: JSON.stringify({ force_https, www_redirect, gzip, cache_static }),
+    });
     return textResult(result);
   }
 );

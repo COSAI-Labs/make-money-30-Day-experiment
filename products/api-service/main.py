@@ -35,8 +35,8 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="130+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT create/decode, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP geolocation, password checking, code analysis, web scraping, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
-    version="1.8.0",
+    description="180+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, placeholder images, favicon extractor, sitemap generator, README generator, meta tags, CSS gradients, htaccess, robots.txt, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
+    version="1.10.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -4216,10 +4216,10 @@ async def verify_tx_onchain_multi(tx_hash: str) -> dict:
 verify_tx_onchain = verify_tx_onchain_multi
 
 
-# --- Pricing Page ---
+# --- Pricing Page (v2, enhanced) ---
 
-@app.get("/pricing", response_class=HTMLResponse)
-async def pricing_page():
+@app.get("/pricing-v2", response_class=HTMLResponse)
+async def pricing_page_v2():
     return HTMLResponse(inject_snippet("""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ToolPipe Pricing - API Plans for Developers & AI Agents</title>
@@ -7378,6 +7378,619 @@ async def apis_json():
     if apis_file.exists():
         return JSONResponse(json.loads(apis_file.read_text()))
     return JSONResponse({"error": "not found"}, status_code=404)
+
+
+# --- Placeholder Image Generator ---
+
+@app.get("/api/placeholder/{width}x{height}")
+@app.get("/api/placeholder/{width}")
+async def placeholder_image(width: int, height: int = 0, bg: str = "cccccc", fg: str = "333333", text: str = "", fmt: str = "png"):
+    """Generate placeholder images. Usage: /api/placeholder/300x200?bg=eee&fg=333&text=Hello"""
+    if width < 1 or width > 4000:
+        raise HTTPException(status_code=400, detail="Width must be 1-4000")
+    if height == 0:
+        height = width
+    if height < 1 or height > 4000:
+        raise HTTPException(status_code=400, detail="Height must be 1-4000")
+    # Sanitize colors
+    bg = bg.lstrip("#")[:6]
+    fg = fg.lstrip("#")[:6]
+    try:
+        bg_color = tuple(int(bg[i:i+2], 16) for i in (0, 2, 4))
+        fg_color = tuple(int(fg[i:i+2], 16) for i in (0, 2, 4))
+    except (ValueError, IndexError):
+        bg_color = (204, 204, 204)
+        fg_color = (51, 51, 51)
+
+    img = Image.new("RGB", (width, height), bg_color)
+    from PIL import ImageDraw, ImageFont
+    draw = ImageDraw.Draw(img)
+    label = text or f"{width}x{height}"
+    # Try to find a reasonable font size
+    font_size = min(width, height) // 6
+    if font_size < 10:
+        font_size = 10
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
+    except Exception:
+        font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), label, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    draw.text(((width - tw) / 2, (height - th) / 2), label, fill=fg_color, font=font)
+
+    buf = io.BytesIO()
+    img_format = "PNG" if fmt.lower() != "jpg" else "JPEG"
+    img.save(buf, format=img_format)
+    buf.seek(0)
+    media = "image/png" if img_format == "PNG" else "image/jpeg"
+    return StreamingResponse(buf, media_type=media, headers={"Cache-Control": "public, max-age=86400"})
+
+
+# --- Favicon Extractor ---
+
+@app.get("/api/favicon")
+async def favicon_extractor(url: str = Query(..., description="Website URL to extract favicon from")):
+    """Extract favicon URL from any website."""
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    parsed = urlparse(url)
+    if not parsed.netloc:
+        raise HTTPException(status_code=400, detail="Invalid URL")
+
+    favicons = []
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url, headers={"User-Agent": "ToolPipe-Bot/1.0"})
+            soup = BeautifulSoup(resp.text, "html.parser")
+
+            # Check link tags
+            for link in soup.find_all("link", rel=True):
+                rels = [r.lower() for r in link.get("rel", [])]
+                if any(r in rels for r in ["icon", "shortcut icon", "apple-touch-icon"]):
+                    href = link.get("href", "")
+                    if href:
+                        if href.startswith("//"):
+                            href = "https:" + href
+                        elif href.startswith("/"):
+                            href = f"{parsed.scheme}://{parsed.netloc}{href}"
+                        elif not href.startswith("http"):
+                            href = f"{parsed.scheme}://{parsed.netloc}/{href}"
+                        sizes = link.get("sizes", "")
+                        favicons.append({"url": href, "rel": " ".join(rels), "sizes": sizes})
+
+            # Fallback: /favicon.ico
+            if not favicons:
+                ico_url = f"{parsed.scheme}://{parsed.netloc}/favicon.ico"
+                try:
+                    ico_resp = await client.head(ico_url, follow_redirects=True)
+                    if ico_resp.status_code == 200:
+                        favicons.append({"url": ico_url, "rel": "icon", "sizes": ""})
+                except Exception:
+                    pass
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Could not fetch URL: {str(e)[:100]}")
+
+    # Google fallback
+    google_favicon = f"https://www.google.com/s2/favicons?domain={parsed.netloc}&sz=64"
+    return {
+        "url": url,
+        "domain": parsed.netloc,
+        "favicons": favicons,
+        "google_proxy": google_favicon,
+        "best": favicons[0]["url"] if favicons else google_favicon,
+    }
+
+
+# --- Sitemap Generator ---
+
+@app.post("/api/sitemap/generate")
+async def sitemap_generate(request: Request):
+    """Generate XML sitemap from a list of URLs."""
+    body = await request.json()
+    urls = body.get("urls", [])
+    base_url = body.get("base_url", "")
+    changefreq = body.get("changefreq", "weekly")
+    priority = body.get("priority", "0.8")
+
+    if not urls:
+        raise HTTPException(status_code=400, detail="Provide a 'urls' array")
+    if len(urls) > 50000:
+        raise HTTPException(status_code=400, detail="Maximum 50,000 URLs per sitemap")
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    for u in urls:
+        if isinstance(u, str):
+            loc = u if u.startswith("http") else f"{base_url.rstrip('/')}/{u.lstrip('/')}"
+            lines.append(f"  <url><loc>{loc}</loc><lastmod>{today}</lastmod><changefreq>{changefreq}</changefreq><priority>{priority}</priority></url>")
+        elif isinstance(u, dict):
+            loc = u.get("url", u.get("loc", ""))
+            if not loc.startswith("http"):
+                loc = f"{base_url.rstrip('/')}/{loc.lstrip('/')}"
+            freq = u.get("changefreq", changefreq)
+            pri = u.get("priority", priority)
+            mod = u.get("lastmod", today)
+            lines.append(f"  <url><loc>{loc}</loc><lastmod>{mod}</lastmod><changefreq>{freq}</changefreq><priority>{pri}</priority></url>")
+    lines.append("</urlset>")
+    xml = "\n".join(lines)
+    return Response(content=xml, media_type="application/xml", headers={"Content-Disposition": "attachment; filename=sitemap.xml"})
+
+
+# --- README Generator ---
+
+@app.post("/api/readme/generate")
+async def readme_generate(request: Request):
+    """Generate a README.md from project metadata."""
+    body = await request.json()
+    name = body.get("name", "My Project")
+    description = body.get("description", "")
+    features = body.get("features", [])
+    install = body.get("install", "")
+    usage = body.get("usage", "")
+    license_name = body.get("license", "MIT")
+    author = body.get("author", "")
+    badges = body.get("badges", [])
+    api_endpoints = body.get("api_endpoints", [])
+    tech_stack = body.get("tech_stack", [])
+
+    lines = []
+    # Title and badges
+    lines.append(f"# {name}")
+    if badges:
+        badge_line = " ".join(f"![{b.get('label', 'badge')}]({b.get('url', '')})" for b in badges if isinstance(b, dict))
+        if badge_line:
+            lines.append(f"\n{badge_line}")
+    if description:
+        lines.append(f"\n{description}")
+
+    # Features
+    if features:
+        lines.append("\n## Features\n")
+        for f in features:
+            lines.append(f"- {f}")
+
+    # Tech stack
+    if tech_stack:
+        lines.append("\n## Tech Stack\n")
+        for t in tech_stack:
+            lines.append(f"- {t}")
+
+    # Installation
+    if install:
+        lines.append("\n## Installation\n")
+        lines.append(f"```bash\n{install}\n```")
+
+    # Usage
+    if usage:
+        lines.append("\n## Usage\n")
+        lines.append(f"```\n{usage}\n```")
+
+    # API endpoints
+    if api_endpoints:
+        lines.append("\n## API Endpoints\n")
+        lines.append("| Method | Endpoint | Description |")
+        lines.append("|--------|----------|-------------|")
+        for ep in api_endpoints:
+            if isinstance(ep, dict):
+                lines.append(f"| {ep.get('method', 'GET')} | `{ep.get('path', '')}` | {ep.get('description', '')} |")
+
+    # License
+    lines.append(f"\n## License\n\n{license_name}")
+    if author:
+        lines.append(f"\n## Author\n\n{author}")
+
+    readme = "\n".join(lines)
+    return {"readme": readme, "lines": len(lines), "format": "markdown"}
+
+
+# --- Robots.txt Generator ---
+
+@app.post("/api/robots/generate")
+async def robots_generate(request: Request):
+    """Generate robots.txt from rules."""
+    body = await request.json()
+    rules = body.get("rules", [{"user_agent": "*", "allow": ["/"], "disallow": []}])
+    sitemap_url = body.get("sitemap", "")
+    host = body.get("host", "")
+
+    lines = []
+    for rule in rules:
+        ua = rule.get("user_agent", "*")
+        lines.append(f"User-agent: {ua}")
+        for allow in rule.get("allow", []):
+            lines.append(f"Allow: {allow}")
+        for disallow in rule.get("disallow", []):
+            lines.append(f"Disallow: {disallow}")
+        crawl_delay = rule.get("crawl_delay")
+        if crawl_delay:
+            lines.append(f"Crawl-delay: {crawl_delay}")
+        lines.append("")
+    if sitemap_url:
+        lines.append(f"Sitemap: {sitemap_url}")
+    if host:
+        lines.append(f"Host: {host}")
+
+    txt = "\n".join(lines)
+    return Response(content=txt, media_type="text/plain")
+
+
+# --- CSS Gradient Generator ---
+
+@app.get("/api/gradient")
+async def css_gradient(
+    colors: str = Query("6c63ff,3b82f6", description="Comma-separated hex colors"),
+    direction: str = Query("135deg", description="Gradient direction"),
+    type: str = Query("linear", description="linear or radial"),
+):
+    """Generate CSS gradient code from colors."""
+    color_list = [f"#{c.strip().lstrip('#')}" for c in colors.split(",") if c.strip()]
+    if len(color_list) < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 colors")
+
+    color_str = ", ".join(color_list)
+    if type == "radial":
+        css = f"background: radial-gradient(circle, {color_str});"
+    else:
+        css = f"background: linear-gradient({direction}, {color_str});"
+
+    stops = "".join(
+        '<stop offset="{}%" stop-color="{}"/>'.format(i * 100 // (len(color_list) - 1), c)
+        for i, c in enumerate(color_list)
+    )
+    preview_svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100">'
+        '<defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">'
+        + stops +
+        '</linearGradient></defs>'
+        '<rect width="400" height="100" fill="url(#g)" rx="8"/></svg>'
+    )
+
+    return {
+        "css": css,
+        "colors": color_list,
+        "type": type,
+        "direction": direction if type == "linear" else "circle",
+        "preview_svg": preview_svg,
+    }
+
+
+# --- Social Meta Tags Generator ---
+
+@app.post("/api/metatags/generate")
+async def metatags_generate(request: Request):
+    """Generate social media meta tags (Open Graph, Twitter Cards)."""
+    body = await request.json()
+    title = body.get("title", "")
+    description = body.get("description", "")
+    url = body.get("url", "")
+    image = body.get("image", "")
+    site_name = body.get("site_name", "")
+    twitter_handle = body.get("twitter_handle", "")
+    type_ = body.get("type", "website")
+
+    tags = []
+    tags.append(f'<meta charset="UTF-8">')
+    tags.append(f'<meta name="viewport" content="width=device-width, initial-scale=1.0">')
+    if title:
+        tags.append(f'<title>{title}</title>')
+        tags.append(f'<meta property="og:title" content="{title}">')
+        tags.append(f'<meta name="twitter:title" content="{title}">')
+    if description:
+        tags.append(f'<meta name="description" content="{description}">')
+        tags.append(f'<meta property="og:description" content="{description}">')
+        tags.append(f'<meta name="twitter:description" content="{description}">')
+    if url:
+        tags.append(f'<meta property="og:url" content="{url}">')
+    if image:
+        tags.append(f'<meta property="og:image" content="{image}">')
+        tags.append(f'<meta name="twitter:image" content="{image}">')
+        tags.append(f'<meta name="twitter:card" content="summary_large_image">')
+    else:
+        tags.append(f'<meta name="twitter:card" content="summary">')
+    if site_name:
+        tags.append(f'<meta property="og:site_name" content="{site_name}">')
+    if twitter_handle:
+        tags.append(f'<meta name="twitter:site" content="{twitter_handle}">')
+    tags.append(f'<meta property="og:type" content="{type_}">')
+
+    return {"html": "\n".join(tags), "tags": tags, "count": len(tags)}
+
+
+# --- Htaccess Generator ---
+
+@app.post("/api/htaccess/generate")
+async def htaccess_generate(request: Request):
+    """Generate Apache .htaccess rules."""
+    body = await request.json()
+    redirects = body.get("redirects", [])
+    force_https = body.get("force_https", True)
+    www_redirect = body.get("www_redirect", "to_www")  # to_www, to_non_www, none
+    cache_static = body.get("cache_static", True)
+    block_ips = body.get("block_ips", [])
+    custom_errors = body.get("custom_errors", {})
+    gzip = body.get("gzip", True)
+
+    lines = ["# Generated by ToolPipe API", ""]
+
+    if force_https:
+        lines.extend(["# Force HTTPS", "RewriteEngine On", "RewriteCond %{HTTPS} off", "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]", ""])
+
+    if www_redirect == "to_www":
+        lines.extend(["# Redirect to www", "RewriteCond %{HTTP_HOST} !^www\\. [NC]", "RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]", ""])
+    elif www_redirect == "to_non_www":
+        lines.extend(["# Redirect to non-www", "RewriteCond %{HTTP_HOST} ^www\\.(.*)$ [NC]", "RewriteRule ^(.*)$ https://%1/$1 [R=301,L]", ""])
+
+    if gzip:
+        lines.extend(["# Enable Gzip", "<IfModule mod_deflate.c>", "  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json", "</IfModule>", ""])
+
+    if cache_static:
+        lines.extend(["# Cache static files", "<IfModule mod_expires.c>", "  ExpiresActive On", "  ExpiresByType image/png \"access plus 1 month\"", "  ExpiresByType image/jpeg \"access plus 1 month\"", "  ExpiresByType text/css \"access plus 1 week\"", "  ExpiresByType application/javascript \"access plus 1 week\"", "</IfModule>", ""])
+
+    for r in redirects:
+        if isinstance(r, dict):
+            lines.append(f"Redirect {r.get('code', 301)} {r.get('from', '')} {r.get('to', '')}")
+    if redirects:
+        lines.append("")
+
+    for ip in block_ips:
+        lines.append(f"Deny from {ip}")
+    if block_ips:
+        lines.append("")
+
+    for code, page in custom_errors.items():
+        lines.append(f"ErrorDocument {code} {page}")
+
+    return Response(content="\n".join(lines), media_type="text/plain")
+
+
+# --- Interactive API Playground ---
+
+@app.get("/playground", response_class=HTMLResponse)
+async def api_playground():
+    """Interactive API playground for testing all ToolPipe endpoints."""
+    return HTMLResponse(inject_snippet("""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ToolPipe API Playground - Test 180+ Developer APIs</title>
+<meta name="description" content="Interactive playground to test ToolPipe's 180+ developer APIs. JSON formatting, QR codes, hashing, UUID generation, and more. Try free, no signup needed.">
+<link rel="canonical" href="https://toolpipe.dev/playground">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh}
+.header{background:#111;border-bottom:1px solid #2a2a2a;padding:16px 24px;display:flex;align-items:center;gap:16px}
+.header h1{font-size:1.4rem;color:#fff}
+.header a{color:#6c63ff;text-decoration:none;font-size:0.9rem}
+.main{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 56px)}
+.sidebar{background:#111;border-right:1px solid #2a2a2a;overflow-y:auto;padding:12px}
+.sidebar input{width:100%;padding:10px 12px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-size:0.9rem;margin-bottom:12px}
+.sidebar input:focus{outline:none;border-color:#6c63ff}
+.cat-header{font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;padding:8px 4px 4px;margin-top:8px}
+.ep-btn{display:block;width:100%;text-align:left;padding:8px 12px;background:none;border:none;color:#cbd5e1;font-size:0.85rem;border-radius:6px;cursor:pointer;margin:1px 0}
+.ep-btn:hover,.ep-btn.active{background:#1a1a2e;color:#6c63ff}
+.ep-btn .method{display:inline-block;width:40px;font-size:0.7rem;font-weight:700;margin-right:6px}
+.ep-btn .method.get{color:#22c55e}.ep-btn .method.post{color:#3b82f6}.ep-btn .method.put{color:#f59e0b}.ep-btn .method.delete{color:#ef4444}
+.content{padding:24px;overflow-y:auto}
+.endpoint-title{font-size:1.3rem;color:#fff;margin-bottom:8px}
+.endpoint-desc{color:#94a3b8;margin-bottom:20px;font-size:0.95rem}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;color:#cbd5e1;font-weight:600;margin-bottom:6px;font-size:0.85rem}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-size:0.9rem;font-family:inherit}
+.form-group textarea{font-family:'SF Mono',monospace;min-height:120px;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#6c63ff}
+.run-btn{background:#6c63ff;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.run-btn:hover{background:#5b52e0}
+.run-btn:disabled{opacity:0.5;cursor:not-allowed}
+.result-box{margin-top:20px;background:#111;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden}
+.result-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#1a1a1a;border-bottom:1px solid #2a2a2a}
+.result-header .status{font-weight:700;font-size:0.85rem}
+.status.ok{color:#22c55e}.status.err{color:#ef4444}
+.result-body{padding:16px;font-family:'SF Mono',monospace;font-size:0.85rem;white-space:pre-wrap;max-height:400px;overflow-y:auto;line-height:1.5;color:#e0e0e0}
+.result-body img{max-width:100%;border-radius:8px;margin:8px 0}
+.curl-box{margin-top:12px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px 16px;font-family:'SF Mono',monospace;font-size:0.8rem;color:#94a3b8;position:relative}
+.curl-box button{position:absolute;top:8px;right:8px;background:#2a2a2a;color:#cbd5e1;border:none;padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer}
+@media(max-width:768px){.main{grid-template-columns:1fr}.sidebar{display:none}}
+</style></head><body>
+<div class="header">
+<h1>API Playground</h1>
+<a href="/">Home</a>
+<a href="/pricing">Pricing</a>
+<a href="/docs">Docs</a>
+</div>
+<div class="main">
+<div class="sidebar">
+<input type="text" id="search" placeholder="Search endpoints..." oninput="filterEndpoints(this.value)">
+<div id="endpoint-list"></div>
+</div>
+<div class="content" id="content">
+<h2 style="color:#fff;margin-bottom:12px">Welcome to the ToolPipe API Playground</h2>
+<p style="color:#94a3b8;margin-bottom:24px">Select an endpoint from the sidebar to start testing. All endpoints are free for up to 100 calls/day.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;cursor:pointer" onclick="loadEndpoint('json_format')">
+<h3 style="color:#fff;font-size:1rem;margin-bottom:6px">JSON Formatter</h3><p style="color:#94a3b8;font-size:0.85rem">Format and validate JSON</p></div>
+<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;cursor:pointer" onclick="loadEndpoint('qr_generate')">
+<h3 style="color:#fff;font-size:1rem;margin-bottom:6px">QR Code</h3><p style="color:#94a3b8;font-size:0.85rem">Generate QR codes instantly</p></div>
+<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;cursor:pointer" onclick="loadEndpoint('hash_generate')">
+<h3 style="color:#fff;font-size:1rem;margin-bottom:6px">Hash Generator</h3><p style="color:#94a3b8;font-size:0.85rem">MD5, SHA-256, and more</p></div>
+<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;cursor:pointer" onclick="loadEndpoint('uuid_generate')">
+<h3 style="color:#fff;font-size:1rem;margin-bottom:6px">UUID Generator</h3><p style="color:#94a3b8;font-size:0.85rem">Generate v4 UUIDs</p></div>
+<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;cursor:pointer" onclick="loadEndpoint('placeholder')">
+<h3 style="color:#fff;font-size:1rem;margin-bottom:6px">Placeholder Image</h3><p style="color:#94a3b8;font-size:0.85rem">Generate placeholder images</p></div>
+<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;cursor:pointer" onclick="loadEndpoint('favicon')">
+<h3 style="color:#fff;font-size:1rem;margin-bottom:6px">Favicon Extractor</h3><p style="color:#94a3b8;font-size:0.85rem">Get favicons from any URL</p></div>
+</div>
+</div>
+</div>
+
+<script>
+const ENDPOINTS = [
+{id:'json_format',cat:'Data',name:'JSON Format',method:'POST',path:'/json/format',desc:'Format, minify, or validate JSON data',fields:[{name:'json_string',type:'textarea',label:'JSON String',placeholder:'{"key":"value","nested":{"a":1}}'}],bodyKey:'json_string'},
+{id:'hash_generate',cat:'Crypto',name:'Hash Generate',method:'POST',path:'/hash/generate',desc:'Generate hash of text (MD5, SHA-256, etc.)',fields:[{name:'text',type:'input',label:'Text',placeholder:'Hello World'},{name:'algorithm',type:'select',label:'Algorithm',options:['sha256','md5','sha1','sha512']}],body:true},
+{id:'uuid_generate',cat:'Generators',name:'UUID Generate',method:'GET',path:'/uuid',desc:'Generate a UUID v4',fields:[],body:false},
+{id:'qr_generate',cat:'Generators',name:'QR Code',method:'GET',path:'/qr/generate',desc:'Generate a QR code image',fields:[{name:'text',type:'input',label:'Text/URL',placeholder:'https://toolpipe.dev'}],query:true,isImage:true},
+{id:'base64_encode',cat:'Encoding',name:'Base64 Encode',method:'POST',path:'/base64/encode',desc:'Encode text to Base64',fields:[{name:'text',type:'textarea',label:'Text',placeholder:'Hello World'}],body:true},
+{id:'base64_decode',cat:'Encoding',name:'Base64 Decode',method:'POST',path:'/base64/decode',desc:'Decode Base64 to text',fields:[{name:'text',type:'textarea',label:'Base64 String',placeholder:'SGVsbG8gV29ybGQ='}],body:true},
+{id:'markdown_render',cat:'Text',name:'Markdown Render',method:'POST',path:'/markdown/render',desc:'Render Markdown to HTML',fields:[{name:'text',type:'textarea',label:'Markdown',placeholder:'# Hello\\n\\nThis is **bold** and *italic*.'}],body:true},
+{id:'text_stats',cat:'Text',name:'Text Stats',method:'POST',path:'/text/stats',desc:'Word count, character count, reading time',fields:[{name:'text',type:'textarea',label:'Text',placeholder:'Enter your text here to analyze...'}],body:true},
+{id:'lorem',cat:'Generators',name:'Lorem Ipsum',method:'GET',path:'/lorem',desc:'Generate lorem ipsum text',fields:[{name:'paragraphs',type:'input',label:'Paragraphs',placeholder:'3'}],query:true},
+{id:'ip_lookup',cat:'Network',name:'IP Lookup',method:'GET',path:'/ip/lookup',desc:'Get geolocation for an IP address',fields:[{name:'ip',type:'input',label:'IP Address',placeholder:'8.8.8.8'}],query:true},
+{id:'dns_lookup',cat:'Network',name:'DNS Lookup',method:'GET',path:'/dns/lookup',desc:'DNS record lookup',fields:[{name:'domain',type:'input',label:'Domain',placeholder:'google.com'},{name:'type',type:'select',label:'Record Type',options:['A','AAAA','MX','NS','TXT','CNAME','SOA']}],query:true},
+{id:'password_check',cat:'Security',name:'Password Check',method:'POST',path:'/password/check',desc:'Check password strength and entropy',fields:[{name:'password',type:'input',label:'Password',placeholder:'MyP@ssw0rd!'}],body:true},
+{id:'regex_test',cat:'Text',name:'Regex Test',method:'POST',path:'/regex/test',desc:'Test regular expressions against text',fields:[{name:'pattern',type:'input',label:'Pattern',placeholder:'^[a-z]+@[a-z]+\\\\.[a-z]{2,}$'},{name:'text',type:'textarea',label:'Test String',placeholder:'test@example.com'},{name:'flags',type:'input',label:'Flags',placeholder:'i'}],body:true},
+{id:'jwt_decode',cat:'Security',name:'JWT Decode',method:'POST',path:'/jwt/decode',desc:'Decode and inspect a JWT token',fields:[{name:'token',type:'textarea',label:'JWT Token',placeholder:'eyJhbGciOiJIUzI1NiIs...'}],body:true},
+{id:'color_palette',cat:'Design',name:'Color Palette',method:'GET',path:'/color/palette',desc:'Generate color palettes',fields:[{name:'base',type:'input',label:'Base Color (hex)',placeholder:'6c63ff'},{name:'count',type:'input',label:'Count',placeholder:'5'}],query:true},
+{id:'slug_generate',cat:'Text',name:'Slug Generate',method:'POST',path:'/slug/generate',desc:'Generate URL-friendly slugs',fields:[{name:'text',type:'input',label:'Text',placeholder:'Hello World! This is a Test'}],body:true},
+{id:'placeholder',cat:'Design',name:'Placeholder Image',method:'GET',path:'/placeholder/300x200',desc:'Generate placeholder images',fields:[{name:'width',type:'input',label:'Width',placeholder:'300'},{name:'height',type:'input',label:'Height',placeholder:'200'},{name:'bg',type:'input',label:'Background (hex)',placeholder:'cccccc'},{name:'text',type:'input',label:'Text',placeholder:'300x200'}],customUrl:true,isImage:true},
+{id:'favicon',cat:'Web',name:'Favicon Extractor',method:'GET',path:'/favicon',desc:'Extract favicon from any website',fields:[{name:'url',type:'input',label:'Website URL',placeholder:'github.com'}],query:true},
+{id:'metatags',cat:'Web',name:'Meta Tags Generator',method:'POST',path:'/metatags/generate',desc:'Generate Open Graph and Twitter Card meta tags',fields:[{name:'title',type:'input',label:'Title',placeholder:'My Website'},{name:'description',type:'textarea',label:'Description',placeholder:'A great website'},{name:'url',type:'input',label:'URL',placeholder:'https://example.com'},{name:'image',type:'input',label:'Image URL',placeholder:'https://example.com/og.jpg'}],body:true},
+{id:'gradient',cat:'Design',name:'CSS Gradient',method:'GET',path:'/gradient',desc:'Generate CSS gradient code',fields:[{name:'colors',type:'input',label:'Colors (comma-separated hex)',placeholder:'6c63ff,3b82f6,22c55e'},{name:'direction',type:'input',label:'Direction',placeholder:'135deg'},{name:'type',type:'select',label:'Type',options:['linear','radial']}],query:true},
+{id:'crontab',cat:'DevOps',name:'Crontab Generator',method:'POST',path:'/crontab/generate',desc:'Generate cron expressions from English',fields:[{name:'description',type:'input',label:'Description',placeholder:'Every Monday at 9am'}],body:true},
+{id:'sql_format',cat:'Data',name:'SQL Format',method:'POST',path:'/sql/format',desc:'Format SQL queries',fields:[{name:'sql',type:'textarea',label:'SQL Query',placeholder:'SELECT * FROM users WHERE id=1 AND name="john" ORDER BY created_at DESC'}],body:true},
+{id:'diff',cat:'Text',name:'Text Diff',method:'POST',path:'/diff/generate',desc:'Generate diff between two texts',fields:[{name:'text1',type:'textarea',label:'Text 1',placeholder:'Hello World'},{name:'text2',type:'textarea',label:'Text 2',placeholder:'Hello Universe'}],body:true},
+{id:'mock',cat:'Generators',name:'Mock Data',method:'POST',path:'/mock/generate',desc:'Generate mock data (users, products, etc.)',fields:[{name:'template',type:'select',label:'Template',options:['user','product','order','comment','post']},{name:'count',type:'input',label:'Count',placeholder:'5'}],body:true},
+{id:'myip',cat:'Network',name:'My IP',method:'GET',path:'/myip',desc:'Get your IP address',fields:[],body:false},
+{id:'sitemap',cat:'Web',name:'Sitemap Generator',method:'POST',path:'/sitemap/generate',desc:'Generate XML sitemap',fields:[{name:'base_url',type:'input',label:'Base URL',placeholder:'https://example.com'},{name:'urls_text',type:'textarea',label:'URLs (one per line)',placeholder:'/\\n/about\\n/pricing\\n/docs'}],body:true,customBody:true},
+{id:'readme',cat:'Generators',name:'README Generator',method:'POST',path:'/readme/generate',desc:'Generate README.md from project info',fields:[{name:'name',type:'input',label:'Project Name',placeholder:'My Project'},{name:'description',type:'textarea',label:'Description',placeholder:'A tool that does X'},{name:'install',type:'input',label:'Install Command',placeholder:'npm install my-project'},{name:'license',type:'input',label:'License',placeholder:'MIT'}],body:true},
+];
+
+const categories = {};
+ENDPOINTS.forEach(ep => {
+  if (!categories[ep.cat]) categories[ep.cat] = [];
+  categories[ep.cat].push(ep);
+});
+
+function renderSidebar(filter='') {
+  const el = document.getElementById('endpoint-list');
+  let html = '';
+  const f = filter.toLowerCase();
+  for (const [cat, eps] of Object.entries(categories).sort()) {
+    const filtered = eps.filter(e => !f || e.name.toLowerCase().includes(f) || e.path.toLowerCase().includes(f));
+    if (!filtered.length) continue;
+    html += '<div class="cat-header">' + cat + '</div>';
+    filtered.forEach(ep => {
+      html += '<button class="ep-btn" id="btn-'+ep.id+'" onclick="loadEndpoint(\\''+ep.id+'\\')"><span class="method '+ep.method.toLowerCase()+'">'+ep.method+'</span>'+ep.name+'</button>';
+    });
+  }
+  el.innerHTML = html;
+}
+renderSidebar();
+
+function filterEndpoints(v) { renderSidebar(v); }
+
+function loadEndpoint(id) {
+  const ep = ENDPOINTS.find(e => e.id === id);
+  if (!ep) return;
+  document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('btn-'+id);
+  if (btn) btn.classList.add('active');
+
+  let html = '<h2 class="endpoint-title"><span class="method '+ep.method.toLowerCase()+'" style="font-size:0.9rem;margin-right:8px">'+ep.method+'</span>/api'+ep.path+'</h2>';
+  html += '<p class="endpoint-desc">'+ep.desc+'</p>';
+  html += '<form id="ep-form" onsubmit="return runEndpoint(event,\\''+id+'\\')">';
+  ep.fields.forEach(f => {
+    html += '<div class="form-group"><label>'+f.label+'</label>';
+    if (f.type === 'textarea') {
+      html += '<textarea name="'+f.name+'" placeholder="'+(f.placeholder||'')+'"></textarea>';
+    } else if (f.type === 'select') {
+      html += '<select name="'+f.name+'">';
+      f.options.forEach(o => html += '<option value="'+o+'">'+o+'</option>');
+      html += '</select>';
+    } else {
+      html += '<input type="text" name="'+f.name+'" placeholder="'+(f.placeholder||'')+'">';
+    }
+    html += '</div>';
+  });
+  html += '<button type="submit" class="run-btn" id="run-btn">Run</button></form>';
+  html += '<div id="curl-display"></div>';
+  html += '<div id="result-display"></div>';
+  document.getElementById('content').innerHTML = html;
+}
+
+async function runEndpoint(e, id) {
+  e.preventDefault();
+  const ep = ENDPOINTS.find(e => e.id === id);
+  const form = document.getElementById('ep-form');
+  const fd = new FormData(form);
+  const data = {};
+  for (const [k,v] of fd.entries()) { if(v) data[k] = v; }
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+
+  let url, opts = {headers:{}};
+  const base = '/api';
+
+  if (ep.id === 'placeholder') {
+    const w = data.width || '300';
+    const h = data.height || '200';
+    let pUrl = base + '/placeholder/' + w + 'x' + h;
+    const params = new URLSearchParams();
+    if (data.bg) params.set('bg', data.bg);
+    if (data.text) params.set('text', data.text);
+    if (params.toString()) pUrl += '?' + params;
+    url = pUrl;
+    opts.method = 'GET';
+  } else if (ep.id === 'sitemap' && ep.customBody) {
+    url = base + ep.path;
+    const urls = (data.urls_text || '').split('\\n').filter(u => u.trim());
+    opts.method = 'POST';
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify({base_url: data.base_url, urls: urls});
+  } else if (ep.query || ep.method === 'GET') {
+    const params = new URLSearchParams(data);
+    url = base + ep.path + (params.toString() ? '?' + params : '');
+    opts.method = 'GET';
+  } else {
+    url = base + ep.path;
+    opts.method = 'POST';
+    opts.headers['Content-Type'] = 'application/json';
+    if (ep.bodyKey) {
+      opts.body = JSON.stringify({[ep.bodyKey]: data[ep.bodyKey]});
+    } else {
+      opts.body = JSON.stringify(data);
+    }
+  }
+
+  // Show curl
+  let curl = 'curl';
+  if (opts.method !== 'GET') curl += ' -X ' + opts.method;
+  curl += ' "' + location.origin + url + '"';
+  if (opts.body) curl += " -H 'Content-Type: application/json' -d '" + opts.body + "'";
+  document.getElementById('curl-display').innerHTML = '<div class="curl-box"><button onclick="navigator.clipboard.writeText(this.parentElement.textContent.replace(\\'Copy\\',\\'\\'));this.textContent=\\'Copied!\\'">Copy</button>' + curl + '</div>';
+
+  try {
+    const t0 = performance.now();
+    const resp = await fetch(url, opts);
+    const ms = Math.round(performance.now() - t0);
+    const status = resp.status;
+    const ok = status >= 200 && status < 400;
+    const ct = resp.headers.get('content-type') || '';
+
+    let bodyHtml;
+    if (ep.isImage && ok && ct.includes('image')) {
+      const blob = await resp.blob();
+      const imgUrl = URL.createObjectURL(blob);
+      bodyHtml = '<img src="'+imgUrl+'" alt="result">';
+    } else if (ct.includes('xml') || ct.includes('text/plain')) {
+      const text = await resp.text();
+      bodyHtml = text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    } else {
+      const json = await resp.json();
+      bodyHtml = JSON.stringify(json, null, 2);
+    }
+
+    document.getElementById('result-display').innerHTML =
+      '<div class="result-box"><div class="result-header"><span class="status '+(ok?'ok':'err')+'">'+status+'</span><span style="color:#64748b;font-size:0.8rem">'+ms+'ms</span></div><div class="result-body">'+bodyHtml+'</div></div>';
+  } catch(err) {
+    document.getElementById('result-display').innerHTML =
+      '<div class="result-box"><div class="result-header"><span class="status err">Error</span></div><div class="result-body">'+err.message+'</div></div>';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Run';
+  return false;
+}
+</script>
+</body></html>"""))
 
 
 # --- SEO Pages (catch-all for static content pages) ---

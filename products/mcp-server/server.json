@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "95+ developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, webhooks, mock data, crontab, and more",
+  "description": "97+ developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, webhooks, mock data, crontab, placeholder images, favicons, sitemaps, README gen, CSS gradients, meta tags, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.9.1",
+  "version": "1.10.0",
   "remoteEndpoints": [
     {
       "url": "https://toolpipe.dev/mcp",
@@ -100,6 +100,14 @@
     {"name": "mock_generate", "description": "Generate mock API data (user, product, order, comment, post templates)"},
     {"name": "crontab_generate", "description": "Generate cron expressions from plain English descriptions"},
     {"name": "diff_generate", "description": "Generate diff/patch between two texts (unified, context, HTML)"},
-    {"name": "api_stats", "description": "Get ToolPipe API statistics and info"}
+    {"name": "api_stats", "description": "Get ToolPipe API statistics and info"},
+    {"name": "placeholder_image", "description": "Generate placeholder image URLs with custom size, colors, and text"},
+    {"name": "favicon_extract", "description": "Extract favicon URLs from any website"},
+    {"name": "sitemap_generate", "description": "Generate XML sitemaps from URL lists"},
+    {"name": "readme_generate", "description": "Generate README.md from project metadata"},
+    {"name": "css_gradient", "description": "Generate CSS gradient code from colors"},
+    {"name": "metatags_generate", "description": "Generate Open Graph and Twitter Card meta tags"},
+    {"name": "robots_generate", "description": "Generate robots.txt files from rules"},
+    {"name": "htaccess_generate", "description": "Generate Apache .htaccess rules"}
   ]
 }

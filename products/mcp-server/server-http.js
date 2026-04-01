@@ -46,10 +46,10 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.9.1" },
+    { name: "toolpipe", version: "1.10.0" },
     {
       capabilities: { tools: {} },
-      instructions: "ToolPipe provides 130+ developer utility APIs as 70+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT create/decode, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP info, password checking, color palettes, text diffing, and more.",
+      instructions: "ToolPipe provides 180+ developer utility APIs as 85+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT, SQL formatting, XML/YAML, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP info, password checking, color palettes, text diffing, placeholder images, favicons, sitemaps, README generation, CSS gradients, meta tags, robots.txt, htaccess, and more.",
     }
   );
 
@@ -160,6 +160,16 @@ function createServer() {
   server.tool("diff_generate", "Generate diff between two texts.", { original: z.string(), modified: z.string(), format: z.string().optional() }, async ({ original, modified, format }) => textResult(await apiCall("/api/diff/generate", { method: "POST", body: JSON.stringify({ original, modified, format: format ?? "unified" }) })));
   server.tool("api_stats", "Get ToolPipe API stats.", {}, async () => textResult(await apiCall("/api/stats")));
 
+  // v1.10.0 new tools
+  server.tool("placeholder_image", "Generate placeholder image URL with custom size, colors, text.", { width: z.number(), height: z.number().optional(), bg: z.string().optional(), fg: z.string().optional(), text: z.string().optional() }, async ({ width, height, bg, fg, text }) => { const h = height ?? width; const params = new URLSearchParams(); if (bg) params.set("bg", bg); if (fg) params.set("fg", fg); if (text) params.set("text", text); const qs = params.toString() ? "?" + params.toString() : ""; const url = `${API_BASE}/api/placeholder/${width}x${h}${qs}`; return textResult({ url, width, height: h }); });
+  server.tool("favicon_extract", "Extract favicon URLs from any website.", { url: z.string() }, async ({ url }) => textResult(await apiCall(`/api/favicon?url=${encodeURIComponent(url)}`)));
+  server.tool("sitemap_generate", "Generate XML sitemap from URL list.", { base_url: z.string(), urls: z.array(z.string()), changefreq: z.string().optional() }, async ({ base_url, urls, changefreq }) => textResult(await apiCall("/api/sitemap/generate", { method: "POST", body: JSON.stringify({ base_url, urls, changefreq: changefreq ?? "weekly" }) })));
+  server.tool("readme_generate", "Generate README.md from project info.", { name: z.string(), description: z.string().optional(), features: z.array(z.string()).optional(), install: z.string().optional(), license: z.string().optional() }, async ({ name, description, features, install, license }) => textResult(await apiCall("/api/readme/generate", { method: "POST", body: JSON.stringify({ name, description, features, install, license }) })));
+  server.tool("css_gradient", "Generate CSS gradient code from colors.", { colors: z.string(), direction: z.string().optional(), type: z.string().optional() }, async ({ colors, direction, type }) => { const params = new URLSearchParams({ colors }); if (direction) params.set("direction", direction); if (type) params.set("type", type); return textResult(await apiCall(`/api/gradient?${params.toString()}`)); });
+  server.tool("metatags_generate", "Generate Open Graph and Twitter Card meta tags.", { title: z.string(), description: z.string().optional(), url: z.string().optional(), image: z.string().optional() }, async ({ title, description, url, image }) => textResult(await apiCall("/api/metatags/generate", { method: "POST", body: JSON.stringify({ title, description, url, image }) })));
+  server.tool("robots_generate", "Generate robots.txt from rules.", { sitemap: z.string().optional() }, async ({ sitemap }) => textResult(await apiCall("/api/robots/generate", { method: "POST", body: JSON.stringify({ sitemap }) })));
+  server.tool("htaccess_generate", "Generate Apache .htaccess rules.", { force_https: z.boolean().optional(), www_redirect: z.string().optional(), gzip: z.boolean().optional() }, async ({ force_https, www_redirect, gzip }) => textResult(await apiCall("/api/htaccess/generate", { method: "POST", body: JSON.stringify({ force_https, www_redirect, gzip }) })));
+
   return server;
 }
 
@@ -180,10 +190,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.9.1",
+    version: "1.10.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 77,
+    tools: 85,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -214,5 +224,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`77 tools available. API backend: ${API_BASE}`);
+  console.log(`85 tools available. API backend: ${API_BASE}`);
 });
