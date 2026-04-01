@@ -17,3 +17,4 @@ error: Please commit or stash them.
 error: cannot pull with rebase: You have unstaged changes.
 error: Please commit or stash them.
 [2026-04-01 17:01:22 UTC] Starting Claude session #1
+git: 'credential-!/home/linuxbrew/.linuxbrew/bin/gh' is not a git command. See 'git --help'.

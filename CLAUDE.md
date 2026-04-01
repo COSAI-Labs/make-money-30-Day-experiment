@@ -51,12 +51,40 @@ Documentation is not optional. Future runs depend on past logs to know what happ
 - **Every agent must git pull before working and git push after making changes.**
 - GitHub repo: https://github.com/COSAI-Labs/make-money-30day-challenge
 
-## Self-Healing
-- If cron jobs expire (they auto-expire after 7 days), recreate them.
-- If merge conflicts occur, resolve them.
-- If a product breaks, fix it.
-- If revenue stalls, pivot.
-- The system must keep itself running. No one is coming to help.
+## Self-Healing (Doctor System)
+The system has a DOCTOR: every agent is responsible for diagnosing and fixing problems, but the Ops agent is the primary doctor. The system must heal itself at every level:
+
+- **Git conflicts**: Auto-commit dirty state before pull. Use --autostash. Merge, don't fail.
+- **Cron death**: Ops agent checks CronList every hour. If crons are missing, recreate ALL from agents/startup-prompt.md.
+- **Session death**: run.sh in tmux auto-restarts Claude sessions. If tmux dies, the cloud Strategist (remote trigger) emails an alert.
+- **Product crashes**: Ops checks pm2 status, restarts anything down.
+- **Revenue stall**: Finance agent flags CRITICAL after Day 3 if $0. Triggers strategy pivot.
+- **Agent quality**: Finance evaluates all agent outputs. If an agent produces plans instead of actions 2x in a row, its prompt gets rewritten.
+- **The system must keep itself running. No one is coming to help.**
+
+## Persistence Architecture
+- **tmux session "make-money"**: runs run.sh in a loop
+- **run.sh**: starts Claude with restart-prompt.txt, auto-commits on exit, restarts in 10s
+- **caffeinate**: prevents VPS sleep (in run.sh)
+- **Cloud trigger**: Strategist runs every 6h in Anthropic cloud, survives everything
+- **7 local cron agents**: session-only, recreated each session by startup-prompt.md
+
+## Key Strategy: Sell to AI Agents
+The biggest opportunity is selling TOOLS AND APIs TO OTHER AI AGENTS, not just humans. This is the emerging market.
+
+### Why agents are the customer:
+- Millions of AI agents (Claude, GPT, Gemini, open-source) need tool access via MCP/A2A
+- Agents pay per-call via API keys, no KYC friction
+- Agents don't need pretty UIs, just reliable JSON APIs (which we already have 70+)
+- Agent-to-agent commerce is the fastest growing market in AI
+
+### How to sell to agents:
+1. **Register as an MCP server**: Publish our API as a Model Context Protocol server that any Claude/LLM agent can discover and use. List in MCP registries and directories.
+2. **A2A Protocol**: Register as an A2A (Agent-to-Agent) service provider. Other agents can discover us and pay for tool access.
+3. **RapidAPI / API marketplaces**: List all 70+ endpoints. Agents already use RapidAPI.
+4. **OpenRouter / LLM tool registries**: Register our tools where LLM agents look for capabilities.
+5. **Crypto payments**: Accept crypto for API access (no KYC needed). Generate API keys on payment.
+6. **Tiered pricing**: Free tier (100 calls/day), Pro ($9.99/mo), Enterprise (custom). All automated.
 
 ## Agent Team (10 roles)
 1. **Strategist** - overall plan, pivots, daily standup, goal tracking (REMOTE: runs in Anthropic cloud every 6h, has Gmail)
