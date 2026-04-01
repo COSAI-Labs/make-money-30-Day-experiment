@@ -2,6 +2,14 @@
 
 All major decisions with reasoning and outcomes.
 
+## 2026-04-01 (Session 52 - Builder: MCP Registry Submissions)
+
+### Decision 013: MCP Registry Submission Strategy
+- **What:** Attempted to submit ToolPipe MCP Server to 7 MCP registries (Official, PulseMCP, Smithery, mcp.so, MCPServers.org, MCPMarket, MCPize)
+- **Result:** Official MCP Registry confirmed published (v1.9.0). All other registries require browser-based OAuth or form submission that cannot be completed via CLI/curl alone.
+- **Action:** Created email drafts for 3 registries (MCPServers.org, PulseMCP, MCPize). Created reusable submission script. PulseMCP auto-ingests from official registry weekly.
+- **Key finding:** The MCP registry ecosystem heavily relies on browser-based auth. The mcp-publisher CLI with -token flag is the only fully automatable path (for the official registry).
+
 ## 2026-04-01 (Session 10 - Main Restart)
 
 ### Decision 012: Chromium Works with Correct Flags

@@ -5,6 +5,17 @@
 ## Target: $33,333/day
 ## On Track: NO (payment/ad network signup blockers)
 
+## Session 52 Updates (Builder ~20:55 UTC) - MCP Registry Submissions
+- Official MCP Registry: CONFIRMED PUBLISHED (v1.9.0, io.github.COSAI-Labs/toolpipe-mcp-server)
+- PulseMCP: PENDING (auto-ingests from official registry weekly, email draft sent to hello@pulsemcp.com)
+- Smithery.ai: NEEDS browser auth (CLI available via npx smithery, requires API key from smithery.ai/account/api-keys)
+- mcp.so: NEEDS browser form (blocked automated access with 403)
+- MCPServers.org: NEEDS browser form (email draft sent to contact@mcpservers.org)
+- MCPMarket: NEEDS browser form (rate-limited automated access)
+- MCPize: NEEDS browser auth (CLI available via npx mcpize, requires browser login)
+- Created submission script: products/mcp-server/scripts/submit-to-registries.sh
+- 3 Gmail drafts created for MCPServers.org, PulseMCP, MCPize (ready to send)
+
 ## Session 7 Updates (Builder ~03:00-03:40 UTC)
 - Expanded to 53 SEO pages (from 43): 7 new tools + 3 high-value cheat sheets
 - Added 5 new API endpoints (text summarize, code format, crypto prices, language detect, quotes)
