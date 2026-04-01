@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONPath Tester - Free Online JSONPath Expression Evaluator</title>
+    <meta name="description" content="Test JSONPath expressions online for free. Evaluate JSONPath queries against JSON data with live results. Debug and validate JSONPath expressions instantly.">
+    <meta property="og:title" content="Free JSONPath Tester & Evaluator">
+    <meta property="og:description" content="Test JSONPath expressions online for free.">
+    <link rel="canonical" href="/json-path-tester">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"JSONPath Tester","description":"Free online JSONPath expression evaluator","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .path-input { display: flex; gap: 8px; margin-bottom: 16px; }
+        .path-input input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.95rem; }
+        .path-input input:focus { outline: none; border-color: #6c63ff; }
+        .path-input button { background: #6c63ff; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .panels { grid-template-columns: 1fr; } }
+        textarea { width: 100%; min-height: 300px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .result { background: #f0fdf4; }
+        .error-result { background: #fef2f2; }
+        .examples { margin-top: 16px; }
+        .example-btn { background: #f0f0ff; border: 1px solid #e0e0ff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin: 4px; color: #302b63; }
+        .example-btn:hover { background: #e0e0ff; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .content table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        .content th, .content td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; font-size: 0.9rem; }
+        .content th { background: #f5f5f5; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>JSONPath Tester</h1>
+    <p class="subtitle">Test JSONPath expressions against JSON data. See results in real time.</p>
+
+    <div class="tool-box">
+        <div class="path-input">
+            <input type="text" id="path" placeholder="$.store.book[*].title" value="$.store.book[*].title">
+            <button onclick="evaluate()">Evaluate</button>
+        </div>
+
+        <div class="panels">
+            <div>
+                <label><strong>JSON Data</strong></label>
+                <textarea id="json-input">{
+  "store": {
+    "book": [
+      { "category": "fiction", "title": "The Great Gatsby", "price": 8.99, "author": "F. Scott Fitzgerald" },
+      { "category": "fiction", "title": "1984", "price": 6.99, "author": "George Orwell" },
+      { "category": "nonfiction", "title": "Sapiens", "price": 12.99, "author": "Yuval Noah Harari" },
+      { "category": "fiction", "title": "Dune", "price": 9.99, "author": "Frank Herbert" }
+    ],
+    "bicycle": { "color": "red", "price": 19.95 }
+  }
+}</textarea>
+            </div>
+            <div>
+                <label><strong>Result</strong></label>
+                <textarea id="result" readonly class="result" placeholder="Results will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="examples">
+            <strong style="font-size:0.85rem;">Try:</strong>
+            <button class="example-btn" onclick="setPath('$.store.book[*].title')">All titles</button>
+            <button class="example-btn" onclick="setPath('$.store.book[0]')">First book</button>
+            <button class="example-btn" onclick="setPath('$.store.book[*].price')">All prices</button>
+            <button class="example-btn" onclick="setPath('$.store.book[*].author')">All authors</button>
+            <button class="example-btn" onclick="setPath('$.store.bicycle')">Bicycle</button>
+            <button class="example-btn" onclick="setPath('$.store.bicycle.color')">Bicycle color</button>
+            <button class="example-btn" onclick="setPath('$..price')">All prices (recursive)</button>
+            <button class="example-btn" onclick="setPath('$.store.book[-1:]')">Last book</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>JSONPath Syntax Reference</h2>
+        <table>
+            <tr><th>Expression</th><th>Description</th></tr>
+            <tr><td><code>$</code></td><td>Root object</td></tr>
+            <tr><td><code>.key</code></td><td>Child property</td></tr>
+            <tr><td><code>[n]</code></td><td>Array index (0-based)</td></tr>
+            <tr><td><code>[*]</code></td><td>All array elements</td></tr>
+            <tr><td><code>..</code></td><td>Recursive descent (search all levels)</td></tr>
+            <tr><td><code>[-1:]</code></td><td>Last element</td></tr>
+            <tr><td><code>[0:2]</code></td><td>Array slice (first 2 elements)</td></tr>
+        </table>
+
+        <h2>Related Tools</h2>
+        <p><a href="/json-formatter">JSON Formatter</a> | <a href="/json-to-yaml">JSON to YAML</a> | <a href="/api-keys">Free API Key</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/api-keys">API</a>
+</footer>
+
+<script>
+function setPath(p) {
+    document.getElementById('path').value = p;
+    evaluate();
+}
+
+function evaluate() {
+    const resultEl = document.getElementById('result');
+    resultEl.className = 'result';
+    try {
+        const data = JSON.parse(document.getElementById('json-input').value);
+        const path = document.getElementById('path').value.trim();
+        const result = jsonPath(data, path);
+        resultEl.value = JSON.stringify(result, null, 2);
+    } catch (e) {
+        resultEl.className = 'error-result';
+        resultEl.value = 'Error: ' + e.message;
+    }
+}
+
+function jsonPath(obj, path) {
+    if (!path || path === '$') return obj;
+
+    // Remove leading $
+    let p = path.startsWith('$.') ? path.slice(2) : path.startsWith('$') ? path.slice(1) : path;
+
+    // Handle recursive descent
+    if (p.startsWith('..')) {
+        const key = p.slice(2).split(/[.\[]/)[0];
+        return findRecursive(obj, key);
+    }
+
+    const parts = tokenize(p);
+    let current = [obj];
+
+    for (const part of parts) {
+        let next = [];
+        for (const item of current) {
+            if (part === '*') {
+                if (Array.isArray(item)) next.push(...item);
+                else if (typeof item === 'object' && item !== null) next.push(...Object.values(item));
+            } else if (part.startsWith('[') && part.endsWith(']')) {
+                const inner = part.slice(1, -1);
+                if (inner === '*') {
+                    if (Array.isArray(item)) next.push(...item);
+                } else if (inner.includes(':')) {
+                    const [start, end] = inner.split(':').map(n => n ? parseInt(n) : undefined);
+                    if (Array.isArray(item)) {
+                        const s = start !== undefined ? (start < 0 ? item.length + start : start) : 0;
+                        const e = end !== undefined ? end : item.length;
+                        next.push(...item.slice(s, e));
+                    }
+                } else {
+                    const idx = parseInt(inner);
+                    if (Array.isArray(item) && !isNaN(idx)) {
+                        const i = idx < 0 ? item.length + idx : idx;
+                        if (item[i] !== undefined) next.push(item[i]);
+                    }
+                }
+            } else if (part.startsWith('..')) {
+                const key = part.slice(2);
+                next.push(...findRecursive(item, key));
+            } else {
+                if (item && typeof item === 'object' && part in item) {
+                    next.push(item[part]);
+                }
+            }
+        }
+        current = next;
+    }
+
+    return current.length === 1 ? current[0] : current;
+}
+
+function tokenize(path) {
+    const tokens = [];
+    let i = 0;
+    while (i < path.length) {
+        if (path[i] === '.') {
+            if (path[i+1] === '.') {
+                // Find next part
+                let j = i + 2;
+                while (j < path.length && path[j] !== '.' && path[j] !== '[') j++;
+                tokens.push('..' + path.slice(i+2, j));
+                i = j;
+            } else {
+                i++;
+            }
+        } else if (path[i] === '[') {
+            let j = path.indexOf(']', i);
+            if (j === -1) j = path.length;
+            tokens.push(path.slice(i, j+1));
+            i = j + 1;
+        } else {
+            let j = i;
+            while (j < path.length && path[j] !== '.' && path[j] !== '[') j++;
+            tokens.push(path.slice(i, j));
+            i = j;
+        }
+    }
+    return tokens;
+}
+
+function findRecursive(obj, key) {
+    const results = [];
+    function search(o) {
+        if (o && typeof o === 'object') {
+            if (key in o) results.push(o[key]);
+            for (const v of Object.values(o)) {
+                if (v && typeof v === 'object') search(v);
+            }
+        }
+    }
+    search(obj);
+    return results;
+}
+
+// Auto-evaluate on load
+evaluate();
+</script>
+</body>
+</html>

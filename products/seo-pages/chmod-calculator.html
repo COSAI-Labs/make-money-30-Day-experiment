@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chmod Calculator - Unix File Permissions Calculator</title>
+    <meta name="description" content="Free online chmod calculator. Convert between symbolic and numeric (octal) Unix/Linux file permissions. Interactive permission selector with chmod command output.">
+    <meta property="og:title" content="Free Chmod Calculator - Unix Permissions">
+    <meta property="og:description" content="Convert between symbolic and numeric Unix file permissions.">
+    <link rel="canonical" href="/chmod-calculator">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Chmod Calculator","description":"Free online Unix file permissions calculator","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .perm-grid { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 0; margin-bottom: 24px; }
+        .perm-grid .header { background: #f0f0ff; padding: 8px 16px; font-weight: 600; text-align: center; font-size: 0.85rem; color: #302b63; }
+        .perm-grid .row-label { padding: 12px 16px; background: #fafafa; font-weight: 600; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .perm-grid .cell { padding: 12px 16px; text-align: center; border-bottom: 1px solid #eee; }
+        .perm-grid label { cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; }
+        .perm-grid input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6c63ff; }
+        .output-section { background: #1a1a2e; border-radius: 10px; padding: 24px; color: white; margin-top: 20px; }
+        .output-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2a2a3e; }
+        .output-row:last-child { border-bottom: none; }
+        .output-label { color: #94a3b8; font-size: 0.85rem; }
+        .output-value { font-family: monospace; font-size: 1.1rem; color: #a5b4fc; }
+        .octal-input { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+        .octal-input input { width: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 1.2rem; text-align: center; }
+        .octal-input input:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin-top: 16px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-secondary { background: #eee; color: #333; }
+        .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+        .preset { background: #f0f0ff; border: 1px solid #e0e0ff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-family: monospace; }
+        .preset:hover { background: #e0e0ff; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .content table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        .content th, .content td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; font-size: 0.9rem; }
+        .content th { background: #f5f5f5; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>Chmod Calculator</h1>
+    <p class="subtitle">Interactive Unix/Linux file permission calculator. Click checkboxes or enter octal values.</p>
+
+    <div class="tool-box">
+        <div class="perm-grid">
+            <div class="header"></div>
+            <div class="header">Read (4)</div>
+            <div class="header">Write (2)</div>
+            <div class="header">Execute (1)</div>
+
+            <div class="row-label">Owner</div>
+            <div class="cell"><label><input type="checkbox" id="or" onchange="update()" checked> r</label></div>
+            <div class="cell"><label><input type="checkbox" id="ow" onchange="update()" checked> w</label></div>
+            <div class="cell"><label><input type="checkbox" id="ox" onchange="update()" checked> x</label></div>
+
+            <div class="row-label">Group</div>
+            <div class="cell"><label><input type="checkbox" id="gr" onchange="update()" checked> r</label></div>
+            <div class="cell"><label><input type="checkbox" id="gw" onchange="update()"> w</label></div>
+            <div class="cell"><label><input type="checkbox" id="gx" onchange="update()" checked> x</label></div>
+
+            <div class="row-label">Others</div>
+            <div class="cell"><label><input type="checkbox" id="tr" onchange="update()" checked> r</label></div>
+            <div class="cell"><label><input type="checkbox" id="tw" onchange="update()"> w</label></div>
+            <div class="cell"><label><input type="checkbox" id="tx" onchange="update()" checked> x</label></div>
+        </div>
+
+        <div class="octal-input">
+            <strong>Octal:</strong>
+            <input type="text" id="octal" value="755" maxlength="4" oninput="fromOctal()">
+        </div>
+
+        <div class="output-section">
+            <div class="output-row">
+                <span class="output-label">Numeric (Octal)</span>
+                <span class="output-value" id="out-octal">755</span>
+            </div>
+            <div class="output-row">
+                <span class="output-label">Symbolic</span>
+                <span class="output-value" id="out-symbolic">rwxr-xr-x</span>
+            </div>
+            <div class="output-row">
+                <span class="output-label">Command</span>
+                <span class="output-value" id="out-command">chmod 755 filename</span>
+            </div>
+            <div class="output-row">
+                <span class="output-label">Linux ls -l</span>
+                <span class="output-value" id="out-ls">-rwxr-xr-x</span>
+            </div>
+        </div>
+
+        <div class="btns">
+            <button class="btn btn-primary" onclick="copyCommand()">Copy chmod Command</button>
+            <button class="btn btn-secondary" onclick="setPreset('644')">644 (file)</button>
+            <button class="btn btn-secondary" onclick="setPreset('755')">755 (dir)</button>
+            <button class="btn btn-secondary" onclick="setPreset('777')">777 (all)</button>
+            <button class="btn btn-secondary" onclick="setPreset('600')">600 (private)</button>
+            <button class="btn btn-secondary" onclick="setPreset('400')">400 (read-only)</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Common chmod Values</h2>
+        <table>
+            <tr><th>Octal</th><th>Symbolic</th><th>Use Case</th></tr>
+            <tr><td><code>644</code></td><td>rw-r--r--</td><td>Regular files (owner read/write, others read)</td></tr>
+            <tr><td><code>755</code></td><td>rwxr-xr-x</td><td>Directories and scripts (owner full, others read/execute)</td></tr>
+            <tr><td><code>600</code></td><td>rw-------</td><td>Private files (SSH keys, credentials)</td></tr>
+            <tr><td><code>700</code></td><td>rwx------</td><td>Private directories or scripts</td></tr>
+            <tr><td><code>777</code></td><td>rwxrwxrwx</td><td>Full access for everyone (usually unsafe)</td></tr>
+            <tr><td><code>400</code></td><td>r--------</td><td>Read-only for owner</td></tr>
+        </table>
+
+        <h2>Related Tools</h2>
+        <p><a href="/cron-expression-generator">Cron Generator</a> | <a href="/password-generator">Password Generator</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/api-keys">Free API Key</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/cron-expression-generator">Cron</a> | <a href="/regex-tester">Regex</a> | <a href="/api-keys">API</a>
+</footer>
+
+<script>
+function update() {
+    const o = (chk('or')?4:0) + (chk('ow')?2:0) + (chk('ox')?1:0);
+    const g = (chk('gr')?4:0) + (chk('gw')?2:0) + (chk('gx')?1:0);
+    const t = (chk('tr')?4:0) + (chk('tw')?2:0) + (chk('tx')?1:0);
+    const octal = '' + o + g + t;
+    document.getElementById('octal').value = octal;
+    display(o, g, t);
+}
+
+function chk(id) { return document.getElementById(id).checked; }
+
+function fromOctal() {
+    const val = document.getElementById('octal').value.trim();
+    if (!/^[0-7]{3,4}$/.test(val)) return;
+    const digits = val.slice(-3);
+    const o = parseInt(digits[0]), g = parseInt(digits[1]), t = parseInt(digits[2]);
+
+    document.getElementById('or').checked = !!(o & 4);
+    document.getElementById('ow').checked = !!(o & 2);
+    document.getElementById('ox').checked = !!(o & 1);
+    document.getElementById('gr').checked = !!(g & 4);
+    document.getElementById('gw').checked = !!(g & 2);
+    document.getElementById('gx').checked = !!(g & 1);
+    document.getElementById('tr').checked = !!(t & 4);
+    document.getElementById('tw').checked = !!(t & 2);
+    document.getElementById('tx').checked = !!(t & 1);
+
+    display(o, g, t);
+}
+
+function display(o, g, t) {
+    const octal = '' + o + g + t;
+    const sym = toSym(o) + toSym(g) + toSym(t);
+    document.getElementById('out-octal').textContent = octal;
+    document.getElementById('out-symbolic').textContent = sym;
+    document.getElementById('out-command').textContent = 'chmod ' + octal + ' filename';
+    document.getElementById('out-ls').textContent = '-' + sym;
+}
+
+function toSym(n) {
+    return (n&4?'r':'-') + (n&2?'w':'-') + (n&1?'x':'-');
+}
+
+function setPreset(val) {
+    document.getElementById('octal').value = val;
+    fromOctal();
+}
+
+function copyCommand() {
+    navigator.clipboard.writeText(document.getElementById('out-command').textContent);
+}
+
+update();
+</script>
+</body>
+</html>
