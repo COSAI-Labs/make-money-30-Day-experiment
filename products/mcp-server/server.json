@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "89 developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more",
+  "description": "95+ developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, webhooks, mock data, crontab, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.9.0",
+  "version": "1.9.1",
   "remoteEndpoints": [
     {
       "url": "https://toolpipe.dev/mcp",
@@ -94,6 +94,12 @@
     {"name": "env_parse", "description": "Parse .env file content to JSON"},
     {"name": "http_status", "description": "Get info about HTTP status codes"},
     {"name": "jwt_create", "description": "Create JWT tokens for testing"},
-    {"name": "my_ip", "description": "Get caller's IP address"}
+    {"name": "my_ip", "description": "Get caller's IP address"},
+    {"name": "webhook_create", "description": "Create a webhook bin for testing HTTP requests"},
+    {"name": "webhook_inspect", "description": "Inspect captured webhook requests"},
+    {"name": "mock_generate", "description": "Generate mock API data (user, product, order, comment, post templates)"},
+    {"name": "crontab_generate", "description": "Generate cron expressions from plain English descriptions"},
+    {"name": "diff_generate", "description": "Generate diff/patch between two texts (unified, context, HTML)"},
+    {"name": "api_stats", "description": "Get ToolPipe API statistics and info"}
   ]
 }

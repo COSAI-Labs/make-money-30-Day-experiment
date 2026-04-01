@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.8.0" },
+    { name: "toolpipe", version: "1.9.1" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 130+ developer utility APIs as 70+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT create/decode, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP info, password checking, color palettes, text diffing, and more.",
@@ -152,6 +152,14 @@ function createServer() {
   server.tool("get_pricing", "Get API pricing tiers and payment info.", {}, async () => textResult(await apiCall("/api/pricing")));
   server.tool("agent_pay", "Agent-optimized payment: get crypto addresses and instructions to upgrade API key. Recommended: USDC on Base.", { email: z.string(), tier: z.enum(["pro", "enterprise"]).optional(), preferred_chain: z.enum(["base", "polygon", "arbitrum", "ethereum", "optimism", "solana"]).optional() }, async ({ email, tier, preferred_chain }) => textResult(await apiCall("/payments/agent-pay", { method: "POST", body: JSON.stringify({ email, tier: tier ?? "pro", preferred_chain: preferred_chain ?? "base" }) })));
 
+  // v1.9.1 new tools
+  server.tool("webhook_create", "Create a webhook bin for testing. Send requests to /webhooks/{bin_id} and inspect them.", {}, async () => textResult(await apiCall("/api/webhooks/create", { method: "POST" })));
+  server.tool("webhook_inspect", "Inspect captured webhook requests.", { bin_id: z.string(), limit: z.number().optional() }, async ({ bin_id, limit }) => textResult(await apiCall(`/api/webhooks/${bin_id}/requests${limit ? `?limit=${limit}` : ""}`)));
+  server.tool("mock_generate", "Generate mock API data. Templates: user, product, order, comment, post.", { template: z.string().optional(), count: z.number().optional(), schema: z.string().optional(), format: z.string().optional() }, async ({ template, count, schema, format }) => { const body = { template, count: count ?? 1, format: format ?? "json" }; if (schema) body.schema = JSON.parse(schema); return textResult(await apiCall("/api/mock/generate", { method: "POST", body: JSON.stringify(body) })); });
+  server.tool("crontab_generate", "Generate cron expression from plain English.", { description: z.string() }, async ({ description }) => textResult(await apiCall("/api/crontab/generate", { method: "POST", body: JSON.stringify({ description }) })));
+  server.tool("diff_generate", "Generate diff between two texts.", { original: z.string(), modified: z.string(), format: z.string().optional() }, async ({ original, modified, format }) => textResult(await apiCall("/api/diff/generate", { method: "POST", body: JSON.stringify({ original, modified, format: format ?? "unified" }) })));
+  server.tool("api_stats", "Get ToolPipe API stats.", {}, async () => textResult(await apiCall("/api/stats")));
+
   return server;
 }
 
@@ -172,10 +180,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.8.0",
+    version: "1.9.1",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 70,
+    tools: 77,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -206,5 +214,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`60 tools available. API backend: ${API_BASE}`);
+  console.log(`77 tools available. API backend: ${API_BASE}`);
 });

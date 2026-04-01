@@ -1,6 +1,6 @@
 # ToolPipe MCP Server
 
-89 developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, PDF tools, web scraping, code analysis, and more.
+95+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, webhook testing, mock data generation, crontab generation, web scraping, code analysis, and more.
 
 Works with Claude, Cursor, Windsurf, VS Code, or any MCP-compatible client.
 
@@ -65,7 +65,7 @@ Add to `.cursor/mcp.json` or `.vscode/mcp.json`:
 
 Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "you@example.com"}`. No signup beyond email.
 
-## 88 Tools
+## 95+ Tools
 
 ### Data and Formatting
 | Tool | Description |
@@ -166,6 +166,16 @@ Get a free API key (100 calls/day): `POST /api-keys/register` with `{"email": "y
 | `template_render` | Render templates with variables |
 | `data_transform` | Sort, filter, group JSON data |
 | `prompt_build` | Build structured LLM prompts |
+
+### Testing and DevOps
+| Tool | Description |
+|------|-------------|
+| `webhook_create` | Create a webhook bin for testing |
+| `webhook_inspect` | Inspect captured webhook requests |
+| `mock_generate` | Generate mock API data (user, product, order, comment, post) |
+| `crontab_generate` | Generate cron expressions from plain English |
+| `diff_generate` | Generate diff/patch between two texts |
+| `api_stats` | Get ToolPipe API statistics |
 
 ### Account and Payments
 | Tool | Description |

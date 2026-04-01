@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Free JSON API - Format, Validate, Convert JSON Online | ToolPipe</title>
+<meta name="description" content="Free JSON API for developers. Format, validate, convert JSON to YAML/XML/CSV with a single API call. No signup required. 130+ endpoints available.">
+<meta name="keywords" content="free json api, json formatter api, json validator api, json to yaml api, json to xml api, json to csv api, free api no signup">
+<meta property="og:title" content="Free JSON API - Format, Validate, Convert JSON | ToolPipe">
+<meta property="og:description" content="Free JSON API with no signup. Format, validate, and convert JSON in seconds. 130+ developer tool endpoints.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolpipe.dev/json-api">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free JSON API - Format, Validate, Convert JSON | ToolPipe">
+<meta name="twitter:description" content="Free JSON API with no signup. Format, validate, and convert JSON in seconds.">
+<link rel="canonical" href="https://toolpipe.dev/json-api">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebAPI",
+  "name": "ToolPipe JSON API",
+  "description": "Free JSON API for formatting, validating, and converting JSON data. No signup required.",
+  "url": "https://toolpipe.dev/json-api",
+  "provider": {
+    "@type": "Organization",
+    "name": "ToolPipe",
+    "url": "https://toolpipe.dev"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Free tier with 100 calls per day"
+  },
+  "documentation": "https://toolpipe.dev/docs"
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+h1{font-size:2.2rem;margin-bottom:8px;background:linear-gradient(135deg,#6c63ff,#00d2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#94a3b8;font-size:1.1rem;margin-bottom:32px}
+h2{color:#6c63ff;font-size:1.3rem;margin:28px 0 12px}
+pre{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px;overflow-x:auto;font-size:0.85rem;line-height:1.5;margin:8px 0 16px}
+code{font-family:'SF Mono','Fira Code',monospace;color:#a5d6ff}
+p{color:#c0c0c0;margin-bottom:10px}
+a{color:#6c63ff;text-decoration:none}
+.tool{background:#111;border:1px solid #1e1e2e;border-radius:10px;padding:20px;margin:12px 0}
+.tool h3{color:#e0e0e0;font-size:1rem;margin-bottom:4px}
+.tool .desc{color:#94a3b8;font-size:0.85rem;margin-bottom:8px}
+.badge{display:inline-block;background:#0a2e1a;color:#22c55e;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:600;margin-right:4px}
+.badge-blue{background:#0a1e3e;color:#60a5fa}
+.cta{background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;display:inline-block;padding:12px 28px;border-radius:8px;font-weight:600;margin:8px 4px}
+.cta:hover{text-decoration:none;opacity:0.9}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:16px 0}
+.card{background:#111;border:1px solid #1e1e2e;border-radius:8px;padding:14px}
+.card h4{color:#e0e0e0;margin-bottom:4px;font-size:0.9rem}
+.card p{color:#94a3b8;font-size:0.8rem}
+.stat{text-align:center;padding:16px}
+.stat-num{font-size:2rem;font-weight:700;color:#6c63ff}
+.stat-label{color:#94a3b8;font-size:0.85rem}
+.faq{background:#111;border:1px solid #1e1e2e;border-radius:10px;padding:20px;margin:12px 0}
+.faq h3{color:#e0e0e0;font-size:0.95rem;margin-bottom:6px}
+.faq p{color:#94a3b8;font-size:0.85rem}
+</style>
+</head>
+<body>
+<div class="container">
+<p><a href="/">ToolPipe</a> / Free JSON API</p>
+<h1>Free JSON API for Developers</h1>
+<p class="subtitle">Format, validate, and convert JSON with a single API call. No signup, no API key required. Works from any language, any platform.</p>
+
+<div class="grid" style="grid-template-columns:repeat(4,1fr)">
+<div class="stat"><div class="stat-num">130+</div><div class="stat-label">API Endpoints</div></div>
+<div class="stat"><div class="stat-num">0</div><div class="stat-label">Signup Required</div></div>
+<div class="stat"><div class="stat-num">100</div><div class="stat-label">Free Calls/Day</div></div>
+<div class="stat"><div class="stat-num">&lt;50ms</div><div class="stat-label">Avg Response</div></div>
+</div>
+
+<a href="/api-keys" class="cta">Get Free API Key (Higher Limits)</a>
+<a href="/docs" class="cta" style="background:#333">API Documentation</a>
+
+<h2>JSON Format &amp; Validate</h2>
+
+<div class="tool">
+<h3>JSON Formatter / Validator</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Format, validate, and prettify JSON. Returns formatted output with syntax validation. Detects errors with line numbers.</p>
+<pre><code>curl -X POST https://toolpipe.dev/json/format \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"name\":\"John\",\"age\":30}"}'</code></pre>
+<p class="desc">Response:</p>
+<pre><code>{
+  "formatted": "{\n  \"name\": \"John\",\n  \"age\": 30\n}",
+  "valid": true
+}</code></pre>
+</div>
+
+<div class="tool">
+<h3>JSON Minifier</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Minify JSON by removing whitespace. Reduces payload size for faster transfers.</p>
+<pre><code>curl -X POST https://toolpipe.dev/json/minify \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{ \"name\": \"John\", \"age\": 30 }"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>JSONPath Tester</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Query JSON data using JSONPath expressions. Extract nested values easily.</p>
+<pre><code>curl -X POST https://toolpipe.dev/json/path \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"users\":[{\"name\":\"John\"},{\"name\":\"Jane\"}]}", "path": "$.users[*].name"}'</code></pre>
+</div>
+
+<h2>JSON Conversion</h2>
+
+<div class="tool">
+<h3>JSON to YAML</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert JSON to YAML format. Perfect for Kubernetes configs and CI/CD pipelines.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/json-to-yaml \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"name\": \"test\", \"version\": \"1.0\"}"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>JSON to XML</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert JSON objects to XML documents. Handles nested structures and arrays.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/json-to-xml \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"root\": {\"item\": \"value\"}}"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>JSON to CSV</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Convert JSON arrays to CSV format. Great for spreadsheet exports.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/json-to-csv \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "[{\"name\":\"John\",\"age\":30},{\"name\":\"Jane\",\"age\":25}]"}'</code></pre>
+</div>
+
+<div class="tool">
+<h3>JSON to TypeScript</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Free</span>
+<p class="desc">Generate TypeScript interfaces from JSON. Auto-detect types and nested structures.</p>
+<pre><code>curl -X POST https://toolpipe.dev/convert/json-to-typescript \
+  -H "Content-Type: application/json" \
+  -d '{"json_string": "{\"name\":\"John\",\"age\":30,\"active\":true}"}'</code></pre>
+</div>
+
+<h2>Related JSON Tools</h2>
+
+<div class="grid">
+<div class="card"><h4>CSV to JSON</h4><p>Convert CSV data to JSON arrays.</p></div>
+<div class="card"><h4>XML to JSON</h4><p>Parse XML documents into JSON.</p></div>
+<div class="card"><h4>YAML to JSON</h4><p>Convert YAML configs to JSON.</p></div>
+<div class="card"><h4>JWT Decoder</h4><p>Decode and inspect JWT tokens (JSON).</p></div>
+</div>
+
+<h2>Why Use ToolPipe's JSON API?</h2>
+
+<div class="faq">
+<h3>No signup, no API key for basic usage</h3>
+<p>Start making API calls immediately. No registration forms, no email verification, no credit card. Just curl and go.</p>
+</div>
+
+<div class="faq">
+<h3>Works from any language</h3>
+<p>Python, JavaScript, Go, Rust, Ruby, PHP, Java, Swift, or plain curl. If it can make HTTP requests, it works with ToolPipe.</p>
+</div>
+
+<div class="faq">
+<h3>Built for automation and CI/CD</h3>
+<p>Use in GitHub Actions, GitLab CI, Jenkins, or any pipeline. JSON validation as a build step. Format checking in pre-commit hooks.</p>
+</div>
+
+<div class="faq">
+<h3>AI agent compatible</h3>
+<p>Available as an MCP server for Claude, Cursor, and other AI coding assistants. Agents can discover and use all 130+ tools automatically.</p>
+</div>
+
+<h2>Pricing</h2>
+<p>Free tier: 100 API calls per day, no key required. For higher limits:</p>
+<div class="grid">
+<div class="card"><h4>Free</h4><p>100 calls/day. No signup.</p></div>
+<div class="card"><h4>Pro ($9.99/mo)</h4><p>10,000 calls/day. API key.</p></div>
+<div class="card"><h4>Enterprise</h4><p>Unlimited. Priority support.</p></div>
+</div>
+
+<div style="text-align:center;margin:40px 0">
+<a href="/api-keys" class="cta" style="background:#22c55e">Get Free API Key</a>
+<a href="/docs" class="cta">API Documentation</a>
+<a href="/mcp-server" class="cta" style="background:#333">MCP Server</a>
+</div>
+
+<h2>More Free Developer APIs</h2>
+<p>ToolPipe offers 130+ free API endpoints beyond JSON tools: <a href="/free-api-tools">hash generators</a>, <a href="/free-developer-api">UUID generators</a>, QR codes, PDF tools, DNS lookups, regex testers, and more. <a href="/docs">Browse all endpoints</a>.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Crypto Payment API - Accept SOL, ETH, USDC, BTC Payments | ToolPipe</title>
+<meta name="description" content="Crypto payment API for developers and AI agents. Accept Solana (SOL), Ethereum (ETH), USDC, and Bitcoin payments. No KYC, programmatic access, on-chain verification.">
+<meta name="keywords" content="crypto payment api, accept crypto payments api, solana payment api, ethereum payment api, usdc payment api, bitcoin payment api, no kyc payment api, agent crypto payment">
+<meta property="og:title" content="Crypto Payment API - Accept SOL, ETH, USDC, BTC | ToolPipe">
+<meta property="og:description" content="Accept crypto payments via API. Solana, Ethereum, USDC, Bitcoin. No KYC. On-chain verification. Built for developers and AI agents.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toolpipe.dev/crypto-payment-api">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Crypto Payment API - SOL, ETH, USDC, BTC | ToolPipe">
+<meta name="twitter:description" content="Accept crypto payments via API. No KYC. On-chain verification. Built for AI agents.">
+<link rel="canonical" href="https://toolpipe.dev/crypto-payment-api">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebAPI",
+  "name": "ToolPipe Crypto Payment API",
+  "description": "Crypto payment API accepting Solana, Ethereum, USDC, and Bitcoin. No KYC required. Built for developers and AI agents.",
+  "url": "https://toolpipe.dev/crypto-payment-api",
+  "provider": {
+    "@type": "Organization",
+    "name": "ToolPipe",
+    "url": "https://toolpipe.dev"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "9.99",
+    "priceCurrency": "USD",
+    "description": "Pro API access via crypto payment"
+  },
+  "documentation": "https://toolpipe.dev/docs"
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+h1{font-size:2.2rem;margin-bottom:8px;background:linear-gradient(135deg,#6c63ff,#00d2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#94a3b8;font-size:1.1rem;margin-bottom:32px}
+h2{color:#6c63ff;font-size:1.3rem;margin:28px 0 12px}
+pre{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px;overflow-x:auto;font-size:0.85rem;line-height:1.5;margin:8px 0 16px}
+code{font-family:'SF Mono','Fira Code',monospace;color:#a5d6ff}
+p{color:#c0c0c0;margin-bottom:10px}
+a{color:#6c63ff;text-decoration:none}
+.tool{background:#111;border:1px solid #1e1e2e;border-radius:10px;padding:20px;margin:12px 0}
+.tool h3{color:#e0e0e0;font-size:1rem;margin-bottom:4px}
+.tool .desc{color:#94a3b8;font-size:0.85rem;margin-bottom:8px}
+.badge{display:inline-block;background:#0a2e1a;color:#22c55e;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:600;margin-right:4px}
+.badge-blue{background:#0a1e3e;color:#60a5fa}
+.badge-purple{background:#1e0a3e;color:#a78bfa}
+.badge-orange{background:#3e2a0a;color:#fb923c}
+.cta{background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;display:inline-block;padding:12px 28px;border-radius:8px;font-weight:600;margin:8px 4px}
+.cta:hover{text-decoration:none;opacity:0.9}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:16px 0}
+.card{background:#111;border:1px solid #1e1e2e;border-radius:8px;padding:14px}
+.card h4{color:#e0e0e0;margin-bottom:4px;font-size:0.9rem}
+.card p{color:#94a3b8;font-size:0.8rem}
+.stat{text-align:center;padding:16px}
+.stat-num{font-size:2rem;font-weight:700;color:#6c63ff}
+.stat-label{color:#94a3b8;font-size:0.85rem}
+.step{background:#111;border:1px solid #1e1e2e;border-radius:12px;padding:24px;margin:16px 0}
+.chain{display:inline-block;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:8px 16px;margin:4px;font-size:0.9rem}
+</style>
+</head>
+<body>
+<div class="container">
+<p><a href="/">ToolPipe</a> / Crypto Payment API</p>
+<h1>Crypto Payment API</h1>
+<p class="subtitle">Accept cryptocurrency payments via API. Solana, Ethereum, USDC, and Bitcoin. No KYC, no bank account, no payment processor middleman. Built for developers and AI agents.</p>
+
+<div class="grid" style="grid-template-columns:repeat(4,1fr)">
+<div class="stat"><div class="stat-num">4</div><div class="stat-label">Chains Supported</div></div>
+<div class="stat"><div class="stat-num">0</div><div class="stat-label">KYC Required</div></div>
+<div class="stat"><div class="stat-num">&lt;1s</div><div class="stat-label">Payment Detection</div></div>
+<div class="stat"><div class="stat-num">100%</div><div class="stat-label">Programmatic</div></div>
+</div>
+
+<p style="text-align:center;margin:16px 0">
+<span class="chain">Solana (SOL)</span>
+<span class="chain">Ethereum (ETH)</span>
+<span class="chain">USDC</span>
+<span class="chain">Bitcoin (BTC)</span>
+</p>
+
+<a href="/docs" class="cta">API Documentation</a>
+<a href="/api-keys" class="cta" style="background:#22c55e">Get API Key</a>
+
+<h2>How It Works</h2>
+
+<div class="step">
+<p><strong>Step 1: Create a Payment</strong></p>
+<p class="desc">Request a payment address for the desired chain and amount.</p>
+<pre><code>curl -X POST https://toolpipe.dev/payments/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount_usd": 9.99,
+    "chain": "solana",
+    "description": "Pro API access",
+    "metadata": {"email": "user@example.com"}
+  }'</code></pre>
+<p class="desc">Response:</p>
+<pre><code>{
+  "payment_id": "pay_abc123",
+  "address": "7xKQ...wallet",
+  "amount_crypto": 0.067,
+  "chain": "solana",
+  "expires_at": "2026-04-01T12:30:00Z"
+}</code></pre>
+</div>
+
+<div class="step">
+<p><strong>Step 2: Send Payment</strong></p>
+<p class="desc">Send the exact amount to the provided address. The system monitors the blockchain for incoming transactions.</p>
+</div>
+
+<div class="step">
+<p><strong>Step 3: Verify On-Chain</strong></p>
+<p class="desc">Check payment status programmatically. Verification happens on-chain.</p>
+<pre><code>curl -X POST https://toolpipe.dev/payments/verify-tx \
+  -d '{
+    "payment_id": "pay_abc123",
+    "tx_hash": "5abc...def"
+  }'</code></pre>
+<p class="desc">Response:</p>
+<pre><code>{
+  "verified": true,
+  "status": "confirmed",
+  "confirmations": 32,
+  "api_key": "tp_pro_xyz789"
+}</code></pre>
+</div>
+
+<h2>Agent-to-Agent Payments</h2>
+
+<div class="tool">
+<h3>One-Step Agent Payment</h3>
+<span class="badge-purple badge">A2A</span>
+<p class="desc">AI agents can upgrade their API access in a single call. The agent-pay endpoint handles payment creation, address generation, and key upgrade in one workflow.</p>
+<pre><code>curl -X POST https://toolpipe.dev/agent-pay \
+  -H "Content-Type: application/json" \
+  -d '{
+    "plan": "pro",
+    "chain": "solana",
+    "agent_id": "my-research-agent"
+  }'</code></pre>
+<p class="desc">Response includes the payment address and instructions the agent can execute autonomously.</p>
+</div>
+
+<div class="tool">
+<h3>Why Crypto for AI Agents?</h3>
+<p class="desc">AI agents cannot fill out credit card forms, pass KYC checks, or verify phone numbers. Crypto payments are the only fully programmatic payment method. An agent with a wallet can pay for services without any human involvement.</p>
+</div>
+
+<h2>Supported Chains</h2>
+
+<div class="grid">
+<div class="card">
+<h4>Solana (SOL)</h4>
+<p>Fastest settlement. Sub-second finality. Lowest fees (&lt;$0.01). Recommended for agent payments.</p>
+</div>
+<div class="card">
+<h4>Ethereum (ETH)</h4>
+<p>Most widely supported. ~12 second blocks. Higher fees but universal compatibility.</p>
+</div>
+<div class="card">
+<h4>USDC (Solana/Ethereum)</h4>
+<p>Stablecoin. No price volatility. Ideal for fixed-price subscriptions.</p>
+</div>
+<div class="card">
+<h4>Bitcoin (BTC)</h4>
+<p>Most trusted. Lightning Network support planned. ~10 minute confirmation.</p>
+</div>
+</div>
+
+<h2>API Endpoints</h2>
+
+<div class="tool">
+<h3>POST /payments/create</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Auth Required</span>
+<p class="desc">Create a new payment request. Returns a blockchain address and amount.</p>
+</div>
+
+<div class="tool">
+<h3>POST /payments/verify-tx</h3>
+<span class="badge">POST</span><span class="badge-blue badge">Auth Required</span>
+<p class="desc">Verify a transaction on-chain. Returns confirmation status and count.</p>
+</div>
+
+<div class="tool">
+<h3>GET /payments/status/:id</h3>
+<span class="badge">GET</span><span class="badge-blue badge">Auth Required</span>
+<p class="desc">Check the status of a payment by ID.</p>
+</div>
+
+<div class="tool">
+<h3>POST /agent-pay</h3>
+<span class="badge">POST</span><span class="badge-purple badge">Agent-First</span>
+<p class="desc">Simplified payment flow for AI agents. One call to initiate plan upgrade via crypto.</p>
+</div>
+
+<div class="tool">
+<h3>GET /payments/chains</h3>
+<span class="badge">GET</span><span class="badge-blue badge">Free</span>
+<p class="desc">List supported chains and current exchange rates.</p>
+<pre><code>curl https://toolpipe.dev/payments/chains</code></pre>
+</div>
+
+<h2>Use Cases</h2>
+
+<div class="tool">
+<h3>SaaS with crypto billing</h3>
+<p class="desc">Add crypto payments to your SaaS product. Let customers pay with SOL, ETH, USDC, or BTC alongside traditional payment methods.</p>
+</div>
+
+<div class="tool">
+<h3>AI agent infrastructure</h3>
+<p class="desc">Building an AI agent that needs to pay for services? Use the crypto payment API to give your agent a wallet and let it manage its own subscriptions.</p>
+</div>
+
+<div class="tool">
+<h3>Global payments without banking</h3>
+<p class="desc">Accept payments from anywhere in the world. No bank account, no payment processor approval, no country restrictions.</p>
+</div>
+
+<div class="tool">
+<h3>Micropayments and pay-per-use</h3>
+<p class="desc">Solana's low fees (&lt;$0.01) make micropayments viable. Charge per API call, per generation, or per action.</p>
+</div>
+
+<h2>Pricing</h2>
+<p>The crypto payment API is available on all paid plans:</p>
+<div class="grid">
+<div class="card"><h4>Pro ($9.99/mo)</h4><p>10,000 API calls/day. Full payment API access. Pay with crypto.</p></div>
+<div class="card"><h4>Enterprise</h4><p>Unlimited calls. Custom integration support. Volume discounts.</p></div>
+</div>
+
+<div style="text-align:center;margin:40px 0">
+<a href="/api-keys" class="cta" style="background:#22c55e">Get API Key</a>
+<a href="/docs" class="cta">API Documentation</a>
+<a href="/ai-agent-api-tools" class="cta" style="background:#333">AI Agent Tools</a>
+</div>
+
+<h2>Related Pages</h2>
+<ul style="list-style:none;padding:0">
+<li style="margin:6px 0"><a href="/ai-agent-api-tools">AI Agent API Tools</a></li>
+<li style="margin:6px 0"><a href="/mcp-server-tools">MCP Server Tools</a></li>
+<li style="margin:6px 0"><a href="/free-api-tools">130+ Free API Tools</a></li>
+<li style="margin:6px 0"><a href="/pricing">Pricing</a></li>
+<li style="margin:6px 0"><a href="/docs">API Documentation</a></li>
+</ul>
+
+</div>
+</body>
+</html>

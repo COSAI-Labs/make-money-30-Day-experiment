@@ -52,7 +52,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.8.0" },
+  { name: "toolpipe", version: "1.9.1" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 130+ developer utility APIs as 88 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats/readability, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
@@ -1394,6 +1394,102 @@ server.tool(
   {},
   async () => {
     const result = await apiCall("/api/myip");
+    return textResult(result);
+  }
+);
+
+// --- Webhook Tester ---
+
+server.tool(
+  "webhook_create",
+  "Create a webhook bin for testing. Send requests to /webhooks/{bin_id} and inspect them.",
+  {},
+  async () => {
+    const result = await apiCall("/api/webhooks/create", { method: "POST" });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "webhook_inspect",
+  "Inspect captured webhook requests for a bin.",
+  {
+    bin_id: z.string().describe("The webhook bin ID"),
+    limit: z.number().optional().describe("Max requests to return (default 20)"),
+  },
+  async ({ bin_id, limit }) => {
+    const params = limit ? `?limit=${limit}` : "";
+    const result = await apiCall(`/api/webhooks/${bin_id}/requests${params}`);
+    return textResult(result);
+  }
+);
+
+// --- Mock Data Generator ---
+
+server.tool(
+  "mock_generate",
+  "Generate mock API data. Templates: user, product, order, comment, post. Or provide a custom schema.",
+  {
+    template: z.string().optional().describe("Template name: user, product, order, comment, post"),
+    count: z.number().optional().describe("Number of items to generate (max 100)"),
+    schema: z.string().optional().describe("Custom schema as JSON: {\"name\": \"name\", \"age\": \"int\", \"email\": \"email\"}"),
+    format: z.string().optional().describe("Output format: json (default), csv"),
+  },
+  async ({ template, count, schema, format }) => {
+    const body = { template, count: count ?? 1, format: format ?? "json" };
+    if (schema) body.schema = JSON.parse(schema);
+    const result = await apiCall("/api/mock/generate", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Crontab Generator ---
+
+server.tool(
+  "crontab_generate",
+  "Generate a cron expression from plain English. e.g. 'every 5 minutes', 'daily at 3am', 'weekdays at noon'.",
+  {
+    description: z.string().describe("Plain English schedule description"),
+  },
+  async ({ description }) => {
+    const result = await apiCall("/api/crontab/generate", {
+      method: "POST",
+      body: JSON.stringify({ description }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- Diff Generator ---
+
+server.tool(
+  "diff_generate",
+  "Generate a diff/patch between two texts. Supports unified, context, and HTML formats.",
+  {
+    original: z.string().describe("Original text"),
+    modified: z.string().describe("Modified text"),
+    format: z.string().optional().describe("Diff format: unified (default), context, html"),
+  },
+  async ({ original, modified, format }) => {
+    const result = await apiCall("/api/diff/generate", {
+      method: "POST",
+      body: JSON.stringify({ original, modified, format: format ?? "unified" }),
+    });
+    return textResult(result);
+  }
+);
+
+// --- API Stats ---
+
+server.tool(
+  "api_stats",
+  "Get ToolPipe API statistics: endpoints, tools, pricing, payment methods.",
+  {},
+  async () => {
+    const result = await apiCall("/api/stats");
     return textResult(result);
   }
 );

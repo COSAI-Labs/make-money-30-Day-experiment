@@ -6988,6 +6988,388 @@ async def my_ip(request: Request):
     }
 
 
+# --- Webhook Tester ---
+
+WEBHOOK_DB = Path(__file__).parent / "data" / "webhooks.db"
+_webhook_lock = threading.Lock()
+
+def _init_webhook_db():
+    conn = sqlite3.connect(str(WEBHOOK_DB))
+    conn.execute("""CREATE TABLE IF NOT EXISTS webhook_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bin_id TEXT NOT NULL,
+        method TEXT,
+        path TEXT,
+        headers TEXT,
+        body TEXT,
+        query_params TEXT,
+        source_ip TEXT,
+        received_at TEXT
+    )""")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_bin ON webhook_requests(bin_id)")
+    conn.commit()
+    conn.close()
+
+_init_webhook_db()
+
+
+@app.post("/api/webhooks/create")
+async def create_webhook_bin():
+    """Create a unique webhook endpoint for testing. Send requests to /webhooks/{bin_id} and inspect them via /api/webhooks/{bin_id}/requests."""
+    bin_id = uuid.uuid4().hex[:12]
+    return {
+        "bin_id": bin_id,
+        "url": f"/webhooks/{bin_id}",
+        "inspect_url": f"/api/webhooks/{bin_id}/requests",
+        "instructions": f"Send any HTTP request to /webhooks/{bin_id}. Then GET /api/webhooks/{bin_id}/requests to see captured requests.",
+        "expires": "Requests stored for 24 hours, max 100 per bin.",
+    }
+
+
+@app.api_route("/webhooks/{bin_id}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def receive_webhook(bin_id: str, request: Request):
+    """Capture any HTTP request sent to this webhook bin."""
+    body = ""
+    try:
+        raw = await request.body()
+        body = raw.decode("utf-8", errors="replace")[:10000]
+    except Exception:
+        pass
+
+    headers = dict(request.headers)
+    query = dict(request.query_params)
+    ip = request.headers.get("x-forwarded-for", request.client.host)
+    now = datetime.now(timezone.utc).isoformat()
+
+    with _webhook_lock:
+        conn = sqlite3.connect(str(WEBHOOK_DB))
+        conn.execute(
+            "INSERT INTO webhook_requests (bin_id, method, path, headers, body, query_params, source_ip, received_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (bin_id, request.method, str(request.url.path), json.dumps(headers), body, json.dumps(query), ip, now)
+        )
+        # Keep max 100 per bin
+        conn.execute(
+            "DELETE FROM webhook_requests WHERE bin_id = ? AND id NOT IN (SELECT id FROM webhook_requests WHERE bin_id = ? ORDER BY id DESC LIMIT 100)",
+            (bin_id, bin_id)
+        )
+        # Clean entries older than 24h
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+        conn.execute("DELETE FROM webhook_requests WHERE received_at < ?", (cutoff,))
+        conn.commit()
+        conn.close()
+
+    return {"status": "captured", "bin_id": bin_id, "method": request.method, "timestamp": now}
+
+
+@app.get("/api/webhooks/{bin_id}/requests")
+async def get_webhook_requests(bin_id: str, limit: int = 20):
+    """Inspect captured webhook requests for a bin."""
+    with _webhook_lock:
+        conn = sqlite3.connect(str(WEBHOOK_DB))
+        rows = conn.execute(
+            "SELECT method, path, headers, body, query_params, source_ip, received_at FROM webhook_requests WHERE bin_id = ? ORDER BY id DESC LIMIT ?",
+            (bin_id, min(limit, 100))
+        ).fetchall()
+        conn.close()
+    requests_list = []
+    for r in rows:
+        requests_list.append({
+            "method": r[0], "path": r[1],
+            "headers": json.loads(r[2]) if r[2] else {},
+            "body": r[3], "query_params": json.loads(r[4]) if r[4] else {},
+            "source_ip": r[5], "received_at": r[6],
+        })
+    return {"bin_id": bin_id, "count": len(requests_list), "requests": requests_list}
+
+
+# --- Mock API Response Generator ---
+
+class MockApiRequest(BaseModel):
+    schema: dict | None = None
+    count: int = 1
+    format: str = "json"  # json, xml, csv
+    template: str | None = None  # "user", "product", "order", "comment", "post"
+
+
+MOCK_TEMPLATES = {
+    "user": {"id": "int", "name": "name", "email": "email", "avatar": "url", "created_at": "date", "role": "choice:admin,user,moderator"},
+    "product": {"id": "int", "name": "word", "price": "float", "currency": "choice:USD,EUR,GBP", "category": "choice:electronics,clothing,food,books", "in_stock": "bool", "rating": "float"},
+    "order": {"id": "int", "customer_email": "email", "total": "float", "status": "choice:pending,processing,shipped,delivered,cancelled", "items_count": "int", "created_at": "date"},
+    "comment": {"id": "int", "author": "name", "text": "sentence", "likes": "int", "created_at": "date"},
+    "post": {"id": "int", "title": "sentence", "body": "paragraph", "author": "name", "tags": "tags", "published": "bool", "views": "int"},
+}
+
+
+def _generate_mock_value(field_type: str, idx: int = 0) -> any:
+    import random, string
+    ft = field_type.lower()
+    if ft == "int":
+        return random.randint(1, 10000)
+    elif ft == "float":
+        return round(random.uniform(1, 999.99), 2)
+    elif ft == "bool":
+        return random.choice([True, False])
+    elif ft == "name":
+        first = random.choice(["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack"])
+        last = random.choice(["Smith", "Johnson", "Williams", "Brown", "Jones", "Davis", "Miller", "Wilson", "Moore", "Taylor"])
+        return f"{first} {last}"
+    elif ft == "email":
+        user = ''.join(random.choices(string.ascii_lowercase, k=8))
+        domain = random.choice(["gmail.com", "example.com", "mail.org", "test.io"])
+        return f"{user}@{domain}"
+    elif ft == "url":
+        return f"https://example.com/{random.randint(1,999)}"
+    elif ft == "date":
+        d = random.randint(1609459200, 1775068800)
+        return datetime.fromtimestamp(d, tz=timezone.utc).isoformat()
+    elif ft == "word":
+        return random.choice(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Theta", "Lambda", "Sigma", "Omega"])
+    elif ft == "sentence":
+        words = random.choices(["the", "quick", "brown", "fox", "jumped", "over", "lazy", "dog", "a", "simple", "test", "data", "mock", "api", "response"], k=random.randint(5, 12))
+        return ' '.join(words).capitalize() + '.'
+    elif ft == "paragraph":
+        return ' '.join(_generate_mock_value("sentence") for _ in range(random.randint(3, 6)))
+    elif ft == "tags":
+        all_tags = ["python", "javascript", "api", "web", "data", "ai", "cloud", "dev", "test", "tools"]
+        return random.sample(all_tags, k=random.randint(2, 4))
+    elif ft.startswith("choice:"):
+        options = ft[7:].split(",")
+        return random.choice(options)
+    elif ft == "uuid":
+        return str(uuid.uuid4())
+    else:
+        return f"value_{idx}"
+
+
+@app.post("/api/mock/generate")
+async def generate_mock_data_v2(req: MockApiRequest):
+    """Generate mock API responses. Use templates (user, product, order, comment, post) or custom schemas."""
+    schema = req.schema
+    if req.template and req.template in MOCK_TEMPLATES:
+        schema = MOCK_TEMPLATES[req.template]
+    elif not schema:
+        schema = MOCK_TEMPLATES["user"]
+
+    count = max(1, min(req.count, 100))
+    results = []
+    for i in range(count):
+        item = {}
+        for key, field_type in schema.items():
+            item[key] = _generate_mock_value(str(field_type), i)
+        results.append(item)
+
+    if req.format == "csv" and results:
+        import io, csv
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=results[0].keys())
+        writer.writeheader()
+        for row in results:
+            flat_row = {k: json.dumps(v) if isinstance(v, (list, dict)) else v for k, v in row.items()}
+            writer.writerow(flat_row)
+        return {"format": "csv", "data": output.getvalue(), "count": count}
+
+    return {"format": "json", "data": results if count > 1 else results[0], "count": count, "template": req.template}
+
+
+# --- Crontab Generator ---
+
+class CrontabRequest(BaseModel):
+    description: str  # e.g. "every 5 minutes", "daily at 3am", "weekdays at noon"
+
+
+CRON_PATTERNS = {
+    "every minute": "* * * * *",
+    "every 5 minutes": "*/5 * * * *",
+    "every 10 minutes": "*/10 * * * *",
+    "every 15 minutes": "*/15 * * * *",
+    "every 30 minutes": "*/30 * * * *",
+    "every hour": "0 * * * *",
+    "every 2 hours": "0 */2 * * *",
+    "every 4 hours": "0 */4 * * *",
+    "every 6 hours": "0 */6 * * *",
+    "every 12 hours": "0 */12 * * *",
+    "daily": "0 0 * * *",
+    "daily at midnight": "0 0 * * *",
+    "daily at noon": "0 12 * * *",
+    "daily at 3am": "0 3 * * *",
+    "daily at 6am": "0 6 * * *",
+    "daily at 9am": "0 9 * * *",
+    "weekly": "0 0 * * 0",
+    "weekly on monday": "0 0 * * 1",
+    "weekly on friday": "0 0 * * 5",
+    "weekdays": "0 9 * * 1-5",
+    "weekdays at noon": "0 12 * * 1-5",
+    "weekdays at 9am": "0 9 * * 1-5",
+    "weekends": "0 10 * * 0,6",
+    "monthly": "0 0 1 * *",
+    "first of month": "0 0 1 * *",
+    "last day of month": "0 0 28-31 * *",
+    "quarterly": "0 0 1 1,4,7,10 *",
+    "yearly": "0 0 1 1 *",
+    "annually": "0 0 1 1 *",
+}
+
+
+@app.post("/api/crontab/generate")
+async def generate_crontab(req: CrontabRequest):
+    """Generate a cron expression from a plain English description."""
+    desc = req.description.lower().strip()
+
+    # Direct match
+    for pattern_desc, cron in CRON_PATTERNS.items():
+        if pattern_desc in desc or desc in pattern_desc:
+            return {"description": req.description, "cron": cron, "explanation": pattern_desc}
+
+    # Parse "every N minutes/hours"
+    import re
+    m = re.match(r"every\s+(\d+)\s+(minute|hour|day|week)", desc)
+    if m:
+        n, unit = int(m.group(1)), m.group(2)
+        if unit == "minute" and 1 <= n <= 59:
+            return {"description": req.description, "cron": f"*/{n} * * * *", "explanation": f"Every {n} minutes"}
+        elif unit == "hour" and 1 <= n <= 23:
+            return {"description": req.description, "cron": f"0 */{n} * * *", "explanation": f"Every {n} hours"}
+        elif unit == "day" and 1 <= n <= 30:
+            return {"description": req.description, "cron": f"0 0 */{n} * *", "explanation": f"Every {n} days"}
+
+    # Parse "at Xam/pm"
+    m = re.search(r"at\s+(\d{1,2})\s*(am|pm)?", desc)
+    if m:
+        hour = int(m.group(1))
+        ampm = m.group(2)
+        if ampm == "pm" and hour < 12:
+            hour += 12
+        elif ampm == "am" and hour == 12:
+            hour = 0
+        # Check for weekdays
+        if "weekday" in desc:
+            return {"description": req.description, "cron": f"0 {hour} * * 1-5", "explanation": f"Weekdays at {hour}:00"}
+        elif "weekend" in desc:
+            return {"description": req.description, "cron": f"0 {hour} * * 0,6", "explanation": f"Weekends at {hour}:00"}
+        return {"description": req.description, "cron": f"0 {hour} * * *", "explanation": f"Daily at {hour}:00"}
+
+    # Fallback: return closest match
+    best_match = None
+    best_score = 0
+    desc_words = set(desc.split())
+    for pattern_desc, cron in CRON_PATTERNS.items():
+        pattern_words = set(pattern_desc.split())
+        score = len(desc_words & pattern_words)
+        if score > best_score:
+            best_score = score
+            best_match = (pattern_desc, cron)
+
+    if best_match:
+        return {"description": req.description, "cron": best_match[1], "explanation": best_match[0], "note": "Best match, may not be exact"}
+
+    return {"description": req.description, "error": "Could not parse. Try: 'every 5 minutes', 'daily at 3am', 'weekdays at noon'", "examples": list(CRON_PATTERNS.keys())[:10]}
+
+
+# --- Diff/Patch Generator ---
+
+class DiffRequest(BaseModel):
+    original: str
+    modified: str
+    format: str = "unified"  # unified, context, html
+
+
+@app.post("/api/diff/generate")
+async def generate_diff(req: DiffRequest):
+    """Generate a diff/patch between two texts. Supports unified, context, and HTML formats."""
+    import difflib
+    original_lines = req.original.splitlines(keepends=True)
+    modified_lines = req.modified.splitlines(keepends=True)
+
+    if req.format == "context":
+        diff = list(difflib.context_diff(original_lines, modified_lines, fromfile="original", tofile="modified"))
+    elif req.format == "html":
+        differ = difflib.HtmlDiff()
+        html = differ.make_table(original_lines, modified_lines, fromdesc="Original", todesc="Modified")
+        return {"format": "html", "diff": html}
+    else:
+        diff = list(difflib.unified_diff(original_lines, modified_lines, fromfile="original", tofile="modified"))
+
+    diff_text = ''.join(diff)
+    additions = sum(1 for l in diff if l.startswith('+') and not l.startswith('+++'))
+    deletions = sum(1 for l in diff if l.startswith('-') and not l.startswith('---'))
+
+    return {"format": req.format, "diff": diff_text, "additions": additions, "deletions": deletions, "changed": additions + deletions > 0}
+
+
+# --- OpenAPI Spec Auto-Generator ---
+
+@app.get("/openapi-toolpipe.json")
+async def openapi_spec():
+    """Full OpenAPI 3.1 specification for all ToolPipe API endpoints."""
+    spec = {
+        "openapi": "3.1.0",
+        "info": {
+            "title": "ToolPipe API",
+            "description": "130+ free developer utility APIs. JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day.",
+            "version": "1.9.0",
+            "contact": {"email": "toolpipe-ads@sharebot.net"},
+            "license": {"name": "MIT"},
+        },
+        "servers": [{"url": "https://toolpipe.dev", "description": "Production"}],
+        "paths": {},
+        "components": {
+            "securitySchemes": {
+                "apiKey": {
+                    "type": "apiKey",
+                    "in": "header",
+                    "name": "X-API-Key",
+                    "description": "Optional API key for higher rate limits. Get one free at POST /api-keys/register",
+                }
+            }
+        },
+    }
+
+    # Auto-generate paths from registered routes
+    for route in app.routes:
+        if not hasattr(route, "path") or not hasattr(route, "methods"):
+            continue
+        path = route.path
+        if path.startswith("/docs") or path.startswith("/redoc") or path.startswith("/openapi"):
+            continue
+        if "{page_name}" in path:
+            continue
+
+        for method in (route.methods or ["GET"]):
+            method_lower = method.lower()
+            endpoint_func = getattr(route, "endpoint", None)
+            summary = ""
+            if endpoint_func and endpoint_func.__doc__:
+                summary = endpoint_func.__doc__.strip().split('\n')[0]
+
+            if path not in spec["paths"]:
+                spec["paths"][path] = {}
+
+            spec["paths"][path][method_lower] = {
+                "summary": summary or path,
+                "responses": {"200": {"description": "Success"}},
+                "security": [{"apiKey": []}],
+            }
+
+    return JSONResponse(spec)
+
+
+# --- API Stats Endpoint ---
+
+@app.get("/api/stats")
+async def api_stats():
+    """Public API statistics: total endpoints, tools, uptime, version."""
+    route_count = sum(1 for r in app.routes if hasattr(r, "methods") and not r.path.startswith("/docs"))
+    return {
+        "version": "1.9.0",
+        "total_endpoints": route_count,
+        "mcp_tools": 89,
+        "uptime_start": datetime.now(timezone.utc).isoformat(),
+        "pricing": {"free": "100 calls/day", "pro": "$9.99/mo (10k calls/day)", "enterprise": "$49.99/mo (100k calls/day)"},
+        "payment_methods": ["ETH", "USDC", "USDT", "DAI", "SOL", "USDC-SPL"],
+        "networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism", "Solana"],
+    }
+
+
 # --- APIs.json for API discovery ---
 
 @app.get("/apis.json")
