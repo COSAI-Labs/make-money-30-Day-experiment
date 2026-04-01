@@ -35,8 +35,8 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="225+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
-    version="1.15.0",
+    description="230+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Credits: 1K for $4.99. Pay with crypto, no KYC.",
+    version="1.16.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -3916,7 +3916,8 @@ async def verify_tx_onchain(tx_hash: str) -> dict:
                     }
 
                 # Check for ERC-20 token transfers (Transfer event to our wallet)
-                if to_addr in [c.lower() for contracts in STABLECOIN_CONTRACTS.get(chain_name, {}).values() for c in [contracts]]:
+                chain_contracts = {addr.lower(): name for name, addr in STABLECOIN_CONTRACTS.get(chain_name, {}).items()}
+                if to_addr in chain_contracts:
                     receipt_resp = await client.post(rpc_url, json={
                         "jsonrpc": "2.0", "id": 2, "method": "eth_getTransactionReceipt",
                         "params": [tx_hash]
@@ -3931,13 +3932,8 @@ async def verify_tx_onchain(tx_hash: str) -> dict:
                             if recipient.lower() == our_wallet:
                                 raw_amount = int(log.get("data", "0x0"), 16)
                                 # USDC/USDT use 6 decimals, DAI uses 18
-                                token_name = "unknown"
-                                decimals = 18
-                                for name, addr in STABLECOIN_CONTRACTS.get(chain_name, {}).items():
-                                    if addr.lower() == to_addr:
-                                        token_name = name
-                                        decimals = 6 if name in ("USDC", "USDT") else 18
-                                        break
+                                token_name = chain_contracts.get(to_addr, "unknown")
+                                decimals = 6 if token_name in ("USDC", "USDT", "BUSD") else 18
                                 amount = raw_amount / (10 ** decimals)
                                 return {
                                     "verified": receipt.get("status") == "0x1",
@@ -3953,7 +3949,120 @@ async def verify_tx_onchain(tx_hash: str) -> dict:
         except Exception:
             continue
 
+    # Solana verification
+    if not tx_hash.startswith("0x"):
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.post(SOLANA_RPC, json={
+                    "jsonrpc": "2.0", "id": 1, "method": "getTransaction",
+                    "params": [tx_hash, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                })
+                data = resp.json()
+                tx_data = data.get("result")
+                if tx_data and tx_data.get("meta") and tx_data["meta"].get("err") is None:
+                    sol_wallet = SOLANA_WALLET.lower()
+                    # Check native SOL transfers
+                    pre_balances = tx_data["meta"].get("preBalances", [])
+                    post_balances = tx_data["meta"].get("postBalances", [])
+                    account_keys = []
+                    msg = tx_data.get("transaction", {}).get("message", {})
+                    for ak in msg.get("accountKeys", []):
+                        if isinstance(ak, dict):
+                            account_keys.append(ak.get("pubkey", ""))
+                        else:
+                            account_keys.append(str(ak))
+
+                    # Check for SOL transfer to our wallet
+                    for i, key in enumerate(account_keys):
+                        if key.lower() == sol_wallet and i < len(pre_balances) and i < len(post_balances):
+                            received_lamports = post_balances[i] - pre_balances[i]
+                            if received_lamports > 0:
+                                sol_amount = received_lamports / 1e9
+                                return {
+                                    "verified": True,
+                                    "chain": "solana",
+                                    "type": "native_transfer",
+                                    "token": "SOL",
+                                    "to": SOLANA_WALLET,
+                                    "value_native": sol_amount,
+                                    "tx_hash": tx_hash,
+                                    "block": tx_data.get("slot", 0),
+                                }
+
+                    # Check SPL token transfers (USDC on Solana)
+                    inner_instructions = tx_data["meta"].get("innerInstructions", [])
+                    parsed_instructions = msg.get("instructions", [])
+                    all_instructions = parsed_instructions
+                    for inner in inner_instructions:
+                        all_instructions.extend(inner.get("instructions", []))
+
+                    for ix in all_instructions:
+                        parsed = ix.get("parsed")
+                        if not parsed:
+                            continue
+                        if parsed.get("type") == "transferChecked" or parsed.get("type") == "transfer":
+                            info = parsed.get("info", {})
+                            dest = info.get("destination", "")
+                            # For SPL, destination is a token account, not the wallet directly
+                            # Check tokenAmount for USDC (6 decimals)
+                            token_amount = info.get("tokenAmount", {})
+                            if token_amount:
+                                ui_amount = float(token_amount.get("uiAmount", 0))
+                                if ui_amount > 0:
+                                    return {
+                                        "verified": True,
+                                        "chain": "solana",
+                                        "type": "token_transfer",
+                                        "token": "USDC-SPL",
+                                        "amount": ui_amount,
+                                        "to": SOLANA_WALLET,
+                                        "tx_hash": tx_hash,
+                                        "block": tx_data.get("slot", 0),
+                                    }
+                            # Simple transfer (lamport amount)
+                            amount_val = info.get("amount") or info.get("lamports")
+                            if amount_val:
+                                amount_val = int(amount_val)
+                                if amount_val > 0:
+                                    return {
+                                        "verified": True,
+                                        "chain": "solana",
+                                        "type": "token_transfer",
+                                        "token": "SPL",
+                                        "amount": amount_val / 1e6,  # Assume 6 decimals for USDC
+                                        "to": SOLANA_WALLET,
+                                        "tx_hash": tx_hash,
+                                        "block": tx_data.get("slot", 0),
+                                    }
+        except Exception:
+            pass
+
     return {"verified": False, "error": "Transaction not found on any supported chain"}
+
+
+# SOL price oracle with 5-minute cache
+_sol_price_cache = {"price": None, "timestamp": 0}
+
+
+async def get_sol_price_usd() -> float:
+    """Fetch current SOL price in USD from CoinGecko. Cached for 5 minutes."""
+    now = time.time()
+    if _sol_price_cache["price"] is not None and (now - _sol_price_cache["timestamp"]) < 300:
+        return _sol_price_cache["price"]
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                "https://api.coingecko.com/api/v3/simple/price",
+                params={"ids": "solana", "vs_currencies": "usd"},
+            )
+            data = resp.json()
+            price = float(data["solana"]["usd"])
+            _sol_price_cache["price"] = price
+            _sol_price_cache["timestamp"] = now
+            return price
+    except Exception:
+        pass
+    return _sol_price_cache["price"] or 0.0
 
 
 class VerifyPaymentRequest(BaseModel):
@@ -4011,10 +4120,15 @@ async def self_verify_payment(req: SelfVerifyRequest):
     if is_stablecoin:
         tx_value_usd = chain_result.get("amount", 0)
     elif is_native:
-        eth_amount = chain_result.get("value_native", 0)
-        eth_price = await get_eth_price_usd()
-        tx_value_usd = eth_amount * eth_price if eth_price > 0 else 0
-        chain_result["eth_price_usd"] = eth_price
+        native_amount = chain_result.get("value_native", 0)
+        chain_name = chain_result.get("chain", "")
+        if chain_name == "solana":
+            native_price = await get_sol_price_usd()
+            chain_result["sol_price_usd"] = native_price
+        else:
+            native_price = await get_eth_price_usd()
+            chain_result["eth_price_usd"] = native_price
+        tx_value_usd = native_amount * native_price if native_price > 0 else 0
         chain_result["value_usd"] = round(tx_value_usd, 2)
     else:
         tx_value_usd = 0
@@ -4028,8 +4142,8 @@ async def self_verify_payment(req: SelfVerifyRequest):
             "message": f"Payment amount ${tx_value_usd:.2f} is below the required ${amount:.2f}. Please send the remaining amount.",
         }
         if is_native:
-            underpaid_resp["eth_price_used"] = chain_result.get("eth_price_usd", 0)
-            underpaid_resp["eth_received"] = chain_result.get("value_native", 0)
+            underpaid_resp["native_price_used"] = chain_result.get("eth_price_usd") or chain_result.get("sol_price_usd", 0)
+            underpaid_resp["native_received"] = chain_result.get("value_native", 0)
         return underpaid_resp
 
     # Payment verified, upgrade the user
@@ -4119,6 +4233,196 @@ async def payment_status(order_id: str = "", track_id: str = ""):
         "order_id": row[0], "email": row[1], "tier": row[2],
         "amount": row[3], "status": row[4], "created_at": row[5], "paid_at": row[6]
     }
+
+
+# --- Credit-based Pay-Per-Call System ---
+# Agents can buy credits (1 credit = 1 API call to premium endpoints)
+# Credit packs: 1000 credits for $4.99, 10000 for $29.99, 100000 for $199.99
+
+CREDIT_PACKS = {
+    "starter": {"credits": 1000, "amount": 4.99, "name": "Starter (1K credits)"},
+    "growth": {"credits": 10000, "amount": 29.99, "name": "Growth (10K credits)"},
+    "scale": {"credits": 100000, "amount": 199.99, "name": "Scale (100K credits)"},
+}
+
+def _init_credits_db():
+    conn = sqlite3.connect(str(PAYMENTS_DB))
+    conn.execute("""CREATE TABLE IF NOT EXISTS credits (
+        api_key TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        balance INTEGER DEFAULT 0,
+        total_purchased INTEGER DEFAULT 0,
+        total_used INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS credit_purchases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        api_key TEXT NOT NULL,
+        pack TEXT NOT NULL,
+        credits INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        order_id TEXT UNIQUE,
+        tx_hash TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TEXT NOT NULL,
+        verified_at TEXT
+    )""")
+    conn.commit()
+    conn.close()
+
+_init_credits_db()
+
+
+class CreditPurchaseRequest(BaseModel):
+    api_key: str
+    pack: str = "starter"
+    email: str = ""
+
+
+@app.get("/api/credits/packs")
+async def list_credit_packs():
+    """List available credit packs for pay-per-call usage."""
+    return {
+        "packs": CREDIT_PACKS,
+        "how_it_works": "1 credit = 1 premium API call. Buy credits, then use your API key. Credits never expire.",
+        "payment": {
+            "crypto_wallets": {
+                "ETH/ERC-20": WALLET_ADDRESS,
+                "Solana": SOLANA_WALLET,
+            },
+            "flow": "POST /api/credits/buy -> send crypto -> POST /api/credits/verify with tx_hash",
+        },
+    }
+
+
+@app.post("/api/credits/buy")
+async def buy_credits(req: CreditPurchaseRequest, request: Request):
+    """Purchase API credits. Returns payment instructions."""
+    if req.pack not in CREDIT_PACKS:
+        raise HTTPException(status_code=400, detail=f"Invalid pack. Options: {', '.join(CREDIT_PACKS.keys())}")
+
+    pack = CREDIT_PACKS[req.pack]
+    order_id = f"cr-{req.pack}-{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+    email = req.email.strip().lower() if req.email else "agent@toolpipe.dev"
+
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        conn.execute(
+            "INSERT INTO credit_purchases (api_key, pack, credits, amount, order_id, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?)",
+            (req.api_key, req.pack, pack["credits"], pack["amount"], order_id, now)
+        )
+        # Ensure credit account exists
+        existing = conn.execute("SELECT api_key FROM credits WHERE api_key = ?", (req.api_key,)).fetchone()
+        if not existing:
+            conn.execute(
+                "INSERT INTO credits (api_key, email, balance, total_purchased, total_used, created_at, updated_at) VALUES (?, ?, 0, 0, 0, ?, ?)",
+                (req.api_key, email, now, now)
+            )
+        conn.commit()
+        conn.close()
+
+    return {
+        "order_id": order_id,
+        "pack": req.pack,
+        "credits": pack["credits"],
+        "amount_usd": pack["amount"],
+        "payment_instructions": {
+            "send_to": {
+                "ETH/USDC/USDT (any EVM chain)": WALLET_ADDRESS,
+                "SOL/USDC-SPL (Solana)": SOLANA_WALLET,
+            },
+            "amount": f"${pack['amount']}",
+            "then": f"POST /api/credits/verify with order_id={order_id} and your tx_hash",
+        },
+    }
+
+
+class CreditVerifyRequest(BaseModel):
+    order_id: str
+    tx_hash: str
+
+
+@app.post("/api/credits/verify")
+async def verify_credit_purchase(req: CreditVerifyRequest):
+    """Verify crypto payment and add credits to your account."""
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        row = conn.execute(
+            "SELECT api_key, pack, credits, amount, status FROM credit_purchases WHERE order_id = ?",
+            (req.order_id,)
+        ).fetchone()
+        conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if row[4] == "verified":
+        return {"status": "already_verified", "order_id": req.order_id}
+
+    api_key, pack, credits, amount, _ = row
+
+    chain_result = await verify_tx_onchain(req.tx_hash)
+    if not chain_result.get("verified"):
+        return {"status": "unverified", "message": "Transaction not found or pending. Try again in a few minutes.", "chain_result": chain_result}
+
+    # Verify amount
+    is_stablecoin = chain_result.get("type") == "token_transfer"
+    is_native = chain_result.get("type") == "native_transfer"
+    if is_stablecoin:
+        tx_value_usd = chain_result.get("amount", 0)
+    elif is_native:
+        native_amount = chain_result.get("value_native", 0)
+        if chain_result.get("chain") == "solana":
+            native_price = await get_sol_price_usd()
+        else:
+            native_price = await get_eth_price_usd()
+        tx_value_usd = native_amount * native_price if native_price > 0 else 0
+    else:
+        tx_value_usd = 0
+
+    if tx_value_usd < amount * 0.9:
+        return {"status": "underpaid", "expected_usd": amount, "received_usd": round(tx_value_usd, 2)}
+
+    now = datetime.now(timezone.utc).isoformat()
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        conn.execute(
+            "UPDATE credit_purchases SET status = 'verified', tx_hash = ?, verified_at = ? WHERE order_id = ?",
+            (req.tx_hash, now, req.order_id)
+        )
+        conn.execute(
+            "UPDATE credits SET balance = balance + ?, total_purchased = total_purchased + ?, updated_at = ? WHERE api_key = ?",
+            (credits, credits, now, api_key)
+        )
+        conn.commit()
+        new_balance = conn.execute("SELECT balance FROM credits WHERE api_key = ?", (api_key,)).fetchone()
+        conn.close()
+
+    return {
+        "status": "verified",
+        "credits_added": credits,
+        "new_balance": new_balance[0] if new_balance else credits,
+        "order_id": req.order_id,
+        "chain": chain_result.get("chain"),
+    }
+
+
+@app.get("/api/credits/balance")
+async def credit_balance(api_key: str = ""):
+    """Check your credit balance."""
+    if not api_key:
+        raise HTTPException(status_code=400, detail="api_key required")
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        row = conn.execute(
+            "SELECT balance, total_purchased, total_used FROM credits WHERE api_key = ?",
+            (api_key,)
+        ).fetchone()
+        conn.close()
+    if not row:
+        return {"balance": 0, "total_purchased": 0, "total_used": 0, "message": "No credit account found. Buy credits at POST /api/credits/buy"}
+    return {"balance": row[0], "total_purchased": row[1], "total_used": row[2]}
 
 
 @app.get("/checkout", response_class=HTMLResponse)
@@ -10279,9 +10583,9 @@ async def agent_discover():
     """Discovery endpoint for AI agents. Returns available tools, pricing, and how to get started."""
     return {
         "service": "ToolPipe",
-        "tagline": "220+ developer APIs for AI agents and developers",
-        "version": "1.15.0",
-        "total_endpoints": 220,
+        "tagline": "230+ developer APIs for AI agents and developers",
+        "version": "1.16.0",
+        "total_endpoints": 230,
         "free_tier": {
             "daily_limit": 100,
             "signup": "POST /api-keys/register with {\"email\": \"your@email.com\"}",
@@ -10291,6 +10595,12 @@ async def agent_discover():
             "price": "$9.99/month",
             "daily_limit": 10000,
             "payment": "Crypto only (no KYC). POST /payments/agent-pay",
+        },
+        "pay_per_call": {
+            "packs": CREDIT_PACKS,
+            "buy": "POST /api/credits/buy with {api_key, pack}",
+            "verify": "POST /api/credits/verify with {order_id, tx_hash}",
+            "balance": "GET /api/credits/balance?api_key=...",
         },
         "popular_tools": [
             {"endpoint": "POST /json/format", "description": "Format/validate/minify JSON"},
@@ -10312,6 +10622,180 @@ async def agent_discover():
         "documentation": "/docs",
         "openapi": "/openapi-toolpipe.json",
     }
+
+
+# --- New Premium Endpoints v1.16.0 ---
+
+@app.get("/api/ip/info")
+async def ip_info(ip: str = ""):
+    """Get geolocation and ISP info for an IP address. Uses public APIs."""
+    if not ip:
+        return {"error": "Provide ?ip=1.2.3.4"}
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query")
+            data = resp.json()
+        if data.get("status") == "success":
+            return {
+                "ip": data.get("query"),
+                "country": data.get("country"),
+                "country_code": data.get("countryCode"),
+                "region": data.get("regionName"),
+                "city": data.get("city"),
+                "zip": data.get("zip"),
+                "lat": data.get("lat"),
+                "lon": data.get("lon"),
+                "timezone": data.get("timezone"),
+                "isp": data.get("isp"),
+                "org": data.get("org"),
+                "as": data.get("as"),
+            }
+        return {"error": data.get("message", "Lookup failed"), "ip": ip}
+    except Exception as e:
+        return {"error": str(e), "ip": ip}
+
+
+@app.get("/api/ip/my")
+async def my_ip(request: Request):
+    """Get the caller's IP address and info."""
+    client_ip = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(f"http://ip-api.com/json/{client_ip}?fields=status,country,countryCode,regionName,city,timezone,isp,org,query")
+            data = resp.json()
+        if data.get("status") == "success":
+            return {"ip": client_ip, "country": data.get("country"), "city": data.get("city"), "timezone": data.get("timezone"), "isp": data.get("isp")}
+    except Exception:
+        pass
+    return {"ip": client_ip}
+
+
+@app.post("/api/webhook/test")
+async def webhook_test(request: Request, url: str = ""):
+    """Send a test webhook to any URL. Useful for debugging webhook handlers."""
+    if not url:
+        try:
+            body = await request.json()
+            url = body.get("url", "")
+        except Exception:
+            pass
+    if not url:
+        raise HTTPException(status_code=400, detail="Provide url parameter or JSON body with {url}")
+    parsed = urlparse(url)
+    if not parsed.scheme or not parsed.netloc:
+        raise HTTPException(status_code=400, detail="Invalid URL")
+
+    test_payload = {
+        "event": "test",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source": "toolpipe.dev",
+        "data": {
+            "message": "This is a test webhook from ToolPipe",
+            "id": uuid.uuid4().hex,
+        },
+    }
+    try:
+        body_data = {}
+        try:
+            body_data = await request.json()
+        except Exception:
+            pass
+        if body_data.get("payload"):
+            test_payload["data"] = body_data["payload"]
+
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(url, json=test_payload, headers={"User-Agent": "ToolPipe-Webhook/1.0", "Content-Type": "application/json"})
+        return {
+            "sent": True,
+            "url": url,
+            "status_code": resp.status_code,
+            "response_body": resp.text[:500],
+            "payload_sent": test_payload,
+        }
+    except Exception as e:
+        return {"sent": False, "url": url, "error": str(e)}
+
+
+
+@app.post("/api/crontab/validate")
+async def validate_crontab(request: Request):
+    """Validate and explain a cron expression."""
+    body = await request.json()
+    expr = body.get("expression", body.get("cron", ""))
+    if not expr:
+        raise HTTPException(status_code=400, detail="Provide expression (cron expression)")
+
+    parts = expr.strip().split()
+    if len(parts) not in (5, 6, 7):
+        return {"valid": False, "error": f"Expected 5-7 fields, got {len(parts)}"}
+
+    field_names = ["minute", "hour", "day_of_month", "month", "day_of_week"]
+    if len(parts) >= 6:
+        field_names.append("year")
+    if len(parts) >= 7:
+        field_names.append("command")
+
+    fields = {}
+    for i, name in enumerate(field_names):
+        if i < len(parts):
+            fields[name] = parts[i]
+
+    # Basic validation
+    ranges = {"minute": (0, 59), "hour": (0, 23), "day_of_month": (1, 31), "month": (1, 12), "day_of_week": (0, 7)}
+    errors = []
+    for name, (low, high) in ranges.items():
+        val = fields.get(name, "*")
+        if val == "*" or "/" in val or "," in val or "-" in val:
+            continue
+        try:
+            n = int(val)
+            if n < low or n > high:
+                errors.append(f"{name}: {n} is out of range [{low}-{high}]")
+        except ValueError:
+            pass
+
+    # Human-readable description
+    desc_parts = []
+    m = fields.get("minute", "*")
+    h = fields.get("hour", "*")
+    dom = fields.get("day_of_month", "*")
+    mon = fields.get("month", "*")
+    dow = fields.get("day_of_week", "*")
+
+    if m == "*" and h == "*":
+        desc_parts.append("Every minute")
+    elif m != "*" and h == "*":
+        desc_parts.append(f"At minute {m} of every hour")
+    elif m == "0" and h != "*":
+        desc_parts.append(f"At {h}:00")
+    elif m != "*" and h != "*":
+        desc_parts.append(f"At {h}:{m.zfill(2)}")
+    else:
+        desc_parts.append(f"Minute: {m}, Hour: {h}")
+
+    if dom != "*":
+        desc_parts.append(f"on day {dom}")
+    if mon != "*":
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        try:
+            desc_parts.append(f"in {months[int(mon)-1]}")
+        except (ValueError, IndexError):
+            desc_parts.append(f"in month {mon}")
+    if dow != "*":
+        days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        try:
+            desc_parts.append(f"on {days[int(dow)]}")
+        except (ValueError, IndexError):
+            desc_parts.append(f"on day of week {dow}")
+
+    return {
+        "valid": len(errors) == 0,
+        "expression": expr,
+        "fields": fields,
+        "description": " ".join(desc_parts),
+        "errors": errors or None,
+    }
+
 
 
 # --- SEO Pages (catch-all for static content pages) ---
