@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Unit Converter - Length, Weight, Temperature, Volume, Speed</title>
+    <meta name="description" content="Free online unit converter. Convert between meters, feet, kg, pounds, Celsius, Fahrenheit, liters, gallons, and more. No signup required. API available.">
+    <meta property="og:title" content="Free Unit Converter - All Units">
+    <meta property="og:description" content="Convert length, weight, temperature, volume, speed, and data units instantly.">
+    <link rel="canonical" href="/unit-converter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .row { display: flex; gap: 12px; margin-bottom: 16px; align-items: end; }
+        .row > div { flex: 1; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        input:focus, select:focus { outline: none; border-color: #6c63ff; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+        .btn-primary { background: #6c63ff; color: white; width: 100%; }
+        .btn-primary:hover { background: #5a52d5; }
+        .result { margin-top: 16px; padding: 20px; background: #f0f0ff; border-radius: 8px; font-size: 1.3rem; text-align: center; font-weight: 700; color: #6c63ff; display: none; }
+        .categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+        .cat { background: white; border: 2px solid #eee; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .cat:hover, .cat.active { border-color: #6c63ff; background: #f0f0ff; }
+        .cat .icon { font-size: 1.5rem; margin-bottom: 4px; }
+        .cat .name { font-size: 0.85rem; font-weight: 600; }
+        .api-box { background: #1a1a2e; color: white; border-radius: 12px; padding: 24px; margin-top: 32px; }
+        .api-box h2 { font-size: 1.2rem; margin-bottom: 12px; }
+        .api-box code { background: #2a2a4e; padding: 8px 12px; border-radius: 6px; display: block; margin: 8px 0; font-size: 0.85rem; color: #a78bfa; overflow-x: auto; }
+        .seo-content { margin-top: 32px; line-height: 1.8; color: #555; }
+        .seo-content h2 { color: #333; font-size: 1.3rem; margin: 24px 0 12px; }
+        @media (max-width: 600px) { .categories { grid-template-columns: repeat(2, 1fr); } .row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a><a href="/tools">All Tools</a></nav>
+<div class="container">
+    <h1>Unit Converter</h1>
+    <p class="subtitle">Convert between any units instantly. Free, no signup.</p>
+
+    <div class="categories">
+        <div class="cat active" onclick="setCategory('length',this)"><div class="icon">&#128207;</div><div class="name">Length</div></div>
+        <div class="cat" onclick="setCategory('weight',this)"><div class="icon">&#9878;</div><div class="name">Weight</div></div>
+        <div class="cat" onclick="setCategory('temp',this)"><div class="icon">&#127777;</div><div class="name">Temperature</div></div>
+        <div class="cat" onclick="setCategory('volume',this)"><div class="icon">&#129380;</div><div class="name">Volume</div></div>
+        <div class="cat" onclick="setCategory('speed',this)"><div class="icon">&#128663;</div><div class="name">Speed</div></div>
+        <div class="cat" onclick="setCategory('data',this)"><div class="icon">&#128190;</div><div class="name">Data</div></div>
+    </div>
+
+    <div class="tool-box">
+        <div class="row">
+            <div>
+                <label>Value</label>
+                <input type="number" id="value" value="1" step="any">
+            </div>
+            <div>
+                <label>From</label>
+                <select id="from-unit"></select>
+            </div>
+            <div>
+                <label>To</label>
+                <select id="to-unit"></select>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="convert()">Convert</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <div class="api-box">
+        <h2>Use via API</h2>
+        <code>POST /api/convert/units
+{"value": 100, "from_unit": "km", "to_unit": "mi"}</code>
+        <code>curl -X POST https://toolpipe.dev/api/convert/units \
+  -H "Content-Type: application/json" \
+  -d '{"value":100,"from_unit":"km","to_unit":"mi"}'</code>
+        <p style="margin-top:12px;font-size:0.9rem;color:#94a3b8;">Free: 100 calls/day. <a href="/pricing" style="color:#6c63ff;">Get Pro access</a> for 10,000 calls/day.</p>
+    </div>
+
+    <div class="seo-content">
+        <h2>About Unit Converter</h2>
+        <p>Convert between all common units of measurement. Supports length (meters, feet, inches, kilometers, miles, centimeters, millimeters, yards), weight (kilograms, pounds, ounces, grams, stone), temperature (Celsius, Fahrenheit, Kelvin), volume (liters, gallons, milliliters, fluid ounces, cups), speed (mph, kph, m/s), and data (bytes, KB, MB, GB, TB).</p>
+        <h2>API for Developers</h2>
+        <p>Access this converter via REST API. Perfect for apps, scripts, and AI agents that need unit conversion. Available as an MCP tool for Claude, GPT, and other AI agents.</p>
+    </div>
+</div>
+
+<script>
+const units = {
+    length: [['m','Meters'],['ft','Feet'],['in','Inches'],['km','Kilometers'],['mi','Miles'],['cm','Centimeters'],['mm','Millimeters'],['yd','Yards']],
+    weight: [['kg','Kilograms'],['lb','Pounds'],['oz','Ounces'],['g','Grams'],['st','Stone']],
+    temp: [['c','Celsius'],['f','Fahrenheit'],['k','Kelvin']],
+    volume: [['l','Liters'],['gal','Gallons'],['ml','Milliliters'],['fl_oz','Fluid Ounces'],['cup','Cups']],
+    speed: [['mph','Miles/hour'],['kph','Km/hour'],['m/s','Meters/sec']],
+    data: [['b','Bytes'],['kb','Kilobytes'],['mb','Megabytes'],['gb','Gigabytes'],['tb','Terabytes']]
+};
+let currentCat = 'length';
+
+function setCategory(cat, el) {
+    currentCat = cat;
+    document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    populateSelects();
+}
+
+function populateSelects() {
+    const from = document.getElementById('from-unit');
+    const to = document.getElementById('to-unit');
+    from.innerHTML = '';
+    to.innerHTML = '';
+    units[currentCat].forEach(([val, label], i) => {
+        from.innerHTML += `<option value="${val}" ${i===0?'selected':''}>${label}</option>`;
+        to.innerHTML += `<option value="${val}" ${i===1?'selected':''}>${label}</option>`;
+    });
+}
+
+async function convert() {
+    const value = parseFloat(document.getElementById('value').value);
+    const from = document.getElementById('from-unit').value;
+    const to = document.getElementById('to-unit').value;
+    const res = await fetch('/api/convert/units', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({value, from_unit: from, to_unit: to})
+    });
+    const data = await res.json();
+    const el = document.getElementById('result');
+    if (data.result !== undefined) {
+        el.textContent = data.formula;
+        el.style.display = 'block';
+    } else {
+        el.textContent = data.detail || 'Error';
+        el.style.display = 'block';
+        el.style.color = '#ef4444';
+    }
+}
+
+populateSelects();
+</script>
+</body>
+</html>
