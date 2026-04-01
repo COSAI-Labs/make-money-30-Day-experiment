@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's My IP Address? Free IP Lookup with Location | ToolPipe</title>
+    <meta name="description" content="Find your public IP address instantly. See your location, ISP, timezone, and more. Free IP lookup tool with geolocation. No signup required.">
+    <meta name="keywords" content="what is my ip, my ip address, ip lookup, ip geolocation, find my ip, whats my ip address">
+    <meta property="og:title" content="What's My IP Address? Free IP Lookup">
+    <meta property="og:description" content="Find your public IP address instantly with location, ISP, and timezone info.">
+    <link rel="canonical" href="/whats-my-ip">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 3rem 2rem; text-align: center; }
+        .header h1 { font-size: 2.2rem; color: #fff; margin-bottom: 0.5rem; }
+        .header p { color: #94a3b8; font-size: 1rem; }
+        .container { max-width: 600px; margin: 0 auto; padding: 2rem; }
+        .ip-display { background: #111; border: 2px solid #3b82f6; border-radius: 16px; padding: 2rem; text-align: center; margin-bottom: 2rem; }
+        .ip-display .label { color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .ip-display .ip { font-size: 2.5rem; font-weight: 700; color: #3b82f6; font-family: 'Fira Code', monospace; letter-spacing: 2px; }
+        .ip-display .copy-btn { background: #374151; color: #e0e0e0; border: none; padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-top: 0.75rem; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+        .info-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 1rem; }
+        .info-card .label { color: #64748b; font-size: 0.8rem; margin-bottom: 0.25rem; }
+        .info-card .value { color: #e0e0e0; font-size: 1rem; font-weight: 500; }
+        .lookup-section { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+        .lookup-section h3 { color: #fff; margin-bottom: 1rem; font-size: 1.1rem; }
+        .lookup-form { display: flex; gap: 0.75rem; }
+        .lookup-form input { flex: 1; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.95rem; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #2563eb; }
+        .loading { color: #64748b; text-align: center; padding: 1rem; }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+        .seo { max-width: 600px; margin: 2rem auto; padding: 0 2rem; }
+        .seo h2 { color: #fff; margin: 2rem 0 0.5rem; font-size: 1.2rem; }
+        .seo p { color: #94a3b8; line-height: 1.7; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>What's My IP Address?</h1>
+        <p>Your public IP address and location information.</p>
+    </div>
+
+    <div class="container">
+        <div class="ip-display">
+            <div class="label">Your Public IP Address</div>
+            <div class="ip" id="myIp">Loading...</div>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('myIp').textContent)">Copy IP</button>
+        </div>
+
+        <div class="info-grid" id="infoGrid">
+            <div class="info-card"><div class="label">Location</div><div class="value" id="location">Loading...</div></div>
+            <div class="info-card"><div class="label">Country</div><div class="value" id="country">Loading...</div></div>
+            <div class="info-card"><div class="label">Region</div><div class="value" id="region">Loading...</div></div>
+            <div class="info-card"><div class="label">City</div><div class="value" id="city">Loading...</div></div>
+            <div class="info-card"><div class="label">ISP</div><div class="value" id="isp">Loading...</div></div>
+            <div class="info-card"><div class="label">Organization</div><div class="value" id="org">Loading...</div></div>
+            <div class="info-card"><div class="label">Timezone</div><div class="value" id="timezone">Loading...</div></div>
+            <div class="info-card"><div class="label">Coordinates</div><div class="value" id="coords">Loading...</div></div>
+        </div>
+
+        <div class="lookup-section">
+            <h3>Look Up Any IP Address</h3>
+            <div class="lookup-form">
+                <input type="text" id="lookupIp" placeholder="Enter an IP address (e.g. 8.8.8.8)">
+                <button class="btn" onclick="lookupIp()">Lookup</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="seo">
+        <h2>What is an IP Address?</h2>
+        <p>An IP (Internet Protocol) address is a unique numerical label assigned to every device connected to the internet. It serves as your device's identifier on the network, allowing data to be routed to and from your device. Your IP address reveals your approximate location and ISP.</p>
+        <h2>Public vs Private IP</h2>
+        <p>The IP shown above is your public IP, which is visible to websites and services you connect to. Your private IP (like 192.168.x.x) is only used within your local network and is not shown here.</p>
+        <h2>Why Does My IP Matter?</h2>
+        <p>Your IP address can reveal your approximate location, ISP, and can be used for geolocation, content delivery optimization, and security. Using a VPN can mask your real IP address for privacy.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/down">Is It Down?</a> | <a href="/tools">Developer Tools</a> | <a href="/docs">API Docs</a></p>
+    </footer>
+
+    <script>
+    async function loadMyIp() {
+        try {
+            const resp = await fetch('/ip/lookup');
+            const data = await resp.json();
+            document.getElementById('myIp').textContent = data.query || 'Unknown';
+            document.getElementById('location').textContent = `${data.city || ''}, ${data.regionName || ''}`;
+            document.getElementById('country').textContent = `${data.country || ''} (${data.countryCode || ''})`;
+            document.getElementById('region').textContent = data.regionName || '-';
+            document.getElementById('city').textContent = data.city || '-';
+            document.getElementById('isp').textContent = data.isp || '-';
+            document.getElementById('org').textContent = data.org || '-';
+            document.getElementById('timezone').textContent = data.timezone || '-';
+            document.getElementById('coords').textContent = data.lat && data.lon ? `${data.lat}, ${data.lon}` : '-';
+        } catch (e) {
+            document.getElementById('myIp').textContent = 'Error loading';
+        }
+    }
+
+    async function lookupIp() {
+        const ip = document.getElementById('lookupIp').value.trim();
+        if (!ip) return;
+        try {
+            const resp = await fetch('/ip/lookup?ip=' + encodeURIComponent(ip));
+            const data = await resp.json();
+            document.getElementById('myIp').textContent = data.query || ip;
+            document.getElementById('location').textContent = `${data.city || ''}, ${data.regionName || ''}`;
+            document.getElementById('country').textContent = `${data.country || ''} (${data.countryCode || ''})`;
+            document.getElementById('region').textContent = data.regionName || '-';
+            document.getElementById('city').textContent = data.city || '-';
+            document.getElementById('isp').textContent = data.isp || '-';
+            document.getElementById('org').textContent = data.org || '-';
+            document.getElementById('timezone').textContent = data.timezone || '-';
+            document.getElementById('coords').textContent = data.lat && data.lon ? `${data.lat}, ${data.lon}` : '-';
+        } catch (e) {
+            alert('Error looking up IP');
+        }
+    }
+
+    loadMyIp();
+    </script>
+</body>
+</html>
