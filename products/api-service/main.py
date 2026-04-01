@@ -72,6 +72,7 @@ async def rate_limit_middleware(request: Request, call_next):
 
 LANDING_HTML = Path(__file__).parent / "landing.html"
 TOOLS_HTML = Path(__file__).parent.parent / "web-tools" / "index.html"
+INVOICE_HTML = Path(__file__).parent.parent / "invoice-generator" / "index.html"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -86,6 +87,13 @@ async def tools_page():
     if TOOLS_HTML.exists():
         return HTMLResponse(TOOLS_HTML.read_text())
     return HTMLResponse("<h1>Tools coming soon</h1>")
+
+
+@app.get("/invoice", response_class=HTMLResponse)
+async def invoice_page():
+    if INVOICE_HTML.exists():
+        return HTMLResponse(INVOICE_HTML.read_text())
+    return HTMLResponse("<h1>Invoice Generator coming soon</h1>")
 
 
 @app.get("/api")
