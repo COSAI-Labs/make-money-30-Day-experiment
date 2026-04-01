@@ -36,7 +36,7 @@ from reportlab.lib.pagesizes import letter
 app = FastAPI(
     title="ToolPipe API",
     description="220+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
-    version="1.10.0",
+    version="1.14.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -502,9 +502,12 @@ def check_api_key(key: str) -> dict | None:
         return {"email": row[0], "tier": row[1], "requests_today": row[2], "daily_limit": row[3]}
 
 
-# --- OxaPay Crypto Payment Integration ---
+# --- Crypto Payment Gateway Integration ---
+# OxaPay v1 API (primary gateway)
 OXAPAY_MERCHANT_KEY = os.environ.get("OXAPAY_MERCHANT_KEY", "sandbox")
-OXAPAY_API_URL = "https://api.oxapay.com/merchants/request"
+OXAPAY_API_URL = "https://api.oxapay.com/v1/payment/invoice"
+# NOWPayments (backup gateway, no KYC)
+NOWPAYMENTS_API_KEY = os.environ.get("NOWPAYMENTS_API_KEY", "")
 PAYMENTS_DB = Path(__file__).parent / "data" / "payments.db"
 _payments_lock = threading.Lock()
 
@@ -531,36 +534,73 @@ def _init_payments_db():
 _init_payments_db()
 
 
-async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: str, callback_url: str, return_url: str) -> dict:
-    payload = {
-        "merchant": OXAPAY_MERCHANT_KEY,
-        "amount": amount,
-        "currency": "USD",
-        "lifetime": 60,
-        "callbackUrl": callback_url,
-        "returnUrl": return_url,
-        "email": email,
-        "orderId": order_id,
-        "description": f"ToolPipe {tier.title()} Plan",
-        "feePaidByPayer": 1,
-    }
+async def create_nowpayments_invoice(amount: float, email: str, tier: str, order_id: str, callback_url: str, return_url: str) -> dict:
+    """Create invoice via NOWPayments API (backup gateway)."""
+    if not NOWPAYMENTS_API_KEY:
+        return {"success": False}
+    try:
+        payload = {
+            "price_amount": amount,
+            "price_currency": "usd",
+            "order_id": order_id,
+            "order_description": f"ToolPipe {tier.title()} Plan",
+            "ipn_callback_url": callback_url,
+            "success_url": return_url,
+            "cancel_url": return_url.replace("success", "cancel"),
+        }
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://api.nowpayments.io/v1/invoice",
+                json=payload,
+                headers={"x-api-key": NOWPAYMENTS_API_KEY, "Content-Type": "application/json"},
+            )
+            data = resp.json()
+        if data.get("id"):
+            return {
+                "success": True,
+                "gateway": "nowpayments",
+                "payment_url": data.get("invoice_url", ""),
+                "track_id": str(data["id"]),
+                "order_id": order_id,
+            }
+    except Exception:
+        pass
+    return {"success": False}
 
+
+async def create_payment_invoice(amount: float, email: str, tier: str, order_id: str, callback_url: str, return_url: str) -> dict:
     now = datetime.now(timezone.utc).isoformat()
     crypto_addresses = {
         "ETH/ERC-20 (Ethereum, Polygon, Arbitrum, Base, Optimism)": WALLET_ADDRESS,
         "Solana (SOL, USDC-SPL)": SOLANA_WALLET,
     }
 
-    # Try OxaPay first
+    # Try OxaPay v1 API first
     if OXAPAY_MERCHANT_KEY != "sandbox":
         try:
+            payload = {
+                "amount": amount,
+                "currency": "USD",
+                "lifetime": 60,
+                "fee_paid_by_payer": 1,
+                "callback_url": callback_url,
+                "return_url": return_url,
+                "email": email,
+                "order_id": order_id,
+                "description": f"ToolPipe {tier.title()} Plan",
+            }
             async with httpx.AsyncClient(timeout=15) as client:
-                resp = await client.post(OXAPAY_API_URL, json=payload)
+                resp = await client.post(
+                    OXAPAY_API_URL,
+                    json=payload,
+                    headers={"merchant_api_key": OXAPAY_MERCHANT_KEY, "Content-Type": "application/json"},
+                )
                 data = resp.json()
 
-            if data.get("result") == 100:
-                track_id = data.get("trackId", "")
-                payment_url = data.get("payLink", "")
+            if data.get("status") == 200 and data.get("data"):
+                d = data["data"]
+                track_id = d.get("track_id", "")
+                payment_url = d.get("payment_url", "")
                 with _payments_lock:
                     conn = sqlite3.connect(str(PAYMENTS_DB))
                     conn.execute(
@@ -569,11 +609,24 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
                     )
                     conn.commit()
                     conn.close()
-                return {"success": True, "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
+                return {"success": True, "gateway": "oxapay", "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
         except Exception:
             pass
 
-    # Direct crypto payment (primary path when OxaPay unavailable)
+    # Try NOWPayments as backup
+    np_result = await create_nowpayments_invoice(amount, email, tier, order_id, callback_url, return_url)
+    if np_result.get("success"):
+        with _payments_lock:
+            conn = sqlite3.connect(str(PAYMENTS_DB))
+            conn.execute(
+                "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, payment_url, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
+                (np_result.get("track_id", order_id), order_id, email, tier, amount, np_result.get("payment_url", ""), now)
+            )
+            conn.commit()
+            conn.close()
+        return np_result
+
+    # Direct crypto payment (always-available fallback)
     with _payments_lock:
         conn = sqlite3.connect(str(PAYMENTS_DB))
         conn.execute(
@@ -584,6 +637,7 @@ async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: 
         conn.close()
     result = {
         "success": True,
+        "gateway": "direct_crypto",
         "payment_method": "crypto_direct",
         "crypto_addresses": crypto_addresses,
         "evm_address": WALLET_ADDRESS,
@@ -3655,7 +3709,7 @@ async def create_payment(req: PaymentRequest, request: Request):
     callback_url = f"{base_url}/payments/webhook"
     return_url = f"{base_url}/payments/success?order_id={order_id}"
 
-    result = await create_oxapay_invoice(
+    result = await create_payment_invoice(
         amount=tier_info["amount"],
         email=email,
         tier=tier,
@@ -3668,7 +3722,7 @@ async def create_payment(req: PaymentRequest, request: Request):
 
 @app.post("/payments/webhook")
 async def payment_webhook(request: Request):
-    """OxaPay sends payment status updates here."""
+    """Handles webhooks from OxaPay, NOWPayments, or generic payment callbacks."""
     try:
         data = await request.json()
     except Exception:
@@ -3678,15 +3732,25 @@ async def payment_webhook(request: Request):
         except Exception:
             return {"status": "error", "message": "Invalid payload"}
 
+    # OxaPay v1 format
     track_id = data.get("trackId", data.get("track_id", ""))
     status = data.get("status", "")
     order_id = data.get("orderId", data.get("order_id", ""))
 
-    if status in ("Paid", "Confirming", "Complete", "paid", "complete"):
+    # NOWPayments format
+    if not order_id and data.get("payment_id"):
+        order_id = data.get("order_id", "")
+        track_id = str(data.get("payment_id", ""))
+    if not status and data.get("payment_status"):
+        np_status = data["payment_status"]
+        if np_status in ("finished", "confirmed", "partially_paid"):
+            status = "paid"
+
+    paid_statuses = ("Paid", "Confirming", "Complete", "paid", "complete", "finished", "confirmed")
+    if status.lower() in [s.lower() for s in paid_statuses]:
         now = datetime.now(timezone.utc).isoformat()
         with _payments_lock:
             conn = sqlite3.connect(str(PAYMENTS_DB))
-            # Find payment record
             row = conn.execute(
                 "SELECT email, tier FROM payments WHERE track_id = ? OR order_id = ?",
                 (track_id, order_id)
@@ -3698,7 +3762,6 @@ async def payment_webhook(request: Request):
                     (status, now, json.dumps(data), track_id, order_id)
                 )
                 conn.commit()
-                # Upgrade the API key
                 upgrade_api_key(email, tier)
             conn.close()
 
@@ -4056,6 +4119,127 @@ async def payment_status(order_id: str = "", track_id: str = ""):
         "order_id": row[0], "email": row[1], "tier": row[2],
         "amount": row[3], "status": row[4], "created_at": row[5], "paid_at": row[6]
     }
+
+
+@app.get("/checkout", response_class=HTMLResponse)
+async def checkout_page(tier: str = "pro"):
+    tier_info = PRICING_TIERS.get(tier, PRICING_TIERS["pro"])
+    amount = tier_info["amount"]
+    name = tier_info["name"]
+    limit = tier_info["daily_limit"]
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Checkout - ToolPipe {name}</title>
+<meta name="description" content="Upgrade to ToolPipe {name}: {limit:,} API calls/day for ${amount}/month. Pay with crypto, no KYC required.">
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}}
+.checkout{{max-width:480px;width:100%;background:#111;border:1px solid #222;border-radius:16px;overflow:hidden}}
+.header{{background:linear-gradient(135deg,#6c63ff,#4f46e5);padding:32px;text-align:center}}
+.header h1{{color:#fff;font-size:1.5rem;margin-bottom:4px}}
+.header .price{{color:rgba(255,255,255,0.9);font-size:2rem;font-weight:800;margin:8px 0}}
+.header .price span{{font-size:0.9rem;font-weight:400}}
+.header .features{{color:rgba(255,255,255,0.8);font-size:0.9rem}}
+.body{{padding:32px}}
+.step{{display:none}}.step.active{{display:block}}
+label{{color:#94a3b8;font-size:0.85rem;display:block;margin-bottom:6px}}
+input{{width:100%;padding:12px 16px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-size:1rem;margin-bottom:16px;outline:none}}
+input:focus{{border-color:#6c63ff}}
+.btn{{width:100%;padding:14px;background:#6c63ff;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:background 0.2s}}
+.btn:hover{{background:#5b54e6}}
+.btn:disabled{{background:#333;cursor:not-allowed}}
+.addresses{{background:#0a0a0a;border-radius:8px;padding:16px;margin:16px 0}}
+.addr{{margin:8px 0}}
+.addr-label{{color:#64748b;font-size:0.8rem}}
+.addr-value{{color:#6c63ff;font-family:monospace;font-size:0.8rem;word-break:break-all;cursor:pointer}}
+.addr-value:hover{{color:#8b85ff}}
+.notice{{background:#1a1a1a;border-left:3px solid #6c63ff;padding:12px 16px;margin:16px 0;border-radius:0 8px 8px 0;font-size:0.85rem;color:#94a3b8}}
+.success{{text-align:center;padding:20px 0}}
+.success h2{{color:#22c55e;margin-bottom:8px}}
+.key{{background:#0a0a0a;padding:12px;border-radius:8px;font-family:monospace;color:#6c63ff;word-break:break-all;margin:12px 0}}
+.spinner{{display:inline-block;width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:8px}}
+@keyframes spin{{to{{transform:rotate(360deg)}}}}
+.back{{color:#64748b;font-size:0.85rem;cursor:pointer;margin-top:12px;display:inline-block}}
+.back:hover{{color:#94a3b8}}
+.powered{{text-align:center;padding:16px;color:#333;font-size:0.75rem}}
+.powered a{{color:#444}}
+</style></head><body>
+<div class="checkout">
+<div class="header">
+<h1>ToolPipe {name}</h1>
+<div class="price">${amount}<span>/month</span></div>
+<div class="features">{limit:,} API calls/day &middot; All 200+ endpoints &middot; Priority support</div>
+</div>
+<div class="body">
+<div id="step1" class="step active">
+<label>Email address</label>
+<input type="email" id="email" placeholder="you@example.com" autofocus>
+<button class="btn" onclick="createOrder()" id="orderBtn">Continue to Payment</button>
+</div>
+<div id="step2" class="step">
+<div class="notice">Send <strong>${amount}</strong> in any supported cryptocurrency to one of the addresses below. USDC on Base has the lowest gas fees (~$0.01).</div>
+<div class="addresses">
+<div class="addr"><div class="addr-label">EVM (Ethereum, Polygon, Base, Arbitrum, Optimism, BSC)</div><div class="addr-value" onclick="copyAddr(this)">{WALLET_ADDRESS}</div></div>
+<div class="addr"><div class="addr-label">Solana (SOL, USDC-SPL)</div><div class="addr-value" onclick="copyAddr(this)">{SOLANA_WALLET}</div></div>
+</div>
+<p style="color:#64748b;font-size:0.8rem;margin-bottom:4px">Accepted: ETH, USDC, USDT, DAI, SOL, BNB, AVAX, any ERC-20</p>
+<p style="color:#64748b;font-size:0.8rem;margin-bottom:16px">Order: <code id="orderId" style="color:#6c63ff"></code></p>
+<label>Transaction hash (after sending)</label>
+<input type="text" id="txHash" placeholder="0x... or Solana tx hash">
+<button class="btn" onclick="verifyPayment()" id="verifyBtn">Verify Payment</button>
+<div class="back" onclick="showStep(1)">Back</div>
+</div>
+<div id="step3" class="step">
+<div class="success">
+<h2>Payment Verified!</h2>
+<p style="color:#94a3b8">Your API key has been upgraded to {name}.</p>
+<div class="key" id="apiKey"></div>
+<p style="color:#64748b;font-size:0.85rem">Save this key. Use it with X-API-Key header or api_key query parameter.</p>
+<a href="/api-keys" class="btn" style="display:inline-block;text-decoration:none;margin-top:16px;width:auto;padding:12px 32px">View Dashboard</a>
+</div>
+</div>
+<div id="step-error" class="step">
+<div style="text-align:center;padding:20px 0">
+<h2 style="color:#ef4444">Verification Pending</h2>
+<p id="errorMsg" style="color:#94a3b8;margin:8px 0"></p>
+<button class="btn" onclick="showStep(2)" style="margin-top:16px">Try Again</button>
+</div>
+</div>
+</div>
+<div class="powered">Powered by <a href="/">ToolPipe</a> &middot; Crypto payments, no KYC</div>
+</div>
+<script>
+let currentOrderId='';
+function showStep(n){{document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(n==='error'?'step-error':'step'+n).classList.add('active')}}
+function copyAddr(el){{navigator.clipboard.writeText(el.textContent);el.style.color='#22c55e';setTimeout(()=>el.style.color='',1500)}}
+async function createOrder(){{
+  const email=document.getElementById('email').value.trim();
+  if(!email||!email.includes('@')){{alert('Valid email required');return}}
+  const btn=document.getElementById('orderBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Creating...';
+  try{{
+    const r=await fetch('/payments/create',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{email,tier:'{tier}'}})}});
+    const d=await r.json();
+    if(d.payment_url&&d.gateway!=='direct_crypto'){{window.location.href=d.payment_url;return}}
+    currentOrderId=d.order_id;
+    document.getElementById('orderId').textContent=d.order_id;
+    showStep(2);
+  }}catch(e){{alert('Error: '+e.message)}}
+  btn.disabled=false;btn.textContent='Continue to Payment';
+}}
+async function verifyPayment(){{
+  const txHash=document.getElementById('txHash').value.trim();
+  if(!txHash){{alert('Enter transaction hash');return}}
+  const btn=document.getElementById('verifyBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Verifying on-chain...';
+  try{{
+    const r=await fetch('/payments/verify-tx',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{order_id:currentOrderId,tx_hash:txHash}})}});
+    const d=await r.json();
+    if(d.status==='verified'){{document.getElementById('apiKey').textContent=d.api_key;showStep(3)}}
+    else{{document.getElementById('errorMsg').textContent=d.message||'Transaction not confirmed yet. Try again in a few minutes.';showStep('error')}}
+  }}catch(e){{document.getElementById('errorMsg').textContent=e.message;showStep('error')}}
+  btn.disabled=false;btn.textContent='Verify Payment';
+}}
+</script>
+</body></html>""")
 
 
 # --- Solana Transaction Verification ---

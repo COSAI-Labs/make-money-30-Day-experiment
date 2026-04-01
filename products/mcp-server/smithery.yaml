@@ -1,0 +1,24 @@
+# Smithery configuration for ToolPipe MCP Server
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      TOOLPIPE_API_KEY:
+        type: string
+        description: "API key for higher rate limits (optional, free tier: 100 calls/day)"
+      TOOLPIPE_BASE_URL:
+        type: string
+        default: "https://toolpipe.dev"
+        description: "ToolPipe API base URL"
+    required: []
+  commandFunction:
+    |-
+    (config) => ({
+      command: "npx",
+      args: ["-y", "@cosai-labs/toolpipe-mcp-server"],
+      env: {
+        TOOLPIPE_API_KEY: config.TOOLPIPE_API_KEY || "",
+        TOOLPIPE_BASE_URL: config.TOOLPIPE_BASE_URL || "https://toolpipe.dev"
+      }
+    })
