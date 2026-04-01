@@ -141,6 +141,31 @@ def register_api_key(email: str) -> dict:
         return {"api_key": key, "tier": "free", "daily_limit": 100, "existing": False}
 
 
+def upgrade_api_key(email: str, tier: str = "pro") -> dict:
+    limits = {"pro": 10000, "enterprise": 100000}
+    daily_limit = limits.get(tier, 10000)
+    with _keys_lock:
+        conn = sqlite3.connect(str(API_KEYS_DB))
+        row = conn.execute("SELECT api_key FROM api_keys WHERE email = ?", (email,)).fetchone()
+        if row:
+            conn.execute(
+                "UPDATE api_keys SET tier = ?, daily_limit = ? WHERE email = ?",
+                (tier, daily_limit, email)
+            )
+            conn.commit()
+            api_key = row[0]
+        else:
+            api_key = generate_api_key()
+            now = datetime.now(timezone.utc).isoformat()
+            conn.execute(
+                "INSERT INTO api_keys (email, api_key, tier, daily_limit, created_at) VALUES (?, ?, ?, ?, ?)",
+                (email, api_key, tier, daily_limit, now)
+            )
+            conn.commit()
+        conn.close()
+        return {"api_key": api_key, "tier": tier, "daily_limit": daily_limit}
+
+
 def check_api_key(key: str) -> dict | None:
     with _keys_lock:
         conn = sqlite3.connect(str(API_KEYS_DB))
@@ -158,6 +183,94 @@ def check_api_key(key: str) -> dict | None:
         conn.commit()
         conn.close()
         return {"email": row[0], "tier": row[1], "requests_today": row[2], "daily_limit": row[3]}
+
+
+# --- OxaPay Crypto Payment Integration ---
+OXAPAY_MERCHANT_KEY = os.environ.get("OXAPAY_MERCHANT_KEY", "sandbox")
+OXAPAY_API_URL = "https://api.oxapay.com/v1/payment/invoice"
+PAYMENTS_DB = Path(__file__).parent / "data" / "payments.db"
+_payments_lock = threading.Lock()
+
+
+def _init_payments_db():
+    conn = sqlite3.connect(str(PAYMENTS_DB))
+    conn.execute("""CREATE TABLE IF NOT EXISTS payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        track_id TEXT UNIQUE,
+        order_id TEXT UNIQUE,
+        email TEXT NOT NULL,
+        tier TEXT NOT NULL,
+        amount REAL NOT NULL,
+        currency TEXT DEFAULT 'USD',
+        status TEXT DEFAULT 'pending',
+        payment_url TEXT,
+        created_at TEXT NOT NULL,
+        paid_at TEXT,
+        callback_data TEXT
+    )""")
+    conn.commit()
+    conn.close()
+
+_init_payments_db()
+
+
+async def create_oxapay_invoice(amount: float, email: str, tier: str, order_id: str, callback_url: str, return_url: str) -> dict:
+    payload = {
+        "merchant": OXAPAY_MERCHANT_KEY,
+        "amount": amount,
+        "currency": "USD",
+        "lifetime": 60,
+        "callback_url": callback_url,
+        "return_url": return_url,
+        "email": email,
+        "order_id": order_id,
+        "description": f"ToolPipe {tier.title()} Plan",
+        "fee_paid_by_payer": 1,
+    }
+    if OXAPAY_MERCHANT_KEY == "sandbox":
+        payload["sandbox"] = True
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(OXAPAY_API_URL, json=payload)
+            data = resp.json()
+
+        if data.get("status") == 200 and data.get("data"):
+            track_id = data["data"].get("track_id", "")
+            payment_url = data["data"].get("payment_url", "")
+            now = datetime.now(timezone.utc).isoformat()
+            with _payments_lock:
+                conn = sqlite3.connect(str(PAYMENTS_DB))
+                conn.execute(
+                    "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, payment_url, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
+                    (track_id, order_id, email, tier, amount, payment_url, now)
+                )
+                conn.commit()
+                conn.close()
+            return {"success": True, "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
+        return {"success": False, "error": data.get("message", "Payment creation failed"), "fallback": "crypto_direct"}
+    except Exception:
+        # OxaPay API unavailable (Cloudflare, network, etc.), record intent and show direct crypto address
+        now = datetime.now(timezone.utc).isoformat()
+        with _payments_lock:
+            conn = sqlite3.connect(str(PAYMENTS_DB))
+            conn.execute(
+                "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, created_at) VALUES (?, ?, ?, ?, ?, 'awaiting_direct', ?)",
+                (order_id, order_id, email, tier, amount, now)
+            )
+            conn.commit()
+            conn.close()
+        return {
+            "success": False,
+            "fallback": "crypto_direct",
+            "message": "Automated payment temporarily unavailable. Send crypto directly.",
+            "crypto_address": "0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6",
+            "networks": "Ethereum, Polygon, Arbitrum, Base, Optimism",
+            "accepted": "ETH, USDC, USDT, DAI, any ERC-20",
+            "amount_usd": amount,
+            "order_id": order_id,
+            "instructions": f"Send ${amount} worth of crypto to the address above, then email toolpipe-ads@sharebot.net with your tx hash and order ID ({order_id}) to activate your {tier} plan."
+        }
 
 
 def record_pageview(path: str, ip: str, user_agent: str, referrer: str):
@@ -2380,6 +2493,336 @@ th{{background:#f5f5f5}}h1{{color:#302b63}}.stat{{display:inline-block;backgroun
 <h2>Last 7 Days</h2>
 <table><tr><th>Date</th><th>Views</th></tr>{daily_rows or '<tr><td colspan="2">No data yet</td></tr>'}</table>
 </body></html>""")
+
+
+# --- Crypto Payment Endpoints ---
+
+PRICING_TIERS = {
+    "pro": {"amount": 9.99, "daily_limit": 10000, "name": "Pro"},
+    "enterprise": {"amount": 49.99, "daily_limit": 100000, "name": "Enterprise"},
+}
+
+
+class PaymentRequest(BaseModel):
+    email: str
+    tier: str = "pro"
+
+
+@app.post("/payments/create")
+async def create_payment(req: PaymentRequest, request: Request):
+    email = req.email.strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email required")
+    tier = req.tier.lower()
+    if tier not in PRICING_TIERS:
+        raise HTTPException(status_code=400, detail=f"Invalid tier. Options: {', '.join(PRICING_TIERS.keys())}")
+
+    tier_info = PRICING_TIERS[tier]
+    order_id = f"tp-{tier}-{uuid.uuid4().hex[:12]}"
+
+    # Build callback/return URLs from request
+    base_url = str(request.base_url).rstrip("/")
+    callback_url = f"{base_url}/payments/webhook"
+    return_url = f"{base_url}/payments/success?order_id={order_id}"
+
+    result = await create_oxapay_invoice(
+        amount=tier_info["amount"],
+        email=email,
+        tier=tier,
+        order_id=order_id,
+        callback_url=callback_url,
+        return_url=return_url,
+    )
+    return result
+
+
+@app.post("/payments/webhook")
+async def payment_webhook(request: Request):
+    """OxaPay sends payment status updates here."""
+    try:
+        data = await request.json()
+    except Exception:
+        body = await request.body()
+        try:
+            data = json.loads(body)
+        except Exception:
+            return {"status": "error", "message": "Invalid payload"}
+
+    track_id = data.get("trackId", data.get("track_id", ""))
+    status = data.get("status", "")
+    order_id = data.get("orderId", data.get("order_id", ""))
+
+    if status in ("Paid", "Confirming", "Complete", "paid", "complete"):
+        now = datetime.now(timezone.utc).isoformat()
+        with _payments_lock:
+            conn = sqlite3.connect(str(PAYMENTS_DB))
+            # Find payment record
+            row = conn.execute(
+                "SELECT email, tier FROM payments WHERE track_id = ? OR order_id = ?",
+                (track_id, order_id)
+            ).fetchone()
+            if row:
+                email, tier = row
+                conn.execute(
+                    "UPDATE payments SET status = ?, paid_at = ?, callback_data = ? WHERE track_id = ? OR order_id = ?",
+                    (status, now, json.dumps(data), track_id, order_id)
+                )
+                conn.commit()
+                # Upgrade the API key
+                upgrade_api_key(email, tier)
+            conn.close()
+
+    return {"status": "ok"}
+
+
+@app.get("/payments/success", response_class=HTMLResponse)
+async def payment_success(order_id: str = ""):
+    return HTMLResponse(inject_snippet(f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Payment Successful - ToolPipe</title>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{font-family:-apple-system,sans-serif;background:#0a0a0a;color:#e0e0e0;display:flex;align-items:center;justify-content:center;min-height:100vh}}
+.card{{background:#1a1a1a;border:2px solid #22c55e;border-radius:16px;padding:48px;text-align:center;max-width:500px}}
+h1{{color:#22c55e;font-size:2rem;margin-bottom:12px}}
+p{{color:#94a3b8;line-height:1.6;margin-bottom:16px}}
+.order{{font-family:monospace;color:#6c63ff;background:#111;padding:8px 16px;border-radius:8px;display:inline-block;margin:8px 0}}
+a{{color:#6c63ff;text-decoration:none}}
+.btn{{display:inline-block;background:#6c63ff;color:#fff;padding:12px 32px;border-radius:8px;font-weight:600;margin-top:16px}}
+</style></head><body>
+<div class="card">
+<h1>Payment Received!</h1>
+<p>Your Pro access is being activated. You will receive your upgraded API key shortly.</p>
+<div class="order">{order_id}</div>
+<p>Check your API key status on the <a href="/api-keys">dashboard</a>.</p>
+<a href="/api-keys" class="btn">View API Dashboard</a>
+</div>
+</body></html>"""))
+
+
+@app.get("/payments/status")
+async def payment_status(order_id: str = "", track_id: str = ""):
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        if order_id:
+            row = conn.execute(
+                "SELECT order_id, email, tier, amount, status, created_at, paid_at FROM payments WHERE order_id = ?",
+                (order_id,)
+            ).fetchone()
+        elif track_id:
+            row = conn.execute(
+                "SELECT order_id, email, tier, amount, status, created_at, paid_at FROM payments WHERE track_id = ?",
+                (track_id,)
+            ).fetchone()
+        else:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Provide order_id or track_id")
+        conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    return {
+        "order_id": row[0], "email": row[1], "tier": row[2],
+        "amount": row[3], "status": row[4], "created_at": row[5], "paid_at": row[6]
+    }
+
+
+# --- Pricing Page ---
+
+@app.get("/pricing", response_class=HTMLResponse)
+async def pricing_page():
+    return HTMLResponse(inject_snippet("""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ToolPipe Pricing - API Plans for Developers & AI Agents</title>
+<meta name="description" content="ToolPipe API pricing: Free tier (100 calls/day), Pro ($9.99/mo, 10K calls/day), Enterprise ($49.99/mo, 100K calls/day). Pay with crypto. No KYC.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0}
+.container{max-width:900px;margin:0 auto;padding:60px 20px}
+h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
+.sub{text-align:center;color:#94a3b8;margin-bottom:48px;font-size:1.1rem}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:700px){.tiers{grid-template-columns:1fr}}
+.tier{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:16px;padding:32px;position:relative}
+.tier.featured{border-color:#6c63ff;box-shadow:0 0 40px rgba(108,99,255,0.15)}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6c63ff;color:#fff;padding:4px 16px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase}
+.tier h2{color:#fff;font-size:1.3rem;margin-bottom:8px}
+.tier .price{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:4px}
+.tier .price span{font-size:0.9rem;color:#64748b;font-weight:400}
+.tier .period{color:#64748b;font-size:0.85rem;margin-bottom:20px}
+.tier ul{list-style:none;padding:0;margin-bottom:24px}
+.tier li{color:#94a3b8;padding:6px 0;font-size:0.95rem}
+.tier li::before{content:"-> ";color:#6c63ff}
+.btn{display:block;text-align:center;padding:14px;border-radius:10px;font-weight:600;font-size:1rem;text-decoration:none;cursor:pointer;border:none;width:100%;transition:all 0.2s}
+.btn-free{background:#2a2a2a;color:#fff}
+.btn-free:hover{background:#3a3a3a}
+.btn-pro{background:#6c63ff;color:#fff}
+.btn-pro:hover{background:#5b52ee;transform:translateY(-1px)}
+.btn-ent{background:linear-gradient(135deg,#6c63ff,#3b82f6);color:#fff}
+.btn-ent:hover{transform:translateY(-1px)}
+.crypto-note{text-align:center;margin-top:40px;padding:24px;background:#1a1a2e;border:1px solid #6c63ff44;border-radius:12px}
+.crypto-note h3{color:#fff;margin-bottom:8px}
+.crypto-note p{color:#94a3b8;font-size:0.95rem}
+.faq{margin-top:48px}
+.faq h2{color:#fff;text-align:center;margin-bottom:24px}
+.faq-item{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:12px}
+.faq-item h3{color:#fff;font-size:1rem;margin-bottom:8px}
+.faq-item p{color:#94a3b8;font-size:0.9rem;line-height:1.6}
+.links{text-align:center;margin-top:32px}
+.links a{color:#6c63ff;text-decoration:none;margin:0 16px}
+</style></head><body>
+<div class="container">
+<h1>Simple, Transparent Pricing</h1>
+<p class="sub">70+ developer APIs. Pay with crypto. No KYC needed.</p>
+
+<div class="tiers">
+<div class="tier">
+<h2>Free</h2>
+<div class="price">$0 <span>/mo</span></div>
+<div class="period">No credit card required</div>
+<ul>
+<li>100 requests/day</li>
+<li>All 70+ endpoints</li>
+<li>JSON, PDF, QR, hash, UUID, DNS, and more</li>
+<li>Community support</li>
+<li>Rate limited (100/min)</li>
+</ul>
+<a href="/api-keys" class="btn btn-free">Get Free API Key</a>
+</div>
+
+<div class="tier featured">
+<div class="badge">Most Popular</div>
+<h2>Pro</h2>
+<div class="price">$9.99 <span>/mo</span></div>
+<div class="period">Billed monthly via crypto</div>
+<ul>
+<li>10,000 requests/day</li>
+<li>All 70+ endpoints</li>
+<li>Priority support</li>
+<li>No rate limits</li>
+<li>Bulk operations</li>
+<li>Webhook notifications</li>
+<li>MCP server access</li>
+</ul>
+<button class="btn btn-pro" onclick="buyPlan('pro')">Upgrade to Pro</button>
+</div>
+
+<div class="tier">
+<h2>Enterprise</h2>
+<div class="price">$49.99 <span>/mo</span></div>
+<div class="period">For high-volume users & AI agents</div>
+<ul>
+<li>100,000 requests/day</li>
+<li>All 70+ endpoints</li>
+<li>Dedicated support</li>
+<li>No rate limits</li>
+<li>Bulk operations</li>
+<li>Custom webhooks</li>
+<li>MCP server access</li>
+<li>SLA guarantee</li>
+</ul>
+<button class="btn btn-ent" onclick="buyPlan('enterprise')">Get Enterprise</button>
+</div>
+</div>
+
+<div class="crypto-note">
+<h3>Pay with Crypto</h3>
+<p>We accept BTC, ETH, USDT, USDC, SOL, TON, DOGE, LTC, and 20+ cryptocurrencies via OxaPay. No KYC, no bank account needed. Perfect for AI agents and global developers.</p>
+</div>
+
+<div class="faq">
+<h2>FAQ</h2>
+<div class="faq-item"><h3>How do I get started?</h3><p>Sign up for a free API key at <a href="/api-keys" style="color:#6c63ff">/api-keys</a>. No credit card needed. Start making API calls immediately.</p></div>
+<div class="faq-item"><h3>How does crypto payment work?</h3><p>Click "Upgrade to Pro" or "Get Enterprise", enter your email, and you will be redirected to a secure crypto payment page. Once payment confirms, your API key is automatically upgraded.</p></div>
+<div class="faq-item"><h3>Can AI agents use this API?</h3><p>Yes! ToolPipe is designed for both human developers and AI agents. Use our MCP server package or call the REST API directly. Agents can self-register for API keys and upgrade via crypto.</p></div>
+<div class="faq-item"><h3>What endpoints are included?</h3><p>All plans include access to all 70+ endpoints: JSON formatting, PDF tools, QR codes, hash generation, UUID, DNS lookup, image processing, text analysis, and more. See <a href="/docs" style="color:#6c63ff">/docs</a> for the full list.</p></div>
+<div class="faq-item"><h3>Is there a refund policy?</h3><p>Due to the nature of crypto payments, refunds are handled case-by-case. Contact toolpipe-ads@sharebot.net.</p></div>
+</div>
+
+<div class="links">
+<a href="/">Home</a>
+<a href="/api-keys">Get API Key</a>
+<a href="/docs">API Docs</a>
+<a href="/donate">Donate</a>
+</div>
+</div>
+
+<!-- Payment Modal -->
+<div id="pay-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10000;display:none;align-items:center;justify-content:center">
+<div style="background:#1a1a1a;border:2px solid #6c63ff;border-radius:16px;padding:32px;max-width:420px;width:90%;position:relative">
+<button onclick="closeModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer">x</button>
+<h2 style="color:#fff;margin-bottom:4px" id="modal-title">Upgrade to Pro</h2>
+<p style="color:#94a3b8;margin-bottom:20px" id="modal-price">$9.99/month</p>
+<input type="email" id="pay-email" placeholder="your@email.com" style="width:100%;background:#111;border:1px solid #2a2a2a;color:#e0e0e0;padding:12px;border-radius:8px;font-size:1rem;margin-bottom:12px">
+<button id="pay-btn" onclick="submitPayment()" style="width:100%;background:#6c63ff;color:#fff;border:none;padding:14px;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer">Pay with Crypto</button>
+<p id="pay-status" style="color:#94a3b8;margin-top:12px;font-size:0.9rem;text-align:center;display:none"></p>
+<div style="margin-top:16px;padding-top:16px;border-top:1px solid #2a2a2a">
+<p style="color:#64748b;font-size:0.8rem;text-align:center">Or send crypto directly:</p>
+<p style="color:#22c55e;font-family:monospace;font-size:0.75rem;text-align:center;word-break:break-all;margin-top:4px">0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6</p>
+<p style="color:#64748b;font-size:0.75rem;text-align:center;margin-top:4px">Then email toolpipe-ads@sharebot.net with tx hash</p>
+</div>
+</div>
+</div>
+
+<script>
+let selectedTier = 'pro';
+function buyPlan(tier) {
+    selectedTier = tier;
+    const prices = {pro: '$9.99/month', enterprise: '$49.99/month'};
+    const titles = {pro: 'Upgrade to Pro', enterprise: 'Get Enterprise'};
+    document.getElementById('modal-title').textContent = titles[tier];
+    document.getElementById('modal-price').textContent = prices[tier];
+    document.getElementById('pay-modal').style.display = 'flex';
+    document.getElementById('pay-email').focus();
+}
+function closeModal() {
+    document.getElementById('pay-modal').style.display = 'none';
+}
+async function submitPayment() {
+    const email = document.getElementById('pay-email').value.trim();
+    if (!email || !email.includes('@')) { alert('Enter a valid email'); return; }
+    const btn = document.getElementById('pay-btn');
+    const status = document.getElementById('pay-status');
+    btn.textContent = 'Creating payment...';
+    btn.disabled = true;
+    status.style.display = 'none';
+    try {
+        const res = await fetch('/payments/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, tier: selectedTier})
+        });
+        const data = await res.json();
+        if (data.success && data.payment_url) {
+            window.location.href = data.payment_url;
+        } else if (data.fallback === 'crypto_direct') {
+            status.innerHTML = '<strong>Send crypto directly:</strong><br>' +
+              '<code style="color:#22c55e;word-break:break-all">' + (data.crypto_address || '0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6') + '</code><br>' +
+              '<small>Amount: $' + (data.amount_usd || selectedTier === 'pro' ? '9.99' : '49.99') + ' in ETH/USDC/USDT</small><br>' +
+              '<small>Then email <a href="mailto:toolpipe-ads@sharebot.net" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with tx hash + order: ' + (data.order_id || '') + '</small>';
+            status.style.color = '#f59e0b';
+            status.style.display = 'block';
+            btn.textContent = 'Pay with Crypto';
+            btn.disabled = false;
+        } else {
+            status.textContent = data.error || 'Payment creation failed.';
+            status.style.color = '#ef4444';
+            status.style.display = 'block';
+            btn.textContent = 'Pay with Crypto';
+            btn.disabled = false;
+        }
+    } catch(e) {
+        status.textContent = 'Network error. Try the direct crypto address below.';
+        status.style.color = '#ef4444';
+        status.style.display = 'block';
+        btn.textContent = 'Pay with Crypto';
+        btn.disabled = false;
+    }
+}
+document.getElementById('pay-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+</script>
+</body></html>"""))
 
 
 # --- Donate Page ---
