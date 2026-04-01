@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Status Codes - Complete Reference Guide with Examples</title>
+    <meta name="description" content="Complete HTTP status codes reference. Searchable list of all HTTP response codes with descriptions, examples, and when to use each. 1xx, 2xx, 3xx, 4xx, 5xx codes explained.">
+    <link rel="canonical" href="/http-status-codes">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"HTTP Status Codes Reference","description":"Complete HTTP status codes reference guide","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 24px; }
+        .search-box { margin-bottom: 24px; }
+        .search-box input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .search-box input:focus { outline: none; border-color: #6c63ff; }
+        .category { margin-bottom: 32px; }
+        .category h2 { font-size: 1.3rem; padding: 12px 16px; border-radius: 8px 8px 0 0; color: white; margin-bottom: 0; }
+        .cat-1xx { background: #6366f1; }
+        .cat-2xx { background: #22c55e; }
+        .cat-3xx { background: #f59e0b; }
+        .cat-4xx { background: #ef4444; }
+        .cat-5xx { background: #8b5cf6; }
+        .code-list { background: white; border-radius: 0 0 8px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .code-item { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; display: flex; gap: 16px; align-items: flex-start; cursor: pointer; }
+        .code-item:hover { background: #f8f9ff; }
+        .code-item:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
+        .code-num { font-family: monospace; font-size: 1.1rem; font-weight: 700; min-width: 40px; }
+        .code-name { font-weight: 600; color: #333; }
+        .code-desc { color: #666; font-size: 0.9rem; margin-top: 2px; }
+        .hidden { display: none; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>HTTP Status Codes</h1>
+    <p class="subtitle">Complete reference for all HTTP response status codes. Search by code or description.</p>
+
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Search by code number or description..." oninput="filterCodes()">
+    </div>
+
+    <div id="codes-container">
+        <div class="category"><h2 class="cat-1xx">1xx Informational</h2><div class="code-list" data-cat="1xx">
+            <div class="code-item"><span class="code-num">100</span><div><div class="code-name">Continue</div><div class="code-desc">Server received request headers, client should proceed to send body.</div></div></div>
+            <div class="code-item"><span class="code-num">101</span><div><div class="code-name">Switching Protocols</div><div class="code-desc">Server is switching protocols as requested (e.g., WebSocket upgrade).</div></div></div>
+            <div class="code-item"><span class="code-num">102</span><div><div class="code-name">Processing</div><div class="code-desc">Server is processing the request but no response yet (WebDAV).</div></div></div>
+            <div class="code-item"><span class="code-num">103</span><div><div class="code-name">Early Hints</div><div class="code-desc">Used to return response headers before final HTTP message.</div></div></div>
+        </div></div>
+
+        <div class="category"><h2 class="cat-2xx">2xx Success</h2><div class="code-list" data-cat="2xx">
+            <div class="code-item"><span class="code-num">200</span><div><div class="code-name">OK</div><div class="code-desc">Request succeeded. The most common success response.</div></div></div>
+            <div class="code-item"><span class="code-num">201</span><div><div class="code-name">Created</div><div class="code-desc">Request succeeded and a new resource was created. Common for POST requests.</div></div></div>
+            <div class="code-item"><span class="code-num">202</span><div><div class="code-name">Accepted</div><div class="code-desc">Request accepted for processing but not yet completed.</div></div></div>
+            <div class="code-item"><span class="code-num">204</span><div><div class="code-name">No Content</div><div class="code-desc">Request succeeded but no content to return. Common for DELETE requests.</div></div></div>
+            <div class="code-item"><span class="code-num">206</span><div><div class="code-name">Partial Content</div><div class="code-desc">Server is delivering only part of the resource (range request).</div></div></div>
+            <div class="code-item"><span class="code-num">207</span><div><div class="code-name">Multi-Status</div><div class="code-desc">Multiple status codes for multiple operations (WebDAV).</div></div></div>
+        </div></div>
+
+        <div class="category"><h2 class="cat-3xx">3xx Redirection</h2><div class="code-list" data-cat="3xx">
+            <div class="code-item"><span class="code-num">301</span><div><div class="code-name">Moved Permanently</div><div class="code-desc">Resource has permanently moved to a new URL. SEO: transfers link juice.</div></div></div>
+            <div class="code-item"><span class="code-num">302</span><div><div class="code-name">Found (Temporary Redirect)</div><div class="code-desc">Resource temporarily at different URL. Client should use original URL.</div></div></div>
+            <div class="code-item"><span class="code-num">304</span><div><div class="code-name">Not Modified</div><div class="code-desc">Resource hasn't changed since last request. Use cached version.</div></div></div>
+            <div class="code-item"><span class="code-num">307</span><div><div class="code-name">Temporary Redirect</div><div class="code-desc">Like 302, but guarantees method and body won't change.</div></div></div>
+            <div class="code-item"><span class="code-num">308</span><div><div class="code-name">Permanent Redirect</div><div class="code-desc">Like 301, but guarantees method and body won't change.</div></div></div>
+        </div></div>
+
+        <div class="category"><h2 class="cat-4xx">4xx Client Error</h2><div class="code-list" data-cat="4xx">
+            <div class="code-item"><span class="code-num">400</span><div><div class="code-name">Bad Request</div><div class="code-desc">Server cannot process the request due to client error (malformed syntax).</div></div></div>
+            <div class="code-item"><span class="code-num">401</span><div><div class="code-name">Unauthorized</div><div class="code-desc">Authentication required. Client must provide valid credentials.</div></div></div>
+            <div class="code-item"><span class="code-num">403</span><div><div class="code-name">Forbidden</div><div class="code-desc">Server understood but refuses to authorize. Authenticated but not allowed.</div></div></div>
+            <div class="code-item"><span class="code-num">404</span><div><div class="code-name">Not Found</div><div class="code-desc">The requested resource could not be found on the server.</div></div></div>
+            <div class="code-item"><span class="code-num">405</span><div><div class="code-name">Method Not Allowed</div><div class="code-desc">HTTP method not supported for this endpoint (e.g., POST on GET-only).</div></div></div>
+            <div class="code-item"><span class="code-num">408</span><div><div class="code-name">Request Timeout</div><div class="code-desc">Server timed out waiting for the request from the client.</div></div></div>
+            <div class="code-item"><span class="code-num">409</span><div><div class="code-name">Conflict</div><div class="code-desc">Request conflicts with current state of server (e.g., duplicate resource).</div></div></div>
+            <div class="code-item"><span class="code-num">410</span><div><div class="code-name">Gone</div><div class="code-desc">Resource has been permanently removed and will not return.</div></div></div>
+            <div class="code-item"><span class="code-num">413</span><div><div class="code-name">Payload Too Large</div><div class="code-desc">Request body exceeds server limits.</div></div></div>
+            <div class="code-item"><span class="code-num">415</span><div><div class="code-name">Unsupported Media Type</div><div class="code-desc">Server doesn't support the Content-Type sent by client.</div></div></div>
+            <div class="code-item"><span class="code-num">422</span><div><div class="code-name">Unprocessable Entity</div><div class="code-desc">Request is well-formed but contains semantic errors (validation failure).</div></div></div>
+            <div class="code-item"><span class="code-num">429</span><div><div class="code-name">Too Many Requests</div><div class="code-desc">Rate limit exceeded. Client is sending too many requests.</div></div></div>
+            <div class="code-item"><span class="code-num">451</span><div><div class="code-name">Unavailable For Legal Reasons</div><div class="code-desc">Resource blocked due to legal requirements (censorship, DMCA).</div></div></div>
+        </div></div>
+
+        <div class="category"><h2 class="cat-5xx">5xx Server Error</h2><div class="code-list" data-cat="5xx">
+            <div class="code-item"><span class="code-num">500</span><div><div class="code-name">Internal Server Error</div><div class="code-desc">Generic server error. Something went wrong on the server side.</div></div></div>
+            <div class="code-item"><span class="code-num">501</span><div><div class="code-name">Not Implemented</div><div class="code-desc">Server doesn't support the request method.</div></div></div>
+            <div class="code-item"><span class="code-num">502</span><div><div class="code-name">Bad Gateway</div><div class="code-desc">Server acting as gateway received invalid response from upstream.</div></div></div>
+            <div class="code-item"><span class="code-num">503</span><div><div class="code-name">Service Unavailable</div><div class="code-desc">Server temporarily unable to handle request (overloaded or maintenance).</div></div></div>
+            <div class="code-item"><span class="code-num">504</span><div><div class="code-name">Gateway Timeout</div><div class="code-desc">Server acting as gateway didn't receive response from upstream in time.</div></div></div>
+            <div class="code-item"><span class="code-num">507</span><div><div class="code-name">Insufficient Storage</div><div class="code-desc">Server cannot store the data needed to complete the request.</div></div></div>
+            <div class="code-item"><span class="code-num">508</span><div><div class="code-name">Loop Detected</div><div class="code-desc">Server detected an infinite loop while processing request.</div></div></div>
+        </div></div>
+    </div>
+</div>
+
+<footer><a href="/">ToolPipe</a> | <a href="/json-formatter">JSON</a> | <a href="/api-keys">API</a> | <a href="/webhook-tester">Webhooks</a></footer>
+
+<script>
+function filterCodes() {
+    const q = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.code-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.classList.toggle('hidden', q && !text.includes(q));
+    });
+    document.querySelectorAll('.category').forEach(cat => {
+        const visible = cat.querySelectorAll('.code-item:not(.hidden)').length;
+        cat.classList.toggle('hidden', visible === 0);
+    });
+}
+</script>
+</body>
+</html>
