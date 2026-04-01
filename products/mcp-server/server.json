@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "88 developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more",
+  "description": "89 developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.8.0",
+  "version": "1.9.0",
   "remoteEndpoints": [
     {
       "url": "https://toolpipe.dev/mcp",
@@ -84,6 +84,7 @@
     {"name": "create_payment", "description": "Create crypto payment order for Pro or Enterprise plan"},
     {"name": "verify_payment", "description": "Verify crypto payment on-chain and upgrade API key"},
     {"name": "get_pricing", "description": "Get API pricing tiers and payment information"},
+    {"name": "agent_pay", "description": "Agent-optimized payment: get crypto addresses to upgrade API key"},
     {"name": "sql_format", "description": "Format and prettify SQL queries"},
     {"name": "html_strip", "description": "Strip HTML tags to plain text"},
     {"name": "text_stats", "description": "Text statistics: word count, reading time, readability"},
