@@ -50,7 +50,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.0.0" },
+  { name: "toolpipe", version: "1.2.0" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 70+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, and more. Get a free API key at /api-keys for 100 calls/day, or upgrade to Pro for 10,000 calls/day.",

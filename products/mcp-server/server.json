@@ -7,25 +7,25 @@
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.0.2",
+  "version": "1.1.0",
   "packages": [
     {
-      "registryType": "npm",
-      "identifier": "@cosai-labs/toolpipe-mcp-server",
-      "version": "1.0.2",
+      "registryType": "docker",
+      "identifier": "ghcr.io/cosai-labs/toolpipe-mcp-server",
+      "version": "1.1.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "description": "ToolPipe API key for authenticated access (optional, get free key at /api-keys)",
+          "description": "ToolPipe API key (optional)",
           "isRequired": false,
           "format": "string",
           "isSecret": true,
           "name": "TOOLPIPE_API_KEY"
         },
         {
-          "description": "Custom API base URL (default: https://assessing-scoop-authorities-sheet.trycloudflare.com)",
+          "description": "Custom API base URL",
           "isRequired": false,
           "format": "string",
           "isSecret": false,

@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.1.0" },
+    { name: "toolpipe", version: "1.2.0" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 70+ developer utility APIs. Use these tools for JSON formatting, QR code generation, hashing, UUID generation, DNS lookup, base64 encoding, markdown conversion, text analysis, regex testing, JWT decoding, and more.",
@@ -125,7 +125,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.1.0",
+    version: "1.2.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
     tools: 34,
