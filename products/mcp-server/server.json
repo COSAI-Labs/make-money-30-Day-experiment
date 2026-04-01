@@ -1,31 +1,31 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "34 developer tools: JSON, QR, UUID, hash, DNS, Base64, regex, JWT, URL, and more",
+  "description": "34 developer utility tools: JSON formatter, QR codes, UUID, hash, DNS, Base64, regex tester, JWT decoder, crypto prices, SEO analyzer, and more. 80+ REST API endpoints for AI agents.",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.1.0",
+  "version": "1.2.0",
   "packages": [
     {
-      "registryType": "docker",
-      "identifier": "ghcr.io/cosai-labs/toolpipe-mcp-server",
-      "version": "1.1.0",
+      "registryType": "npm",
+      "identifier": "toolpipe-mcp-server",
+      "version": "1.2.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "description": "ToolPipe API key (optional)",
+          "description": "ToolPipe API key for higher rate limits (optional, get free key at /api-keys)",
           "isRequired": false,
           "format": "string",
           "isSecret": true,
           "name": "TOOLPIPE_API_KEY"
         },
         {
-          "description": "Custom API base URL",
+          "description": "Custom API base URL (default: https://toolpipe.dev)",
           "isRequired": false,
           "format": "string",
           "isSecret": false,
@@ -33,5 +33,49 @@
         }
       ]
     }
+  ],
+  "remoteEndpoints": [
+    {
+      "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp",
+      "transport": {
+        "type": "streamable-http"
+      }
+    }
+  ],
+  "tools": [
+    {"name": "json_format", "description": "Format, validate, and pretty-print JSON"},
+    {"name": "json_to_yaml", "description": "Convert JSON to YAML"},
+    {"name": "json_to_csv", "description": "Convert JSON array to CSV"},
+    {"name": "json_validate_schema", "description": "Validate JSON against JSON Schema"},
+    {"name": "code_format", "description": "Format code (JSON, SQL, HTML)"},
+    {"name": "analyze_text", "description": "Analyze text: word count, reading time"},
+    {"name": "summarize_text", "description": "Extractive text summarization"},
+    {"name": "detect_language", "description": "Detect text language"},
+    {"name": "text_diff", "description": "Compare two texts (unified diff)"},
+    {"name": "slugify", "description": "Text to URL-friendly slug"},
+    {"name": "regex_test", "description": "Test regex patterns with match details"},
+    {"name": "markdown_to_html", "description": "Convert Markdown to HTML"},
+    {"name": "markdown_table", "description": "Generate markdown tables"},
+    {"name": "lorem_ipsum", "description": "Generate placeholder text"},
+    {"name": "hash_text", "description": "Hash text (MD5, SHA-1, SHA-256, SHA-512)"},
+    {"name": "base64_encode_decode", "description": "Base64 encode/decode"},
+    {"name": "url_encode_decode", "description": "URL encode/decode"},
+    {"name": "jwt_decode", "description": "Decode JWT tokens"},
+    {"name": "generate_uuid", "description": "Generate UUIDs (v4)"},
+    {"name": "generate_password", "description": "Generate secure passwords"},
+    {"name": "dns_lookup", "description": "DNS lookup (A, AAAA, MX, NS, TXT)"},
+    {"name": "ip_lookup", "description": "IP geolocation lookup"},
+    {"name": "extract_metadata", "description": "Extract URL metadata (OG tags)"},
+    {"name": "check_website_status", "description": "Check if website is up/down"},
+    {"name": "seo_analyze", "description": "SEO analysis of any URL"},
+    {"name": "http_request", "description": "HTTP requests (curl via API)"},
+    {"name": "shorten_url", "description": "Create shortened URLs"},
+    {"name": "generate_qr_code", "description": "Generate QR code URLs"},
+    {"name": "color_convert", "description": "Convert colors (HEX/RGB/HSL)"},
+    {"name": "timestamp_convert", "description": "Convert timestamps and dates"},
+    {"name": "cron_parse", "description": "Parse cron to plain English"},
+    {"name": "get_crypto_prices", "description": "Live cryptocurrency prices"},
+    {"name": "css_minify", "description": "Minify CSS code"},
+    {"name": "js_minify", "description": "Minify JavaScript code"}
   ]
 }
