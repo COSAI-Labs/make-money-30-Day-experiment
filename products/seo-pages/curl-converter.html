@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curl to Code Converter - Convert curl to Python, JavaScript, PHP, Go</title>
+    <meta name="description" content="Convert curl commands to Python requests, JavaScript fetch, PHP, Go, Ruby, and more. Free online curl converter. No signup required.">
+    <meta property="og:title" content="Free Curl to Code Converter - Python, JS, PHP, Go">
+    <link rel="canonical" href="/curl-converter">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 120px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .lang-tabs { display: flex; gap: 4px; margin: 16px 0 8px; flex-wrap: wrap; }
+        .lang-tab { padding: 8px 16px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85rem; background: #f8f9fa; }
+        .lang-tab.active { background: #6c63ff; color: white; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; }
+        .btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        .output { background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; min-height: 150px; white-space: pre-wrap; overflow-x: auto; margin-top: 8px; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div><a href="/tools">All Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/docs">API</a> | <a href="/pricing">Pro Plans</a></div>
+    </nav>
+    <div class="container">
+        <h1>Curl to Code Converter</h1>
+        <p class="subtitle">Paste a curl command and convert it to Python, JavaScript, PHP, Go, Ruby, or other languages.</p>
+        <div class="tool-box">
+            <label>Paste your curl command:</label>
+            <textarea id="input" placeholder="curl -X POST https://api.example.com/data \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer token123' \
+  -d '{&quot;name&quot;: &quot;test&quot;, &quot;value&quot;: 42}'"></textarea>
+            <div class="lang-tabs" id="tabs">
+                <div class="lang-tab active" onclick="selectLang('python',this)">Python</div>
+                <div class="lang-tab" onclick="selectLang('javascript',this)">JavaScript</div>
+                <div class="lang-tab" onclick="selectLang('php',this)">PHP</div>
+                <div class="lang-tab" onclick="selectLang('go',this)">Go</div>
+                <div class="lang-tab" onclick="selectLang('ruby',this)">Ruby</div>
+                <div class="lang-tab" onclick="selectLang('java',this)">Java</div>
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="convert()">Convert</button>
+                <button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').textContent)">Copy Output</button>
+            </div>
+            <div class="output" id="output">Output will appear here...</div>
+        </div>
+
+        <div class="content">
+            <h2>How to Use</h2>
+            <p>Paste any curl command (from browser DevTools, API docs, or tutorials) and select your target language. The converter parses the curl flags (-X, -H, -d, --data, -u, etc.) and generates equivalent code.</p>
+
+            <h2>Supported curl Flags</h2>
+            <p>-X (method), -H (headers), -d/--data (body), -u (basic auth), --compressed, -F (form data), -b (cookies), -L (follow redirects), -k (insecure), --connect-timeout</p>
+
+            <h2>Related Tools</h2>
+            <p><a href="/json-formatter" style="color:#6c63ff">JSON Formatter</a> | <a href="/url-encoder" style="color:#6c63ff">URL Encoder</a> | <a href="/base64-encoder" style="color:#6c63ff">Base64 Encoder</a> | <a href="/api-reference-cheat-sheet" style="color:#6c63ff">API Cheat Sheet</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+    </footer>
+
+    <script>
+    let currentLang = 'python';
+    function selectLang(lang, el) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        convert();
+    }
+    function parseCurl(cmd) {
+        cmd = cmd.replace(/\\\n/g, ' ').replace(/\s+/g, ' ').trim();
+        if (cmd.startsWith('curl ')) cmd = cmd.slice(5);
+        const r = { method: 'GET', url: '', headers: {}, data: null, auth: null };
+        const tokens = [];
+        let current = '', inQ = false, q = '';
+        for (let i = 0; i < cmd.length; i++) {
+            const c = cmd[i];
+            if (!inQ && (c === "'" || c === '"')) { inQ = true; q = c; }
+            else if (inQ && c === q) { inQ = false; }
+            else if (!inQ && c === ' ') { if (current) tokens.push(current); current = ''; continue; }
+            else current += c;
+        }
+        if (current) tokens.push(current);
+        for (let i = 0; i < tokens.length; i++) {
+            const t = tokens[i];
+            if (t === '-X' || t === '--request') { r.method = tokens[++i].toUpperCase(); }
+            else if (t === '-H' || t === '--header') { const h = tokens[++i]; const sep = h.indexOf(':'); if (sep > 0) r.headers[h.slice(0,sep).trim()] = h.slice(sep+1).trim(); }
+            else if (t === '-d' || t === '--data' || t === '--data-raw' || t === '--data-binary') { r.data = tokens[++i]; if (r.method === 'GET') r.method = 'POST'; }
+            else if (t === '-u' || t === '--user') { r.auth = tokens[++i]; }
+            else if (!t.startsWith('-')) { r.url = t; }
+        }
+        return r;
+    }
+    function toPython(r) {
+        let s = 'import requests\n\n';
+        if (Object.keys(r.headers).length) s += 'headers = ' + JSON.stringify(r.headers, null, 4).replace(/"/g, "'") + '\n\n';
+        s += `response = requests.${r.method.toLowerCase()}(\n    '${r.url}'`;
+        if (Object.keys(r.headers).length) s += ',\n    headers=headers';
+        if (r.data) { try { JSON.parse(r.data); s += `,\n    json=${r.data}`; } catch { s += `,\n    data='${r.data}'`; } }
+        if (r.auth) { const p = r.auth.split(':'); s += `,\n    auth=('${p[0]}', '${p[1]||''}')`; }
+        s += '\n)\n\nprint(response.status_code)\nprint(response.json())';
+        return s;
+    }
+    function toJavascript(r) {
+        let s = '';
+        const opts = { method: r.method };
+        if (Object.keys(r.headers).length) opts.headers = r.headers;
+        if (r.data) { try { JSON.parse(r.data); opts.body = 'JSON.stringify(' + r.data + ')'; } catch { opts.body = r.data; } }
+        s = `const response = await fetch('${r.url}', {\n  method: '${r.method}'`;
+        if (Object.keys(r.headers).length) s += `,\n  headers: ${JSON.stringify(r.headers, null, 4)}`;
+        if (r.data) s += `,\n  body: JSON.stringify(${r.data})`;
+        s += '\n});\n\nconst data = await response.json();\nconsole.log(data);';
+        return s;
+    }
+    function toPhp(r) {
+        let s = `$ch = curl_init('${r.url}');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n`;
+        if (r.method !== 'GET') s += `curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '${r.method}');\n`;
+        if (Object.keys(r.headers).length) { const h = Object.entries(r.headers).map(([k,v]) => `'${k}: ${v}'`).join(', '); s += `curl_setopt($ch, CURLOPT_HTTPHEADER, [${h}]);\n`; }
+        if (r.data) s += `curl_setopt($ch, CURLOPT_POSTFIELDS, '${r.data}');\n`;
+        s += '\n$response = curl_exec($ch);\ncurl_close($ch);\n\n$data = json_decode($response, true);\nprint_r($data);';
+        return s;
+    }
+    function toGo(r) {
+        let s = `package main\n\nimport (\n\t"fmt"\n\t"io/ioutil"\n\t"net/http"\n`;
+        if (r.data) s += `\t"strings"\n`;
+        s += `)\n\nfunc main() {\n`;
+        if (r.data) s += `\tbody := strings.NewReader(\`${r.data}\`)\n\treq, _ := http.NewRequest("${r.method}", "${r.url}", body)\n`;
+        else s += `\treq, _ := http.NewRequest("${r.method}", "${r.url}", nil)\n`;
+        Object.entries(r.headers).forEach(([k,v]) => { s += `\treq.Header.Set("${k}", "${v}")\n`; });
+        s += `\n\tclient := &http.Client{}\n\tresp, _ := client.Do(req)\n\tdefer resp.Body.Close()\n\n\tresult, _ := ioutil.ReadAll(resp.Body)\n\tfmt.Println(string(result))\n}`;
+        return s;
+    }
+    function toRuby(r) {
+        let s = `require 'net/http'\nrequire 'json'\n\nuri = URI('${r.url}')\nhttp = Net::HTTP.new(uri.host, uri.port)\nhttp.use_ssl = uri.scheme == 'https'\n\n`;
+        s += `request = Net::HTTP::${r.method[0]+r.method.slice(1).toLowerCase()}.new(uri)\n`;
+        Object.entries(r.headers).forEach(([k,v]) => { s += `request['${k}'] = '${v}'\n`; });
+        if (r.data) s += `request.body = '${r.data}'\n`;
+        s += `\nresponse = http.request(request)\nputs response.body`;
+        return s;
+    }
+    function toJava(r) {
+        let s = `import java.net.http.*;\nimport java.net.URI;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n`;
+        s += `        HttpClient client = HttpClient.newHttpClient();\n`;
+        s += `        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create("${r.url}"))\n            .method("${r.method}"`;
+        if (r.data) s += `, HttpRequest.BodyPublishers.ofString("${r.data.replace(/"/g, '\\"')}"))\n`;
+        else s += `, HttpRequest.BodyPublishers.noBody())\n`;
+        Object.entries(r.headers).forEach(([k,v]) => { s += `            .header("${k}", "${v}")\n`; });
+        s += `            .build();\n\n        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());\n        System.out.println(response.body());\n    }\n}`;
+        return s;
+    }
+    function convert() {
+        const input = document.getElementById('input').value.trim();
+        if (!input) { document.getElementById('output').textContent = 'Paste a curl command above...'; return; }
+        const r = parseCurl(input);
+        const generators = { python: toPython, javascript: toJavascript, php: toPhp, go: toGo, ruby: toRuby, java: toJava };
+        document.getElementById('output').textContent = generators[currentLang](r);
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to XML Converter - Free Online Tool</title>
+    <meta name="description" content="Convert JSON to XML online for free. Transform JSON data to well-formatted XML with customizable root elements. No signup required.">
+    <meta property="og:title" content="Free JSON to XML Converter Online">
+    <link rel="canonical" href="/json-to-xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        textarea { width: 100%; min-height: 300px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
+        .btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-reverse { background: #e94560; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div><a href="/tools">All Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/xml-formatter">XML Formatter</a> | <a href="/pricing">Pro Plans</a></div>
+    </nav>
+    <div class="container">
+        <h1>JSON to XML Converter</h1>
+        <p class="subtitle">Convert JSON data to well-formatted XML. Supports nested objects, arrays, and all JSON types.</p>
+        <div class="tool-box">
+            <div class="cols">
+                <div>
+                    <label>JSON Input</label>
+                    <textarea id="input" placeholder='{"name": "John", "age": 30, "hobbies": ["reading", "coding"]}'></textarea>
+                </div>
+                <div>
+                    <label>XML Output</label>
+                    <textarea id="output" readonly style="background:#f8fdf8"></textarea>
+                </div>
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="convert()">JSON -> XML</button>
+                <button class="btn btn-reverse" onclick="reverseConvert()">XML -> JSON</button>
+                <button class="btn btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy</button>
+                <button class="btn btn-copy" onclick="document.getElementById('input').value='';document.getElementById('output').value=''">Clear</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>How JSON to XML Conversion Works</h2>
+            <p>JSON objects become XML elements, array items become repeated elements, and primitive values become text content. Keys with special characters are sanitized for XML compatibility.</p>
+            <h2>Example</h2>
+            <pre>// Input JSON:
+{"user": {"name": "Alice", "skills": ["Python", "Go"]}}
+
+// Output XML:
+&lt;?xml version="1.0"?&gt;
+&lt;root&gt;
+  &lt;user&gt;
+    &lt;name&gt;Alice&lt;/name&gt;
+    &lt;skills&gt;
+      &lt;item&gt;Python&lt;/item&gt;
+      &lt;item&gt;Go&lt;/item&gt;
+    &lt;/skills&gt;
+  &lt;/user&gt;
+&lt;/root&gt;</pre>
+            <h2>Related Tools</h2>
+            <p><a href="/json-formatter" style="color:#6c63ff">JSON Formatter</a> | <a href="/xml-formatter" style="color:#6c63ff">XML Formatter</a> | <a href="/json-to-yaml" style="color:#6c63ff">JSON to YAML</a> | <a href="/json-to-csv" style="color:#6c63ff">JSON to CSV</a></p>
+        </div>
+    </div>
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+    </footer>
+    <script>
+    function escapeXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function jsonToXml(obj, indent, key) {
+        const sp = '  '.repeat(indent);
+        if (obj === null) return sp + (key ? `<${key}/>` : '<null/>') + '\n';
+        if (typeof obj !== 'object') return sp + (key ? `<${key}>${escapeXml(obj)}</${key}>` : escapeXml(obj)) + '\n';
+        if (Array.isArray(obj)) {
+            return obj.map(item => jsonToXml(item, indent, 'item')).join('');
+        }
+        let xml = '';
+        const tag = key || 'root';
+        xml += sp + `<${tag}>\n`;
+        for (const [k, v] of Object.entries(obj)) {
+            const safe = k.replace(/[^a-zA-Z0-9_-]/g, '_');
+            if (Array.isArray(v)) {
+                xml += sp + `  <${safe}>\n`;
+                v.forEach(item => { xml += jsonToXml(item, indent + 2, 'item'); });
+                xml += sp + `  </${safe}>\n`;
+            } else {
+                xml += jsonToXml(v, indent + 1, safe);
+            }
+        }
+        xml += sp + `</${tag}>\n`;
+        return xml;
+    }
+    function convert() {
+        try {
+            const json = JSON.parse(document.getElementById('input').value);
+            document.getElementById('output').value = '<?xml version="1.0" encoding="UTF-8"?>\n' + jsonToXml(json, 0, null);
+        } catch (e) { document.getElementById('output').value = 'Error: ' + e.message; }
+    }
+    function reverseConvert() {
+        const xml = document.getElementById('input').value.trim();
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xml, 'text/xml');
+            const err = doc.querySelector('parsererror');
+            if (err) { document.getElementById('output').value = 'XML Parse Error: ' + err.textContent; return; }
+            function xmlToJson(node) {
+                if (node.nodeType === 3) return node.textContent.trim() || null;
+                const children = Array.from(node.childNodes).filter(n => n.nodeType !== 3 || n.textContent.trim());
+                if (children.length === 1 && children[0].nodeType === 3) return children[0].textContent.trim();
+                if (children.length === 0) return null;
+                const obj = {};
+                children.forEach(c => {
+                    if (c.nodeType === 1) {
+                        const val = xmlToJson(c);
+                        if (obj[c.nodeName] !== undefined) {
+                            if (!Array.isArray(obj[c.nodeName])) obj[c.nodeName] = [obj[c.nodeName]];
+                            obj[c.nodeName].push(val);
+                        } else obj[c.nodeName] = val;
+                    }
+                });
+                return obj;
+            }
+            document.getElementById('output').value = JSON.stringify(xmlToJson(doc.documentElement), null, 2);
+        } catch (e) { document.getElementById('output').value = 'Error: ' + e.message; }
+    }
+    </script>
+</body>
+</html>
