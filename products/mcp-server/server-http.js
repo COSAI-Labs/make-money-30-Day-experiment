@@ -126,6 +126,12 @@ function createServer() {
   server.tool("slug_generate", "Generate URL-friendly slugs.", { text: z.string(), separator: z.string().optional() }, async ({ text, separator }) => textResult(await apiCall("/api/slug/generate", { method: "POST", body: JSON.stringify({ text, separator: separator || "-" }) })));
   server.tool("markdown_strip", "Strip markdown formatting to plain text.", { markdown: z.string() }, async ({ markdown }) => textResult(await apiCall("/api/markdown/strip", { method: "POST", body: JSON.stringify({ markdown }) })));
 
+  // AI Agent Utility Tools
+  server.tool("extract_structured", "Extract emails, URLs, phones, dates, numbers from text.", { text: z.string(), extract: z.string().optional() }, async ({ text, extract }) => textResult(await apiCall("/api/extract/structured", { method: "POST", body: JSON.stringify({ text, extract: extract || "all" }) })));
+  server.tool("text_transform", "Apply text transforms: uppercase, lowercase, title, reverse, sort_lines, unique_lines, trim.", { text: z.string(), transforms: z.array(z.string()) }, async ({ text, transforms }) => textResult(await apiCall("/api/text/transform", { method: "POST", body: JSON.stringify({ text, transforms }) })));
+  server.tool("text_compare", "Compare strings for similarity using Levenshtein distance.", { items: z.array(z.string()) }, async ({ items }) => textResult(await apiCall("/api/text/compare", { method: "POST", body: JSON.stringify({ items }) })));
+  server.tool("convert_units", "Convert units: length, weight, temperature, volume, speed, data.", { value: z.number(), from_unit: z.string(), to_unit: z.string() }, async ({ value, from_unit, to_unit }) => textResult(await apiCall("/api/convert/units", { method: "POST", body: JSON.stringify({ value, from_unit, to_unit }) })));
+
   // API Key & Payment Management (self-service for AI agents)
   server.tool("register_api_key", "Register a free API key (100 calls/day).", { email: z.string() }, async ({ email }) => textResult(await apiCall("/api-keys/register", { method: "POST", body: JSON.stringify({ email }) })));
   server.tool("check_api_usage", "Check API key usage and remaining quota.", { api_key: z.string().optional(), email: z.string().optional() }, async ({ api_key, email }) => { const p = new URLSearchParams(); if (api_key) p.set("api_key", api_key); if (email) p.set("email", email); return textResult(await apiCall(`/api-keys/usage?${p.toString()}`)); });
@@ -156,7 +162,7 @@ app.get("/", (req, res) => {
     version: "1.6.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 56,
+    tools: 60,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -187,5 +193,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`56 tools available. API backend: ${API_BASE}`);
+  console.log(`60 tools available. API backend: ${API_BASE}`);
 });

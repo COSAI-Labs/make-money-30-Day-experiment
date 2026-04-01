@@ -6092,6 +6092,258 @@ async def markdown_strip(req: MarkdownStripRequest):
     }
 
 
+# --- AI Agent Tools (Premium) ---
+
+class StructuredExtractRequest(BaseModel):
+    text: str
+    extract: str = "entities"  # entities, dates, emails, urls, phones, numbers, addresses
+
+
+@app.post("/api/extract/structured")
+async def extract_structured(req: StructuredExtractRequest):
+    """Extract structured data from unstructured text. Premium endpoint for AI agents."""
+    text = req.text
+    results = {}
+
+    if req.extract in ("entities", "all"):
+        # Extract emails
+        emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
+        results["emails"] = list(set(emails))
+
+    if req.extract in ("urls", "all"):
+        urls = re.findall(r'https?://[^\s<>"{}|\\^`\[\]]+', text)
+        results["urls"] = list(set(urls))
+
+    if req.extract in ("phones", "all"):
+        phones = re.findall(r'(?:\+?1[-.]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}', text)
+        results["phones"] = list(set(phones))
+
+    if req.extract in ("dates", "all"):
+        date_patterns = [
+            r'\d{4}-\d{2}-\d{2}',
+            r'\d{1,2}/\d{1,2}/\d{2,4}',
+            r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}',
+            r'\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}',
+        ]
+        dates = []
+        for p in date_patterns:
+            dates.extend(re.findall(p, text, re.IGNORECASE))
+        results["dates"] = list(set(dates))
+
+    if req.extract in ("numbers", "all"):
+        numbers = re.findall(r'(?<!\w)[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?(?!\w)', text)
+        results["numbers"] = numbers[:100]
+
+    if req.extract in ("emails", "all") and "emails" not in results:
+        emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
+        results["emails"] = list(set(emails))
+
+    if req.extract in ("addresses", "all"):
+        # Basic US address patterns
+        addresses = re.findall(r'\d+\s+[\w\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|Ct|Court|Pl|Place)\.?\s*,?\s*[\w\s]+,?\s*[A-Z]{2}\s*\d{5}', text, re.IGNORECASE)
+        results["addresses"] = addresses[:20]
+
+    return {
+        "extract_type": req.extract,
+        "text_length": len(text),
+        "results": results,
+        "total_found": sum(len(v) for v in results.values() if isinstance(v, list)),
+    }
+
+
+class TextTransformRequest(BaseModel):
+    text: str
+    transforms: list[str] = []  # uppercase, lowercase, title, reverse, sort_lines, unique_lines, trim, number_lines, remove_blank_lines, remove_duplicates
+
+
+@app.post("/api/text/transform")
+async def text_transform(req: TextTransformRequest):
+    """Apply multiple text transformations in sequence. Useful for AI agents processing text."""
+    text = req.text
+    applied = []
+
+    for t in req.transforms:
+        t = t.lower().strip()
+        if t == "uppercase":
+            text = text.upper()
+        elif t == "lowercase":
+            text = text.lower()
+        elif t == "title":
+            text = text.title()
+        elif t == "reverse":
+            text = text[::-1]
+        elif t == "reverse_lines":
+            text = "\n".join(text.split("\n")[::-1])
+        elif t == "sort_lines":
+            text = "\n".join(sorted(text.split("\n")))
+        elif t == "unique_lines":
+            seen = set()
+            lines = []
+            for line in text.split("\n"):
+                if line not in seen:
+                    seen.add(line)
+                    lines.append(line)
+            text = "\n".join(lines)
+        elif t == "trim":
+            text = "\n".join(line.strip() for line in text.split("\n"))
+        elif t == "number_lines":
+            text = "\n".join(f"{i+1}. {line}" for i, line in enumerate(text.split("\n")))
+        elif t == "remove_blank_lines":
+            text = "\n".join(line for line in text.split("\n") if line.strip())
+        elif t == "remove_duplicates":
+            words = text.split()
+            seen = set()
+            unique = []
+            for w in words:
+                if w.lower() not in seen:
+                    seen.add(w.lower())
+                    unique.append(w)
+            text = " ".join(unique)
+        else:
+            continue
+        applied.append(t)
+
+    return {
+        "result": text,
+        "transforms_applied": applied,
+        "original_length": len(req.text),
+        "result_length": len(text),
+    }
+
+
+class CompareRequest(BaseModel):
+    items: list[str]
+    mode: str = "levenshtein"  # levenshtein, jaccard, common_prefix, common_suffix
+
+
+@app.post("/api/text/compare")
+async def text_compare(req: CompareRequest):
+    """Compare multiple text strings and find similarities. Useful for deduplication."""
+    items = req.items[:20]
+    if len(items) < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 items to compare")
+
+    def levenshtein(s1, s2):
+        if len(s1) < len(s2):
+            return levenshtein(s2, s1)
+        if len(s2) == 0:
+            return len(s1)
+        prev_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            curr_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = prev_row[j + 1] + 1
+                deletions = curr_row[j] + 1
+                substitutions = prev_row[j] + (c1 != c2)
+                curr_row.append(min(insertions, deletions, substitutions))
+            prev_row = curr_row
+        return prev_row[-1]
+
+    comparisons = []
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            a, b = items[i], items[j]
+            dist = levenshtein(a, b)
+            max_len = max(len(a), len(b))
+            similarity = round((1 - dist / max_len) * 100, 1) if max_len > 0 else 100
+            comparisons.append({
+                "pair": [i, j],
+                "distance": dist,
+                "similarity_percent": similarity,
+            })
+
+    comparisons.sort(key=lambda x: x["similarity_percent"], reverse=True)
+    return {
+        "item_count": len(items),
+        "comparisons": comparisons,
+        "most_similar": comparisons[0] if comparisons else None,
+        "least_similar": comparisons[-1] if comparisons else None,
+    }
+
+
+class ConvertUnitsRequest(BaseModel):
+    value: float
+    from_unit: str
+    to_unit: str
+
+
+UNIT_CONVERSIONS = {
+    # Length
+    ("m", "ft"): 3.28084, ("ft", "m"): 0.3048,
+    ("m", "in"): 39.3701, ("in", "m"): 0.0254,
+    ("km", "mi"): 0.621371, ("mi", "km"): 1.60934,
+    ("cm", "in"): 0.393701, ("in", "cm"): 2.54,
+    ("m", "cm"): 100, ("cm", "m"): 0.01,
+    ("m", "km"): 0.001, ("km", "m"): 1000,
+    ("m", "mm"): 1000, ("mm", "m"): 0.001,
+    ("ft", "in"): 12, ("in", "ft"): 1/12,
+    ("mi", "ft"): 5280, ("ft", "mi"): 1/5280,
+    ("yd", "m"): 0.9144, ("m", "yd"): 1.09361,
+    # Weight
+    ("kg", "lb"): 2.20462, ("lb", "kg"): 0.453592,
+    ("kg", "oz"): 35.274, ("oz", "kg"): 0.0283495,
+    ("kg", "g"): 1000, ("g", "kg"): 0.001,
+    ("lb", "oz"): 16, ("oz", "lb"): 0.0625,
+    ("kg", "st"): 0.157473, ("st", "kg"): 6.35029,
+    # Temperature handled separately
+    # Volume
+    ("l", "gal"): 0.264172, ("gal", "l"): 3.78541,
+    ("l", "ml"): 1000, ("ml", "l"): 0.001,
+    ("l", "fl_oz"): 33.814, ("fl_oz", "l"): 0.0295735,
+    ("l", "cup"): 4.22675, ("cup", "l"): 0.236588,
+    # Speed
+    ("mph", "kph"): 1.60934, ("kph", "mph"): 0.621371,
+    ("m/s", "kph"): 3.6, ("kph", "m/s"): 1/3.6,
+    ("m/s", "mph"): 2.23694, ("mph", "m/s"): 0.44704,
+    # Data
+    ("b", "kb"): 1/1024, ("kb", "b"): 1024,
+    ("kb", "mb"): 1/1024, ("mb", "kb"): 1024,
+    ("mb", "gb"): 1/1024, ("gb", "mb"): 1024,
+    ("gb", "tb"): 1/1024, ("tb", "gb"): 1024,
+    ("b", "mb"): 1/(1024*1024), ("mb", "b"): 1024*1024,
+    ("b", "gb"): 1/(1024**3), ("gb", "b"): 1024**3,
+}
+
+
+@app.post("/api/convert/units")
+@app.get("/api/convert/units")
+async def convert_units(req: ConvertUnitsRequest = None, value: float = 0, from_unit: str = "", to_unit: str = ""):
+    """Convert between units (length, weight, temperature, volume, speed, data)."""
+    if req:
+        value, from_unit, to_unit = req.value, req.from_unit, req.to_unit
+    from_unit = from_unit.lower().strip()
+    to_unit = to_unit.lower().strip()
+
+    if from_unit == to_unit:
+        return {"value": value, "from": from_unit, "to": to_unit, "result": value}
+
+    # Temperature special cases
+    if from_unit in ("c", "celsius") and to_unit in ("f", "fahrenheit"):
+        result = value * 9/5 + 32
+    elif from_unit in ("f", "fahrenheit") and to_unit in ("c", "celsius"):
+        result = (value - 32) * 5/9
+    elif from_unit in ("c", "celsius") and to_unit in ("k", "kelvin"):
+        result = value + 273.15
+    elif from_unit in ("k", "kelvin") and to_unit in ("c", "celsius"):
+        result = value - 273.15
+    elif from_unit in ("f", "fahrenheit") and to_unit in ("k", "kelvin"):
+        result = (value - 32) * 5/9 + 273.15
+    elif from_unit in ("k", "kelvin") and to_unit in ("f", "fahrenheit"):
+        result = (value - 273.15) * 9/5 + 32
+    elif (from_unit, to_unit) in UNIT_CONVERSIONS:
+        result = value * UNIT_CONVERSIONS[(from_unit, to_unit)]
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown conversion: {from_unit} to {to_unit}. Supported: length (m,ft,in,km,mi,cm,mm,yd), weight (kg,lb,oz,g,st), temperature (c,f,k), volume (l,gal,ml,fl_oz,cup), speed (mph,kph,m/s), data (b,kb,mb,gb,tb)")
+
+    return {
+        "value": value,
+        "from": from_unit,
+        "to": to_unit,
+        "result": round(result, 6),
+        "formula": f"{value} {from_unit} = {round(result, 6)} {to_unit}",
+    }
+
+
 # --- APIs.json for API discovery ---
 
 @app.get("/apis.json")

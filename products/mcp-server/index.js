@@ -1079,6 +1079,72 @@ server.tool(
   }
 );
 
+// --- AI Agent Utility Tools ---
+
+server.tool(
+  "extract_structured",
+  "Extract structured data (emails, URLs, phones, dates, numbers, addresses) from unstructured text.",
+  {
+    text: z.string().describe("Text to extract data from"),
+    extract: z.enum(["entities", "emails", "urls", "phones", "dates", "numbers", "addresses", "all"]).optional().describe("Type of data to extract (default: entities)"),
+  },
+  async ({ text, extract }) => {
+    const result = await apiCall("/api/extract/structured", {
+      method: "POST",
+      body: JSON.stringify({ text, extract: extract || "all" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_transform",
+  "Apply text transformations: uppercase, lowercase, title, reverse, sort_lines, unique_lines, trim, number_lines, remove_blank_lines, remove_duplicates.",
+  {
+    text: z.string().describe("Text to transform"),
+    transforms: z.array(z.string()).describe("List of transforms to apply in order"),
+  },
+  async ({ text, transforms }) => {
+    const result = await apiCall("/api/text/transform", {
+      method: "POST",
+      body: JSON.stringify({ text, transforms }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_compare",
+  "Compare multiple text strings for similarity using Levenshtein distance.",
+  {
+    items: z.array(z.string()).describe("List of strings to compare (2-20)"),
+  },
+  async ({ items }) => {
+    const result = await apiCall("/api/text/compare", {
+      method: "POST",
+      body: JSON.stringify({ items }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "convert_units",
+  "Convert between units: length (m,ft,km,mi), weight (kg,lb), temperature (c,f,k), volume (l,gal), speed (mph,kph), data (kb,mb,gb).",
+  {
+    value: z.number().describe("Value to convert"),
+    from_unit: z.string().describe("Source unit"),
+    to_unit: z.string().describe("Target unit"),
+  },
+  async ({ value, from_unit, to_unit }) => {
+    const result = await apiCall("/api/convert/units", {
+      method: "POST",
+      body: JSON.stringify({ value, from_unit, to_unit }),
+    });
+    return textResult(result);
+  }
+);
+
 // --- API Key & Payment Management (for AI agent self-service) ---
 
 server.tool(
