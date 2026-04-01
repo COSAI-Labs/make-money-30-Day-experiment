@@ -2964,6 +2964,54 @@ a{{color:#6c63ff;text-decoration:none}}
 </body></html>"""))
 
 
+ADMIN_KEY = os.environ.get("TOOLPIPE_ADMIN_KEY", "tp-admin-2026")
+
+
+class VerifyPaymentRequest(BaseModel):
+    order_id: str
+    tx_hash: str = ""
+    admin_key: str = ""
+
+
+@app.post("/payments/verify")
+async def verify_payment(req: VerifyPaymentRequest):
+    """Admin endpoint to manually verify a direct crypto payment and upgrade the user."""
+    if req.admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Invalid admin key")
+    now = datetime.now(timezone.utc).isoformat()
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        row = conn.execute(
+            "SELECT email, tier FROM payments WHERE order_id = ?", (req.order_id,)
+        ).fetchone()
+        if not row:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Order not found")
+        email, tier = row
+        conn.execute(
+            "UPDATE payments SET status = 'paid', paid_at = ?, callback_data = ? WHERE order_id = ?",
+            (now, json.dumps({"tx_hash": req.tx_hash, "verified_manually": True}), req.order_id)
+        )
+        conn.commit()
+        conn.close()
+    result = upgrade_api_key(email, tier)
+    return {"verified": True, "order_id": req.order_id, "email": email, "tier": tier, "api_key": result.get("api_key")}
+
+
+@app.get("/payments/pending")
+async def list_pending_payments(key: str = ""):
+    """Admin endpoint to list all pending payments awaiting verification."""
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Invalid admin key")
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        rows = conn.execute(
+            "SELECT order_id, email, tier, amount, status, created_at FROM payments WHERE status IN ('pending', 'awaiting_direct') ORDER BY created_at DESC"
+        ).fetchall()
+        conn.close()
+    return [{"order_id": r[0], "email": r[1], "tier": r[2], "amount": r[3], "status": r[4], "created_at": r[5]} for r in rows]
+
+
 @app.get("/payments/status")
 async def payment_status(order_id: str = "", track_id: str = ""):
     with _payments_lock:
