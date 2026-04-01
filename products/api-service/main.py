@@ -790,7 +790,7 @@ async def analyze_seo(url: str = Query(...)):
 async def sitemap():
     base = "http://187.77.213.192:8081"
     urls = [
-        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/down", "/docs",
+        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/down", "/pricing", "/docs",
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
         "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
     ]
@@ -1347,6 +1347,27 @@ async def check_down(url: str = Query(...)):
             "ip": ip,
             "error": str(e),
         }
+
+
+# --- Waitlist ---
+
+waitlist_emails: list[str] = []
+
+
+class WaitlistRequest(BaseModel):
+    email: str
+
+
+@app.post("/waitlist/join")
+async def join_waitlist(req: WaitlistRequest):
+    email = req.email.strip().lower()
+    if email not in waitlist_emails:
+        waitlist_emails.append(email)
+        # Also append to a file for persistence
+        wl_file = Path(__file__).parent / "waitlist.txt"
+        with open(wl_file, "a") as f:
+            f.write(f"{email},{datetime.now(timezone.utc).isoformat()}\n")
+    return {"joined": True, "position": len(waitlist_emails)}
 
 
 # --- SEO Pages (catch-all for static content pages) ---

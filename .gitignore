@@ -7,3 +7,5 @@ node_modules/
 .pm2/
 cloudflared
 products/uptime-monitor/data/
+.env
+products/api-service/waitlist.txt

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolPipe Pro - Premium Developer Tools & APIs | Pricing</title>
+    <meta name="description" content="ToolPipe Pro: unlimited API access, premium PDF tools, priority support. Plans from $9.99/mo. 10+ developer tools in one suite.">
+    <link rel="canonical" href="/pricing">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; }
+        .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 4rem 2rem; text-align: center; }
+        .hero h1 { font-size: 2.5rem; color: #fff; margin-bottom: 0.5rem; }
+        .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 3rem 2rem; }
+        .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .plan { background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 16px; padding: 2rem; text-align: center; position: relative; }
+        .plan.featured { border-color: #3b82f6; }
+        .plan.featured::before { content: "MOST POPULAR"; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: #fff; padding: 4px 20px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .plan h3 { color: #fff; font-size: 1.3rem; margin-bottom: 0.5rem; }
+        .plan .price { font-size: 3rem; font-weight: 700; color: #fff; margin: 1rem 0; }
+        .plan .price span { font-size: 1rem; color: #64748b; font-weight: 400; }
+        .plan .price .free { font-size: 3rem; color: #22c55e; }
+        .plan ul { list-style: none; text-align: left; margin: 1.5rem 0; }
+        .plan li { padding: 0.5rem 0; color: #94a3b8; font-size: 0.95rem; padding-left: 1.5rem; position: relative; }
+        .plan li::before { content: "->"; color: #3b82f6; position: absolute; left: 0; }
+        .plan li.disabled { color: #4a4a4a; }
+        .plan li.disabled::before { color: #4a4a4a; }
+        .btn { display: block; width: 100%; background: #3b82f6; color: #fff; border: none; padding: 0.9rem; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: 600; text-decoration: none; text-align: center; }
+        .btn:hover { background: #2563eb; }
+        .btn.free { background: #374151; }
+        .btn.free:hover { background: #4b5563; }
+        .btn.enterprise { background: transparent; border: 2px solid #3b82f6; color: #3b82f6; }
+        .features-table { width: 100%; margin: 3rem 0; border-collapse: collapse; }
+        .features-table th, .features-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #1a1a1a; }
+        .features-table th { color: #fff; font-size: 0.9rem; }
+        .features-table td { color: #94a3b8; font-size: 0.9rem; }
+        .features-table .check { color: #22c55e; }
+        .features-table .x { color: #4a4a4a; }
+        h2 { color: #fff; font-size: 1.5rem; margin: 2rem 0 1rem; text-align: center; }
+        .waitlist { background: #1a1a2e; border: 1px solid #3b82f6; border-radius: 12px; padding: 2rem; text-align: center; margin: 2rem 0; }
+        .waitlist h3 { color: #fff; margin-bottom: 0.5rem; }
+        .waitlist p { color: #94a3b8; margin-bottom: 1rem; }
+        .waitlist-form { display: flex; gap: 0.75rem; max-width: 450px; margin: 0 auto; }
+        .waitlist-form input { flex: 1; background: #111; border: 1px solid #2a2a2a; color: #e0e0e0; padding: 0.75rem 1rem; border-radius: 8px; font-size: 1rem; }
+        .waitlist-form button { background: #3b82f6; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; }
+        .success-msg { display: none; color: #22c55e; margin-top: 0.5rem; }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Simple, Transparent Pricing</h1>
+        <p>10+ developer tools in one suite. Start free, upgrade when you need more.</p>
+    </div>
+
+    <div class="container">
+        <div class="plans">
+            <div class="plan">
+                <h3>Free</h3>
+                <div class="price"><span class="free">$0</span><span>/forever</span></div>
+                <ul>
+                    <li>100 API requests/minute</li>
+                    <li>All 12+ API endpoints</li>
+                    <li>PDF tools (5MB limit)</li>
+                    <li>URL shortener (50 links/day)</li>
+                    <li>Webhook testing (24h bins)</li>
+                    <li>PasteBin (500KB limit)</li>
+                    <li>Website status checker</li>
+                    <li>SEO analyzer</li>
+                    <li class="disabled">No API key required</li>
+                    <li class="disabled">Community support only</li>
+                </ul>
+                <a href="/docs" class="btn free">Get Started Free</a>
+            </div>
+
+            <div class="plan featured">
+                <h3>Pro</h3>
+                <div class="price">$9.99<span>/month</span></div>
+                <ul>
+                    <li>1,000 API requests/minute</li>
+                    <li>All 12+ API endpoints</li>
+                    <li>PDF tools (50MB, no limits)</li>
+                    <li>URL shortener (unlimited)</li>
+                    <li>Webhook testing (7-day bins)</li>
+                    <li>PasteBin (5MB, never expire)</li>
+                    <li>Uptime monitoring (100 monitors)</li>
+                    <li>Priority processing</li>
+                    <li>API key authentication</li>
+                    <li>Email support</li>
+                </ul>
+                <a href="#waitlist" class="btn" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Join Waitlist</a>
+            </div>
+
+            <div class="plan">
+                <h3>Enterprise</h3>
+                <div class="price">$49.99<span>/month</span></div>
+                <ul>
+                    <li>Unlimited API requests</li>
+                    <li>All endpoints + custom</li>
+                    <li>Unlimited everything</li>
+                    <li>Custom URL shortener domain</li>
+                    <li>Webhook testing (30-day bins)</li>
+                    <li>White-label PDF tools</li>
+                    <li>500 uptime monitors</li>
+                    <li>SLA guarantee (99.9%)</li>
+                    <li>Dedicated API key</li>
+                    <li>Priority support + Slack</li>
+                </ul>
+                <a href="#waitlist" class="btn enterprise" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">Contact Us</a>
+            </div>
+        </div>
+
+        <div class="waitlist" id="waitlist">
+            <h3>Pro and Enterprise plans launching soon</h3>
+            <p>Join the waitlist to get early access and a 50% launch discount.</p>
+            <div class="waitlist-form">
+                <input type="email" id="waitlistEmail" placeholder="your@email.com">
+                <button onclick="joinWaitlist()">Join Waitlist</button>
+            </div>
+            <div class="success-msg" id="successMsg">You're on the list! We'll email you when Pro launches.</div>
+        </div>
+
+        <h2>Feature Comparison</h2>
+        <table class="features-table">
+            <thead>
+                <tr><th>Feature</th><th>Free</th><th>Pro</th><th>Enterprise</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>API Endpoints</td><td>12+</td><td>12+</td><td>12+ custom</td></tr>
+                <tr><td>Rate Limit</td><td>100/min</td><td>1,000/min</td><td>Unlimited</td></tr>
+                <tr><td>PDF File Size</td><td>5MB</td><td>50MB</td><td>Unlimited</td></tr>
+                <tr><td>Short URLs</td><td>50/day</td><td>Unlimited</td><td>Unlimited + custom domain</td></tr>
+                <tr><td>Webhook Bins</td><td>24h</td><td>7 days</td><td>30 days</td></tr>
+                <tr><td>Uptime Monitors</td><td>5</td><td>100</td><td>500</td></tr>
+                <tr><td>API Key</td><td class="x">No</td><td class="check">Yes</td><td class="check">Yes</td></tr>
+                <tr><td>Support</td><td>Community</td><td>Email</td><td>Priority + Slack</td></tr>
+                <tr><td>SLA</td><td class="x">No</td><td class="x">No</td><td class="check">99.9%</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/pdf">PDF Tools</a> | <a href="/docs">API Docs</a></p>
+    </footer>
+
+    <script>
+    async function joinWaitlist() {
+        const email = document.getElementById('waitlistEmail').value.trim();
+        if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+        try {
+            await fetch('/waitlist/join', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            document.getElementById('successMsg').style.display = 'block';
+            document.getElementById('waitlistEmail').value = '';
+        } catch (e) {
+            alert('Error joining waitlist.');
+        }
+    }
+    </script>
+</body>
+</html>
