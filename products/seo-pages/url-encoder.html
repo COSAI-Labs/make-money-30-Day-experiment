@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free URL Encoder/Decoder Online | ToolPipe</title>
+    <meta name="description" content="Encode and decode URLs instantly. Free online URL encoder/decoder tool. Supports percent-encoding for special characters. No signup.">
+    <meta name="keywords" content="url encoder, url decoder, percent encoding, urlencode, url encode online, url decode online">
+    <link rel="canonical" href="https://toolpipe.dev/url-encoder">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"URL Encoder/Decoder","url":"https://toolpipe.dev/url-encoder","description":"Encode and decode URLs instantly online.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .section { margin-bottom: 24px; }
+        .section h3 { font-size: 1.1rem; margin-bottom: 8px; color: #302b63; }
+        textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.95rem; resize: vertical; }
+        .btn-row { display: flex; gap: 8px; margin: 12px 0; }
+        .btn { padding: 8px 20px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn:hover { background: #5a52e0; }
+        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
+        .swap-btn { padding: 8px 16px; background: #f0f0ff; color: #302b63; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 1rem; margin: 12px auto; display: block; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        table.ref { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        table.ref th, table.ref td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; font-size: 0.9rem; }
+        table.ref th { background: #f5f5f5; }
+        table.ref code { background: #f0f0ff; padding: 1px 4px; border-radius: 3px; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>URL Encoder / Decoder</h1>
+        <p>Encode and decode URLs with percent-encoding. Handles special characters, query strings, and Unicode.</p>
+    </div>
+
+    <div class="container">
+        <div class="tool-card">
+            <div class="section">
+                <h3>Input (Plain Text)</h3>
+                <textarea id="input" placeholder="Enter text or URL to encode...">Hello World! How are you? param=value&key=data with spaces</textarea>
+                <div class="btn-row">
+                    <button class="btn" onclick="encode()">Encode</button>
+                    <button class="btn" onclick="encodeComponent()">Encode Component</button>
+                    <button class="btn btn-outline" onclick="copyVal('input')">Copy</button>
+                    <button class="btn btn-outline" onclick="clearField('input')">Clear</button>
+                </div>
+            </div>
+
+            <button class="swap-btn" onclick="swap()">Swap</button>
+
+            <div class="section">
+                <h3>Output (Encoded)</h3>
+                <textarea id="output" placeholder="Encoded result will appear here..."></textarea>
+                <div class="btn-row">
+                    <button class="btn" onclick="decode()">Decode</button>
+                    <button class="btn btn-outline" onclick="copyVal('output')">Copy</button>
+                    <button class="btn btn-outline" onclick="clearField('output')">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info">
+            <h2>URL Encoding (Percent-Encoding)</h2>
+            <p>URL encoding converts special characters to percent-encoded format (%XX) where XX is the hexadecimal representation of the character. This ensures URLs are valid and can be safely transmitted over the internet.</p>
+
+            <h2 style="margin-top:24px">encodeURI vs encodeURIComponent</h2>
+            <p><strong>encodeURI:</strong> Encodes a full URI. Does NOT encode: <code>: / ? # [ ] @ ! $ & ' ( ) * + , ; =</code>. Use for encoding complete URLs.</p>
+            <p><strong>encodeURIComponent:</strong> Encodes a URI component (like a query parameter value). Encodes ALL special characters except: <code>- _ . ! ~ * ' ( )</code>. Use for encoding individual parameter values.</p>
+
+            <h2 style="margin-top:24px">Common Encodings</h2>
+            <table class="ref">
+                <tr><th>Character</th><th>Encoded</th><th>Description</th></tr>
+                <tr><td>Space</td><td><code>%20</code> or <code>+</code></td><td>Space character</td></tr>
+                <tr><td>!</td><td><code>%21</code></td><td>Exclamation mark</td></tr>
+                <tr><td>#</td><td><code>%23</code></td><td>Hash/pound</td></tr>
+                <tr><td>$</td><td><code>%24</code></td><td>Dollar sign</td></tr>
+                <tr><td>&</td><td><code>%26</code></td><td>Ampersand</td></tr>
+                <tr><td>+</td><td><code>%2B</code></td><td>Plus sign</td></tr>
+                <tr><td>/</td><td><code>%2F</code></td><td>Forward slash</td></tr>
+                <tr><td>=</td><td><code>%3D</code></td><td>Equals sign</td></tr>
+                <tr><td>?</td><td><code>%3F</code></td><td>Question mark</td></tr>
+                <tr><td>@</td><td><code>%40</code></td><td>At sign</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/base64-encoder">Base64 Encoder</a> | <a href="/hash-generator">Hash Generator</a> | <a href="/json-formatter">JSON Formatter</a></p>
+    </footer>
+
+    <script>
+    function encode() {
+        document.getElementById('output').value = encodeURI(document.getElementById('input').value);
+    }
+    function encodeComponent() {
+        document.getElementById('output').value = encodeURIComponent(document.getElementById('input').value);
+    }
+    function decode() {
+        try {
+            document.getElementById('input').value = decodeURIComponent(document.getElementById('output').value);
+        } catch(e) {
+            document.getElementById('input').value = 'Error: Invalid encoded string';
+        }
+    }
+    function swap() {
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const tmp = input.value;
+        input.value = output.value;
+        output.value = tmp;
+    }
+    function copyVal(id) {
+        navigator.clipboard.writeText(document.getElementById(id).value);
+    }
+    function clearField(id) {
+        document.getElementById(id).value = '';
+    }
+    encode();
+    </script>
+</body>
+</html>

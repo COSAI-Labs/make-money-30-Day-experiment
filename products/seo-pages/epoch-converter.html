@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unix Timestamp Converter - Epoch to Date Online | ToolPipe</title>
+    <meta name="description" content="Convert Unix timestamps to human-readable dates and vice versa. Free epoch converter with current timestamp display. No signup.">
+    <meta name="keywords" content="unix timestamp converter, epoch converter, timestamp to date, date to timestamp, epoch time, unix time">
+    <link rel="canonical" href="https://toolpipe.dev/epoch-converter">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Epoch Converter","url":"https://toolpipe.dev/epoch-converter","description":"Convert Unix timestamps to dates and back.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .current-time { background: #1a1a2e; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 24px; }
+        .current-time .epoch { font-family: 'Courier New', monospace; font-size: 2rem; color: #a5d6a7; }
+        .current-time .human { color: #81d4fa; font-size: 1rem; margin-top: 4px; }
+        .current-time .label { color: #888; font-size: 0.85rem; margin-top: 4px; }
+        .section { margin-bottom: 24px; padding: 20px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
+        .section h3 { font-size: 1.1rem; margin-bottom: 12px; color: #302b63; }
+        .input-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .input-row input { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 1rem; }
+        .btn { padding: 10px 20px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn:hover { background: #5a52e0; }
+        .result { margin-top: 12px; padding: 12px; background: white; border-radius: 6px; border: 1px solid #ddd; }
+        .result-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9rem; }
+        .result-row .label { color: #888; }
+        .result-row .value { font-family: monospace; color: #302b63; font-weight: 600; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        table.ref { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        table.ref th, table.ref td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.9rem; }
+        table.ref th { background: #f5f5f5; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Unix Timestamp Converter</h1>
+        <p>Convert between Unix epoch timestamps and human-readable dates. See current time in multiple formats.</p>
+    </div>
+
+    <div class="container">
+        <div class="tool-card">
+            <div class="current-time">
+                <div class="label">Current Unix Timestamp</div>
+                <div class="epoch" id="currentEpoch"></div>
+                <div class="human" id="currentHuman"></div>
+            </div>
+
+            <div class="section">
+                <h3>Timestamp to Date</h3>
+                <div class="input-row">
+                    <input type="text" id="tsInput" placeholder="Enter Unix timestamp (e.g., 1680307200)">
+                    <button class="btn" onclick="tsToDate()">Convert</button>
+                    <button class="btn" style="background:#888" onclick="document.getElementById('tsInput').value=Math.floor(Date.now()/1000);tsToDate()">Now</button>
+                </div>
+                <div class="result" id="tsResult" style="display:none"></div>
+            </div>
+
+            <div class="section">
+                <h3>Date to Timestamp</h3>
+                <div class="input-row">
+                    <input type="datetime-local" id="dateInput" step="1">
+                    <button class="btn" onclick="dateToTs()">Convert</button>
+                    <button class="btn" style="background:#888" onclick="setNowDate()">Now</button>
+                </div>
+                <div class="result" id="dateResult" style="display:none"></div>
+            </div>
+        </div>
+
+        <div class="info">
+            <h2>What is a Unix Timestamp?</h2>
+            <p>A Unix timestamp (also known as Epoch time, POSIX time, or Unix Epoch) is the number of seconds that have elapsed since January 1, 1970 00:00:00 UTC. It is a system for tracking time as a running total of seconds, making it simple to calculate time differences.</p>
+
+            <h2 style="margin-top:24px">Notable Timestamps</h2>
+            <table class="ref">
+                <tr><th>Timestamp</th><th>Date</th><th>Event</th></tr>
+                <tr><td>0</td><td>Jan 1, 1970 00:00:00 UTC</td><td>Unix Epoch</td></tr>
+                <tr><td>1000000000</td><td>Sep 9, 2001 01:46:40 UTC</td><td>Billennium</td></tr>
+                <tr><td>1234567890</td><td>Feb 13, 2009 23:31:30 UTC</td><td>Sequential digits</td></tr>
+                <tr><td>2000000000</td><td>May 18, 2033 03:33:20 UTC</td><td>2 billion seconds</td></tr>
+                <tr><td>2147483647</td><td>Jan 19, 2038 03:14:07 UTC</td><td>Y2K38 (32-bit overflow)</td></tr>
+            </table>
+
+            <h2 style="margin-top:24px">Timestamp in Different Languages</h2>
+            <table class="ref">
+                <tr><th>Language</th><th>Get Current Timestamp</th></tr>
+                <tr><td>JavaScript</td><td><code>Math.floor(Date.now() / 1000)</code></td></tr>
+                <tr><td>Python</td><td><code>import time; int(time.time())</code></td></tr>
+                <tr><td>PHP</td><td><code>time()</code></td></tr>
+                <tr><td>Java</td><td><code>System.currentTimeMillis() / 1000</code></td></tr>
+                <tr><td>Go</td><td><code>time.Now().Unix()</code></td></tr>
+                <tr><td>Ruby</td><td><code>Time.now.to_i</code></td></tr>
+                <tr><td>Bash</td><td><code>date +%s</code></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/uuid-generator">UUID Generator</a> | <a href="/hash-generator">Hash Generator</a> | <a href="/cron-expression-generator">Cron Generator</a></p>
+    </footer>
+
+    <script>
+    function updateCurrent() {
+        const now = Math.floor(Date.now() / 1000);
+        document.getElementById('currentEpoch').textContent = now;
+        document.getElementById('currentHuman').textContent = new Date().toUTCString();
+    }
+    setInterval(updateCurrent, 1000);
+    updateCurrent();
+
+    function tsToDate() {
+        const ts = parseInt(document.getElementById('tsInput').value);
+        if (isNaN(ts)) return;
+        const d = ts > 1e12 ? new Date(ts) : new Date(ts * 1000);
+        const result = document.getElementById('tsResult');
+        result.style.display = 'block';
+        result.innerHTML = `
+            <div class="result-row"><span class="label">UTC:</span><span class="value">${d.toUTCString()}</span></div>
+            <div class="result-row"><span class="label">Local:</span><span class="value">${d.toLocaleString()}</span></div>
+            <div class="result-row"><span class="label">ISO 8601:</span><span class="value">${d.toISOString()}</span></div>
+            <div class="result-row"><span class="label">Relative:</span><span class="value">${timeAgo(d)}</span></div>
+            <div class="result-row"><span class="label">Day of week:</span><span class="value">${d.toLocaleDateString('en-US', {weekday:'long'})}</span></div>
+            <div class="result-row"><span class="label">Day of year:</span><span class="value">${dayOfYear(d)}</span></div>
+            <div class="result-row"><span class="label">Week number:</span><span class="value">${weekNumber(d)}</span></div>
+        `;
+    }
+
+    function dateToTs() {
+        const input = document.getElementById('dateInput').value;
+        if (!input) return;
+        const d = new Date(input);
+        const ts = Math.floor(d.getTime() / 1000);
+        const tsMs = d.getTime();
+        const result = document.getElementById('dateResult');
+        result.style.display = 'block';
+        result.innerHTML = `
+            <div class="result-row"><span class="label">Unix (seconds):</span><span class="value">${ts}</span></div>
+            <div class="result-row"><span class="label">Unix (milliseconds):</span><span class="value">${tsMs}</span></div>
+            <div class="result-row"><span class="label">ISO 8601:</span><span class="value">${d.toISOString()}</span></div>
+            <div class="result-row"><span class="label">Relative:</span><span class="value">${timeAgo(d)}</span></div>
+        `;
+    }
+
+    function setNowDate() {
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 19);
+        document.getElementById('dateInput').value = local;
+        dateToTs();
+    }
+
+    function timeAgo(d) {
+        const diff = (Date.now() - d.getTime()) / 1000;
+        if (Math.abs(diff) < 60) return `${Math.round(Math.abs(diff))} seconds ${diff > 0 ? 'ago' : 'from now'}`;
+        if (Math.abs(diff) < 3600) return `${Math.round(Math.abs(diff)/60)} minutes ${diff > 0 ? 'ago' : 'from now'}`;
+        if (Math.abs(diff) < 86400) return `${Math.round(Math.abs(diff)/3600)} hours ${diff > 0 ? 'ago' : 'from now'}`;
+        if (Math.abs(diff) < 2592000) return `${Math.round(Math.abs(diff)/86400)} days ${diff > 0 ? 'ago' : 'from now'}`;
+        return `${Math.round(Math.abs(diff)/2592000)} months ${diff > 0 ? 'ago' : 'from now'}`;
+    }
+
+    function dayOfYear(d) {
+        const start = new Date(d.getFullYear(), 0, 0);
+        return Math.floor((d - start) / 86400000);
+    }
+
+    function weekNumber(d) {
+        const start = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
+    }
+
+    document.getElementById('tsInput').value = Math.floor(Date.now() / 1000);
+    tsToDate();
+    setNowDate();
+    </script>
+</body>
+</html>
