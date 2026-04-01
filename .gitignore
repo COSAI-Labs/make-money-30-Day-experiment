@@ -9,3 +9,5 @@ cloudflared
 products/uptime-monitor/data/
 .env
 products/api-service/waitlist.txt
+.env
+.env.*
