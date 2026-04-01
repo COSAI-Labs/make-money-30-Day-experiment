@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CSS Flexbox Generator - Visual Flexbox Builder</title><meta name="description" content="Generate CSS Flexbox layouts visually. Set direction, justify, align, wrap properties. Free CSS Flexbox generator."><link rel="canonical" href="/flexbox-generator">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;color:#333}nav{background:#1a1a2e;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;font-size:.9rem}nav a{color:#6c63ff;text-decoration:none}.container{max-width:900px;margin:0 auto;padding:20px}h1{font-size:2rem;text-align:center;margin:32px 0 8px}.sub{text-align:center;color:#666;margin-bottom:32px}.box{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}select{padding:10px;border:1px solid #ddd;border-radius:6px;font-size:.9rem}label{font-weight:500;margin-bottom:6px;display:block}footer{text-align:center;padding:40px;color:#999;font-size:.85rem}footer a{color:#6c63ff;text-decoration:none;margin:0 8px}.cnt{margin-top:48px;line-height:1.7}.cnt h2{margin:24px 0 12px;font-size:1.3rem}.cnt p{margin-bottom:12px;color:#555}</style></head><body>
+<nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a> | <a href="/api-keys">API</a></div></nav>
+<div class="container"><h1>CSS Flexbox Generator</h1><p class="sub">Build Flexbox layouts visually and copy the CSS</p><div class="box">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+<div><label>Direction</label><select id="fd" onchange="upd()"><option>row</option><option>row-reverse</option><option>column</option><option>column-reverse</option></select></div>
+<div><label>Justify</label><select id="jc" onchange="upd()"><option>flex-start</option><option>flex-end</option><option>center</option><option>space-between</option><option>space-around</option><option>space-evenly</option></select></div>
+<div><label>Align</label><select id="ai" onchange="upd()"><option>stretch</option><option>flex-start</option><option>flex-end</option><option>center</option><option>baseline</option></select></div>
+<div><label>Wrap</label><select id="fw" onchange="upd()"><option>nowrap</option><option>wrap</option><option>wrap-reverse</option></select></div>
+</div>
+<div id="preview" style="min-height:200px;border:2px dashed #ddd;border-radius:8px;padding:12px;display:flex">
+<div style="padding:16px 24px;background:#6c63ff;color:#fff;border-radius:6px;margin:4px">1</div>
+<div style="padding:16px 24px;background:#3b82f6;color:#fff;border-radius:6px;margin:4px">2</div>
+<div style="padding:16px 24px;background:#22c55e;color:#fff;border-radius:6px;margin:4px">3</div>
+<div style="padding:16px 24px;background:#f59e0b;color:#fff;border-radius:6px;margin:4px">4</div>
+</div>
+<div style="margin-top:16px"><label>CSS Code (click to copy)</label><input type="text" id="css" readonly style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;font-family:monospace;cursor:pointer" onclick="this.select();navigator.clipboard.writeText(this.value)"></div>
+</div><div class="cnt"><h2>CSS Flexbox</h2><p>Flexbox is a CSS layout model that provides an efficient way to lay out, align, and distribute space among items in a container. It works in one dimension (row or column).</p></div></div>
+<footer><a href="/">ToolPipe</a> | <a href="/json-formatter">JSON</a> | <a href="/box-shadow-generator">Box Shadow</a> | <a href="/css-gradient-generator">Gradients</a></footer>
+<script>function upd(){const p=document.getElementById("preview");p.style.flexDirection=document.getElementById("fd").value;p.style.justifyContent=document.getElementById("jc").value;p.style.alignItems=document.getElementById("ai").value;p.style.flexWrap=document.getElementById("fw").value;document.getElementById("css").value="display: flex; flex-direction: "+document.getElementById("fd").value+"; justify-content: "+document.getElementById("jc").value+"; align-items: "+document.getElementById("ai").value+"; flex-wrap: "+document.getElementById("fw").value+";"}upd()</script></body></html>
