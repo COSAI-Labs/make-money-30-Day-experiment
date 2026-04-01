@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Formatter - Free Online SQL Beautifier & Formatter</title>
+    <meta name="description" content="Free online SQL formatter and beautifier. Format, indent, and clean up SQL queries instantly. Supports SELECT, INSERT, UPDATE, DELETE, CREATE TABLE. No signup required.">
+    <meta property="og:title" content="Free SQL Formatter & Beautifier">
+    <meta property="og:description" content="Format and beautify SQL queries online for free.">
+    <link rel="canonical" href="/sql-formatter">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"SQL Formatter","description":"Free online SQL query formatter and beautifier","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 220px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .options { display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap; align-items: center; font-size: 0.9rem; }
+        select { padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        .output textarea { background: #f0fdf4; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .content pre { background: #1a1a2e; color: #a5b4fc; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-size: 0.85rem; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>SQL Formatter</h1>
+    <p class="subtitle">Beautify and format SQL queries online. Supports all major SQL dialects.</p>
+
+    <div class="tool-box">
+        <label><strong>Input SQL:</strong></label>
+        <textarea id="input" placeholder="SELECT u.id, u.name, o.total FROM users u INNER JOIN orders o ON u.id = o.user_id WHERE o.total > 100 AND u.active = 1 ORDER BY o.total DESC LIMIT 10"></textarea>
+
+        <div class="options">
+            <label>Indent: <select id="indent-size">
+                <option value="2">2 spaces</option>
+                <option value="4" selected>4 spaces</option>
+                <option value="tab">Tab</option>
+            </select></label>
+            <label>Keywords: <select id="keyword-case">
+                <option value="upper" selected>UPPERCASE</option>
+                <option value="lower">lowercase</option>
+                <option value="preserve">Preserve</option>
+            </select></label>
+        </div>
+
+        <div class="btns">
+            <button class="btn btn-primary" onclick="formatSQL()">Format SQL</button>
+            <button class="btn btn-secondary" onclick="minifySQL()">Minify SQL</button>
+            <button class="btn btn-secondary" onclick="copyOutput()">Copy</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="output">
+            <label><strong>Formatted SQL:</strong></label>
+            <textarea id="output" readonly placeholder="Formatted SQL will appear here..."></textarea>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Why Format SQL?</h2>
+        <p>Well-formatted SQL queries are easier to read, debug, and maintain. Consistent formatting helps teams collaborate on complex queries and reduces errors in production SQL.</p>
+
+        <h2>Example</h2>
+        <p>Before formatting:</p>
+        <pre>SELECT u.id,u.name,o.total FROM users u INNER JOIN orders o ON u.id=o.user_id WHERE o.total>100 ORDER BY o.total DESC</pre>
+        <p>After formatting:</p>
+        <pre>SELECT
+    u.id,
+    u.name,
+    o.total
+FROM users u
+INNER JOIN orders o
+    ON u.id = o.user_id
+WHERE
+    o.total > 100
+ORDER BY
+    o.total DESC</pre>
+
+        <h2>Supported SQL Features</h2>
+        <p>SELECT, FROM, WHERE, JOIN (INNER, LEFT, RIGHT, FULL, CROSS), GROUP BY, HAVING, ORDER BY, LIMIT, OFFSET, UNION, INSERT INTO, UPDATE, DELETE, CREATE TABLE, ALTER TABLE, subqueries, CTEs (WITH), and more.</p>
+
+        <h2>Related Tools</h2>
+        <p><a href="/json-formatter">JSON Formatter</a> | <a href="/css-minifier">CSS Minifier</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/api-keys">Free API Key</a></p>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/json-formatter">JSON</a> | <a href="/css-minifier">CSS</a> | <a href="/api-keys">API</a>
+    <br>Free developer tools. No signup, no tracking.
+</footer>
+
+<script>
+const SQL_KEYWORDS = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','EXISTS','BETWEEN',
+    'LIKE','IS','NULL','AS','ON','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','CROSS',
+    'GROUP','BY','HAVING','ORDER','ASC','DESC','LIMIT','OFFSET','UNION','ALL',
+    'INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','ALTER','ADD',
+    'DROP','INDEX','VIEW','WITH','CASE','WHEN','THEN','ELSE','END','DISTINCT',
+    'COUNT','SUM','AVG','MIN','MAX','TOP','FETCH','NEXT','ROWS','ONLY'];
+
+const MAJOR_KEYWORDS = ['SELECT','FROM','WHERE','GROUP BY','HAVING','ORDER BY','LIMIT','OFFSET',
+    'UNION','UNION ALL','INSERT INTO','UPDATE','DELETE FROM','SET','VALUES','WITH',
+    'INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','CROSS JOIN','LEFT OUTER JOIN','RIGHT OUTER JOIN'];
+
+function formatSQL() {
+    let sql = document.getElementById('input').value.trim();
+    if (!sql) return;
+
+    const indentVal = document.getElementById('indent-size').value;
+    const indent = indentVal === 'tab' ? '\t' : ' '.repeat(parseInt(indentVal));
+    const keyCase = document.getElementById('keyword-case').value;
+
+    // Normalize whitespace
+    sql = sql.replace(/\s+/g, ' ');
+
+    // Handle keyword case
+    if (keyCase === 'upper') {
+        SQL_KEYWORDS.forEach(kw => {
+            sql = sql.replace(new RegExp('\\b' + kw + '\\b', 'gi'), kw.toUpperCase());
+        });
+    } else if (keyCase === 'lower') {
+        SQL_KEYWORDS.forEach(kw => {
+            sql = sql.replace(new RegExp('\\b' + kw + '\\b', 'gi'), kw.toLowerCase());
+        });
+    }
+
+    // Add newlines before major keywords
+    const majorPattern = MAJOR_KEYWORDS.map(k => k.replace(/ /g, '\\s+')).join('|');
+    const caseFlag = keyCase === 'lower' ? 'gi' : 'gi';
+    sql = sql.replace(new RegExp('\\b(' + majorPattern + ')\\b', caseFlag), '\n$1');
+
+    // Indent columns after SELECT
+    const lines = sql.split('\n').map(l => l.trim()).filter(l => l);
+    let result = [];
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        // Indent ON clauses
+        if (/^\b(ON)\b/i.test(line)) {
+            line = indent + line;
+        }
+        // Split comma-separated items after SELECT
+        if (/^SELECT/i.test(line)) {
+            const afterSelect = line.replace(/^SELECT\s+(DISTINCT\s+)?/i, '');
+            const prefix = line.match(/^SELECT\s+(DISTINCT\s+)?/i)[0];
+            const cols = afterSelect.split(',').map(c => c.trim());
+            if (cols.length > 1) {
+                result.push(prefix);
+                cols.forEach((col, idx) => {
+                    result.push(indent + col + (idx < cols.length - 1 ? ',' : ''));
+                });
+                continue;
+            }
+        }
+        // Handle AND/OR
+        line = line.replace(/\b(AND|OR)\b/gi, '\n' + indent + '$1');
+        result.push(line);
+    }
+
+    document.getElementById('output').value = result.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function minifySQL() {
+    const sql = document.getElementById('input').value.trim();
+    if (!sql) return;
+    document.getElementById('output').value = sql.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ',').trim();
+}
+
+function copyOutput() {
+    document.getElementById('output').select();
+    document.execCommand('copy');
+}
+
+function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+}
+</script>
+</body>
+</html>
