@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Color Picker & Converter Online - HEX, RGB, HSL | ToolPipe</title>
+    <meta name="description" content="Pick colors and convert between HEX, RGB, HSL formats. Free online color picker with palette generator and contrast checker.">
+    <meta name="keywords" content="color picker, hex to rgb, rgb to hex, color converter, color palette generator, contrast checker">
+    <link rel="canonical" href="https://toolpipe.dev/color-picker">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Color Picker","url":"https://toolpipe.dev/color-picker","description":"Pick colors and convert between HEX, RGB, HSL formats instantly.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .picker-area { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .color-preview { width: 100%; height: 200px; border-radius: 12px; border: 2px solid #eee; cursor: pointer; position: relative; }
+        .color-preview input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .values { display: grid; gap: 12px; }
+        .val-row { display: flex; align-items: center; gap: 8px; }
+        .val-row label { width: 40px; font-weight: 600; font-size: 0.9rem; }
+        .val-row input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.95rem; }
+        .val-row button { padding: 8px 12px; background: #6c63ff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .val-row button:hover { background: #5a52e0; }
+        h3 { margin: 24px 0 12px; color: #302b63; font-size: 1.1rem; }
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+        .palette-color { height: 60px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; padding: 4px; font-size: 0.7rem; font-family: monospace; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .contrast-box { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+        .contrast-sample { padding: 20px; border-radius: 8px; text-align: center; font-size: 1rem; font-weight: 600; }
+        .contrast-result { text-align: center; margin-top: 8px; font-size: 0.9rem; }
+        .pass { color: #28a745; font-weight: 600; }
+        .fail { color: #dc3545; font-weight: 600; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media (max-width: 600px) { .picker-area { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Color Picker & Converter</h1>
+        <p>Pick any color and instantly get HEX, RGB, and HSL values. Generate palettes and check contrast ratios.</p>
+    </div>
+
+    <div class="container">
+        <div class="tool-card">
+            <div class="picker-area">
+                <div>
+                    <div class="color-preview" id="preview" style="background:#6c63ff">
+                        <input type="color" id="colorPicker" value="#6c63ff" onchange="updateFromPicker(this.value)">
+                    </div>
+                </div>
+                <div class="values">
+                    <div class="val-row">
+                        <label>HEX</label>
+                        <input type="text" id="hexVal" value="#6c63ff" oninput="updateFromHex(this.value)">
+                        <button onclick="copyVal('hexVal')">Copy</button>
+                    </div>
+                    <div class="val-row">
+                        <label>RGB</label>
+                        <input type="text" id="rgbVal" value="rgb(108, 99, 255)" readonly>
+                        <button onclick="copyVal('rgbVal')">Copy</button>
+                    </div>
+                    <div class="val-row">
+                        <label>HSL</label>
+                        <input type="text" id="hslVal" value="hsl(243, 100%, 69%)" readonly>
+                        <button onclick="copyVal('hslVal')">Copy</button>
+                    </div>
+                    <div class="val-row">
+                        <label>CSS</label>
+                        <input type="text" id="cssVal" value="--color: #6c63ff;" readonly>
+                        <button onclick="copyVal('cssVal')">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Color Shades</h3>
+            <div class="palette" id="shades"></div>
+
+            <h3>Complementary Colors</h3>
+            <div class="palette" id="complementary"></div>
+
+            <h3>WCAG Contrast Check</h3>
+            <div class="contrast-box">
+                <div>
+                    <div class="contrast-sample" id="contrastWhite" style="background:#6c63ff;color:white">White Text on Color</div>
+                    <div class="contrast-result" id="contrastWhiteResult"></div>
+                </div>
+                <div>
+                    <div class="contrast-sample" id="contrastBlack" style="background:#6c63ff;color:black">Black Text on Color</div>
+                    <div class="contrast-result" id="contrastBlackResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info">
+            <h2>Color Formats</h2>
+            <p><strong>HEX:</strong> A 6-digit hexadecimal representation. Example: #6c63ff. Each pair represents Red, Green, Blue (00-FF).</p>
+            <p><strong>RGB:</strong> Red, Green, Blue values from 0-255. Example: rgb(108, 99, 255).</p>
+            <p><strong>HSL:</strong> Hue (0-360), Saturation (0-100%), Lightness (0-100%). More intuitive for color manipulation.</p>
+
+            <h2 style="margin-top:24px">WCAG Contrast Guidelines</h2>
+            <p>The Web Content Accessibility Guidelines (WCAG) require a minimum contrast ratio of 4.5:1 for normal text (AA) and 7:1 for enhanced contrast (AAA). Large text requires 3:1 (AA) and 4.5:1 (AAA).</p>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/uuid-generator">UUID Generator</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/json-formatter">JSON Formatter</a></p>
+    </footer>
+
+    <script>
+    function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+        const r = parseInt(hex.substr(0,2), 16);
+        const g = parseInt(hex.substr(2,2), 16);
+        const b = parseInt(hex.substr(4,2), 16);
+        return {r, g, b};
+    }
+
+    function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r,g,b), min = Math.min(r,g,b);
+        let h, s, l = (max + min) / 2;
+        if (max === min) { h = s = 0; }
+        else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch(max) {
+                case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                case g: h = ((b - r) / d + 2) / 6; break;
+                case b: h = ((r - g) / d + 4) / 6; break;
+            }
+        }
+        return {h: Math.round(h*360), s: Math.round(s*100), l: Math.round(l*100)};
+    }
+
+    function hslToHex(h, s, l) {
+        s /= 100; l /= 100;
+        const a = s * Math.min(l, 1-l);
+        const f = n => { const k = (n + h/30) % 12; return l - a * Math.max(Math.min(k-3, 9-k, 1), -1); };
+        return '#' + [f(0), f(8), f(4)].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
+    }
+
+    function luminance(r, g, b) {
+        const [rs, gs, bs] = [r,g,b].map(c => { c /= 255; return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); });
+        return 0.2126*rs + 0.7152*gs + 0.0722*bs;
+    }
+
+    function contrastRatio(rgb1, rgb2) {
+        const l1 = luminance(rgb1.r, rgb1.g, rgb1.b) + 0.05;
+        const l2 = luminance(rgb2.r, rgb2.g, rgb2.b) + 0.05;
+        return Math.max(l1,l2) / Math.min(l1,l2);
+    }
+
+    function updateColor(hex) {
+        hex = hex.startsWith('#') ? hex : '#' + hex;
+        if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+
+        const rgb = hexToRgb(hex);
+        const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+        document.getElementById('preview').style.background = hex;
+        document.getElementById('colorPicker').value = hex;
+        document.getElementById('hexVal').value = hex;
+        document.getElementById('rgbVal').value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        document.getElementById('hslVal').value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+        document.getElementById('cssVal').value = `--color: ${hex};`;
+
+        // Shades
+        const shades = document.getElementById('shades');
+        shades.innerHTML = '';
+        for (let i = 10; i <= 90; i += 20) {
+            const shade = hslToHex(hsl.h, hsl.s, i);
+            const div = document.createElement('div');
+            div.className = 'palette-color';
+            div.style.background = shade;
+            div.textContent = shade;
+            div.onclick = () => { updateColor(shade); };
+            shades.appendChild(div);
+        }
+
+        // Complementary
+        const comp = document.getElementById('complementary');
+        comp.innerHTML = '';
+        [0, 72, 144, 216, 288].forEach(offset => {
+            const ch = (hsl.h + offset) % 360;
+            const color = hslToHex(ch, hsl.s, hsl.l);
+            const div = document.createElement('div');
+            div.className = 'palette-color';
+            div.style.background = color;
+            div.textContent = color;
+            div.onclick = () => { updateColor(color); };
+            comp.appendChild(div);
+        });
+
+        // Contrast
+        const white = {r:255,g:255,b:255};
+        const black = {r:0,g:0,b:0};
+        const crWhite = contrastRatio(rgb, white).toFixed(2);
+        const crBlack = contrastRatio(rgb, black).toFixed(2);
+
+        document.getElementById('contrastWhite').style.background = hex;
+        document.getElementById('contrastBlack').style.background = hex;
+        document.getElementById('contrastWhiteResult').innerHTML =
+            `Ratio: ${crWhite}:1 | AA: ${crWhite >= 4.5 ? '<span class="pass">PASS</span>' : '<span class="fail">FAIL</span>'} | AAA: ${crWhite >= 7 ? '<span class="pass">PASS</span>' : '<span class="fail">FAIL</span>'}`;
+        document.getElementById('contrastBlackResult').innerHTML =
+            `Ratio: ${crBlack}:1 | AA: ${crBlack >= 4.5 ? '<span class="pass">PASS</span>' : '<span class="fail">FAIL</span>'} | AAA: ${crBlack >= 7 ? '<span class="pass">PASS</span>' : '<span class="fail">FAIL</span>'}`;
+    }
+
+    function updateFromPicker(val) { updateColor(val); }
+    function updateFromHex(val) { if (val.length >= 4) updateColor(val); }
+    function copyVal(id) {
+        navigator.clipboard.writeText(document.getElementById(id).value);
+        const btn = document.getElementById(id).nextElementSibling;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+    }
+
+    updateColor('#6c63ff');
+    </script>
+</body>
+</html>

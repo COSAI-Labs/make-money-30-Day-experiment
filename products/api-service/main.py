@@ -878,6 +878,8 @@ async def sitemap():
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
         "/merge-pdf", "/compress-pdf", "/split-pdf", "/webhook-tester",
         "/password-generator", "/whats-my-ip",
+        "/uuid-generator", "/regex-tester", "/cron-expression-generator",
+        "/color-picker", "/lorem-ipsum-generator", "/donate",
     ]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

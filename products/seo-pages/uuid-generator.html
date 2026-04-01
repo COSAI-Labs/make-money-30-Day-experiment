@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free UUID Generator Online - Generate UUID v4, v1 | ToolPipe</title>
+    <meta name="description" content="Generate UUIDs instantly. Free online UUID/GUID generator with bulk generation, v1 and v4 support. Copy with one click. No signup required.">
+    <meta name="keywords" content="uuid generator, guid generator, uuid v4, uuid online, random uuid, bulk uuid generator, free uuid">
+    <link rel="canonical" href="https://toolpipe.dev/uuid-generator">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"UUID Generator","url":"https://toolpipe.dev/uuid-generator","description":"Generate UUIDs instantly online. Free UUID v4 and v1 generator with bulk support.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .controls label { font-weight: 600; font-size: 0.95rem; }
+        .controls select, .controls input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
+        .controls input[type=number] { width: 80px; }
+        .btn { padding: 10px 24px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
+        .btn-outline:hover { background: #f0f0ff; }
+        .output { background: #1a1a2e; color: #a5d6a7; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.95rem; min-height: 60px; white-space: pre-wrap; word-break: break-all; margin-top: 16px; position: relative; }
+        .copy-btn { position: absolute; top: 8px; right: 8px; background: #302b63; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .copy-btn:hover { background: #6c63ff; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p, .info li { color: #555; line-height: 1.7; margin-bottom: 8px; }
+        .info ul { padding-left: 20px; }
+        .stats { display: flex; gap: 24px; margin-top: 16px; }
+        .stat { background: #f0f0ff; padding: 12px 20px; border-radius: 8px; text-align: center; }
+        .stat .num { font-size: 1.5rem; font-weight: 700; color: #302b63; }
+        .stat .label { font-size: 0.85rem; color: #888; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>UUID Generator</h1>
+        <p>Generate random UUIDs/GUIDs instantly. Supports v4 (random) and v1 (timestamp). Bulk generation up to 1000.</p>
+    </div>
+
+    <div class="container">
+        <div class="tool-card">
+            <div class="controls">
+                <label>Version:</label>
+                <select id="version">
+                    <option value="4">v4 (Random)</option>
+                    <option value="1">v1 (Timestamp)</option>
+                </select>
+                <label>Count:</label>
+                <input type="number" id="count" value="1" min="1" max="1000">
+                <label>Format:</label>
+                <select id="format">
+                    <option value="default">Standard</option>
+                    <option value="upper">UPPERCASE</option>
+                    <option value="braces">{Braces}</option>
+                    <option value="no-dashes">No Dashes</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button class="btn" onclick="generate()">Generate UUIDs</button>
+                <button class="btn btn-outline" onclick="copyAll()">Copy All</button>
+            </div>
+            <div class="output" id="output">
+                <button class="copy-btn" onclick="copyAll()">Copy</button>
+                <span id="result">Click "Generate UUIDs" to start</span>
+            </div>
+            <div class="stats" id="stats" style="display:none;margin-top:16px;">
+                <div class="stat"><div class="num" id="gen-count">0</div><div class="label">Generated</div></div>
+                <div class="stat"><div class="num" id="gen-time">0ms</div><div class="label">Time</div></div>
+            </div>
+        </div>
+
+        <div class="info">
+            <h2>What is a UUID?</h2>
+            <p>A UUID (Universally Unique Identifier) is a 128-bit identifier that is unique across time and space. Also known as GUID (Globally Unique Identifier), UUIDs are used in databases, distributed systems, and APIs to create unique identifiers without a central authority.</p>
+
+            <h2 style="margin-top:24px;">UUID Versions</h2>
+            <ul>
+                <li><strong>UUID v4 (Random):</strong> Generated using random or pseudo-random numbers. Most commonly used. 122 bits of randomness provides approximately 5.3 x 10^36 possible values.</li>
+                <li><strong>UUID v1 (Timestamp):</strong> Generated using the current timestamp and MAC address. Useful when ordering matters.</li>
+            </ul>
+
+            <h2 style="margin-top:24px;">UUID Format</h2>
+            <p>A standard UUID looks like: <code>550e8400-e29b-41d4-a716-446655440000</code></p>
+            <p>It consists of 32 hexadecimal digits displayed in 5 groups separated by hyphens: 8-4-4-4-12.</p>
+
+            <h2 style="margin-top:24px;">Use Cases</h2>
+            <ul>
+                <li>Database primary keys</li>
+                <li>Session identifiers</li>
+                <li>Distributed system unique IDs</li>
+                <li>File naming and deduplication</li>
+                <li>API request tracking</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/docs">API Docs</a> | <a href="/qr-code-generator">QR Generator</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/password-generator">Password Generator</a></p>
+    </footer>
+
+    <script>
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
+    function uuidv1() {
+        const now = Date.now();
+        const clockSeq = Math.random() * 0x3FFF | 0;
+        const node = Array.from({length: 6}, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
+        const ts = (now * 10000) + 0x01b21dd213814000n;
+        const timeLow = (Number(ts & 0xFFFFFFFFn)).toString(16).padStart(8, '0');
+        const timeMid = (Number((ts >> 32n) & 0xFFFFn)).toString(16).padStart(4, '0');
+        const timeHi = (Number((ts >> 48n) & 0x0FFFn) | 0x1000).toString(16).padStart(4, '0');
+        const clkSeq = ((clockSeq & 0x3F) | 0x80).toString(16).padStart(2, '0') + (clockSeq & 0xFF).toString(16).padStart(2, '0');
+        return `${timeLow}-${timeMid}-${timeHi}-${clkSeq}-${node}`;
+    }
+
+    function formatUUID(uuid, fmt) {
+        switch(fmt) {
+            case 'upper': return uuid.toUpperCase();
+            case 'braces': return `{${uuid}}`;
+            case 'no-dashes': return uuid.replace(/-/g, '');
+            default: return uuid;
+        }
+    }
+
+    function generate() {
+        const version = document.getElementById('version').value;
+        const count = Math.min(parseInt(document.getElementById('count').value) || 1, 1000);
+        const fmt = document.getElementById('format').value;
+        const start = performance.now();
+
+        const uuids = [];
+        for (let i = 0; i < count; i++) {
+            const uuid = version === '1' ? uuidv1() : uuidv4();
+            uuids.push(formatUUID(uuid, fmt));
+        }
+
+        const elapsed = (performance.now() - start).toFixed(1);
+        document.getElementById('result').textContent = uuids.join('\n');
+        document.getElementById('stats').style.display = 'flex';
+        document.getElementById('gen-count').textContent = count;
+        document.getElementById('gen-time').textContent = elapsed + 'ms';
+    }
+
+    function copyAll() {
+        const text = document.getElementById('result').textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        });
+    }
+
+    generate();
+    </script>
+</body>
+</html>

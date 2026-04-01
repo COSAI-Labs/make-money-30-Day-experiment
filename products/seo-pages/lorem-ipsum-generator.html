@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Lorem Ipsum Generator Online | ToolPipe</title>
+    <meta name="description" content="Generate Lorem Ipsum placeholder text instantly. Choose paragraphs, sentences, or words. Copy with one click. Free, no signup.">
+    <meta name="keywords" content="lorem ipsum generator, placeholder text, dummy text generator, lipsum, filler text">
+    <link rel="canonical" href="https://toolpipe.dev/lorem-ipsum-generator">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Lorem Ipsum Generator","url":"https://toolpipe.dev/lorem-ipsum-generator","description":"Generate Lorem Ipsum placeholder text instantly.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+        .controls label { font-weight: 600; font-size: 0.95rem; }
+        .controls select, .controls input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
+        .controls input[type=number] { width: 80px; }
+        .btn { padding: 10px 24px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+        .btn:hover { background: #5a52e0; }
+        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
+        .output { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 20px; min-height: 150px; line-height: 1.8; font-size: 0.95rem; color: #444; position: relative; }
+        .output p { margin-bottom: 16px; }
+        .copy-btn { position: absolute; top: 8px; right: 8px; padding: 6px 14px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .stats { display: flex; gap: 24px; margin-top: 16px; }
+        .stat { background: #f0f0ff; padding: 10px 16px; border-radius: 8px; text-align: center; }
+        .stat .num { font-size: 1.2rem; font-weight: 700; color: #302b63; }
+        .stat .label { font-size: 0.8rem; color: #888; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Lorem Ipsum Generator</h1>
+        <p>Generate placeholder text for your designs, mockups, and prototypes. Choose length, format, and style.</p>
+    </div>
+
+    <div class="container">
+        <div class="tool-card">
+            <div class="controls">
+                <label>Type:</label>
+                <select id="type">
+                    <option value="paragraphs">Paragraphs</option>
+                    <option value="sentences">Sentences</option>
+                    <option value="words">Words</option>
+                </select>
+                <label>Count:</label>
+                <input type="number" id="count" value="3" min="1" max="100">
+                <label>
+                    <input type="checkbox" id="startClassic" checked> Start with "Lorem ipsum..."
+                </label>
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:16px;">
+                <button class="btn" onclick="generate()">Generate</button>
+                <button class="btn btn-outline" onclick="copyText()">Copy All</button>
+            </div>
+            <div class="output" id="output">
+                <button class="copy-btn" onclick="copyText()">Copy</button>
+            </div>
+            <div class="stats" id="stats">
+                <div class="stat"><div class="num" id="wc">0</div><div class="label">Words</div></div>
+                <div class="stat"><div class="num" id="cc">0</div><div class="label">Characters</div></div>
+                <div class="stat"><div class="num" id="pc">0</div><div class="label">Paragraphs</div></div>
+            </div>
+        </div>
+
+        <div class="info">
+            <h2>What is Lorem Ipsum?</h2>
+            <p>Lorem Ipsum is dummy text used in the printing and typesetting industry since the 1500s. It is used as placeholder text to demonstrate the visual form of a document without relying on meaningful content.</p>
+
+            <h2 style="margin-top:24px">Why Use Lorem Ipsum?</h2>
+            <p>Designers and developers use Lorem Ipsum to fill layouts with text that has a natural distribution of letters, making it more realistic than repeating "content here." It helps stakeholders focus on design rather than content during reviews.</p>
+
+            <h2 style="margin-top:24px">Origin</h2>
+            <p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. Richard McClintock, a Latin professor, discovered the source in the 1960s.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/uuid-generator">UUID Generator</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/color-picker">Color Picker</a></p>
+    </footer>
+
+    <script>
+    const WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem".split(' ');
+
+    const CLASSIC_START = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+
+    function randWord() { return WORDS[Math.floor(Math.random() * WORDS.length)]; }
+
+    function makeSentence(minWords = 6, maxWords = 16) {
+        const len = minWords + Math.floor(Math.random() * (maxWords - minWords));
+        const words = Array.from({length: len}, randWord);
+        words[0] = words[0][0].toUpperCase() + words[0].slice(1);
+        // Add comma randomly
+        if (len > 8) {
+            const commaPos = 3 + Math.floor(Math.random() * (len - 6));
+            words[commaPos] += ',';
+        }
+        return words.join(' ') + '.';
+    }
+
+    function makeParagraph(minSentences = 3, maxSentences = 7) {
+        const count = minSentences + Math.floor(Math.random() * (maxSentences - minSentences));
+        return Array.from({length: count}, () => makeSentence()).join(' ');
+    }
+
+    function generate() {
+        const type = document.getElementById('type').value;
+        const count = Math.min(parseInt(document.getElementById('count').value) || 1, 100);
+        const startClassic = document.getElementById('startClassic').checked;
+        let result = '';
+
+        if (type === 'paragraphs') {
+            const paras = [];
+            for (let i = 0; i < count; i++) {
+                if (i === 0 && startClassic) {
+                    paras.push(CLASSIC_START + ' ' + makeParagraph(2, 5));
+                } else {
+                    paras.push(makeParagraph());
+                }
+            }
+            result = paras.join('\n\n');
+            document.getElementById('output').innerHTML = '<button class="copy-btn" onclick="copyText()">Copy</button>' +
+                paras.map(p => `<p>${p}</p>`).join('');
+        } else if (type === 'sentences') {
+            const sentences = [];
+            for (let i = 0; i < count; i++) {
+                if (i === 0 && startClassic) {
+                    sentences.push(CLASSIC_START);
+                } else {
+                    sentences.push(makeSentence());
+                }
+            }
+            result = sentences.join(' ');
+            document.getElementById('output').innerHTML = '<button class="copy-btn" onclick="copyText()">Copy</button><p>' + result + '</p>';
+        } else {
+            const words = [];
+            if (startClassic) {
+                words.push('lorem', 'ipsum', 'dolor', 'sit', 'amet');
+            }
+            while (words.length < count) words.push(randWord());
+            result = words.slice(0, count).join(' ');
+            document.getElementById('output').innerHTML = '<button class="copy-btn" onclick="copyText()">Copy</button><p>' + result + '</p>';
+        }
+
+        const wordCount = result.split(/\s+/).length;
+        document.getElementById('wc').textContent = wordCount;
+        document.getElementById('cc').textContent = result.length;
+        document.getElementById('pc').textContent = type === 'paragraphs' ? count : result.split('\n\n').length;
+    }
+
+    function copyText() {
+        const text = document.getElementById('output').innerText.replace('Copy', '').trim();
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        });
+    }
+
+    generate();
+    </script>
+</body>
+</html>
