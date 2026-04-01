@@ -10,6 +10,8 @@ import base64
 import re
 import time
 import uuid
+import tempfile
+import os
 from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
@@ -19,12 +21,15 @@ import markdown
 import qrcode
 from bs4 import BeautifulSoup
 from pathlib import Path
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from pydantic import BaseModel, HttpUrl
+from pypdf import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas as rl_canvas
+from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
@@ -74,6 +79,8 @@ LANDING_HTML = Path(__file__).parent / "landing.html"
 TOOLS_HTML = Path(__file__).parent.parent / "web-tools" / "index.html"
 INVOICE_HTML = Path(__file__).parent.parent / "invoice-generator" / "index.html"
 MONITOR_HTML = Path(__file__).parent.parent / "uptime-monitor" / "index.html"
+PDF_HTML = Path(__file__).parent.parent / "pdf-tools" / "index.html"
+WEBHOOK_HTML = Path(__file__).parent.parent / "webhook-tester" / "index.html"
 SEO_PAGES_DIR = Path(__file__).parent.parent / "seo-pages"
 
 # Import monitor module
@@ -778,7 +785,7 @@ async def analyze_seo(url: str = Query(...)):
 async def sitemap():
     base = "http://187.77.213.192:8081"
     urls = [
-        "/", "/tools", "/seo", "/invoice", "/monitor", "/docs",
+        "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/docs",
         "/qr-code-generator", "/json-formatter", "/base64-encoder",
     ]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -793,6 +800,357 @@ async def sitemap():
 async def robots():
     content = f"User-agent: *\nAllow: /\nSitemap: http://187.77.213.192:8081/sitemap.xml\n"
     return Response(content=content, media_type="text/plain")
+
+
+# --- PDF Tools ---
+
+PDF_MAX_SIZE = 50 * 1024 * 1024  # 50MB
+
+
+@app.get("/pdf", response_class=HTMLResponse)
+async def pdf_tools_page():
+    if PDF_HTML.exists():
+        return HTMLResponse(PDF_HTML.read_text())
+    return HTMLResponse("<h1>PDF Tools coming soon</h1>")
+
+
+async def _read_pdf_upload(file: UploadFile) -> bytes:
+    data = await file.read()
+    if len(data) > PDF_MAX_SIZE:
+        raise HTTPException(status_code=400, detail="File too large. Max 50MB.")
+    return data
+
+
+@app.post("/pdf/merge")
+async def pdf_merge(files: list[UploadFile] = File(...)):
+    if len(files) < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 PDF files to merge.")
+    if len(files) > 20:
+        raise HTTPException(status_code=400, detail="Max 20 files.")
+
+    writer = PdfWriter()
+    for f in files:
+        data = await _read_pdf_upload(f)
+        reader = PdfReader(io.BytesIO(data))
+        for page in reader.pages:
+            writer.add_page(page)
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=merged.pdf"},
+    )
+
+
+@app.post("/pdf/split")
+async def pdf_split(files: list[UploadFile] = File(...), pages: str = Form(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+    total = len(reader.pages)
+
+    # Parse page ranges like "1-3, 5, 7-10"
+    selected = set()
+    for part in pages.split(","):
+        part = part.strip()
+        if "-" in part:
+            start, end = part.split("-", 1)
+            start, end = int(start.strip()), int(end.strip())
+            for i in range(max(1, start), min(total, end) + 1):
+                selected.add(i)
+        else:
+            p = int(part.strip())
+            if 1 <= p <= total:
+                selected.add(p)
+
+    if not selected:
+        raise HTTPException(status_code=400, detail=f"No valid pages selected. PDF has {total} pages.")
+
+    writer = PdfWriter()
+    for i in sorted(selected):
+        writer.add_page(reader.pages[i - 1])
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=split.pdf"},
+    )
+
+
+@app.post("/pdf/compress")
+async def pdf_compress(files: list[UploadFile] = File(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+
+    writer = PdfWriter()
+    for page in reader.pages:
+        writer.add_page(page)
+
+    for page in writer.pages:
+        page.compress_content_streams()
+
+    if reader.metadata:
+        writer.add_metadata(reader.metadata)
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=compressed.pdf"},
+    )
+
+
+@app.post("/pdf/protect")
+async def pdf_protect(files: list[UploadFile] = File(...), password: str = Form(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    if not password:
+        raise HTTPException(status_code=400, detail="Password required.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+
+    writer = PdfWriter()
+    for page in reader.pages:
+        writer.add_page(page)
+    writer.encrypt(password)
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=protected.pdf"},
+    )
+
+
+@app.post("/pdf/unlock")
+async def pdf_unlock(files: list[UploadFile] = File(...), password: str = Form(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+
+    if reader.is_encrypted:
+        if not reader.decrypt(password):
+            raise HTTPException(status_code=400, detail="Wrong password.")
+
+    writer = PdfWriter()
+    for page in reader.pages:
+        writer.add_page(page)
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=unlocked.pdf"},
+    )
+
+
+@app.post("/pdf/rotate")
+async def pdf_rotate(files: list[UploadFile] = File(...), angle: int = Form(90)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    if angle not in (90, 180, 270):
+        raise HTTPException(status_code=400, detail="Angle must be 90, 180, or 270.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+
+    writer = PdfWriter()
+    for page in reader.pages:
+        page.rotate(angle)
+        writer.add_page(page)
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=rotated.pdf"},
+    )
+
+
+@app.post("/pdf/watermark")
+async def pdf_watermark(files: list[UploadFile] = File(...), text: str = Form(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    if not text:
+        raise HTTPException(status_code=400, detail="Watermark text required.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+
+    # Create watermark PDF in memory
+    wm_buf = io.BytesIO()
+    c = rl_canvas.Canvas(wm_buf, pagesize=letter)
+    c.setFont("Helvetica", 48)
+    c.setFillAlpha(0.15)
+    c.setFillColorRGB(0.5, 0.5, 0.5)
+    c.saveState()
+    c.translate(letter[0] / 2, letter[1] / 2)
+    c.rotate(45)
+    c.drawCentredString(0, 0, text)
+    c.restoreState()
+    c.save()
+    wm_buf.seek(0)
+    wm_reader = PdfReader(wm_buf)
+    wm_page = wm_reader.pages[0]
+
+    writer = PdfWriter()
+    for page in reader.pages:
+        page.merge_page(wm_page)
+        writer.add_page(page)
+
+    buf = io.BytesIO()
+    writer.write(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=watermarked.pdf"},
+    )
+
+
+@app.post("/pdf/info")
+async def pdf_info(files: list[UploadFile] = File(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No file provided.")
+    data = await _read_pdf_upload(files[0])
+    reader = PdfReader(io.BytesIO(data))
+
+    meta = reader.metadata or {}
+    info = {
+        "filename": files[0].filename,
+        "pages": len(reader.pages),
+        "file_size": formatFileSize(len(data)),
+        "file_size_bytes": len(data),
+        "encrypted": reader.is_encrypted,
+        "author": str(meta.get("/Author", "")) if meta.get("/Author") else "",
+        "creator": str(meta.get("/Creator", "")) if meta.get("/Creator") else "",
+        "producer": str(meta.get("/Producer", "")) if meta.get("/Producer") else "",
+        "subject": str(meta.get("/Subject", "")) if meta.get("/Subject") else "",
+        "title": str(meta.get("/Title", "")) if meta.get("/Title") else "",
+    }
+
+    # Page dimensions from first page
+    if reader.pages:
+        p = reader.pages[0]
+        box = p.mediabox
+        w = float(box.width) / 72  # Convert points to inches
+        h = float(box.height) / 72
+        info["page_width_inches"] = round(w, 2)
+        info["page_height_inches"] = round(h, 2)
+        info["page_size"] = f"{round(w, 1)}\" x {round(h, 1)}\""
+
+    return info
+
+
+def formatFileSize(bytes_val):
+    if bytes_val < 1024:
+        return f"{bytes_val} B"
+    if bytes_val < 1048576:
+        return f"{bytes_val / 1024:.1f} KB"
+    return f"{bytes_val / 1048576:.1f} MB"
+
+
+# --- Webhook Tester ---
+
+# In-memory storage for webhook bins (24h expiry)
+webhook_bins: dict[str, dict] = {}
+WEBHOOK_BIN_EXPIRY = 86400  # 24 hours
+WEBHOOK_MAX_REQUESTS = 500
+
+
+def _clean_expired_bins():
+    now = time.time()
+    expired = [k for k, v in webhook_bins.items() if now - v["created"] > WEBHOOK_BIN_EXPIRY]
+    for k in expired:
+        del webhook_bins[k]
+
+
+@app.get("/webhooks", response_class=HTMLResponse)
+async def webhooks_page():
+    if WEBHOOK_HTML.exists():
+        return HTMLResponse(WEBHOOK_HTML.read_text())
+    return HTMLResponse("<h1>WebhookBin coming soon</h1>")
+
+
+@app.post("/webhook/create")
+async def webhook_create():
+    _clean_expired_bins()
+    bin_id = uuid.uuid4().hex[:12]
+    webhook_bins[bin_id] = {
+        "created": time.time(),
+        "requests": [],
+    }
+    return {"bin_id": bin_id}
+
+
+@app.get("/webhook/bin/{bin_id}/requests")
+async def webhook_get_requests(bin_id: str):
+    if bin_id not in webhook_bins:
+        raise HTTPException(status_code=404, detail="Bin not found or expired.")
+    return {"requests": webhook_bins[bin_id]["requests"]}
+
+
+@app.post("/webhook/bin/{bin_id}/clear")
+async def webhook_clear(bin_id: str):
+    if bin_id not in webhook_bins:
+        raise HTTPException(status_code=404, detail="Bin not found or expired.")
+    webhook_bins[bin_id]["requests"] = []
+    return {"cleared": True}
+
+
+@app.api_route("/webhook/catch/{bin_id}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
+async def webhook_capture(bin_id: str, request: Request):
+    _clean_expired_bins()
+    if bin_id not in webhook_bins:
+        raise HTTPException(status_code=404, detail="Bin not found or expired.")
+
+    body_bytes = await request.body()
+    body_text = ""
+    try:
+        body_text = body_bytes.decode("utf-8")
+    except Exception:
+        body_text = f"(binary data, {len(body_bytes)} bytes)"
+
+    body_parsed = body_text
+    try:
+        body_parsed = json.loads(body_text)
+    except Exception:
+        pass
+
+    req_data = {
+        "id": uuid.uuid4().hex[:8],
+        "method": request.method,
+        "path": str(request.url.path),
+        "query": dict(request.query_params),
+        "headers": dict(request.headers),
+        "body": body_parsed,
+        "ip": request.client.host if request.client else "unknown",
+        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "content_length": len(body_bytes),
+    }
+
+    bin_data = webhook_bins[bin_id]
+    bin_data["requests"].append(req_data)
+    if len(bin_data["requests"]) > WEBHOOK_MAX_REQUESTS:
+        bin_data["requests"] = bin_data["requests"][-WEBHOOK_MAX_REQUESTS:]
+
+    return {"status": "captured", "request_id": req_data["id"]}
 
 
 # --- SEO Pages (catch-all for static content pages) ---

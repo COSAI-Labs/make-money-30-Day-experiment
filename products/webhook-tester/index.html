@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebhookBin - Free Webhook Testing & Request Inspector | ToolPipe</title>
+    <meta name="description" content="Free webhook testing tool. Create unique URLs to capture and inspect HTTP requests in real-time. Debug webhooks, APIs, and integrations instantly.">
+    <meta name="keywords" content="webhook tester, request bin, http request inspector, webhook debug, api testing, requestbin alternative">
+    <meta property="og:title" content="WebhookBin - Free Webhook Testing Tool">
+    <meta property="og:description" content="Create unique URLs to capture and inspect HTTP requests. Debug webhooks instantly.">
+    <link rel="canonical" href="/webhooks">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 2rem; text-align: center; }
+        .header h1 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
+        .header p { color: #94a3b8; font-size: 1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .create-section { text-align: center; margin-bottom: 2rem; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #2563eb; }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.85rem; }
+        .bin-url { background: #111; border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 1rem; }
+        .bin-url code { flex: 1; font-size: 1rem; color: #60a5fa; word-break: break-all; }
+        .btn-copy { background: #374151; padding: 0.5rem 1rem; border-radius: 6px; color: #e0e0e0; border: none; cursor: pointer; font-size: 0.85rem; }
+        .btn-copy:hover { background: #4b5563; }
+        .requests-header { display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem; }
+        .requests-header h2 { color: #fff; font-size: 1.3rem; }
+        .badge-count { background: #22c55e; color: #000; font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: 10px; }
+        .request-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .request-item { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; cursor: pointer; }
+        .request-item:hover { border-color: #3b82f6; }
+        .request-summary { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; }
+        .method { font-weight: 700; font-size: 0.85rem; padding: 2px 8px; border-radius: 4px; min-width: 60px; text-align: center; }
+        .method-GET { background: #22c55e22; color: #22c55e; }
+        .method-POST { background: #3b82f622; color: #3b82f6; }
+        .method-PUT { background: #f59e0b22; color: #f59e0b; }
+        .method-DELETE { background: #ef444422; color: #ef4444; }
+        .method-PATCH { background: #a855f722; color: #a855f7; }
+        .method-HEAD { background: #64748b22; color: #94a3b8; }
+        .method-OPTIONS { background: #06b6d422; color: #06b6d4; }
+        .req-path { color: #e0e0e0; font-size: 0.9rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .req-time { color: #64748b; font-size: 0.8rem; }
+        .req-ip { color: #64748b; font-size: 0.8rem; }
+        .request-detail { display: none; background: #111; padding: 1rem; border-top: 1px solid #2a2a2a; }
+        .request-detail.active { display: block; }
+        .detail-section { margin-bottom: 1rem; }
+        .detail-section h4 { color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .detail-section pre { background: #0a0a0a; padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; color: #e0e0e0; white-space: pre-wrap; word-break: break-all; }
+        .empty { text-align: center; padding: 3rem; color: #64748b; }
+        .empty p { margin-bottom: 1rem; }
+        .polling-indicator { display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+        .seo-content { max-width: 800px; margin: 2rem auto; padding: 0 2rem; }
+        .seo-content h2 { color: #fff; margin: 2rem 0 0.5rem; font-size: 1.2rem; }
+        .seo-content p { color: #94a3b8; line-height: 1.7; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>WebhookBin</h1>
+        <p>Create unique URLs to capture and inspect HTTP requests in real-time. Perfect for debugging webhooks, APIs, and integrations.</p>
+    </div>
+
+    <div class="container">
+        <div class="create-section" id="createSection">
+            <button class="btn" onclick="createBin()">Create New Bin</button>
+            <p style="color:#64748b; margin-top:0.5rem; font-size:0.85rem;">Bins expire after 24 hours. All request data is automatically deleted.</p>
+        </div>
+
+        <div id="binSection" style="display:none;">
+            <div class="bin-url">
+                <code id="binUrl"></code>
+                <button class="btn-copy" onclick="copyUrl()">Copy</button>
+            </div>
+            <p style="color:#64748b; font-size:0.85rem; margin-bottom:1rem;">Send any HTTP request to this URL. All requests will appear below in real-time.</p>
+
+            <div class="requests-header">
+                <h2><span class="polling-indicator"></span>Captured Requests <span class="badge-count" id="reqCount">0</span></h2>
+                <button class="btn btn-sm" onclick="clearRequests()">Clear</button>
+            </div>
+
+            <div id="requestList" class="request-list">
+                <div class="empty" id="emptyState">
+                    <p>No requests captured yet.</p>
+                    <p>Send a request to your bin URL to see it here.</p>
+                    <code style="color:#60a5fa; font-size:0.85rem;" id="curlExample"></code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="seo-content">
+        <h2>What is WebhookBin?</h2>
+        <p>WebhookBin is a free webhook testing tool that creates temporary URLs for inspecting HTTP requests. It works like RequestBin or Webhook.site, but faster and with no signup required.</p>
+        <h2>Common Use Cases</h2>
+        <p><strong>Webhook debugging:</strong> Test Stripe, GitHub, Slack, or any webhook integration by pointing it at your bin URL. See the exact payload and headers sent.</p>
+        <p><strong>API development:</strong> Inspect the requests your application is making. Verify headers, authentication, and payload format.</p>
+        <p><strong>Integration testing:</strong> Set up a bin as a mock endpoint to capture and verify requests during automated testing.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> &middot; <a href="/tools">Developer Tools</a> &middot; <a href="/pdf">PDF Tools</a> &middot; <a href="/docs">API Docs</a></p>
+    </footer>
+
+    <script>
+    let binId = null;
+    let pollInterval = null;
+
+    async function createBin() {
+        const resp = await fetch('/webhook/create', { method: 'POST' });
+        const data = await resp.json();
+        binId = data.bin_id;
+        const binUrl = window.location.origin + '/webhook/catch/' + binId;
+        document.getElementById('binUrl').textContent = binUrl;
+        document.getElementById('curlExample').textContent = 'curl -X POST -d \'{"test":"hello"}\' -H "Content-Type: application/json" ' + binUrl;
+        document.getElementById('createSection').style.display = 'none';
+        document.getElementById('binSection').style.display = 'block';
+        startPolling();
+    }
+
+    function copyUrl() {
+        navigator.clipboard.writeText(document.getElementById('binUrl').textContent);
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+    }
+
+    function startPolling() {
+        pollInterval = setInterval(fetchRequests, 2000);
+        fetchRequests();
+    }
+
+    async function fetchRequests() {
+        if (!binId) return;
+        const resp = await fetch('/webhook/bin/' + binId + '/requests');
+        const data = await resp.json();
+        renderRequests(data.requests);
+    }
+
+    function renderRequests(requests) {
+        document.getElementById('reqCount').textContent = requests.length;
+        if (requests.length === 0) {
+            document.getElementById('emptyState').style.display = 'block';
+            return;
+        }
+        document.getElementById('emptyState').style.display = 'none';
+        const list = document.getElementById('requestList');
+        // Keep empty state element, rebuild rest
+        const existingIds = new Set();
+        list.querySelectorAll('.request-item').forEach(el => existingIds.add(el.dataset.id));
+
+        requests.forEach(req => {
+            if (existingIds.has(req.id)) return;
+            const el = document.createElement('div');
+            el.className = 'request-item';
+            el.dataset.id = req.id;
+            const methodClass = 'method-' + (req.method || 'GET');
+            const headersHtml = req.headers ? Object.entries(req.headers).map(([k,v]) => escHtml(k) + ': ' + escHtml(v)).join('\n') : '';
+            const bodyHtml = req.body ? escHtml(typeof req.body === 'string' ? req.body : JSON.stringify(req.body, null, 2)) : '(empty)';
+            const queryHtml = req.query ? escHtml(JSON.stringify(req.query, null, 2)) : '(none)';
+            el.innerHTML = `
+                <div class="request-summary" onclick="this.parentElement.querySelector('.request-detail').classList.toggle('active')">
+                    <span class="method ${methodClass}">${escHtml(req.method)}</span>
+                    <span class="req-path">${escHtml(req.path || '/')}</span>
+                    <span class="req-ip">${escHtml(req.ip || '')}</span>
+                    <span class="req-time">${escHtml(req.timestamp || '')}</span>
+                </div>
+                <div class="request-detail">
+                    <div class="detail-section"><h4>Headers</h4><pre>${headersHtml}</pre></div>
+                    <div class="detail-section"><h4>Query Parameters</h4><pre>${queryHtml}</pre></div>
+                    <div class="detail-section"><h4>Body</h4><pre>${bodyHtml}</pre></div>
+                </div>
+            `;
+            list.insertBefore(el, list.children[0]);
+        });
+    }
+
+    async function clearRequests() {
+        if (!binId) return;
+        await fetch('/webhook/bin/' + binId + '/clear', { method: 'POST' });
+        document.getElementById('requestList').querySelectorAll('.request-item').forEach(el => el.remove());
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('reqCount').textContent = '0';
+    }
+
+    function escHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    </script>
+</body>
+</html>

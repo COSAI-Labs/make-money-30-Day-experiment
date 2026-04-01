@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Tools Online - Merge, Split, Compress PDF Free | ToolPipe</title>
+    <meta name="description" content="Free online PDF tools. Merge, split, compress, and convert PDFs instantly. No signup required. Fast, secure, and works in your browser.">
+    <meta name="keywords" content="merge pdf, split pdf, compress pdf, pdf to image, pdf tools online, free pdf editor">
+    <meta property="og:title" content="PDF Tools Online - Free PDF Merge, Split, Compress">
+    <meta property="og:description" content="Free online PDF tools. Merge, split, compress PDFs instantly. No signup required.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="/pdf">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 3rem 2rem; text-align: center; }
+        .header h1 { font-size: 2.5rem; color: #fff; margin-bottom: 0.5rem; }
+        .header p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .tool-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 2rem; cursor: pointer; transition: all 0.2s; }
+        .tool-card:hover { border-color: #3b82f6; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(59,130,246,0.15); }
+        .tool-card.active { border-color: #3b82f6; background: #1a1a2e; }
+        .tool-icon { font-size: 2rem; margin-bottom: 1rem; }
+        .tool-card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
+        .tool-card p { color: #94a3b8; font-size: 0.9rem; }
+        .badge { display: inline-block; background: #22c55e; color: #000; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+        .badge.pro { background: #f59e0b; }
+        .workspace { max-width: 800px; margin: 2rem auto; padding: 0 2rem; display: none; }
+        .workspace.active { display: block; }
+        .workspace h2 { color: #fff; margin-bottom: 1rem; font-size: 1.5rem; }
+        .drop-zone { border: 2px dashed #3b82f6; border-radius: 12px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: #111; }
+        .drop-zone:hover, .drop-zone.dragover { background: #1a1a2e; border-color: #60a5fa; }
+        .drop-zone p { color: #94a3b8; margin-bottom: 0.5rem; }
+        .drop-zone .big { font-size: 1.2rem; color: #fff; }
+        input[type="file"] { display: none; }
+        .file-list { margin: 1rem 0; }
+        .file-item { display: flex; align-items: center; justify-content: space-between; background: #1a1a1a; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid #2a2a2a; }
+        .file-item .name { color: #e0e0e0; font-size: 0.9rem; }
+        .file-item .size { color: #64748b; font-size: 0.8rem; }
+        .file-item .remove { color: #ef4444; cursor: pointer; background: none; border: none; font-size: 1.2rem; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #374151; }
+        .btn-secondary:hover { background: #4b5563; }
+        .actions { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .progress { width: 100%; height: 4px; background: #2a2a2a; border-radius: 2px; margin-top: 1rem; overflow: hidden; display: none; }
+        .progress.active { display: block; }
+        .progress-bar { height: 100%; background: #3b82f6; border-radius: 2px; transition: width 0.3s; }
+        .result { background: #1a2e1a; border: 1px solid #22c55e; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem; display: none; }
+        .result.active { display: block; }
+        .result h3 { color: #22c55e; margin-bottom: 0.5rem; }
+        .options { margin: 1rem 0; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .options label { color: #94a3b8; font-size: 0.9rem; }
+        .options select, .options input[type="number"], .options input[type="range"] { background: #1a1a1a; color: #e0e0e0; border: 1px solid #2a2a2a; padding: 0.5rem; border-radius: 6px; }
+        .back-link { color: #3b82f6; text-decoration: none; display: inline-block; margin-bottom: 1rem; }
+        .back-link:hover { text-decoration: underline; }
+        footer { text-align: center; padding: 3rem 2rem; color: #64748b; font-size: 0.85rem; }
+        footer a { color: #3b82f6; text-decoration: none; }
+        .seo-content { max-width: 800px; margin: 3rem auto; padding: 0 2rem; }
+        .seo-content h2 { color: #fff; margin: 2rem 0 1rem; font-size: 1.3rem; }
+        .seo-content p { color: #94a3b8; line-height: 1.7; margin-bottom: 1rem; }
+        .seo-content ul { color: #94a3b8; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .seo-content li { margin-bottom: 0.5rem; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PDF Tools Online</h1>
+        <p>Free, fast, and secure PDF tools. Merge, split, compress, and convert your PDFs right in the browser.</p>
+    </div>
+
+    <div class="tools-grid" id="toolsGrid">
+        <div class="tool-card" onclick="showTool('merge')">
+            <div class="tool-icon">📄+📄</div>
+            <h3>Merge PDF <span class="badge">FREE</span></h3>
+            <p>Combine multiple PDF files into a single document. Drag to reorder pages.</p>
+        </div>
+        <div class="tool-card" onclick="showTool('split')">
+            <div class="tool-icon">✂️📄</div>
+            <h3>Split PDF <span class="badge">FREE</span></h3>
+            <p>Extract specific pages or split a PDF into multiple files.</p>
+        </div>
+        <div class="tool-card" onclick="showTool('compress')">
+            <div class="tool-icon">📦📄</div>
+            <h3>Compress PDF <span class="badge">FREE</span></h3>
+            <p>Reduce PDF file size while maintaining quality. Up to 80% smaller.</p>
+        </div>
+        <div class="tool-card" onclick="showTool('protect')">
+            <div class="tool-icon">🔒📄</div>
+            <h3>Protect PDF <span class="badge">FREE</span></h3>
+            <p>Add password protection to your PDF files. Secure sensitive documents.</p>
+        </div>
+        <div class="tool-card" onclick="showTool('unlock')">
+            <div class="tool-icon">🔓📄</div>
+            <h3>Unlock PDF <span class="badge">FREE</span></h3>
+            <p>Remove password protection from PDF files (requires current password).</p>
+        </div>
+        <div class="tool-card" onclick="showTool('rotate')">
+            <div class="tool-icon">🔄📄</div>
+            <h3>Rotate PDF <span class="badge">FREE</span></h3>
+            <p>Rotate PDF pages 90, 180, or 270 degrees. Fix scanned documents.</p>
+        </div>
+        <div class="tool-card" onclick="showTool('watermark')">
+            <div class="tool-icon">💧📄</div>
+            <h3>Watermark PDF <span class="badge">FREE</span></h3>
+            <p>Add text or image watermarks to your PDF. Brand your documents.</p>
+        </div>
+        <div class="tool-card" onclick="showTool('metadata')">
+            <div class="tool-icon">ℹ️📄</div>
+            <h3>PDF Info <span class="badge">FREE</span></h3>
+            <p>View PDF metadata: page count, file size, author, creation date, and more.</p>
+        </div>
+    </div>
+
+    <!-- Merge Tool -->
+    <div class="workspace" id="workspace-merge">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Merge PDF Files</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Upload multiple PDF files and combine them into one. Drag files to reorder.</p>
+        <div class="drop-zone" id="dropzone-merge" onclick="document.getElementById('input-merge').click()">
+            <p class="big">Drop PDF files here</p>
+            <p>or click to browse (max 20 files, 50MB each)</p>
+        </div>
+        <input type="file" id="input-merge" accept=".pdf" multiple>
+        <div class="file-list" id="filelist-merge"></div>
+        <div class="actions">
+            <button class="btn" id="btn-merge" onclick="doMerge()" disabled>Merge PDFs</button>
+        </div>
+        <div class="progress" id="progress-merge"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-merge"><h3>Done!</h3><p id="result-merge-text"></p></div>
+    </div>
+
+    <!-- Split Tool -->
+    <div class="workspace" id="workspace-split">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Split PDF</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Upload a PDF and extract specific pages.</p>
+        <div class="drop-zone" id="dropzone-split" onclick="document.getElementById('input-split').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-split" accept=".pdf">
+        <div class="file-list" id="filelist-split"></div>
+        <div class="options" id="options-split" style="display:none;">
+            <label>Pages: <input type="text" id="split-pages" placeholder="e.g. 1-3, 5, 7-10" style="background:#1a1a1a;color:#e0e0e0;border:1px solid #2a2a2a;padding:0.5rem;border-radius:6px;width:200px;"></label>
+        </div>
+        <div class="actions">
+            <button class="btn" id="btn-split" onclick="doSplit()" disabled>Split PDF</button>
+        </div>
+        <div class="progress" id="progress-split"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-split"><h3>Done!</h3><p id="result-split-text"></p></div>
+    </div>
+
+    <!-- Compress Tool -->
+    <div class="workspace" id="workspace-compress">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Compress PDF</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Reduce PDF file size. Upload your PDF to compress it.</p>
+        <div class="drop-zone" id="dropzone-compress" onclick="document.getElementById('input-compress').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-compress" accept=".pdf">
+        <div class="file-list" id="filelist-compress"></div>
+        <div class="actions">
+            <button class="btn" id="btn-compress" onclick="doCompress()" disabled>Compress PDF</button>
+        </div>
+        <div class="progress" id="progress-compress"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-compress"><h3>Done!</h3><p id="result-compress-text"></p></div>
+    </div>
+
+    <!-- Protect Tool -->
+    <div class="workspace" id="workspace-protect">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Protect PDF</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Add password protection to your PDF.</p>
+        <div class="drop-zone" id="dropzone-protect" onclick="document.getElementById('input-protect').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-protect" accept=".pdf">
+        <div class="file-list" id="filelist-protect"></div>
+        <div class="options" id="options-protect" style="display:none;">
+            <label>Password: <input type="password" id="protect-password" placeholder="Enter password" style="background:#1a1a1a;color:#e0e0e0;border:1px solid #2a2a2a;padding:0.5rem;border-radius:6px;width:200px;"></label>
+        </div>
+        <div class="actions">
+            <button class="btn" id="btn-protect" onclick="doProtect()" disabled>Protect PDF</button>
+        </div>
+        <div class="progress" id="progress-protect"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-protect"><h3>Done!</h3><p id="result-protect-text"></p></div>
+    </div>
+
+    <!-- Unlock Tool -->
+    <div class="workspace" id="workspace-unlock">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Unlock PDF</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Remove password protection (you must know the current password).</p>
+        <div class="drop-zone" id="dropzone-unlock" onclick="document.getElementById('input-unlock').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-unlock" accept=".pdf">
+        <div class="file-list" id="filelist-unlock"></div>
+        <div class="options" id="options-unlock" style="display:none;">
+            <label>Current Password: <input type="password" id="unlock-password" placeholder="Enter current password" style="background:#1a1a1a;color:#e0e0e0;border:1px solid #2a2a2a;padding:0.5rem;border-radius:6px;width:200px;"></label>
+        </div>
+        <div class="actions">
+            <button class="btn" id="btn-unlock" onclick="doUnlock()" disabled>Unlock PDF</button>
+        </div>
+        <div class="progress" id="progress-unlock"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-unlock"><h3>Done!</h3><p id="result-unlock-text"></p></div>
+    </div>
+
+    <!-- Rotate Tool -->
+    <div class="workspace" id="workspace-rotate">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Rotate PDF</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Rotate all pages in your PDF.</p>
+        <div class="drop-zone" id="dropzone-rotate" onclick="document.getElementById('input-rotate').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-rotate" accept=".pdf">
+        <div class="file-list" id="filelist-rotate"></div>
+        <div class="options" id="options-rotate" style="display:none;">
+            <label>Rotation:
+                <select id="rotate-angle" style="background:#1a1a1a;color:#e0e0e0;border:1px solid #2a2a2a;padding:0.5rem;border-radius:6px;">
+                    <option value="90">90 degrees clockwise</option>
+                    <option value="180">180 degrees</option>
+                    <option value="270">90 degrees counter-clockwise</option>
+                </select>
+            </label>
+        </div>
+        <div class="actions">
+            <button class="btn" id="btn-rotate" onclick="doRotate()" disabled>Rotate PDF</button>
+        </div>
+        <div class="progress" id="progress-rotate"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-rotate"><h3>Done!</h3><p id="result-rotate-text"></p></div>
+    </div>
+
+    <!-- Watermark Tool -->
+    <div class="workspace" id="workspace-watermark">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>Watermark PDF</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">Add a text watermark to every page of your PDF.</p>
+        <div class="drop-zone" id="dropzone-watermark" onclick="document.getElementById('input-watermark').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-watermark" accept=".pdf">
+        <div class="file-list" id="filelist-watermark"></div>
+        <div class="options" id="options-watermark" style="display:none;">
+            <label>Watermark Text: <input type="text" id="watermark-text" placeholder="e.g. CONFIDENTIAL" style="background:#1a1a1a;color:#e0e0e0;border:1px solid #2a2a2a;padding:0.5rem;border-radius:6px;width:200px;"></label>
+        </div>
+        <div class="actions">
+            <button class="btn" id="btn-watermark" onclick="doWatermark()" disabled>Add Watermark</button>
+        </div>
+        <div class="progress" id="progress-watermark"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="result" id="result-watermark"><h3>Done!</h3><p id="result-watermark-text"></p></div>
+    </div>
+
+    <!-- Metadata Tool -->
+    <div class="workspace" id="workspace-metadata">
+        <a href="#" class="back-link" onclick="showGrid(); return false;">&larr; Back to all tools</a>
+        <h2>PDF Info</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">View detailed information about your PDF file.</p>
+        <div class="drop-zone" id="dropzone-metadata" onclick="document.getElementById('input-metadata').click()">
+            <p class="big">Drop a PDF file here</p>
+            <p>or click to browse (max 50MB)</p>
+        </div>
+        <input type="file" id="input-metadata" accept=".pdf">
+        <div class="file-list" id="filelist-metadata"></div>
+        <div class="actions">
+            <button class="btn" id="btn-metadata" onclick="doMetadata()" disabled>Get Info</button>
+        </div>
+        <div class="result" id="result-metadata"><h3>PDF Information</h3><div id="result-metadata-text"></div></div>
+    </div>
+
+    <div class="seo-content">
+        <h2>Free Online PDF Tools</h2>
+        <p>ToolPipe PDF Tools lets you work with PDF files directly in your browser. No software to install, no signup required. All processing happens server-side for maximum compatibility and speed.</p>
+
+        <h2>Why Use Our PDF Tools?</h2>
+        <ul>
+            <li><strong>Free:</strong> All basic PDF operations are completely free.</li>
+            <li><strong>Fast:</strong> Server-side processing means instant results even for large files.</li>
+            <li><strong>Secure:</strong> Files are automatically deleted after processing. We never store your documents.</li>
+            <li><strong>No Signup:</strong> Start using tools immediately. No account required.</li>
+            <li><strong>All Devices:</strong> Works on desktop, tablet, and mobile browsers.</li>
+        </ul>
+
+        <h2>Available PDF Tools</h2>
+        <p><strong>Merge PDF:</strong> Combine multiple PDF files into a single document. Perfect for assembling reports, combining scanned pages, or creating portfolios. Drag and drop to reorder files before merging.</p>
+        <p><strong>Split PDF:</strong> Extract specific pages from a PDF or split a large document into smaller files. Specify page ranges like "1-3, 5, 7-10" to extract exactly the pages you need.</p>
+        <p><strong>Compress PDF:</strong> Reduce PDF file size without significant quality loss. Ideal for email attachments, web uploads, or saving storage space. Typically achieves 30-80% size reduction.</p>
+        <p><strong>Protect PDF:</strong> Add password protection to sensitive PDF documents. Prevent unauthorized access to confidential information.</p>
+        <p><strong>Rotate PDF:</strong> Fix the orientation of scanned documents. Rotate pages 90, 180, or 270 degrees.</p>
+        <p><strong>Watermark PDF:</strong> Add text watermarks to your documents. Brand your PDFs or mark them as confidential, draft, or for internal use only.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">ToolPipe</a> &middot; <a href="/tools">Developer Tools</a> &middot; <a href="/seo">SEO Analyzer</a> &middot; <a href="/docs">API Docs</a></p>
+        <p style="margin-top:0.5rem;">Fast, free developer tools. No signup required.</p>
+    </footer>
+
+    <script>
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    const toolFiles = {};
+
+    function showTool(name) {
+        document.getElementById('toolsGrid').style.display = 'none';
+        document.querySelectorAll('.workspace').forEach(w => w.classList.remove('active'));
+        const ws = document.getElementById('workspace-' + name);
+        if (ws) ws.classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function showGrid() {
+        document.querySelectorAll('.workspace').forEach(w => w.classList.remove('active'));
+        document.getElementById('toolsGrid').style.display = 'grid';
+        window.scrollTo(0, 0);
+    }
+
+    // Setup all drop zones and file inputs
+    ['merge','split','compress','protect','unlock','rotate','watermark','metadata'].forEach(tool => {
+        const dropzone = document.getElementById('dropzone-' + tool);
+        const input = document.getElementById('input-' + tool);
+        const multiple = tool === 'merge';
+        toolFiles[tool] = [];
+
+        if (dropzone) {
+            dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+            dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+            dropzone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                handleFiles(tool, Array.from(e.dataTransfer.files), multiple);
+            });
+        }
+        if (input) {
+            input.addEventListener('change', () => handleFiles(tool, Array.from(input.files), multiple));
+        }
+    });
+
+    function handleFiles(tool, files, multiple) {
+        const pdfFiles = files.filter(f => f.type === 'application/pdf' || f.name.endsWith('.pdf'));
+        if (pdfFiles.length === 0) { alert('Please select PDF files only.'); return; }
+        for (const f of pdfFiles) {
+            if (f.size > MAX_FILE_SIZE) { alert(f.name + ' is too large. Max 50MB.'); return; }
+        }
+        if (multiple) {
+            toolFiles[tool] = toolFiles[tool].concat(pdfFiles);
+            if (toolFiles[tool].length > 20) { toolFiles[tool] = toolFiles[tool].slice(0, 20); alert('Max 20 files.'); }
+        } else {
+            toolFiles[tool] = [pdfFiles[0]];
+        }
+        renderFileList(tool);
+        const btn = document.getElementById('btn-' + tool);
+        if (btn) btn.disabled = toolFiles[tool].length === 0;
+        // Show options if they exist
+        const opts = document.getElementById('options-' + tool);
+        if (opts && toolFiles[tool].length > 0) opts.style.display = 'flex';
+    }
+
+    function renderFileList(tool) {
+        const list = document.getElementById('filelist-' + tool);
+        if (!list) return;
+        list.innerHTML = toolFiles[tool].map((f, i) =>
+            '<div class="file-item"><span class="name">' + escHtml(f.name) + '</span><span class="size">' +
+            formatSize(f.size) + '</span><button class="remove" onclick="removeFile(\'' + tool + '\',' + i + ')">&times;</button></div>'
+        ).join('');
+    }
+
+    function removeFile(tool, index) {
+        toolFiles[tool].splice(index, 1);
+        renderFileList(tool);
+        const btn = document.getElementById('btn-' + tool);
+        if (btn) btn.disabled = toolFiles[tool].length === 0;
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function showProgress(tool, pct) {
+        const p = document.getElementById('progress-' + tool);
+        if (p) { p.classList.add('active'); p.querySelector('.progress-bar').style.width = pct + '%'; }
+    }
+
+    function hideProgress(tool) {
+        const p = document.getElementById('progress-' + tool);
+        if (p) p.classList.remove('active');
+    }
+
+    function showResult(tool, html) {
+        const r = document.getElementById('result-' + tool);
+        const t = document.getElementById('result-' + tool + '-text');
+        if (r && t) { t.innerHTML = html; r.classList.add('active'); }
+    }
+
+    async function uploadAndProcess(tool, endpoint, extraData) {
+        const formData = new FormData();
+        toolFiles[tool].forEach((f, i) => formData.append('files', f));
+        if (extraData) {
+            Object.keys(extraData).forEach(k => formData.append(k, extraData[k]));
+        }
+        showProgress(tool, 30);
+        try {
+            const resp = await fetch('/pdf/' + endpoint, { method: 'POST', body: formData });
+            showProgress(tool, 80);
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({detail: 'Processing failed'}));
+                throw new Error(err.detail || 'Processing failed');
+            }
+            return resp;
+        } catch (e) {
+            hideProgress(tool);
+            alert('Error: ' + e.message);
+            throw e;
+        }
+    }
+
+    async function downloadResponse(resp, filename) {
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    async function doMerge() {
+        if (toolFiles.merge.length < 2) { alert('Please add at least 2 PDF files.'); return; }
+        const resp = await uploadAndProcess('merge', 'merge', {});
+        showProgress('merge', 100);
+        await downloadResponse(resp, 'merged.pdf');
+        hideProgress('merge');
+        showResult('merge', 'Your merged PDF has been downloaded. ' + toolFiles.merge.length + ' files combined.');
+    }
+
+    async function doSplit() {
+        const pages = document.getElementById('split-pages').value;
+        if (!pages) { alert('Please specify page ranges (e.g. 1-3, 5, 7-10)'); return; }
+        const resp = await uploadAndProcess('split', 'split', { pages: pages });
+        showProgress('split', 100);
+        await downloadResponse(resp, 'split.pdf');
+        hideProgress('split');
+        showResult('split', 'Your split PDF has been downloaded.');
+    }
+
+    async function doCompress() {
+        const resp = await uploadAndProcess('compress', 'compress', {});
+        showProgress('compress', 100);
+        const origSize = toolFiles.compress[0].size;
+        const blob = await resp.blob();
+        const reduction = Math.round((1 - blob.size / origSize) * 100);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'compressed.pdf'; a.click();
+        URL.revokeObjectURL(url);
+        hideProgress('compress');
+        showResult('compress', 'Original: ' + formatSize(origSize) + ' &rarr; Compressed: ' + formatSize(blob.size) + ' (' + reduction + '% smaller)');
+    }
+
+    async function doProtect() {
+        const pw = document.getElementById('protect-password').value;
+        if (!pw) { alert('Please enter a password.'); return; }
+        const resp = await uploadAndProcess('protect', 'protect', { password: pw });
+        showProgress('protect', 100);
+        await downloadResponse(resp, 'protected.pdf');
+        hideProgress('protect');
+        showResult('protect', 'Your password-protected PDF has been downloaded.');
+    }
+
+    async function doUnlock() {
+        const pw = document.getElementById('unlock-password').value;
+        if (!pw) { alert('Please enter the current password.'); return; }
+        const resp = await uploadAndProcess('unlock', 'unlock', { password: pw });
+        showProgress('unlock', 100);
+        await downloadResponse(resp, 'unlocked.pdf');
+        hideProgress('unlock');
+        showResult('unlock', 'Your unlocked PDF has been downloaded.');
+    }
+
+    async function doRotate() {
+        const angle = document.getElementById('rotate-angle').value;
+        const resp = await uploadAndProcess('rotate', 'rotate', { angle: angle });
+        showProgress('rotate', 100);
+        await downloadResponse(resp, 'rotated.pdf');
+        hideProgress('rotate');
+        showResult('rotate', 'Your rotated PDF has been downloaded.');
+    }
+
+    async function doWatermark() {
+        const text = document.getElementById('watermark-text').value;
+        if (!text) { alert('Please enter watermark text.'); return; }
+        const resp = await uploadAndProcess('watermark', 'watermark', { text: text });
+        showProgress('watermark', 100);
+        await downloadResponse(resp, 'watermarked.pdf');
+        hideProgress('watermark');
+        showResult('watermark', 'Your watermarked PDF has been downloaded.');
+    }
+
+    async function doMetadata() {
+        const resp = await uploadAndProcess('metadata', 'info', {});
+        showProgress('metadata', 100);
+        const data = await resp.json();
+        hideProgress('metadata');
+        let html = '<table style="width:100%;color:#e0e0e0;">';
+        Object.entries(data).forEach(([k, v]) => {
+            html += '<tr><td style="padding:4px 8px;color:#94a3b8;font-weight:600;">' + escHtml(k) + '</td><td style="padding:4px 8px;">' + escHtml(String(v)) + '</td></tr>';
+        });
+        html += '</table>';
+        showResult('metadata', html);
+    }
+
+    // Handle URL hash for direct tool links
+    if (window.location.hash) {
+        const tool = window.location.hash.substring(1);
+        if (['merge','split','compress','protect','unlock','rotate','watermark','metadata'].includes(tool)) {
+            showTool(tool);
+        }
+    }
+    </script>
+</body>
+</html>
