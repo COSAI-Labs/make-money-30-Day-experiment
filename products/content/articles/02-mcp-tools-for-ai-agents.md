@@ -1,11 +1,11 @@
 ---
-title: "139 MCP Tools Your AI Agent Doesn't Know It Needs"
+title: "156 MCP Tools Your AI Agent Doesn't Know It Needs"
 published: false
 tags: ai, mcp, claude, tools
-canonical_url: https://toolpipe.dev
+canonical_url: https://assessing-scoop-authorities-sheet.trycloudflare.com
 ---
 
-If you're using Claude, Cursor, Windsurf, or any MCP-compatible AI assistant, you're leaving capability on the table. Here's how to give your AI agent 139+ developer tools in 30 seconds.
+If you're using Claude, Cursor, Windsurf, or any MCP-compatible AI assistant, you're leaving capability on the table. Here's how to give your AI agent 156+ developer tools in 30 seconds.
 
 ## The Problem
 
@@ -29,13 +29,13 @@ Add this to your Claude Desktop, Claude Code, or Cursor config:
 {
   "mcpServers": {
     "toolpipe": {
-      "url": "https://toolpipe.dev/mcp"
+      "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
     }
   }
 }
 ```
 
-That's it. No npm install, no Docker, no API keys. Your AI agent now has 139+ tools.
+That's it. No npm install, no Docker, no API keys. Your AI agent now has 156+ tools.
 
 ## What Can It Do?
 
@@ -65,13 +65,13 @@ SEO analysis, PDF tools, regex testing, base64 encoding, SQL formatting, TypeScr
 
 ## For AI Agent Developers
 
-Building an AI agent that needs tool access? ToolPipe's MCP server means your agent gets 139+ tools without building them yourself.
+Building an AI agent that needs tool access? ToolPipe's MCP server means your agent gets 156+ tools without building them yourself.
 
 ```python
 # Your agent's MCP config
 mcp_servers = {
     "toolpipe": {
-        "url": "https://toolpipe.dev/mcp"
+        "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
     }
 }
 ```
@@ -83,7 +83,7 @@ mcp_servers = {
 
 Register programmatically:
 ```bash
-curl -X POST https://toolpipe.dev/api-keys/register \
+curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api-keys/register \
   -H "Content-Type: application/json" \
   -d '{"email": "agent@yourcompany.com"}'
 ```
@@ -97,4 +97,4 @@ curl -X POST https://toolpipe.dev/api-keys/register \
 
 Your AI agent just got 139 new superpowers.
 
-[ToolPipe](https://toolpipe.dev) | [GitHub](https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server) | [API Docs](https://toolpipe.dev/docs)
+[ToolPipe](https://assessing-scoop-authorities-sheet.trycloudflare.com) | [GitHub](https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server) | [API Docs](https://assessing-scoop-authorities-sheet.trycloudflare.com/docs)

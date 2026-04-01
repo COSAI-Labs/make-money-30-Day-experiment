@@ -149,7 +149,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 </style></head><body>
 <div class="container">
 <h1>Simple, Transparent Pricing</h1>
-<p class="subtitle">175+ API endpoints. Pay with crypto. No KYC required.</p>
+<p class="subtitle">230+ API endpoints. Pay with crypto. No KYC required.</p>
 
 <div class="plans">
 <div class="plan">
@@ -158,7 +158,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="plan-desc">Perfect for testing and personal projects</div>
 <ul class="plan-features">
 <li>100 API calls per day</li>
-<li>All 175+ endpoints</li>
+<li>All 230+ endpoints</li>
 <li>No credit card needed</li>
 <li>Email support</li>
 <li>Rate limited (100 req/min)</li>
@@ -172,7 +172,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="plan-desc">For developers and small teams shipping products</div>
 <ul class="plan-features">
 <li>10,000 API calls per day</li>
-<li>All 175+ endpoints</li>
+<li>All 230+ endpoints</li>
 <li>Priority rate limits</li>
 <li>Pay with any crypto</li>
 <li>Priority support</li>
@@ -186,7 +186,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="plan-desc">For teams and AI agents needing high throughput</div>
 <ul class="plan-features">
 <li>100,000 API calls per day</li>
-<li>All 175+ endpoints</li>
+<li>All 230+ endpoints</li>
 <li>Unlimited rate limits</li>
 <li>Pay with any crypto</li>
 <li>Dedicated support</li>
@@ -197,7 +197,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 
 <div class="agent-box">
 <h2>Built for AI Agents</h2>
-<p>ToolPipe is an MCP server that any AI agent (Claude, GPT, Gemini) can use directly. Install via npm and your agent gets 97 tools instantly.</p>
+<p>ToolPipe is an MCP server that any AI agent (Claude, GPT, Gemini) can use directly. Install via npm and your agent gets 156+ MCP tools instantly.</p>
 <code>npx @cosai-labs/toolpipe-mcp-server</code>
 <p style="margin-top:16px;font-size:0.9rem;">Agents can self-serve: register API keys, create payment orders, and verify transactions. All via API, zero human needed.</p>
 </div>
@@ -213,7 +213,7 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <div class="step">
 <div class="step-num">2</div>
 <h3>Pay with Crypto</h3>
-<p>Send ETH, USDC, USDT, or any ERC-20 token to our wallet on Ethereum, Polygon, Arbitrum, Base, or Optimism.</p>
+<p>Send ETH, USDC, USDT, SOL, or any token to our wallet on Ethereum, Polygon, Arbitrum, Base, Optimism, or Solana.</p>
 </div>
 <div class="step">
 <div class="step-num">3</div>
@@ -253,7 +253,12 @@ h1{font-size:2.5rem;text-align:center;margin-bottom:8px;color:#fff}
 <button onclick="navigator.clipboard.writeText('0xBCF464909b748d720fd5DDA25ad3d313Dd4b53D6');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',2000)" style="background:#22c55e;color:#000;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600">Copy Address</button>
 </div>
 <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:4px">Amount: <strong style="color:#fff" id="checkout-amount">$9.99</strong> in any supported crypto</p>
-<p style="color:#64748b;font-size:0.85rem;margin-bottom:16px">Networks: Ethereum, Polygon, Arbitrum, Base, Optimism</p>
+<p style="color:#64748b;font-size:0.85rem;margin-bottom:8px">EVM Networks: Ethereum, Polygon, Arbitrum, Base, Optimism</p>
+<div style="background:#111;border:1px solid #8b5cf6;border-radius:8px;padding:12px;margin-bottom:16px">
+<p style="color:#8b5cf6;font-weight:600;font-size:0.85rem;margin-bottom:4px">Solana (SOL, USDC-SPL):</p>
+<code style="color:#8b5cf6;font-size:0.8rem;word-break:break-all;display:block;margin-bottom:6px">2guKDsPScRpCCKuVEGKBPFvodSNtZF4ArYeSC6oy6pf6</code>
+<button onclick="navigator.clipboard.writeText('2guKDsPScRpCCKuVEGKBPFvodSNtZF4ArYeSC6oy6pf6');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy SOL Address',2000)" style="background:#8b5cf6;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem">Copy SOL Address</button>
+</div>
 <p style="color:#64748b;font-size:0.85rem;margin-bottom:16px">Order ID: <code id="checkout-order-id" style="color:#6c63ff"></code></p>
 
 <label style="color:#cbd5e1;display:block;margin-bottom:8px;font-weight:600;margin-top:16px">Paste Transaction Hash</label>
@@ -320,8 +325,10 @@ async function createOrder() {
 
 async function verifyPayment() {
     const txHash = document.getElementById('checkout-txhash').value.trim();
-    if (!txHash || !txHash.startsWith('0x') || txHash.length !== 66) {
-        alert('Enter a valid transaction hash (0x + 64 hex characters).');
+    const isEvm = txHash.startsWith('0x') && txHash.length === 66;
+    const isSolana = !txHash.startsWith('0x') && txHash.length >= 43 && txHash.length <= 88;
+    if (!txHash || (!isEvm && !isSolana)) {
+        alert('Enter a valid transaction hash. EVM: 0x + 64 hex chars. Solana: 43-88 base58 chars.');
         return;
     }
     const btn = document.getElementById('verify-btn');
@@ -4768,7 +4775,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="period">No credit card required</div>
 <ul>
 <li>100 requests/day</li>
-<li>All 175+ endpoints</li>
+<li>All 230+ endpoints</li>
 <li>JSON, PDF, QR, hash, UUID, DNS, and more</li>
 <li>Community support</li>
 <li>Rate limited (100/min)</li>
@@ -4783,7 +4790,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="period">Billed monthly via crypto</div>
 <ul>
 <li>10,000 requests/day</li>
-<li>All 175+ endpoints</li>
+<li>All 230+ endpoints</li>
 <li>Priority support</li>
 <li>No rate limits</li>
 <li>Bulk operations</li>
@@ -4799,7 +4806,7 @@ h1{font-size:2.5rem;color:#fff;text-align:center;margin-bottom:8px}
 <div class="period">For high-volume users & AI agents</div>
 <ul>
 <li>100,000 requests/day</li>
-<li>All 175+ endpoints</li>
+<li>All 230+ endpoints</li>
 <li>Dedicated support</li>
 <li>No rate limits</li>
 <li>Bulk operations</li>
@@ -10846,6 +10853,178 @@ async def a2a_discovery():
             "payment_endpoint": f"{base}/payments/create",
         },
     }
+
+
+@app.get("/.well-known/mcp/server-card.json")
+async def mcp_server_card():
+    """Smithery.ai MCP server card for auto-discovery."""
+    base = _get_tunnel_url()
+    return {
+        "serverInfo": {
+            "name": "ToolPipe",
+            "version": "1.17.0",
+            "description": "230+ developer utility APIs and 156 MCP tools. JSON formatting, QR codes, hashing, code review, DNS lookup, web scraping, and more.",
+        },
+        "authentication": {
+            "required": False,
+            "schemes": [],
+            "notes": "Free tier: 100 calls/day, no auth needed. For higher limits, register at /api-keys/register",
+        },
+        "tools": [
+            {"name": "json_format", "description": "Format, validate, and minify JSON"},
+            {"name": "qr_generate", "description": "Generate QR codes as PNG images"},
+            {"name": "hash_generate", "description": "SHA256, MD5, bcrypt hashing"},
+            {"name": "uuid_generate", "description": "Generate UUID v4 identifiers"},
+            {"name": "base64_encode_decode", "description": "Base64 encoding and decoding"},
+            {"name": "dns_lookup", "description": "DNS record lookup for any domain"},
+            {"name": "code_review", "description": "AI-powered code review and suggestions"},
+            {"name": "code_format", "description": "Format code in 20+ languages"},
+            {"name": "fake_data_generate", "description": "Generate realistic fake data"},
+            {"name": "regex_test", "description": "Test regex patterns with match highlighting"},
+            {"name": "jwt_create", "description": "Create and sign JWT tokens"},
+            {"name": "jwt_decode", "description": "Decode and inspect JWT tokens"},
+            {"name": "dockerfile_generate", "description": "Generate Dockerfiles from project specs"},
+            {"name": "web_extract", "description": "Extract content and metadata from URLs"},
+            {"name": "text_summarize", "description": "Summarize long text content"},
+            {"name": "css_minify", "description": "Minify CSS stylesheets"},
+            {"name": "js_minify", "description": "Minify JavaScript code"},
+            {"name": "markdown_to_html", "description": "Convert Markdown to HTML"},
+            {"name": "ip_lookup", "description": "GeoIP lookup for IP addresses"},
+            {"name": "ssl_check", "description": "Check SSL certificate details"},
+            {"name": "whois_lookup", "description": "WHOIS domain information lookup"},
+            {"name": "password_generate", "description": "Generate secure random passwords"},
+            {"name": "color_convert", "description": "Convert between HEX, RGB, HSL colors"},
+            {"name": "cron_parse", "description": "Parse and explain cron expressions"},
+            {"name": "timestamp_convert", "description": "Convert between timestamp formats"},
+            {"name": "url_shorten", "description": "Create short URLs"},
+            {"name": "pdf_create", "description": "Generate PDFs from HTML content"},
+            {"name": "screenshot_take", "description": "Take website screenshots"},
+            {"name": "commit_message_generate", "description": "Generate git commit messages"},
+            {"name": "prompt_engineer", "description": "Improve AI prompts automatically"},
+        ],
+        "resources": [],
+        "prompts": [],
+        "transport": {
+            "type": "streamable-http",
+            "url": f"{base}/mcp",
+        },
+        "links": {
+            "homepage": base,
+            "documentation": f"{base}/docs",
+            "pricing": f"{base}/pricing",
+            "npm": "https://www.npmjs.com/package/@cosai-labs/toolpipe-mcp-server",
+            "github": "https://github.com/COSAI-Labs/make-money-30day-challenge",
+        },
+    }
+
+
+# --- Embeddable Widgets (growth: each embed = backlink + traffic) ---
+
+WIDGET_TOOLS = {
+    "json": {"title": "JSON Formatter", "endpoint": "/json/format", "placeholder": '{"name":"test","value":42}', "method": "POST", "field": "json"},
+    "base64": {"title": "Base64 Encoder", "endpoint": "/base64", "placeholder": "Hello World", "method": "POST", "field": "text"},
+    "hash": {"title": "Hash Generator", "endpoint": "/hash/generate", "placeholder": "my text to hash", "method": "POST", "field": "text"},
+    "uuid": {"title": "UUID Generator", "endpoint": "/uuid/generate", "method": "GET", "field": None},
+    "qr": {"title": "QR Code Generator", "endpoint": "/qr/generate", "placeholder": "https://example.com", "method": "GET", "field": "text"},
+    "password": {"title": "Password Generator", "endpoint": "/api/password/generate", "method": "GET", "field": None},
+}
+
+
+@app.get("/embed/{tool}", response_class=HTMLResponse)
+async def embed_widget(tool: str, theme: str = "dark"):
+    """Embeddable widget for any ToolPipe tool. Add to your site with an iframe."""
+    if tool not in WIDGET_TOOLS:
+        tools_list = ", ".join(WIDGET_TOOLS.keys())
+        raise HTTPException(status_code=404, detail=f"Widget not found. Available: {tools_list}")
+
+    t = WIDGET_TOOLS[tool]
+    base = _get_tunnel_url()
+    bg = "#1a1a2e" if theme == "dark" else "#ffffff"
+    fg = "#e0e0e0" if theme == "dark" else "#333333"
+    accent = "#6c63ff"
+    input_bg = "#111" if theme == "dark" else "#f5f5f5"
+    border = "#2a2a2a" if theme == "dark" else "#ddd"
+
+    html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{font-family:-apple-system,sans-serif;background:{bg};color:{fg};padding:16px}}
+h3{{font-size:1rem;margin-bottom:8px}}
+textarea,input{{width:100%;padding:10px;background:{input_bg};color:{fg};border:1px solid {border};border-radius:6px;font-family:monospace;font-size:0.85rem;resize:vertical}}
+textarea{{min-height:80px}}
+.btn{{padding:8px 16px;background:{accent};color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;margin:8px 0}}
+.btn:hover{{opacity:0.9}}
+.result{{background:{input_bg};border:1px solid {border};border-radius:6px;padding:10px;margin-top:8px;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;max-height:200px;overflow:auto;display:none}}
+.powered{{text-align:right;font-size:0.7rem;margin-top:8px;opacity:0.6}}
+.powered a{{color:{accent};text-decoration:none}}
+</style></head><body>
+<h3>{t['title']}</h3>"""
+
+    if t.get("field") and t.get("placeholder"):
+        html += f'<textarea id="input" placeholder="{t["placeholder"]}">{t["placeholder"]}</textarea>'
+
+    html += f"""<button class="btn" onclick="run()">Run</button>
+<div class="result" id="result"></div>
+<div class="powered">Powered by <a href="{base}" target="_blank">ToolPipe</a></div>
+<script>
+async function run(){{
+  const el=document.getElementById('result');
+  el.style.display='block';
+  el.textContent='Loading...';
+  try{{"""
+
+    if t["method"] == "GET" and not t.get("field"):
+        html += f"""
+    const r=await fetch('{base}{t["endpoint"]}');
+    const d=await r.json();
+    el.textContent=JSON.stringify(d,null,2);"""
+    elif t["method"] == "GET":
+        html += f"""
+    const v=document.getElementById('input').value;
+    const r=await fetch('{base}{t["endpoint"]}?{t["field"]}='+encodeURIComponent(v));
+    if(r.headers.get('content-type')?.includes('image')){{
+      el.innerHTML='<img src="'+r.url+'" style="max-width:200px">';
+    }}else{{
+      const d=await r.json();
+      el.textContent=JSON.stringify(d,null,2);
+    }}"""
+    else:
+        html += f"""
+    const v=document.getElementById('input').value;
+    const r=await fetch('{base}{t["endpoint"]}',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{"{t["field"]}":v}})}});
+    const d=await r.json();
+    el.textContent=JSON.stringify(d,null,2);"""
+
+    html += """
+  }catch(e){el.textContent='Error: '+e.message}
+}
+</script></body></html>"""
+
+    return HTMLResponse(html)
+
+
+@app.get("/embed", response_class=HTMLResponse)
+async def embed_gallery():
+    """Gallery of embeddable widgets with embed codes."""
+    base = _get_tunnel_url()
+    cards = ""
+    for key, t in WIDGET_TOOLS.items():
+        cards += f"""<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:16px">
+<h3 style="color:#fff;margin-bottom:8px">{t['title']}</h3>
+<p style="color:#94a3b8;font-size:0.9rem;margin-bottom:12px">Embed this tool on your website:</p>
+<code style="background:#111;color:#22c55e;padding:8px 12px;border-radius:6px;font-size:0.8rem;display:block;word-break:break-all">&lt;iframe src="{base}/embed/{key}" width="400" height="300" frameborder="0"&gt;&lt;/iframe&gt;</code>
+<div style="margin-top:12px"><iframe src="/embed/{key}?theme=dark" width="100%" height="250" frameborder="0" style="border-radius:8px"></iframe></div>
+</div>"""
+
+    html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Embeddable Developer Widgets - ToolPipe</title>
+<meta name="description" content="Free embeddable developer tool widgets. JSON formatter, Base64 encoder, hash generator, UUID generator, QR codes. Add to any website with one line of HTML.">
+<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:-apple-system,sans-serif;background:#0a0a0a;color:#e0e0e0;padding:40px 20px}}.container{{max-width:800px;margin:0 auto}}h1{{font-size:2rem;color:#fff;margin-bottom:8px}}p.sub{{color:#94a3b8;margin-bottom:32px}}</style>
+</head><body><div class="container">
+<h1>Embeddable Developer Widgets</h1>
+<p class="sub">Add free developer tools to your website. Each widget is a single iframe, no dependencies.</p>
+{cards}
+</div></body></html>"""
+    return HTMLResponse(inject_snippet(html))
 
 
 # --- SEO Pages (catch-all for static content pages) ---
