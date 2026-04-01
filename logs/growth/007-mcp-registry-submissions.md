@@ -98,6 +98,85 @@ Submitted ToolPipe to 5 MCP server registries/directories. Results: 1 confirmed 
 
 ---
 
+## 8. modelcontextprotocol/servers - Issue Submitted
+
+- **URL:** https://github.com/modelcontextprotocol/servers/issues/3781
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** Created issue despite the repo redirecting to registry. Provides visibility.
+
+---
+
+## 9. TensorBlock/awesome-mcp-servers - Issue Submitted
+
+- **URL:** https://github.com/TensorBlock/awesome-mcp-servers/issues/286
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** 595 stars repo. Issue created for Developer Tools category.
+
+---
+
+## 10. rohitg00/awesome-devops-mcp-servers - Issue Submitted
+
+- **URL:** https://github.com/rohitg00/awesome-devops-mcp-servers/issues/118
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** 969 stars repo focused on DevOps MCP servers.
+
+---
+
+## 11. MobinX/awesome-mcp-list - Issue Submitted
+
+- **URL:** https://github.com/MobinX/awesome-mcp-list/issues/159
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** 879 stars repo.
+
+---
+
+## 12. YuzeHao2023/Awesome-MCP-Servers - Issue Submitted
+
+- **URL:** https://github.com/YuzeHao2023/Awesome-MCP-Servers/issues/134
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** 1036 stars repo.
+
+---
+
+## 13. jaw9c/awesome-remote-mcp-servers - Issue Submitted
+
+- **URL:** https://github.com/jaw9c/awesome-remote-mcp-servers/issues/207
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** 1034 stars repo. Submitted as remote MCP server with Cloudflare tunnel endpoint.
+
+---
+
+## 14. PipedreamHQ/awesome-mcp-servers - Issue Submitted
+
+- **URL:** https://github.com/PipedreamHQ/awesome-mcp-servers/issues/44
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** 260 stars repo.
+
+---
+
+## 15. ever-works/awesome-mcp-servers - Issue Submitted
+
+- **URL:** https://github.com/ever-works/awesome-mcp-servers/issues/65
+- **Status:** SUBMITTED (GitHub Issue)
+
+---
+
+## 16. modelcontextprotocol/registry - Issue Submitted
+
+- **URL:** https://github.com/modelcontextprotocol/registry/issues/1108
+- **Status:** SUBMITTED (GitHub Issue)
+- **Details:** Official MCP Registry. Issue created to register interest pending npm publication.
+
+---
+
+## 17. appcypher/awesome-mcp-servers - PR Attempted
+
+- **Fork:** https://github.com/Aldric-Core/awesome-mcp-servers/tree/add-toolpipe-mcp-server
+- **Status:** BLOCKED (PR creation permission denied)
+- **Details:** Fork exists with changes in branch add-toolpipe-mcp-server. PR creation fails with GraphQL permission error. The repo appears to restrict external PRs.
+
+---
+
 ## Action Items (require browser access)
 
 1. Complete Smithery auth and publish
