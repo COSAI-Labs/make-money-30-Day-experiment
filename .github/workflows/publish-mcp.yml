@@ -4,7 +4,8 @@ on:
   push:
     paths:
       - 'products/mcp-server/server.json'
-      - 'products/mcp-server/package.json'
+    branches:
+      - master
 
 permissions:
   id-token: write
@@ -18,7 +19,7 @@ jobs:
 
       - name: Download MCP Publisher
         run: |
-          curl -sL $(curl -s https://api.github.com/repos/modelcontextprotocol/registry/releases/latest | jq -r '.assets[] | select(.name == "mcp-publisher_linux_amd64.tar.gz") | .browser_download_url') | tar xz
+          curl -L -o mcp-publisher https://github.com/nichochar/mcp-publisher/releases/latest/download/mcp-publisher-linux-amd64
           chmod +x mcp-publisher
 
       - name: Login with GitHub OIDC

@@ -25,7 +25,7 @@ from bs4 import BeautifulSoup
 from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, Query, Request, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from pydantic import BaseModel, HttpUrl
@@ -45,6 +45,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Favicon endpoint
+_STATIC_DIR = Path(__file__).parent / "static"
+_STATIC_DIR.mkdir(exist_ok=True)
+
+@app.get("/favicon.ico")
+async def favicon():
+    ico_path = _STATIC_DIR / "favicon.ico"
+    if ico_path.exists():
+        return FileResponse(str(ico_path), media_type="image/x-icon")
+    return Response(status_code=204)
 
 # x402 crypto payments (USDC on Base Sepolia)
 # Premium endpoints return HTTP 402 with payment instructions
@@ -413,7 +424,10 @@ function tpCapture(e){
 
 
 def inject_snippet(html: str) -> str:
-    """Inject analytics and monetization snippet into HTML pages."""
+    """Inject analytics, favicon, and monetization snippet into HTML pages."""
+    favicon_tag = '<link rel="icon" href="/favicon.ico" type="image/x-icon">'
+    if "<head>" in html and 'rel="icon"' not in html:
+        html = html.replace("<head>", "<head>" + favicon_tag)
     if "</body>" in html:
         return html.replace("</body>", INJECT_SNIPPET + "</body>")
     return html + INJECT_SNIPPET
