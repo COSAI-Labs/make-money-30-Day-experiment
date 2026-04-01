@@ -12,6 +12,8 @@ import time
 import uuid
 import tempfile
 import os
+import sqlite3
+import threading
 from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
@@ -61,6 +63,84 @@ def check_rate_limit(client_ip: str) -> bool:
     return True
 
 
+# --- Analytics DB ---
+ANALYTICS_DB = Path(__file__).parent / "data" / "analytics.db"
+ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
+_analytics_lock = threading.Lock()
+
+
+def _init_analytics():
+    conn = sqlite3.connect(str(ANALYTICS_DB))
+    conn.execute("""CREATE TABLE IF NOT EXISTS pageviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        path TEXT NOT NULL,
+        ip TEXT,
+        user_agent TEXT,
+        referrer TEXT,
+        timestamp TEXT NOT NULL
+    )""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS daily_stats (
+        date TEXT NOT NULL,
+        path TEXT NOT NULL,
+        views INTEGER DEFAULT 0,
+        unique_ips INTEGER DEFAULT 0,
+        PRIMARY KEY (date, path)
+    )""")
+    conn.commit()
+    conn.close()
+
+_init_analytics()
+
+
+def record_pageview(path: str, ip: str, user_agent: str, referrer: str):
+    try:
+        with _analytics_lock:
+            conn = sqlite3.connect(str(ANALYTICS_DB))
+            now = datetime.now(timezone.utc).isoformat()
+            today = now[:10]
+            conn.execute(
+                "INSERT INTO pageviews (path, ip, user_agent, referrer, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (path, ip, user_agent, referrer, now)
+            )
+            conn.execute("""INSERT INTO daily_stats (date, path, views, unique_ips)
+                VALUES (?, ?, 1, 1)
+                ON CONFLICT(date, path) DO UPDATE SET views = views + 1""", (today, path))
+            conn.commit()
+            conn.close()
+    except Exception:
+        pass
+
+
+# Snippet injected before </body> on all HTML pages
+INJECT_SNIPPET = """
+<!-- Analytics & Monetization -->
+<div id="tp-banner" style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#302b63,#24243e);color:#fff;padding:10px 20px;text-align:center;font-family:-apple-system,sans-serif;font-size:14px;z-index:9999;display:flex;align-items:center;justify-content:center;gap:12px;">
+  <span>Love these free tools? Support development:</span>
+  <a href="/pricing" style="background:#6c63ff;color:#fff;padding:6px 16px;border-radius:6px;text-decoration:none;font-weight:600;">Get Pro Access</a>
+  <a href="/donate" style="background:#ff6b6b;color:#fff;padding:6px 16px;border-radius:6px;text-decoration:none;font-weight:600;">Buy us a coffee</a>
+  <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;margin-left:8px;">x</button>
+</div>
+<script>
+// Simple analytics
+fetch('/analytics/track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:location.pathname,ref:document.referrer})}).catch(()=>{});
+</script>
+"""
+
+
+def inject_snippet(html: str) -> str:
+    """Inject analytics and monetization snippet into HTML pages."""
+    if "</body>" in html:
+        return html.replace("</body>", INJECT_SNIPPET + "</body>")
+    return html + INJECT_SNIPPET
+
+
+def serve_html(path: Path, track_path: str = "") -> HTMLResponse:
+    """Serve an HTML file with injected analytics/monetization."""
+    if path.exists():
+        return HTMLResponse(inject_snippet(path.read_text()))
+    return HTMLResponse("<h1>Page not found</h1>", status_code=404)
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     client_ip = request.client.host if request.client else "unknown"
@@ -69,6 +149,14 @@ async def rate_limit_middleware(request: Request, call_next):
             status_code=429,
             content={"error": "Rate limit exceeded. Max 100 requests per minute."},
         )
+
+    # Track pageviews for page requests
+    path = str(request.url.path)
+    if not path.startswith("/analytics") and not path.startswith("/health"):
+        ua = request.headers.get("user-agent", "")
+        ref = request.headers.get("referer", "")
+        record_pageview(path, client_ip, ua, ref)
+
     response = await call_next(request)
     return response
 
@@ -97,22 +185,18 @@ import monitor as uptime_monitor
 @app.get("/", response_class=HTMLResponse)
 async def root():
     if LANDING_HTML.exists():
-        return HTMLResponse(LANDING_HTML.read_text())
+        return HTMLResponse(inject_snippet(LANDING_HTML.read_text()))
     return HTMLResponse("<h1>ToolPipe API</h1><p><a href='/docs'>API Docs</a></p>")
 
 
 @app.get("/tools", response_class=HTMLResponse)
 async def tools_page():
-    if TOOLS_HTML.exists():
-        return HTMLResponse(TOOLS_HTML.read_text())
-    return HTMLResponse("<h1>Tools coming soon</h1>")
+    return serve_html(TOOLS_HTML)
 
 
 @app.get("/invoice", response_class=HTMLResponse)
 async def invoice_page():
-    if INVOICE_HTML.exists():
-        return HTMLResponse(INVOICE_HTML.read_text())
-    return HTMLResponse("<h1>Invoice Generator coming soon</h1>")
+    return serve_html(INVOICE_HTML)
 
 
 @app.get("/api")
@@ -475,7 +559,7 @@ async def base64_convert(req: Base64Request):
 @app.get("/monitor", response_class=HTMLResponse)
 async def monitor_page():
     if MONITOR_HTML.exists():
-        return HTMLResponse(MONITOR_HTML.read_text())
+        return HTMLResponse(inject_snippet(MONITOR_HTML.read_text()))
     return HTMLResponse("<h1>PingPulse coming soon</h1>")
 
 
@@ -561,7 +645,7 @@ SEO_HTML = Path(__file__).parent.parent / "seo-analyzer" / "index.html"
 @app.get("/seo", response_class=HTMLResponse)
 async def seo_page():
     if SEO_HTML.exists():
-        return HTMLResponse(SEO_HTML.read_text())
+        return HTMLResponse(inject_snippet(SEO_HTML.read_text()))
     return HTMLResponse("<h1>SEO Analyzer coming soon</h1>")
 
 
@@ -817,7 +901,7 @@ PDF_MAX_SIZE = 50 * 1024 * 1024  # 50MB
 @app.get("/pdf", response_class=HTMLResponse)
 async def pdf_tools_page():
     if PDF_HTML.exists():
-        return HTMLResponse(PDF_HTML.read_text())
+        return HTMLResponse(inject_snippet(PDF_HTML.read_text()))
     return HTMLResponse("<h1>PDF Tools coming soon</h1>")
 
 
@@ -1091,7 +1175,7 @@ def _clean_expired_bins():
 @app.get("/webhooks", response_class=HTMLResponse)
 async def webhooks_page():
     if WEBHOOK_HTML.exists():
-        return HTMLResponse(WEBHOOK_HTML.read_text())
+        return HTMLResponse(inject_snippet(WEBHOOK_HTML.read_text()))
     return HTMLResponse("<h1>WebhookBin coming soon</h1>")
 
 
@@ -1165,7 +1249,7 @@ async def webhook_capture(bin_id: str, request: Request):
 @app.get("/short", response_class=HTMLResponse)
 async def shortener_page():
     if SHORTENER_HTML.exists():
-        return HTMLResponse(SHORTENER_HTML.read_text())
+        return HTMLResponse(inject_snippet(SHORTENER_HTML.read_text()))
     return HTMLResponse("<h1>URL Shortener coming soon</h1>")
 
 
@@ -1240,7 +1324,7 @@ def _clean_expired_pastes():
 @app.get("/paste", response_class=HTMLResponse)
 async def paste_page():
     if PASTE_HTML.exists():
-        return HTMLResponse(PASTE_HTML.read_text())
+        return HTMLResponse(inject_snippet(PASTE_HTML.read_text()))
     return HTMLResponse("<h1>PasteBin coming soon</h1>")
 
 
@@ -1288,7 +1372,7 @@ async def get_paste_raw(paste_id: str):
 @app.get("/paste/{paste_id}", response_class=HTMLResponse)
 async def view_paste(paste_id: str):
     if PASTE_HTML.exists():
-        return HTMLResponse(PASTE_HTML.read_text())
+        return HTMLResponse(inject_snippet(PASTE_HTML.read_text()))
     raise HTTPException(status_code=404, detail="Paste not found.")
 
 
@@ -1297,7 +1381,7 @@ async def view_paste(paste_id: str):
 @app.get("/down", response_class=HTMLResponse)
 async def down_page():
     if DOWN_HTML.exists():
-        return HTMLResponse(DOWN_HTML.read_text())
+        return HTMLResponse(inject_snippet(DOWN_HTML.read_text()))
     return HTMLResponse("<h1>Down Checker coming soon</h1>")
 
 
@@ -1458,6 +1542,104 @@ async def join_waitlist(req: WaitlistRequest):
     return {"joined": True, "position": len(waitlist_emails)}
 
 
+# --- Analytics Endpoints ---
+
+class TrackRequest(BaseModel):
+    path: str
+    ref: str = ""
+
+@app.post("/analytics/track")
+async def track_pageview(req: TrackRequest, request: Request):
+    ip = request.client.host if request.client else "unknown"
+    ua = request.headers.get("user-agent", "")
+    record_pageview(req.path, ip, ua, req.ref)
+    return {"ok": True}
+
+
+@app.get("/analytics/dashboard", response_class=HTMLResponse)
+async def analytics_dashboard(request: Request):
+    # Simple admin check (only accessible from localhost or with secret)
+    secret = request.query_params.get("key", "")
+    if secret != "tp-admin-2026" and request.client and request.client.host not in ("127.0.0.1", "::1"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    conn = sqlite3.connect(str(ANALYTICS_DB))
+    # Today's stats
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    rows = conn.execute(
+        "SELECT path, views FROM daily_stats WHERE date = ? ORDER BY views DESC LIMIT 20", (today,)
+    ).fetchall()
+    # Total all-time
+    total = conn.execute("SELECT COUNT(*) FROM pageviews").fetchone()[0]
+    unique = conn.execute("SELECT COUNT(DISTINCT ip) FROM pageviews").fetchone()[0]
+    # Last 7 days
+    daily = conn.execute(
+        "SELECT date, SUM(views) FROM daily_stats GROUP BY date ORDER BY date DESC LIMIT 7"
+    ).fetchall()
+    conn.close()
+
+    page_rows = "".join(f"<tr><td>{r[0]}</td><td>{r[1]}</td></tr>" for r in rows)
+    daily_rows = "".join(f"<tr><td>{d[0]}</td><td>{d[1]}</td></tr>" for d in daily)
+
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><title>ToolPipe Analytics</title>
+<style>body{{font-family:system-ui;max-width:800px;margin:40px auto;padding:0 20px}}
+table{{width:100%;border-collapse:collapse}}th,td{{border:1px solid #ddd;padding:8px;text-align:left}}
+th{{background:#f5f5f5}}h1{{color:#302b63}}.stat{{display:inline-block;background:#f0f0ff;padding:16px 24px;border-radius:8px;margin:8px}}</style>
+</head><body>
+<h1>ToolPipe Analytics Dashboard</h1>
+<div><div class="stat"><strong>Total Views:</strong> {total}</div>
+<div class="stat"><strong>Unique Visitors:</strong> {unique}</div></div>
+<h2>Today ({today})</h2>
+<table><tr><th>Page</th><th>Views</th></tr>{page_rows or '<tr><td colspan="2">No data yet</td></tr>'}</table>
+<h2>Last 7 Days</h2>
+<table><tr><th>Date</th><th>Views</th></tr>{daily_rows or '<tr><td colspan="2">No data yet</td></tr>'}</table>
+</body></html>""")
+
+
+# --- Donate Page ---
+
+@app.get("/donate", response_class=HTMLResponse)
+async def donate_page():
+    return HTMLResponse("""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Support ToolPipe - Buy Us a Coffee</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f9fa;color:#1a1a2e}
+.container{max-width:600px;margin:80px auto;padding:0 20px;text-align:center}
+h1{font-size:2.5rem;margin-bottom:16px;color:#302b63}
+p{font-size:1.1rem;color:#555;margin-bottom:32px;line-height:1.6}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.option{background:white;border:2px solid #eee;border-radius:12px;padding:24px 16px;cursor:pointer;transition:all 0.2s}
+.option:hover{border-color:#6c63ff;transform:translateY(-2px)}
+.option.selected{border-color:#6c63ff;background:#f0f0ff}
+.option .amount{font-size:1.5rem;font-weight:700;color:#302b63}
+.option .label{font-size:0.85rem;color:#888;margin-top:4px}
+.cta{display:inline-block;padding:16px 48px;background:#6c63ff;color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:1.1rem;margin-top:16px;border:none;cursor:pointer;transition:transform 0.2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,99,255,0.4)}
+.note{margin-top:24px;color:#888;font-size:0.9rem}
+.back{display:inline-block;margin-top:24px;color:#6c63ff;text-decoration:none}
+</style></head><body>
+<div class="container">
+<h1>Support ToolPipe</h1>
+<p>We provide 55+ free developer APIs and tools. If you find them useful, consider supporting us so we can keep building.</p>
+<div class="options">
+<div class="option" onclick="selectAmount(5)"><div class="amount">$5</div><div class="label">A coffee</div></div>
+<div class="option selected" onclick="selectAmount(15)"><div class="amount">$15</div><div class="label">A lunch</div></div>
+<div class="option" onclick="selectAmount(50)"><div class="amount">$50</div><div class="label">A champion</div></div>
+</div>
+<p style="font-size:0.95rem;color:#666;">Payment processing is being set up. Join the waitlist to be notified when donations are live, or email us to arrange payment.</p>
+<a href="/pricing" class="cta">Get Pro Access Instead</a>
+<br><a href="mailto:toolpipe-project@sharebot.net" class="back">Contact us: toolpipe-project@sharebot.net</a>
+<br><a href="/" class="back">Back to ToolPipe</a>
+</div>
+<script>
+function selectAmount(n){document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));event.currentTarget.classList.add('selected')}
+</script>
+</body></html>""")
+
+
 # --- SEO Pages (catch-all for static content pages) ---
 
 @app.get("/{page_name}", response_class=HTMLResponse)
@@ -1465,7 +1647,7 @@ async def seo_page_handler(page_name: str):
     # Only serve known SEO pages to avoid catching API routes
     page_file = SEO_PAGES_DIR / f"{page_name}.html"
     if page_file.exists():
-        return HTMLResponse(page_file.read_text())
+        return HTMLResponse(inject_snippet(page_file.read_text()))
     raise HTTPException(status_code=404, detail="Page not found")
 
 
