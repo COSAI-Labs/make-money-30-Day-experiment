@@ -36,7 +36,7 @@ from reportlab.lib.pagesizes import letter
 app = FastAPI(
     title="ToolPipe API",
     description="130+ developer utility APIs. JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT create/decode, SQL formatting, XML/YAML conversion, text stats, HTML stripping, number formatting, .env parsing, HTTP status codes, IP geolocation, password checking, code analysis, web scraping, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Pay with crypto, no KYC.",
-    version="1.7.0",
+    version="1.8.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -672,7 +672,8 @@ function tpCapture(e){
 <a href="/sql-formatter" style="color:#94a3b8;text-decoration:none;margin:0 8px;">SQL Formatter</a>
 <a href="/api-keys" style="color:#6c63ff;text-decoration:none;margin:0 8px;">Free API Key</a>
 <a href="/pricing" style="color:#6c63ff;text-decoration:none;margin:0 8px;">Pro Plans</a>
-<br><span style="color:#475569;">50+ free developer tools by ToolPipe. No signup, no tracking. <a href="/donate" style="color:#6c63ff;text-decoration:none;">Support us</a></span>
+<a href="/quickstart" style="color:#6c63ff;text-decoration:none;margin:0 8px;">Quick Start</a>
+<br><span style="color:#475569;">130+ free developer tools by ToolPipe. No signup, no tracking. <a href="/donate" style="color:#6c63ff;text-decoration:none;">Support us</a></span>
 </div></div>
 """
 
@@ -701,6 +702,7 @@ FREE_PATHS = {
     "/payments/create", "/payments/webhook", "/payments/success", "/payments/verify-tx",
     "/payments/verify", "/payments/pending", "/payments/status",
     "/api-keys/register", "/apis.json", "/sitemap.xml", "/robots.txt",
+    "/.well-known/mcp.json", "/.well-known/ai-plugin.json", "/quickstart",
 }
 # API paths that are always free (no key needed, but rate limited by IP)
 FREE_API_PATHS = {
@@ -1672,7 +1674,7 @@ async def sitemap(request: Request):
 
     urls = [
         "/", "/tools", "/seo", "/invoice", "/monitor", "/pdf", "/webhooks", "/short", "/paste", "/down", "/pricing", "/docs",
-        "/donate", "/api-keys", "/api-consulting", "/polymarket",
+        "/donate", "/api-keys", "/api-consulting", "/polymarket", "/quickstart", "/mcp-server", "/free-developer-api",
     ] + seo_pages
     urls = list(dict.fromkeys(urls))  # deduplicate while preserving order
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -3754,6 +3756,43 @@ STABLECOIN_CONTRACTS = {
 }
 
 
+# ETH price oracle with 5-minute cache
+_eth_price_cache = {"price": None, "timestamp": 0}
+
+
+async def get_eth_price_usd() -> float:
+    """Fetch current ETH price in USD from CoinGecko. Cached for 5 minutes."""
+    now = time.time()
+    if _eth_price_cache["price"] is not None and (now - _eth_price_cache["timestamp"]) < 300:
+        return _eth_price_cache["price"]
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                "https://api.coingecko.com/api/v3/simple/price",
+                params={"ids": "ethereum", "vs_currencies": "usd"},
+            )
+            data = resp.json()
+            price = float(data["ethereum"]["usd"])
+            _eth_price_cache["price"] = price
+            _eth_price_cache["timestamp"] = now
+            return price
+    except Exception:
+        # Fallback: try backup API
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.get("https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD")
+                data = resp.json()
+                price = float(data["USD"])
+                _eth_price_cache["price"] = price
+                _eth_price_cache["timestamp"] = now
+                return price
+        except Exception:
+            pass
+    # Return cached value even if stale, or 0 if never fetched
+    return _eth_price_cache["price"] or 0.0
+
+
 async def verify_tx_onchain(tx_hash: str) -> dict:
     """Verify a transaction on-chain across multiple networks. Returns tx details if found."""
     our_wallet = WALLET_ADDRESS.lower()
@@ -3881,18 +3920,32 @@ async def self_verify_payment(req: SelfVerifyRequest):
         }
 
     # Check amount (allow 10% underpayment tolerance for price fluctuations)
-    tx_value = chain_result.get("value_native", 0) or chain_result.get("amount", 0)
-    # For native ETH we'd need a price oracle; for stablecoins we can check directly
     is_stablecoin = chain_result.get("type") == "token_transfer"
+    is_native = chain_result.get("type") == "native_transfer"
 
-    if is_stablecoin and tx_value < amount * 0.9:
-        return {
+    if is_stablecoin:
+        tx_value_usd = chain_result.get("amount", 0)
+    elif is_native:
+        eth_amount = chain_result.get("value_native", 0)
+        eth_price = await get_eth_price_usd()
+        tx_value_usd = eth_amount * eth_price if eth_price > 0 else 0
+        chain_result["eth_price_usd"] = eth_price
+        chain_result["value_usd"] = round(tx_value_usd, 2)
+    else:
+        tx_value_usd = 0
+
+    if tx_value_usd < amount * 0.9:
+        underpaid_resp = {
             "status": "underpaid",
             "order_id": req.order_id,
-            "expected": amount,
-            "received": tx_value,
-            "message": f"Payment amount ${tx_value:.2f} is below the required ${amount:.2f}. Please send the remaining amount.",
+            "expected_usd": amount,
+            "received_usd": round(tx_value_usd, 2),
+            "message": f"Payment amount ${tx_value_usd:.2f} is below the required ${amount:.2f}. Please send the remaining amount.",
         }
+        if is_native:
+            underpaid_resp["eth_price_used"] = chain_result.get("eth_price_usd", 0)
+            underpaid_resp["eth_received"] = chain_result.get("value_native", 0)
+        return underpaid_resp
 
     # Payment verified, upgrade the user
     now = datetime.now(timezone.utc).isoformat()
@@ -4444,12 +4497,14 @@ async def mcp_info():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe MCP Server",
-        "version": "1.3.0",
+        "version": "1.7.0",
         "protocol": "MCP (Model Context Protocol)",
         "transport": "Streamable HTTP",
-        "tools": 51,
+        "tools": 88,
+        "total_api_endpoints": 130,
         "endpoint": "/mcp",
         "remote_url": f"{base}/mcp",
+        "quickstart": f"{base}/quickstart",
         "setup": {
             "claude_desktop": {
                 "mcpServers": {
@@ -4458,9 +4513,55 @@ async def mcp_info():
                     }
                 }
             },
-            "local_npx": "npx toolpipe-mcp-server",
+            "cursor": {
+                "mcpServers": {
+                    "toolpipe": {
+                        "url": f"{base}/mcp"
+                    }
+                }
+            },
+            "local_npx": "npx @cosai-labs/toolpipe-mcp-server",
             "npm_package": "@cosai-labs/toolpipe-mcp-server"
-        }
+        },
+        "pricing": {
+            "free": {"daily_limit": 100, "signup": "email only"},
+            "pro": {"price": "$9.99/mo", "daily_limit": 10000, "payment": "crypto"},
+            "enterprise": {"price": "$49.99/mo", "daily_limit": 100000, "payment": "crypto"},
+        },
+    }
+
+
+@app.get("/.well-known/mcp.json")
+async def well_known_mcp():
+    """MCP server discovery endpoint (well-known URI)."""
+    base = _get_tunnel_url()
+    return {
+        "mcp_version": "2025-03-26",
+        "name": "ToolPipe",
+        "description": "88 developer tools via MCP: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more",
+        "url": f"{base}/mcp",
+        "transport": "streamable-http",
+        "tools_count": 88,
+        "pricing": {"free_tier": True, "free_daily_limit": 100},
+        "documentation": f"{base}/quickstart",
+    }
+
+
+@app.get("/.well-known/ai-plugin.json")
+async def ai_plugin_manifest():
+    """OpenAI plugin manifest for discoverability."""
+    base = _get_tunnel_url()
+    return {
+        "schema_version": "v1",
+        "name_for_human": "ToolPipe",
+        "name_for_model": "toolpipe",
+        "description_for_human": "130+ developer utility APIs: JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF, and more.",
+        "description_for_model": "ToolPipe provides 130+ developer utility APIs. Use it for JSON formatting, QR code generation, hashing, UUID generation, DNS lookups, regex testing, JWT encoding/decoding, SQL formatting, XML/YAML conversion, PDF operations, web scraping, code analysis, and more. All tools are available via REST API.",
+        "auth": {"type": "none"},
+        "api": {"type": "openapi", "url": f"{base}/openapi.json"},
+        "logo_url": f"{base}/favicon.ico",
+        "contact_email": "toolpipe-ads@sharebot.net",
+        "legal_info_url": f"{base}/quickstart",
     }
 
 
@@ -4470,9 +4571,9 @@ async def api_info():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe API",
-        "version": "1.2.0",
+        "version": "1.7.0",
         "base_url": base,
-        "total_endpoints": 92,
+        "total_endpoints": 130,
         "mcp_server": f"{base}/mcp",
         "docs": f"{base}/docs",
         "pricing": f"{base}/pricing",

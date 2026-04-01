@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Free Developer API - 130+ Endpoints, No Signup Required | ToolPipe</title>
+<meta name="description" content="Free developer API with 130+ endpoints. JSON formatter, QR code generator, hash, UUID, DNS lookup, regex tester, JWT decoder, SQL formatter, and more. No signup for basic use.">
+<meta name="keywords" content="free developer api, free json api, free qr code api, developer tools api, rest api tools, free api no signup">
+<meta property="og:title" content="Free Developer API - 130+ Endpoints | ToolPipe">
+<meta property="og:description" content="130+ free developer API endpoints. JSON, QR, hash, UUID, DNS, JWT, SQL, XML, YAML, and more. No signup required.">
+<link rel="canonical" href="https://toolpipe.dev/free-developer-api">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+h1{font-size:2.2rem;margin-bottom:8px;background:linear-gradient(135deg,#6c63ff,#00d2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#94a3b8;font-size:1.1rem;margin-bottom:32px}
+h2{color:#6c63ff;font-size:1.3rem;margin:28px 0 12px;padding-top:12px;border-top:1px solid #1e1e2e}
+pre{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px;overflow-x:auto;font-size:0.82rem;line-height:1.5;margin:10px 0}
+code{font-family:'SF Mono','Fira Code',monospace;color:#a5d6ff}
+.inline-code{background:#1a1a2e;padding:2px 6px;border-radius:4px;font-size:0.82rem}
+a{color:#6c63ff;text-decoration:none}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.82rem}
+th{background:#1a1a2e;text-align:left;padding:8px 10px;color:#6c63ff}
+td{padding:8px 10px;border-bottom:1px solid #1e1e2e}
+.cta{background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;display:inline-block;padding:10px 24px;border-radius:8px;font-weight:600;margin:6px 4px}
+.badge{display:inline-block;background:#0a2e1a;color:#22c55e;padding:3px 8px;border-radius:4px;font-size:0.7rem;font-weight:600}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Free Developer API</h1>
+<p class="subtitle">130+ REST API endpoints for developers and AI agents. No signup required for basic use. All responses in JSON.</p>
+
+<p>Base URL: <span class="inline-code">https://toolpipe.dev</span></p>
+
+<h2>JSON and Data</h2>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th><th>Example</th></tr>
+<tr><td><code>/json/format</code></td><td>POST</td><td>Format and validate JSON</td><td><code>{"json": "{\"a\":1}"}</code></td></tr>
+<tr><td><code>/api/convert/json-to-yaml</code></td><td>POST</td><td>JSON to YAML</td><td><code>{"json": "{\"a\":1}"}</code></td></tr>
+<tr><td><code>/json/to-csv</code></td><td>POST</td><td>JSON array to CSV</td><td><code>{"json": "[{\"a\":1}]"}</code></td></tr>
+<tr><td><code>/api/json/validate-schema</code></td><td>POST</td><td>Validate against JSON Schema</td><td>json + schema</td></tr>
+<tr><td><code>/api/json/query</code></td><td>POST</td><td>Query JSON with dot-paths</td><td>json_data + path</td></tr>
+<tr><td><code>/api/csv/to-json</code></td><td>POST</td><td>CSV to JSON</td><td><code>{"csv": "a,b\n1,2"}</code></td></tr>
+<tr><td><code>/api/xml/to-json</code></td><td>POST</td><td>XML to JSON</td><td><code>{"xml": "<root>...</root>"}</code></td></tr>
+<tr><td><code>/api/yaml/validate</code></td><td>POST</td><td>Validate YAML</td><td><code>{"yaml": "key: val"}</code></td></tr>
+<tr><td><code>/api/env/parse</code></td><td>POST</td><td>.env to JSON</td><td><code>{"content": "KEY=val"}</code></td></tr>
+</table>
+
+<h2>Text Processing</h2>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td><code>/text/analyze</code></td><td>POST</td><td>Word count, reading time, sentences</td></tr>
+<tr><td><code>/api/text/stats</code></td><td>POST</td><td>Readability scores, text statistics</td></tr>
+<tr><td><code>/api/text/summarize</code></td><td>POST</td><td>Extractive text summarization</td></tr>
+<tr><td><code>/api/text/detect-language</code></td><td>POST</td><td>Language detection</td></tr>
+<tr><td><code>/api/text/diff</code></td><td>POST</td><td>Compare two texts (unified diff)</td></tr>
+<tr><td><code>/api/text/slugify</code></td><td>POST</td><td>Text to URL slug</td></tr>
+<tr><td><code>/api/regex/test</code></td><td>POST</td><td>Test regex with match details</td></tr>
+<tr><td><code>/api/lorem-ipsum</code></td><td>POST</td><td>Generate placeholder text</td></tr>
+<tr><td><code>/api/html/strip</code></td><td>POST</td><td>Strip HTML tags to plain text</td></tr>
+<tr><td><code>/api/sql/format</code></td><td>POST</td><td>Format SQL queries</td></tr>
+</table>
+
+<h2>Encoding, Hashing, and Security</h2>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td><code>/hash/generate</code></td><td>POST</td><td>Hash text (MD5, SHA-1, SHA-256, SHA-512)</td></tr>
+<tr><td><code>/base64</code></td><td>POST</td><td>Base64 encode/decode</td></tr>
+<tr><td><code>/api/url/encode-decode</code></td><td>POST</td><td>URL encode/decode</td></tr>
+<tr><td><code>/api/html/encode-decode</code></td><td>POST</td><td>HTML entity encode/decode</td></tr>
+<tr><td><code>/api/jwt/decode</code></td><td>POST</td><td>Decode JWT tokens</td></tr>
+<tr><td><code>/api/jwt/create</code></td><td>POST</td><td>Create JWT tokens (testing)</td></tr>
+<tr><td><code>/uuid/generate</code></td><td>GET</td><td>Generate UUIDs (v4)</td></tr>
+<tr><td><code>/api/password/generate</code></td><td>POST</td><td>Generate secure passwords</td></tr>
+<tr><td><code>/api/password/check</code></td><td>POST</td><td>Check password strength</td></tr>
+</table>
+
+<h2>Web and Network</h2>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td><code>/dns/lookup</code></td><td>GET</td><td>DNS records (A, AAAA, MX, NS, TXT)</td></tr>
+<tr><td><code>/ip/lookup</code></td><td>GET</td><td>IP geolocation</td></tr>
+<tr><td><code>/api/myip</code></td><td>GET</td><td>Get your IP address</td></tr>
+<tr><td><code>/meta/extract</code></td><td>GET</td><td>Extract URL metadata (OG tags)</td></tr>
+<tr><td><code>/down/check</code></td><td>GET</td><td>Check if website is up/down</td></tr>
+<tr><td><code>/seo/analyze</code></td><td>GET</td><td>SEO analysis</td></tr>
+<tr><td><code>/api/http/request</code></td><td>POST</td><td>HTTP requests (curl via API)</td></tr>
+<tr><td><code>/api/web/extract</code></td><td>POST</td><td>Extract web page content</td></tr>
+<tr><td><code>/api/headers/analyze</code></td><td>GET</td><td>Analyze HTTP response headers</td></tr>
+<tr><td><code>/api/http-status/{code}</code></td><td>GET</td><td>HTTP status code info</td></tr>
+</table>
+
+<h2>Media and Visual</h2>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td><code>/qr/generate</code></td><td>GET</td><td>Generate QR code images</td></tr>
+<tr><td><code>/color/convert</code></td><td>GET</td><td>Convert HEX/RGB/HSL colors</td></tr>
+<tr><td><code>/api/color/palette</code></td><td>GET</td><td>Generate color palettes</td></tr>
+</table>
+
+<h2>Utilities</h2>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td><code>/api/timestamp/convert</code></td><td>POST</td><td>Convert timestamps</td></tr>
+<tr><td><code>/api/timestamp/now</code></td><td>GET</td><td>Current timestamp in all formats</td></tr>
+<tr><td><code>/api/cron/parse</code></td><td>GET</td><td>Parse cron to plain English</td></tr>
+<tr><td><code>/api/crypto/prices</code></td><td>GET</td><td>Live crypto prices</td></tr>
+<tr><td><code>/api/random/quote</code></td><td>GET</td><td>Random quotes</td></tr>
+<tr><td><code>/api/number/format</code></td><td>POST</td><td>Format numbers</td></tr>
+<tr><td><code>/api/convert/units</code></td><td>GET</td><td>Unit conversion</td></tr>
+<tr><td><code>/markdown/to-html</code></td><td>POST</td><td>Markdown to HTML</td></tr>
+<tr><td><code>/api/css/minify</code></td><td>POST</td><td>Minify CSS</td></tr>
+<tr><td><code>/api/js/minify</code></td><td>POST</td><td>Minify JavaScript</td></tr>
+</table>
+
+<h2>Quick Examples</h2>
+<pre><code># Format JSON
+curl -X POST https://toolpipe.dev/json/format \
+  -H "Content-Type: application/json" \
+  -d '{"json": "{\"name\":\"ToolPipe\",\"version\":\"1.8.0\"}"}'
+
+# Generate QR code
+curl "https://toolpipe.dev/qr/generate?text=https://toolpipe.dev&size=300" -o qr.png
+
+# DNS lookup
+curl "https://toolpipe.dev/dns/lookup?domain=google.com"
+
+# Hash text
+curl -X POST https://toolpipe.dev/hash/generate \
+  -H "Content-Type: application/json" -d '{"text":"hello","algorithm":"sha256"}'
+
+# Live crypto prices
+curl "https://toolpipe.dev/api/crypto/prices"</code></pre>
+
+<h2>Authentication</h2>
+<p>Basic endpoints work without auth. For higher limits, get a free API key:</p>
+<pre><code>curl -X POST https://toolpipe.dev/api-keys/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com"}'
+
+# Use via header
+curl -H "X-API-Key: tp_your_key" https://toolpipe.dev/api/crypto/prices</code></pre>
+
+<div style="text-align:center;margin:40px 0 20px">
+<a href="/api-keys" class="cta">Get Free API Key</a>
+<a href="/docs" class="cta" style="background:transparent;border:2px solid #6c63ff;color:#6c63ff">Interactive Docs</a>
+<a href="/quickstart" class="cta" style="background:transparent;border:2px solid #6c63ff;color:#6c63ff">Quick Start</a>
+</div>
+
+</div>
+</body>
+</html>

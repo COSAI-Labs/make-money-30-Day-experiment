@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ToolPipe MCP Server - 88 Developer Tools for AI Agents</title>
+<meta name="description" content="Free MCP server with 88 developer tools for Claude, Cursor, and any AI agent. JSON, QR, hash, UUID, DNS, regex, JWT, SQL, XML, YAML, PDF tools via Model Context Protocol.">
+<meta name="keywords" content="mcp server, model context protocol, ai tools, claude tools, cursor mcp, developer tools mcp">
+<meta property="og:title" content="ToolPipe MCP Server - 88 Developer Tools for AI Agents">
+<meta property="og:description" content="Connect 88 developer tools to any MCP-compatible AI agent. Zero install with remote mode.">
+<link rel="canonical" href="https://toolpipe.dev/mcp-server">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+h1{font-size:2.2rem;margin-bottom:8px;background:linear-gradient(135deg,#6c63ff,#00d2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#94a3b8;font-size:1.1rem;margin-bottom:32px}
+h2{color:#6c63ff;font-size:1.4rem;margin:32px 0 16px;padding-top:16px;border-top:1px solid #1e1e2e}
+pre{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:16px;overflow-x:auto;font-size:0.85rem;line-height:1.6;margin:12px 0}
+code{font-family:'SF Mono','Fira Code',monospace;color:#a5d6ff}
+.step{background:#111;border:1px solid #1e1e2e;border-radius:12px;padding:24px;margin:16px 0}
+.badge{display:inline-block;background:#0a2e1a;color:#22c55e;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;margin-right:6px}
+a{color:#6c63ff;text-decoration:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:16px 0}
+.card{background:#111;border:1px solid #1e1e2e;border-radius:8px;padding:14px}
+.card h4{color:#e0e0e0;margin-bottom:4px;font-size:0.9rem}
+.card p{color:#94a3b8;font-size:0.8rem}
+.cta{background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;display:inline-block;padding:12px 28px;border-radius:8px;font-weight:600;margin:8px 4px}
+.cta:hover{text-decoration:none;opacity:0.9}
+.stat{text-align:center;padding:16px}
+.stat-num{font-size:2rem;font-weight:700;color:#6c63ff}
+.stat-label{color:#94a3b8;font-size:0.85rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>ToolPipe MCP Server</h1>
+<p class="subtitle">88 developer tools for AI agents via Model Context Protocol. Works with Claude, Cursor, Windsurf, and more.</p>
+
+<div class="grid" style="grid-template-columns:repeat(4,1fr)">
+<div class="stat"><div class="stat-num">88</div><div class="stat-label">MCP Tools</div></div>
+<div class="stat"><div class="stat-num">130+</div><div class="stat-label">API Endpoints</div></div>
+<div class="stat"><div class="stat-num">0</div><div class="stat-label">Setup Required</div></div>
+<div class="stat"><div class="stat-num">100</div><div class="stat-label">Free Calls/Day</div></div>
+</div>
+
+<h2>Connect in 10 Seconds</h2>
+<div class="step">
+<p><strong>Claude Desktop / Claude Code</strong> <span class="badge">Recommended</span></p>
+<pre><code>{
+  "mcpServers": {
+    "toolpipe": {
+      "url": "https://toolpipe.dev/mcp"
+    }
+  }
+}</code></pre>
+<p style="color:#94a3b8;font-size:0.85rem;margin-top:8px">Add to your claude_desktop_config.json. All 88 tools appear instantly.</p>
+</div>
+
+<div class="step">
+<p><strong>Cursor / VS Code / Windsurf</strong></p>
+<pre><code>{
+  "servers": {
+    "toolpipe": {
+      "url": "https://toolpipe.dev/mcp"
+    }
+  }
+}</code></pre>
+</div>
+
+<div class="step">
+<p><strong>Local via npx</strong></p>
+<pre><code>{
+  "mcpServers": {
+    "toolpipe": {
+      "command": "npx",
+      "args": ["-y", "@cosai-labs/toolpipe-mcp-server"]
+    }
+  }
+}</code></pre>
+</div>
+
+<h2>What's Included</h2>
+<div class="grid">
+<div class="card"><h4>JSON/Data</h4><p>Format, validate, convert (YAML, CSV, XML), query, diff, schema generation</p></div>
+<div class="card"><h4>Text</h4><p>Analyze, summarize, diff, similarity, slugify, regex test, lorem ipsum</p></div>
+<div class="card"><h4>Encoding</h4><p>Hash (MD5-SHA512), Base64, URL encode, HTML entities, JWT decode/create</p></div>
+<div class="card"><h4>Web/Network</h4><p>DNS lookup, IP geo, email validate, SEO analyze, HTTP request, web scrape</p></div>
+<div class="card"><h4>Code/DevOps</h4><p>Code analyze, schema generate, Dockerfile, .gitignore, OpenAPI specs</p></div>
+<div class="card"><h4>Media</h4><p>QR codes, color convert, color palettes, image to base64</p></div>
+<div class="card"><h4>SQL/Format</h4><p>SQL formatter, CSS/JS minify, markdown to HTML, YAML validate</p></div>
+<div class="card"><h4>Utilities</h4><p>Timestamps, cron parse, crypto prices, passwords, fake data, templates</p></div>
+</div>
+
+<h2>For AI Agent Developers</h2>
+<p>ToolPipe is designed for agent-to-agent commerce. Your AI agents can:</p>
+<ul style="margin:12px 0;padding-left:20px;color:#94a3b8">
+<li>Discover tools via MCP or <code>/.well-known/mcp.json</code></li>
+<li>Register API keys programmatically: <code>POST /api-keys/register</code></li>
+<li>Pay for upgrades with crypto: <code>POST /payments/create</code></li>
+<li>Verify payments on-chain: <code>POST /payments/verify-tx</code></li>
+<li>No human interaction required at any step</li>
+</ul>
+
+<div style="text-align:center;margin:40px 0 20px">
+<a href="/quickstart" class="cta">Quick Start Guide</a>
+<a href="/docs" class="cta" style="background:transparent;border:2px solid #6c63ff;color:#6c63ff">API Docs</a>
+</div>
+
+<h2>Links</h2>
+<ul style="list-style:none;padding:0">
+<li style="margin:6px 0"><a href="/quickstart">Quick Start Guide</a></li>
+<li style="margin:6px 0"><a href="/docs">Interactive API Documentation</a></li>
+<li style="margin:6px 0"><a href="/pricing">Pricing</a></li>
+<li style="margin:6px 0"><a href="https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server">GitHub Source</a></li>
+<li style="margin:6px 0"><a href="/mcp-info">MCP Server Info (JSON)</a></li>
+<li style="margin:6px 0"><a href="/.well-known/mcp.json">MCP Discovery Endpoint</a></li>
+</ul>
+
+</div>
+</body>
+</html>

@@ -7,7 +7,7 @@
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.7.0",
+  "version": "1.8.0",
   "remoteEndpoints": [
     {
       "url": "https://toolpipe.dev/mcp",

@@ -16,9 +16,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { createHash, randomUUID } from "node:crypto";
 
 const BASE_URL = process.env.TOOLPIPE_BASE_URL || "https://toolpipe.dev";
 const API_KEY = process.env.TOOLPIPE_API_KEY || "";
+const LOCAL_MODE = process.env.TOOLPIPE_LOCAL === "true";
 
 async function apiCall(path, options = {}) {
   const url = new URL(path, BASE_URL);
@@ -50,7 +52,7 @@ function errorResult(msg) {
 }
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.7.0" },
+  { name: "toolpipe", version: "1.8.0" },
   {
     capabilities: { tools: {} },
     instructions: "ToolPipe provides 130+ developer utility APIs as 88 MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, SQL formatting, XML/YAML conversion, text stats/readability, HTML stripping, number formatting, .env parsing, HTTP status codes, JWT create/decode, IP info, regex testing, password checking, color palettes, text diffing, and more. Free: 100 calls/day (no signup). Pro: 10,000 calls/day ($9.99).",
@@ -58,6 +60,21 @@ const server = new McpServer(
 );
 
 // --- Tool Definitions ---
+
+// --- Local implementations for offline/fast mode ---
+function localHash(text, algorithm = "sha256") {
+  const algo = algorithm.toLowerCase().replace("-", "");
+  return createHash(algo).update(text).digest("hex");
+}
+
+function localBase64(text, action = "encode") {
+  if (action === "decode") return Buffer.from(text, "base64").toString("utf-8");
+  return Buffer.from(text).toString("base64");
+}
+
+function localUUID(count = 1) {
+  return Array.from({ length: Math.min(count, 100) }, () => randomUUID());
+}
 
 server.tool(
   "json_format",
@@ -92,8 +109,8 @@ server.tool(
   "Generate one or more UUIDs (v4).",
   { count: z.number().optional().describe("Number of UUIDs to generate (default 1, max 100)") },
   async ({ count }) => {
-    const result = await apiCall(`/uuid/generate?count=${count || 1}`);
-    return textResult(result);
+    const uuids = localUUID(count || 1);
+    return textResult(uuids.length === 1 ? { uuid: uuids[0] } : { uuids, count: uuids.length });
   }
 );
 
@@ -105,11 +122,9 @@ server.tool(
     algorithm: z.string().optional().describe("Hash algorithm: md5, sha1, sha256, sha512 (default sha256)"),
   },
   async ({ text, algorithm }) => {
-    const result = await apiCall("/hash/generate", {
-      method: "POST",
-      body: JSON.stringify({ text, algorithm: algorithm || "sha256" }),
-    });
-    return textResult(result);
+    const algo = algorithm || "sha256";
+    const hash = localHash(text, algo);
+    return textResult({ text: text.substring(0, 50), algorithm: algo, hash });
   }
 );
 
@@ -121,11 +136,9 @@ server.tool(
     action: z.string().optional().describe("'encode' or 'decode' (default encode)"),
   },
   async ({ text, action }) => {
-    const result = await apiCall("/base64", {
-      method: "POST",
-      body: JSON.stringify({ text, action: action || "encode" }),
-    });
-    return textResult(result);
+    const act = action || "encode";
+    const result = localBase64(text, act);
+    return textResult({ action: act, input: text.substring(0, 50), result });
   }
 );
 
