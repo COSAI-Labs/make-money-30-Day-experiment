@@ -1,0 +1,22 @@
+{
+  "name": "auth0-hackathon",
+  "version": "1.0.0",
+  "description": "An AI agent that securely accesses developer tools and APIs on behalf of authenticated users, using Auth0 Token Vault for credential management.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.64",
+    "@auth0/nextjs-auth0": "^4.16.1",
+    "ai": "^6.0.142",
+    "next": "^16.2.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
