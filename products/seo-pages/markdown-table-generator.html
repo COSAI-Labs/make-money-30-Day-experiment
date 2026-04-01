@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Table Generator - Free Online Table Builder</title>
+    <meta name="description" content="Generate Markdown tables visually. Add rows and columns, edit cells, and copy the Markdown output. Free online markdown table generator.">
+    <meta property="og:title" content="Free Markdown Table Generator">
+    <meta property="og:description" content="Build Markdown tables visually with instant preview and copy.">
+    <link rel="canonical" href="/markdown-table-generator">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Markdown Table Generator",
+        "description": "Generate Markdown tables visually with a point-and-click table builder.",
+        "url": "https://toolpipe.com/markdown-table-generator",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .btns { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-primary:hover { background: #5a52d5; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .btn-danger { background: #fee; color: #c33; }
+        .btn-danger:hover { background: #fdd; }
+        table#editor { width: 100%; border-collapse: collapse; margin: 12px 0; }
+        table#editor th, table#editor td { border: 1px solid #ddd; padding: 0; }
+        table#editor input { width: 100%; padding: 10px; border: none; font-size: 0.9rem; background: transparent; }
+        table#editor input:focus { outline: 2px solid #6c63ff; outline-offset: -2px; }
+        table#editor th input { font-weight: 600; background: #f0f0ff; }
+        .align-row { display: flex; gap: 0; }
+        .align-row select { padding: 4px; border: 1px solid #ddd; border-radius: 0; font-size: 0.8rem; flex: 1; text-align: center; }
+        textarea { width: 100%; min-height: 150px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; background: #f8f9fa; }
+        .status { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .status.valid { background: #d4edda; color: #155724; }
+        .preview-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+        .preview-table th, .preview-table td { border: 1px solid #ddd; padding: 8px 12px; }
+        .preview-table th { background: #f0f0ff; font-weight: 600; }
+        .section-label { font-weight: 500; margin: 16px 0 6px; display: block; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav><a href="/">ToolPipe</a><div><a href="/tools">All Tools</a></div></nav>
+    <div class="container">
+        <h1>Markdown Table Generator</h1>
+        <p class="subtitle">Build tables visually and get Markdown output instantly</p>
+        <div class="tool-box">
+            <div class="btns">
+                <button class="btn btn-primary" onclick="addColumn()">+ Column</button>
+                <button class="btn btn-primary" onclick="addRow()">+ Row</button>
+                <button class="btn btn-danger" onclick="removeColumn()">- Column</button>
+                <button class="btn btn-danger" onclick="removeRow()">- Row</button>
+                <button class="btn btn-secondary" onclick="resetTable()">Reset</button>
+            </div>
+            <table id="editor"></table>
+            <div id="align-controls"></div>
+
+            <div class="btns">
+                <button class="btn btn-primary" onclick="generate()">Generate Markdown</button>
+                <button class="btn btn-secondary" onclick="copyMd()">Copy Markdown</button>
+            </div>
+            <div id="status-bar"></div>
+
+            <label class="section-label">Markdown Output</label>
+            <textarea id="output" readonly placeholder="Markdown table will appear here..."></textarea>
+
+            <label class="section-label">Preview</label>
+            <div id="preview"></div>
+        </div>
+
+        <div class="content">
+            <h2>What is a Markdown Table?</h2>
+            <p>Markdown tables use pipes (|) and hyphens (-) to create structured tabular data in plain text. They are widely supported in GitHub, GitLab, Notion, Reddit, and most documentation platforms.</p>
+            <h2>How to Use This Generator</h2>
+            <p>Start by editing the cells in the table above. Use the "+ Column" and "+ Row" buttons to expand the table. Set column alignment using the dropdown selectors. Click "Generate Markdown" to create the output, then copy it to your clipboard.</p>
+            <h2>Markdown Table Syntax</h2>
+            <p>Each row starts and ends with a pipe character. The second row contains the separator with hyphens. Use colons for alignment: left-aligned (:---), centered (:---:), or right-aligned (---:). This generator handles all the formatting for you.</p>
+        </div>
+    </div>
+    <footer><p><a href="/">ToolPipe</a> | <a href="/tools">Developer Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/json-to-csv">JSON to CSV</a></p></footer>
+    <script>
+    var cols = 3, rows = 3;
+    var data = [], headers = [], aligns = [];
+
+    function init() {
+        headers = ['Header 1', 'Header 2', 'Header 3'];
+        aligns = ['left', 'left', 'left'];
+        data = [];
+        for (var r = 0; r < rows; r++) {
+            var row = [];
+            for (var c = 0; c < cols; c++) row.push('');
+            data.push(row);
+        }
+        render();
+    }
+
+    function render() {
+        var html = '<tr>';
+        for (var c = 0; c < cols; c++) {
+            html += '<th><input value="' + esc(headers[c]) + '" data-type="h" data-col="' + c + '" oninput="updateHeader(this)"></th>';
+        }
+        html += '</tr>';
+        for (var r = 0; r < data.length; r++) {
+            html += '<tr>';
+            for (var c = 0; c < cols; c++) {
+                html += '<td><input value="' + esc(data[r][c]) + '" data-row="' + r + '" data-col="' + c + '" oninput="updateCell(this)"></td>';
+            }
+            html += '</tr>';
+        }
+        document.getElementById('editor').innerHTML = html;
+
+        var ah = '<div style="margin:4px 0"><span style="font-size:0.8rem;color:#888">Alignment: </span><div class="align-row">';
+        for (var c = 0; c < cols; c++) {
+            ah += '<select data-col="' + c + '" onchange="updateAlign(this)"><option value="left"' + (aligns[c]==='left'?' selected':'') + '>Left</option><option value="center"' + (aligns[c]==='center'?' selected':'') + '>Center</option><option value="right"' + (aligns[c]==='right'?' selected':'') + '>Right</option></select>';
+        }
+        ah += '</div></div>';
+        document.getElementById('align-controls').innerHTML = ah;
+    }
+
+    function esc(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+    function updateHeader(el) { headers[+el.dataset.col] = el.value; }
+    function updateCell(el) { data[+el.dataset.row][+el.dataset.col] = el.value; }
+    function updateAlign(el) { aligns[+el.dataset.col] = el.value; }
+
+    function addColumn() { cols++; headers.push('Header ' + cols); aligns.push('left'); data.forEach(function(r) { r.push(''); }); render(); }
+    function addRow() { var row = []; for (var c = 0; c < cols; c++) row.push(''); data.push(row); rows++; render(); }
+    function removeColumn() { if (cols <= 1) return; cols--; headers.pop(); aligns.pop(); data.forEach(function(r) { r.pop(); }); render(); }
+    function removeRow() { if (data.length <= 1) return; data.pop(); rows--; render(); }
+    function resetTable() { cols = 3; rows = 3; init(); document.getElementById('output').value = ''; document.getElementById('preview').innerHTML = ''; }
+
+    function generate() {
+        var widths = [];
+        for (var c = 0; c < cols; c++) {
+            var w = headers[c].length;
+            data.forEach(function(row) { w = Math.max(w, row[c].length); });
+            widths.push(Math.max(w, 3));
+        }
+
+        function pad(s, w, align) {
+            var diff = w - s.length;
+            if (align === 'center') { var l = Math.floor(diff/2); return ' '.repeat(l) + s + ' '.repeat(diff - l); }
+            if (align === 'right') return ' '.repeat(diff) + s;
+            return s + ' '.repeat(diff);
+        }
+
+        var lines = [];
+        lines.push('| ' + headers.map(function(h, i) { return pad(h, widths[i], aligns[i]); }).join(' | ') + ' |');
+        lines.push('| ' + widths.map(function(w, i) {
+            var sep = '-'.repeat(w);
+            if (aligns[i] === 'center') return ':' + sep.slice(1, -1) + ':';
+            if (aligns[i] === 'right') return sep.slice(0, -1) + ':';
+            return ':' + sep.slice(1);
+        }).join(' | ') + ' |');
+        data.forEach(function(row) {
+            lines.push('| ' + row.map(function(cell, i) { return pad(cell, widths[i], aligns[i]); }).join(' | ') + ' |');
+        });
+
+        var md = lines.join('\n');
+        document.getElementById('output').value = md;
+
+        var ph = '<table class="preview-table"><tr>';
+        headers.forEach(function(h, i) { ph += '<th style="text-align:' + aligns[i] + '">' + esc(h) + '</th>'; });
+        ph += '</tr>';
+        data.forEach(function(row) {
+            ph += '<tr>';
+            row.forEach(function(cell, i) { ph += '<td style="text-align:' + aligns[i] + '">' + esc(cell) + '</td>'; });
+            ph += '</tr>';
+        });
+        ph += '</table>';
+        document.getElementById('preview').innerHTML = ph;
+        showStatus('Generated ' + cols + ' columns, ' + (data.length) + ' rows', true);
+    }
+
+    function copyMd() { navigator.clipboard.writeText(document.getElementById('output').value); showStatus('Copied to clipboard', true); }
+    function showStatus(msg, valid) {
+        document.getElementById('status-bar').innerHTML = '<div class="status ' + (valid ? 'valid' : 'invalid') + '">' + msg + '</div>';
+    }
+
+    init();
+    </script>
+</body>
+</html>

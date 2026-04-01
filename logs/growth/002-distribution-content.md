@@ -2,13 +2,13 @@
 
 ## dev.to Article Draft
 
-**Title:** I Built 28 Free Developer Tools with AI in One Day. Here's What I Learned.
+**Title:** I Built 50+ Free Developer Tools with AI in One Day. Here's the Full List.
 
 **Tags:** webdev, javascript, opensource, productivity
 
 **Body:**
 
-I challenged myself to build as many useful developer tools as possible in a single day using AI assistance. The result: 28 browser-based tools that run entirely client-side (your data never leaves your browser), plus a REST API with 100+ endpoints.
+I challenged myself to build as many useful developer tools as possible in a single day using AI assistance. The result: 50+ browser-based tools that run entirely client-side (your data never leaves your browser), plus a REST API with 70+ endpoints and 3 comprehensive developer cheat sheets.
 
 Here's the full list, grouped by category:
 
@@ -65,27 +65,27 @@ Check out all the tools: [ToolPipe](https://assessing-scoop-authorities-sheet.tr
 
 ## Show HN Post
 
-**Title:** Show HN: 28 free browser-based developer tools (JSON, PDF, JWT, regex, etc.)
+**Title:** Show HN: 50+ free browser-based developer tools and cheat sheets
 
 **URL:** https://assessing-scoop-authorities-sheet.trycloudflare.com/blog-free-developer-tools
 
-**Text:** Built a collection of 28 developer tools that run entirely in the browser. Your data never leaves your machine. JSON formatter, JWT decoder, regex tester, CSS/JS minifiers, PDF tools, QR generator, and more. Also has a REST API with 100+ endpoints (free tier: 100 req/day). All built with FastAPI + vanilla JavaScript.
+**Text:** Built a collection of 50+ developer tools that run entirely in the browser. Your data never leaves your machine. JSON formatter, JWT decoder, regex tester, CSS/JS minifiers, PDF tools, QR generator, color palette generator, and more. Also has developer cheat sheets (REST API, regex, git) and a REST API with 70+ endpoints. All built with FastAPI + vanilla JavaScript in a single day.
 
 ---
 
 ## Reddit Posts
 
 ### r/webdev
-**Title:** I made a free collection of 28 developer tools that work entirely in the browser
-**Body:** No signup, no tracking, no server processing. Everything runs client-side. Includes JSON formatter, JWT decoder, regex tester, CSS minifier, PDF merger, and more. Also has a free REST API. Link: [URL]
+**Title:** I made 50+ free developer tools and cheat sheets, all browser-based
+**Body:** No signup, no tracking, no server processing. Everything runs client-side. JSON formatter, JWT decoder/generator, regex tester, CSS gradient builder, color palette generator, PDF merger, and 45+ more. Plus REST API cheat sheet, regex cheat sheet, and git cheat sheet. Free REST API with 70+ endpoints. Link: [URL]
 
 ### r/programming
-**Title:** 28 browser-based developer tools: JSON, regex, JWT, PDF, and more
-**Body:** Built a set of tools that handle common dev tasks without leaving the browser. All client-side, nothing gets sent to a server. Free API too. [URL]
+**Title:** 50+ browser-based developer tools and cheat sheets, all free
+**Body:** Built a set of tools that handle common dev tasks without leaving the browser. All client-side, nothing gets sent to a server. Includes 3 comprehensive cheat sheets. Free API too. [URL]
 
 ### r/SideProject
-**Title:** Day 1 of my side project: 28 free developer tools, built with AI
-**Body:** Challenged myself to build as many useful dev tools as possible using AI assistance. Got 28 tools live in one day, plus a REST API. All browser-based, all free. What do you think? [URL]
+**Title:** Day 1 of my side project: 50+ free developer tools, built with AI in one day
+**Body:** Challenged myself to build as many useful dev tools as possible using AI assistance. Got 50+ tools, 3 cheat sheets, and 70+ API endpoints live in one day. All browser-based, all free. What would you add? [URL]
 
 ---
 
