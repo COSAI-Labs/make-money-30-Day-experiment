@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Word Counter Online - Character Count, Reading Time | ToolPipe</title>
+    <meta name="description" content="Count words, characters, sentences, and paragraphs instantly. Free word counter with reading time estimate. No signup required.">
+    <meta name="keywords" content="word counter, character counter, word count, character count online, reading time calculator, text counter">
+    <link rel="canonical" href="https://toolpipe.dev/word-counter">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Word Counter","url":"https://toolpipe.dev/word-counter","description":"Count words, characters, sentences and paragraphs with reading time.","applicationCategory":"UtilityApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-box { background: #f0f0ff; padding: 16px; border-radius: 8px; text-align: center; }
+        .stat-box .num { font-size: 1.8rem; font-weight: 700; color: #302b63; }
+        .stat-box .label { font-size: 0.8rem; color: #888; margin-top: 2px; }
+        textarea { width: 100%; min-height: 250px; padding: 16px; border: 1px solid #ddd; border-radius: 8px; font-family: -apple-system, sans-serif; font-size: 1rem; resize: vertical; line-height: 1.7; outline: none; }
+        textarea:focus { border-color: #6c63ff; }
+        .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+        .btn { padding: 8px 16px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        .btn:hover { background: #5a52e0; }
+        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
+        .keyword-section { margin-top: 20px; }
+        .keyword-section h3 { font-size: 1rem; color: #302b63; margin-bottom: 8px; }
+        .keyword-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .keyword { padding: 4px 10px; background: #f0f0ff; border-radius: 16px; font-size: 0.8rem; color: #302b63; }
+        .keyword .count { font-weight: 700; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Word Counter</h1>
+        <p>Count words, characters, sentences, and paragraphs. Estimate reading and speaking time. See keyword density.</p>
+    </div>
+    <div class="container">
+        <div class="tool-card">
+            <div class="stats-grid">
+                <div class="stat-box"><div class="num" id="words">0</div><div class="label">Words</div></div>
+                <div class="stat-box"><div class="num" id="chars">0</div><div class="label">Characters</div></div>
+                <div class="stat-box"><div class="num" id="charsNoSpace">0</div><div class="label">No Spaces</div></div>
+                <div class="stat-box"><div class="num" id="sentences">0</div><div class="label">Sentences</div></div>
+                <div class="stat-box"><div class="num" id="paragraphs">0</div><div class="label">Paragraphs</div></div>
+                <div class="stat-box"><div class="num" id="readTime">0</div><div class="label">Read Time</div></div>
+                <div class="stat-box"><div class="num" id="speakTime">0</div><div class="label">Speak Time</div></div>
+                <div class="stat-box"><div class="num" id="avgWordLen">0</div><div class="label">Avg Word Len</div></div>
+            </div>
+            <textarea id="input" placeholder="Start typing or paste your text here..." oninput="analyze()">Paste your text here to count words, characters, sentences, and paragraphs. This tool provides instant statistics including reading time, speaking time, and keyword density analysis.
+
+Try typing or pasting a longer text to see more detailed results. The word counter updates in real-time as you type.</textarea>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="copyText()">Copy Text</button>
+                <button class="btn btn-outline" onclick="clearText()">Clear</button>
+                <button class="btn btn-outline" onclick="selectAll()">Select All</button>
+            </div>
+            <div class="keyword-section">
+                <h3>Top Keywords</h3>
+                <div class="keyword-list" id="keywords"></div>
+            </div>
+        </div>
+        <div class="info">
+            <h2>About Word Counter</h2>
+            <p>This free word counter tool provides instant statistics for any text. Simply paste or type your content to get word count, character count, sentence count, paragraph count, and estimated reading/speaking time.</p>
+            <h2 style="margin-top:24px">Reading Speed Standards</h2>
+            <p><strong>Average reading speed:</strong> 200-250 words per minute (WPM). This tool uses 225 WPM for estimates.</p>
+            <p><strong>Average speaking speed:</strong> 125-150 words per minute. This tool uses 130 WPM.</p>
+            <h2 style="margin-top:24px">Common Word Count Targets</h2>
+            <p>Twitter/X post: 280 characters. Blog post: 1,000-2,000 words. Long-form article: 2,000-5,000 words. College essay: 500-5,000 words.</p>
+        </div>
+    </div>
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/lorem-ipsum-generator">Lorem Ipsum</a> | <a href="/text-diff">Text Diff</a> | <a href="/markdown-preview">Markdown Editor</a></p>
+    </footer>
+    <script>
+    const STOP_WORDS = new Set(['the','a','an','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','shall','should','may','might','must','can','could','and','but','or','nor','not','no','so','if','then','than','that','this','these','those','it','its','of','in','on','at','to','for','with','by','from','as','into']);
+
+    function analyze() {
+        const text = document.getElementById('input').value;
+        const words = text.trim() ? text.trim().split(/\s+/) : [];
+        const chars = text.length;
+        const charsNoSpace = text.replace(/\s/g, '').length;
+        const sentences = text.trim() ? (text.match(/[.!?]+/g) || []).length || (text.trim() ? 1 : 0) : 0;
+        const paragraphs = text.trim() ? text.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
+        const wordCount = words.length;
+        const readMin = Math.ceil(wordCount / 225);
+        const speakMin = Math.ceil(wordCount / 130);
+        const avgLen = wordCount ? (words.reduce((s, w) => s + w.length, 0) / wordCount).toFixed(1) : 0;
+
+        document.getElementById('words').textContent = wordCount;
+        document.getElementById('chars').textContent = chars;
+        document.getElementById('charsNoSpace').textContent = charsNoSpace;
+        document.getElementById('sentences').textContent = sentences;
+        document.getElementById('paragraphs').textContent = paragraphs || (text.trim() ? 1 : 0);
+        document.getElementById('readTime').textContent = readMin < 1 ? '<1m' : readMin + 'm';
+        document.getElementById('speakTime').textContent = speakMin < 1 ? '<1m' : speakMin + 'm';
+        document.getElementById('avgWordLen').textContent = avgLen;
+
+        // Keywords
+        const freq = {};
+        words.forEach(w => {
+            const lower = w.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (lower.length > 2 && !STOP_WORDS.has(lower)) freq[lower] = (freq[lower] || 0) + 1;
+        });
+        const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 10);
+        document.getElementById('keywords').innerHTML = top.map(([w,c]) =>
+            `<span class="keyword">${w} <span class="count">x${c}</span></span>`
+        ).join('') || '<span style="color:#888;font-size:0.85rem">Type more text to see keywords</span>';
+    }
+
+    function copyText() { navigator.clipboard.writeText(document.getElementById('input').value); }
+    function clearText() { document.getElementById('input').value = ''; analyze(); }
+    function selectAll() { document.getElementById('input').select(); }
+    analyze();
+    </script>
+</body>
+</html>
