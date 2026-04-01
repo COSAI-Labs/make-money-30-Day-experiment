@@ -524,6 +524,12 @@ async def tools_page():
     return HTMLResponse(inject_snippet(html))
 
 
+# IndexNow verification key
+@app.get("/b4d8f2a1c3e5d7f9.txt")
+async def indexnow_key():
+    return Response(content="b4d8f2a1c3e5d7f9", media_type="text/plain")
+
+
 @app.get("/invoice", response_class=HTMLResponse)
 async def invoice_page():
     return serve_html(INVOICE_HTML)
@@ -3311,11 +3317,198 @@ a{{color:#6c63ff;text-decoration:none}}
 
 ADMIN_KEY = os.environ.get("TOOLPIPE_ADMIN_KEY", "tp-admin-2026")
 
+# Public RPC endpoints for on-chain verification (no API key needed)
+CHAIN_RPC = {
+    "ethereum": "https://eth.llamarpc.com",
+    "polygon": "https://polygon-rpc.com",
+    "arbitrum": "https://arb1.arbitrum.io/rpc",
+    "base": "https://mainnet.base.org",
+    "optimism": "https://mainnet.optimism.io",
+}
+
+# Stablecoin contract addresses (for ERC-20 transfer verification)
+STABLECOIN_CONTRACTS = {
+    "ethereum": {
+        "USDC": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    },
+    "polygon": {
+        "USDC": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "USDT": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+    },
+    "base": {
+        "USDC": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    },
+    "arbitrum": {
+        "USDC": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "USDT": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    },
+}
+
+
+async def verify_tx_onchain(tx_hash: str) -> dict:
+    """Verify a transaction on-chain across multiple networks. Returns tx details if found."""
+    our_wallet = WALLET_ADDRESS.lower()
+
+    for chain_name, rpc_url in CHAIN_RPC.items():
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                # Get transaction receipt
+                resp = await client.post(rpc_url, json={
+                    "jsonrpc": "2.0", "id": 1, "method": "eth_getTransactionByHash",
+                    "params": [tx_hash]
+                })
+                data = resp.json()
+                tx = data.get("result")
+                if not tx:
+                    continue
+
+                to_addr = (tx.get("to") or "").lower()
+                value_wei = int(tx.get("value", "0x0"), 16)
+                value_eth = value_wei / 1e18
+
+                # Check if it's a direct ETH transfer to our wallet
+                if to_addr == our_wallet and value_wei > 0:
+                    # Get receipt to confirm success
+                    receipt_resp = await client.post(rpc_url, json={
+                        "jsonrpc": "2.0", "id": 2, "method": "eth_getTransactionReceipt",
+                        "params": [tx_hash]
+                    })
+                    receipt = receipt_resp.json().get("result", {})
+                    status = receipt.get("status", "0x0")
+
+                    return {
+                        "verified": status == "0x1",
+                        "chain": chain_name,
+                        "type": "native_transfer",
+                        "from": tx.get("from", ""),
+                        "to": to_addr,
+                        "value_native": value_eth,
+                        "tx_hash": tx_hash,
+                        "block": int(tx.get("blockNumber", "0x0"), 16) if tx.get("blockNumber") else 0,
+                    }
+
+                # Check for ERC-20 token transfers (Transfer event to our wallet)
+                if to_addr in [c.lower() for contracts in STABLECOIN_CONTRACTS.get(chain_name, {}).values() for c in [contracts]]:
+                    receipt_resp = await client.post(rpc_url, json={
+                        "jsonrpc": "2.0", "id": 2, "method": "eth_getTransactionReceipt",
+                        "params": [tx_hash]
+                    })
+                    receipt = receipt_resp.json().get("result", {})
+                    # Check Transfer logs for our wallet
+                    for log in receipt.get("logs", []):
+                        topics = log.get("topics", [])
+                        # Transfer(address,address,uint256) topic
+                        if len(topics) >= 3 and topics[0] == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
+                            recipient = "0x" + topics[2][-40:]
+                            if recipient.lower() == our_wallet:
+                                raw_amount = int(log.get("data", "0x0"), 16)
+                                # USDC/USDT use 6 decimals, DAI uses 18
+                                token_name = "unknown"
+                                decimals = 18
+                                for name, addr in STABLECOIN_CONTRACTS.get(chain_name, {}).items():
+                                    if addr.lower() == to_addr:
+                                        token_name = name
+                                        decimals = 6 if name in ("USDC", "USDT") else 18
+                                        break
+                                amount = raw_amount / (10 ** decimals)
+                                return {
+                                    "verified": receipt.get("status") == "0x1",
+                                    "chain": chain_name,
+                                    "type": "token_transfer",
+                                    "token": token_name,
+                                    "from": tx.get("from", ""),
+                                    "to": our_wallet,
+                                    "amount": amount,
+                                    "tx_hash": tx_hash,
+                                    "block": int(tx.get("blockNumber", "0x0"), 16) if tx.get("blockNumber") else 0,
+                                }
+        except Exception:
+            continue
+
+    return {"verified": False, "error": "Transaction not found on any supported chain"}
+
 
 class VerifyPaymentRequest(BaseModel):
     order_id: str
     tx_hash: str = ""
     admin_key: str = ""
+
+
+class SelfVerifyRequest(BaseModel):
+    order_id: str
+    tx_hash: str
+
+
+@app.post("/payments/verify-tx")
+async def self_verify_payment(req: SelfVerifyRequest):
+    """Self-service payment verification. Submit your tx hash and we verify on-chain."""
+    if not req.tx_hash or len(req.tx_hash) != 66 or not req.tx_hash.startswith("0x"):
+        raise HTTPException(status_code=400, detail="Invalid transaction hash. Must be 0x followed by 64 hex characters.")
+
+    # Check order exists and is pending
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        row = conn.execute(
+            "SELECT email, tier, amount, status FROM payments WHERE order_id = ?", (req.order_id,)
+        ).fetchone()
+        conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if row[3] == "paid":
+        return {"status": "already_paid", "order_id": req.order_id, "message": "This order is already verified and active."}
+
+    email, tier, amount, _ = row
+
+    # Verify on-chain
+    chain_result = await verify_tx_onchain(req.tx_hash)
+
+    if not chain_result.get("verified"):
+        return {
+            "status": "unverified",
+            "order_id": req.order_id,
+            "message": "Transaction not found or not confirmed yet. Try again in a few minutes, or check the tx hash.",
+            "chain_result": chain_result,
+        }
+
+    # Check amount (allow 10% underpayment tolerance for price fluctuations)
+    tx_value = chain_result.get("value_native", 0) or chain_result.get("amount", 0)
+    # For native ETH we'd need a price oracle; for stablecoins we can check directly
+    is_stablecoin = chain_result.get("type") == "token_transfer"
+
+    if is_stablecoin and tx_value < amount * 0.9:
+        return {
+            "status": "underpaid",
+            "order_id": req.order_id,
+            "expected": amount,
+            "received": tx_value,
+            "message": f"Payment amount ${tx_value:.2f} is below the required ${amount:.2f}. Please send the remaining amount.",
+        }
+
+    # Payment verified, upgrade the user
+    now = datetime.now(timezone.utc).isoformat()
+    with _payments_lock:
+        conn = sqlite3.connect(str(PAYMENTS_DB))
+        conn.execute(
+            "UPDATE payments SET status = 'paid', paid_at = ?, callback_data = ? WHERE order_id = ?",
+            (now, json.dumps({"tx_hash": req.tx_hash, "chain_verification": chain_result, "auto_verified": True}), req.order_id)
+        )
+        conn.commit()
+        conn.close()
+
+    result = upgrade_api_key(email, tier)
+    return {
+        "status": "verified",
+        "order_id": req.order_id,
+        "email": email,
+        "tier": tier,
+        "api_key": result.get("api_key"),
+        "chain": chain_result.get("chain"),
+        "tx_hash": req.tx_hash,
+        "message": f"Payment verified on {chain_result.get('chain', 'blockchain')}! Your API key has been upgraded to {tier}.",
+    }
 
 
 @app.post("/payments/verify")
@@ -3563,7 +3756,10 @@ async function submitPayment() {
               '<p style="margin:8px 0;color:#e0e0e0">Amount: <strong>$' + amt + '</strong> in ETH, USDC, USDT, or any ERC-20</p>' +
               '<p style="color:#94a3b8;font-size:0.85rem">Networks: Ethereum, Polygon, Arbitrum, Base, Optimism</p>' +
               '<p style="margin-top:12px;padding:12px;background:#1a1a2e;border-radius:8px;border:1px solid #6c63ff44">' +
-              'After sending, email <a href="mailto:toolpipe-ads@sharebot.net?subject=Payment%20' + oid + '&body=Order:%20' + oid + '%0ATx%20Hash:%20" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with your tx hash and order ID: <code>' + oid + '</code></p>' +
+              '<div style="margin-top:12px"><input id="verify-tx-hash" placeholder="Paste your tx hash (0x...)" style="width:100%;background:#111;border:1px solid #2a2a2a;color:#e0e0e0;padding:10px;border-radius:6px;font-size:0.85rem;font-family:monospace;margin-bottom:8px">' +
+              '<button onclick="verifyTx(\\''+oid+'\\',document.getElementById(\\'verify-tx-hash\\').value)" style="width:100%;background:#22c55e;color:#fff;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer">Verify Payment On-Chain</button>' +
+              '<p id="verify-result" style="margin-top:8px;font-size:0.85rem;text-align:center"></p></div>' +
+              '<p style="margin-top:8px;color:#64748b;font-size:0.75rem;text-align:center">Or email <a href="mailto:toolpipe-ads@sharebot.net?subject=Payment%20' + oid + '" style="color:#6c63ff">toolpipe-ads@sharebot.net</a> with tx hash</p>' +
               '</div>';
             status.style.color = '#e0e0e0';
             status.style.display = 'block';
@@ -3587,6 +3783,35 @@ async function submitPayment() {
 document.getElementById('pay-modal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
+async function verifyTx(orderId, txHash) {
+    const result = document.getElementById('verify-result');
+    if (!txHash || !txHash.startsWith('0x') || txHash.length !== 66) {
+        result.textContent = 'Enter a valid tx hash (0x + 64 hex chars)';
+        result.style.color = '#ef4444';
+        return;
+    }
+    result.textContent = 'Checking on-chain (may take 10-20s)...';
+    result.style.color = '#94a3b8';
+    try {
+        const res = await fetch('/payments/verify-tx', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({order_id: orderId, tx_hash: txHash})
+        });
+        const data = await res.json();
+        if (data.status === 'verified') {
+            result.innerHTML = '<strong style="color:#22c55e">Payment verified! Your API key: ' + data.api_key + '</strong><br><a href="/api-keys" style="color:#6c63ff">View Dashboard</a>';
+        } else if (data.status === 'already_paid') {
+            result.innerHTML = '<strong style="color:#22c55e">Already verified!</strong> <a href="/api-keys" style="color:#6c63ff">Dashboard</a>';
+        } else {
+            result.textContent = data.message || 'Not verified yet. Try again in a few minutes.';
+            result.style.color = '#f59e0b';
+        }
+    } catch(e) {
+        result.textContent = 'Network error. Try again.';
+        result.style.color = '#ef4444';
+    }
+}
 </script>
 </body></html>"""))
 

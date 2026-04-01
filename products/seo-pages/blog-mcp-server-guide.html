@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>How to Use MCP Servers with AI Agents - Complete Guide 2026</title>
+<meta name="description" content="Learn how to use Model Context Protocol (MCP) servers with Claude, GPT, and other AI agents. Step-by-step guide with examples.">
+<link rel="canonical" href="/blog-mcp-server-guide">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;color:#333;line-height:1.8}nav{background:#1a1a2e;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;font-size:.9rem}nav a{color:#6c63ff;text-decoration:none}.container{max-width:750px;margin:0 auto;padding:20px 20px 60px}h1{font-size:2.2rem;margin:48px 0 16px;line-height:1.3}h2{font-size:1.5rem;margin:36px 0 12px;color:#1a1a2e}h3{font-size:1.15rem;margin:24px 0 8px}p{margin-bottom:16px;color:#444}code{background:#f4f4f4;padding:2px 6px;border-radius:4px;font-size:.9rem}pre{background:#1a1a2e;color:#e0e0e0;padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;font-size:.85rem}a{color:#6c63ff}ul{margin:0 0 16px 24px;color:#444}li{margin-bottom:8px}footer{text-align:center;padding:40px;color:#999;font-size:.85rem;border-top:1px solid #eee;margin-top:48px}footer a{color:#6c63ff;text-decoration:none;margin:0 8px}</style></head><body>
+<nav><a href="/">ToolPipe</a><div><a href="/tools">Tools</a> | <a href="/docs">API Docs</a></div></nav>
+<div class="container">
+<h1>How to Use MCP Servers with AI Agents in 2026</h1>
+<p style="color:#666;font-size:.9rem;margin-bottom:32px">A complete guide to the Model Context Protocol | April 2026</p>
+
+<p>The <strong>Model Context Protocol (MCP)</strong> is an open standard that lets AI agents like Claude connect to external tools and data sources. Instead of building custom integrations, you can use MCP servers that expose capabilities through a standardized interface.</p>
+
+<h2>What is MCP?</h2>
+<p>MCP defines how AI models communicate with external tools. Think of it as a USB port for AI: any MCP-compatible tool plugs into any MCP-compatible AI agent.</p>
+
+<h2>Setting Up ToolPipe MCP Server</h2>
+<p>ToolPipe provides 50+ developer tools as an MCP server. Here's how to set it up:</p>
+
+<h3>With Claude Desktop</h3>
+<p>Add to your <code>claude_desktop_config.json</code>:</p>
+<pre>{
+  "mcpServers": {
+    "toolpipe": {
+      "command": "npx",
+      "args": ["toolpipe-mcp-server"]
+    }
+  }
+}</pre>
+
+<h3>With HTTP Transport</h3>
+<p>Connect to the hosted MCP server:</p>
+<pre>POST https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "id": 1
+}</pre>
+
+<h2>Available Tools</h2>
+<p>The ToolPipe MCP server provides these tool categories:</p>
+<ul>
+<li><strong>Text tools</strong>: format JSON, validate YAML, analyze text, convert Markdown</li>
+<li><strong>Generation</strong>: QR codes, UUIDs, passwords, hashes</li>
+<li><strong>Network</strong>: DNS lookup, WHOIS, HTTP status check</li>
+<li><strong>Conversion</strong>: JSON to CSV, Base64, URL encode/decode</li>
+<li><strong>Security</strong>: JWT decode, bcrypt hash, password strength check</li>
+</ul>
+
+<h2>Why Use MCP?</h2>
+<ul>
+<li><strong>Standardized</strong>: One protocol works across all AI agents</li>
+<li><strong>Composable</strong>: Mix and match tools from different MCP servers</li>
+<li><strong>Secure</strong>: Agents request permission before using tools</li>
+<li><strong>Discoverable</strong>: Agents can list available tools dynamically</li>
+</ul>
+
+<h2>Getting Started</h2>
+<p>The fastest way to try MCP is with the ToolPipe server:</p>
+<pre>npx toolpipe-mcp-server</pre>
+<p>This starts a local MCP server with 50+ tools ready to use.</p>
+
+<p><a href="/mcp-info">View MCP server details</a> | <a href="/docs">Full API documentation</a></p>
+</div>
+<footer><a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/pricing">Pricing</a></footer>
+</body></html>
