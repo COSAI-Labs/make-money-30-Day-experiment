@@ -2440,6 +2440,362 @@ async def detect_language(req: TextSummarizeRequest):
     return {"language": "unknown", "name": "Unknown", "confidence": 0.0}
 
 
+# --- New High-Value Endpoints (Session 3) ---
+
+class RegexTestRequest(BaseModel):
+    pattern: str
+    text: str
+    flags: str = ""
+
+@app.post("/api/regex/test")
+async def regex_test(req: RegexTestRequest):
+    """Test a regex pattern against text. Returns all matches, groups, and positions."""
+    flag_map = {"i": re.IGNORECASE, "m": re.MULTILINE, "s": re.DOTALL}
+    flags = 0
+    for f in req.flags:
+        flags |= flag_map.get(f, 0)
+    try:
+        compiled = re.compile(req.pattern, flags)
+        matches = []
+        for m in compiled.finditer(req.text):
+            matches.append({
+                "match": m.group(),
+                "start": m.start(),
+                "end": m.end(),
+                "groups": list(m.groups()),
+                "named_groups": m.groupdict()
+            })
+        return {
+            "pattern": req.pattern,
+            "flags": req.flags,
+            "match_count": len(matches),
+            "matches": matches,
+            "is_valid": True
+        }
+    except re.error as e:
+        return {"pattern": req.pattern, "is_valid": False, "error": str(e), "matches": []}
+
+
+@app.post("/api/jwt/decode")
+async def jwt_decode(request: Request):
+    """Decode a JWT token (without verification). Shows header, payload, and expiration."""
+    body = await request.json()
+    token = body.get("token", "").strip()
+    if not token:
+        raise HTTPException(400, "token is required")
+    parts = token.split(".")
+    if len(parts) != 3:
+        raise HTTPException(400, "Invalid JWT format: expected 3 parts separated by dots")
+    def decode_part(part):
+        padding = 4 - len(part) % 4
+        if padding != 4:
+            part += "=" * padding
+        return json.loads(base64.urlsafe_b64decode(part))
+    try:
+        header = decode_part(parts[0])
+        payload = decode_part(parts[1])
+        result = {"header": header, "payload": payload, "signature": parts[2][:20] + "..."}
+        if "exp" in payload:
+            exp_dt = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+            result["expires_at"] = exp_dt.isoformat()
+            result["is_expired"] = datetime.now(timezone.utc) > exp_dt
+        if "iat" in payload:
+            result["issued_at"] = datetime.fromtimestamp(payload["iat"], tz=timezone.utc).isoformat()
+        return result
+    except Exception as e:
+        raise HTTPException(400, f"Failed to decode JWT: {e}")
+
+
+class TimestampRequest(BaseModel):
+    timestamp: Optional[float] = None
+    date_string: Optional[str] = None
+    format: str = "%Y-%m-%d %H:%M:%S"
+
+@app.post("/api/timestamp/convert")
+async def timestamp_convert(req: TimestampRequest):
+    """Convert between Unix timestamps and human-readable dates."""
+    now = datetime.now(timezone.utc)
+    if req.timestamp is not None:
+        dt = datetime.fromtimestamp(req.timestamp, tz=timezone.utc)
+        return {
+            "unix_timestamp": req.timestamp,
+            "utc": dt.isoformat(),
+            "formatted": dt.strftime(req.format),
+            "relative": f"{(now - dt).total_seconds():.0f} seconds ago" if dt < now else f"in {(dt - now).total_seconds():.0f} seconds"
+        }
+    elif req.date_string:
+        try:
+            dt = datetime.fromisoformat(req.date_string.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return {
+                "unix_timestamp": dt.timestamp(),
+                "utc": dt.isoformat(),
+                "formatted": dt.strftime(req.format)
+            }
+        except ValueError as e:
+            raise HTTPException(400, f"Cannot parse date: {e}")
+    else:
+        return {
+            "unix_timestamp": now.timestamp(),
+            "utc": now.isoformat(),
+            "formatted": now.strftime(req.format)
+        }
+
+@app.get("/api/timestamp/now")
+async def timestamp_now():
+    """Get current UTC timestamp in multiple formats."""
+    now = datetime.now(timezone.utc)
+    return {
+        "unix": now.timestamp(),
+        "unix_ms": int(now.timestamp() * 1000),
+        "iso8601": now.isoformat(),
+        "rfc2822": now.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+        "date": now.strftime("%Y-%m-%d"),
+        "time": now.strftime("%H:%M:%S"),
+    }
+
+
+class DiffRequest(BaseModel):
+    text1: str
+    text2: str
+
+@app.post("/api/text/diff")
+async def text_diff(req: DiffRequest):
+    """Compare two texts and return differences line by line."""
+    import difflib
+    lines1 = req.text1.splitlines(keepends=True)
+    lines2 = req.text2.splitlines(keepends=True)
+    diff = list(difflib.unified_diff(lines1, lines2, fromfile="text1", tofile="text2", lineterm=""))
+    added = sum(1 for l in diff if l.startswith("+") and not l.startswith("+++"))
+    removed = sum(1 for l in diff if l.startswith("-") and not l.startswith("---"))
+    return {
+        "diff": "\n".join(diff),
+        "lines_added": added,
+        "lines_removed": removed,
+        "identical": len(diff) == 0
+    }
+
+
+class CronParseRequest(BaseModel):
+    expression: str
+
+@app.post("/api/cron/parse")
+async def cron_parse(req: CronParseRequest):
+    """Parse a cron expression and explain what it means in plain English."""
+    parts = req.expression.strip().split()
+    if len(parts) not in (5, 6):
+        raise HTTPException(400, "Cron expression must have 5 or 6 fields")
+    field_names = ["minute", "hour", "day_of_month", "month", "day_of_week"]
+    if len(parts) == 6:
+        field_names.append("year")
+    fields = dict(zip(field_names, parts))
+
+    def describe_field(val, name):
+        if val == "*":
+            return f"every {name}"
+        if val.startswith("*/"):
+            return f"every {val[2:]} {name}s"
+        if "," in val:
+            return f"{name} {val}"
+        if "-" in val:
+            a, b = val.split("-", 1)
+            return f"{name} {a} through {b}"
+        return f"{name} {val}"
+
+    descriptions = [describe_field(v, n) for n, v in fields.items()]
+    return {
+        "expression": req.expression,
+        "fields": fields,
+        "description": "Runs at " + ", ".join(descriptions),
+        "is_valid": True
+    }
+
+
+class JsonSchemaValidateRequest(BaseModel):
+    data: str
+    schema_def: str
+
+@app.post("/api/json/validate-schema")
+async def json_schema_validate(req: JsonSchemaValidateRequest):
+    """Validate JSON data against a JSON Schema definition."""
+    try:
+        data = json.loads(req.data)
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON data: {e}")
+    try:
+        schema = json.loads(req.schema_def)
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid JSON schema: {e}")
+
+    errors = []
+    def validate_type(val, expected, path="$"):
+        type_map = {"string": str, "number": (int, float), "integer": int,
+                     "boolean": bool, "array": list, "object": dict, "null": type(None)}
+        if expected in type_map and not isinstance(val, type_map[expected]):
+            errors.append(f"{path}: expected {expected}, got {type(val).__name__}")
+
+    if "type" in schema:
+        validate_type(data, schema["type"])
+    if "required" in schema and isinstance(data, dict):
+        for field in schema["required"]:
+            if field not in data:
+                errors.append(f"$.{field}: required field missing")
+    if "properties" in schema and isinstance(data, dict):
+        for prop, prop_schema in schema["properties"].items():
+            if prop in data and "type" in prop_schema:
+                validate_type(data[prop], prop_schema["type"], f"$.{prop}")
+
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "error_count": len(errors)
+    }
+
+
+class HttpTestRequest(BaseModel):
+    url: str
+    method: str = "GET"
+    headers: dict = {}
+    body: Optional[str] = None
+    timeout: float = 10.0
+
+@app.post("/api/http/request")
+async def http_request_test(req: HttpTestRequest):
+    """Make an HTTP request and return the response details. Like curl via API."""
+    if req.timeout > 30:
+        req.timeout = 30
+    allowed = urlparse(req.url)
+    if allowed.hostname in ("localhost", "127.0.0.1", "0.0.0.0") or (allowed.hostname and allowed.hostname.startswith("192.168.")):
+        raise HTTPException(400, "Requests to local/private IPs are not allowed")
+    try:
+        start = time.time()
+        async with httpx.AsyncClient(follow_redirects=True, timeout=req.timeout) as client:
+            response = await client.request(
+                method=req.method.upper(),
+                url=req.url,
+                headers=req.headers,
+                content=req.body if req.body else None
+            )
+        elapsed = time.time() - start
+        body_text = response.text[:5000]
+        return {
+            "status_code": response.status_code,
+            "headers": dict(response.headers),
+            "body": body_text,
+            "body_length": len(response.text),
+            "elapsed_ms": round(elapsed * 1000, 2),
+            "url": str(response.url),
+            "redirected": str(response.url) != req.url
+        }
+    except httpx.TimeoutException:
+        return {"error": "Request timed out", "timeout": req.timeout}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+class PasswordGenRequest(BaseModel):
+    length: int = 16
+    count: int = 1
+    uppercase: bool = True
+    lowercase: bool = True
+    digits: bool = True
+    symbols: bool = True
+
+@app.post("/api/password/generate")
+async def generate_password(req: PasswordGenRequest):
+    """Generate secure random passwords."""
+    import secrets
+    import string
+    chars = ""
+    if req.uppercase:
+        chars += string.ascii_uppercase
+    if req.lowercase:
+        chars += string.ascii_lowercase
+    if req.digits:
+        chars += string.digits
+    if req.symbols:
+        chars += "!@#$%^&*()-_=+[]{}|;:,.<>?"
+    if not chars:
+        chars = string.ascii_letters + string.digits
+    length = max(4, min(req.length, 128))
+    count = max(1, min(req.count, 20))
+    passwords = ["".join(secrets.choice(chars) for _ in range(length)) for _ in range(count)]
+    return {"passwords": passwords, "length": length, "count": count}
+
+
+class EncodeRequest(BaseModel):
+    text: str
+    action: str = "encode"
+
+@app.post("/api/url/encode-decode")
+async def url_encode_decode(req: EncodeRequest):
+    """URL encode or decode text."""
+    from urllib.parse import quote, unquote
+    if req.action == "decode":
+        return {"result": unquote(req.text), "action": "decoded"}
+    return {"result": quote(req.text, safe=""), "action": "encoded"}
+
+
+@app.post("/api/html/encode-decode")
+async def html_encode_decode(req: EncodeRequest):
+    """HTML entity encode or decode text."""
+    import html as html_lib
+    if req.action == "decode":
+        return {"result": html_lib.unescape(req.text), "action": "decoded"}
+    return {"result": html_lib.escape(req.text), "action": "encoded"}
+
+
+class LoremIpsumRequest(BaseModel):
+    paragraphs: int = 3
+    words_per_paragraph: int = 50
+
+@app.post("/api/lorem-ipsum")
+async def lorem_ipsum(req: LoremIpsumRequest):
+    """Generate Lorem Ipsum placeholder text."""
+    import random
+    words = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum".split()
+    count = max(1, min(req.paragraphs, 20))
+    wpg = max(10, min(req.words_per_paragraph, 200))
+    paragraphs = []
+    for _ in range(count):
+        p = " ".join(random.choice(words) for _ in range(wpg))
+        p = p[0].upper() + p[1:] + "."
+        paragraphs.append(p)
+    return {"text": "\n\n".join(paragraphs), "paragraphs": count, "words_per_paragraph": wpg}
+
+
+class SlugifyRequest(BaseModel):
+    text: str
+    separator: str = "-"
+
+@app.post("/api/text/slugify")
+async def slugify_text(req: SlugifyRequest):
+    """Convert text to URL-friendly slug."""
+    slug = re.sub(r'[^\w\s-]', '', req.text.lower())
+    slug = re.sub(r'[-\s]+', req.separator, slug).strip(req.separator)
+    return {"slug": slug, "original": req.text}
+
+
+class MarkdownTableRequest(BaseModel):
+    headers: list
+    rows: list
+
+@app.post("/api/markdown/table")
+async def markdown_table(req: MarkdownTableRequest):
+    """Generate a markdown table from headers and rows."""
+    if not req.headers:
+        raise HTTPException(400, "Headers are required")
+    header_line = "| " + " | ".join(str(h) for h in req.headers) + " |"
+    separator = "| " + " | ".join("---" for _ in req.headers) + " |"
+    row_lines = []
+    for row in req.rows:
+        cells = [str(row[i]) if i < len(row) else "" for i in range(len(req.headers))]
+        row_lines.append("| " + " | ".join(cells) + " |")
+    table = "\n".join([header_line, separator] + row_lines)
+    return {"table": table, "rows": len(req.rows), "columns": len(req.headers)}
+
+
 # --- Analytics Endpoints ---
 
 class TrackRequest(BaseModel):

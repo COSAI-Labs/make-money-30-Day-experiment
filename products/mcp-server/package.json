@@ -1,11 +1,12 @@
 {
   "name": "@cosai-labs/toolpipe-mcp-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MCP server for ToolPipe: 70+ developer utility APIs (JSON, PDF, QR, hash, UUID, DNS, and more) accessible to AI agents via Model Context Protocol",
   "type": "module",
   "main": "index.js",
   "bin": {
-    "toolpipe-mcp": "./index.js"
+    "toolpipe-mcp": "./index.js",
+    "toolpipe-mcp-server": "./index.js"
   },
   "keywords": [
     "mcp",
@@ -33,7 +34,8 @@
     "directory": "products/mcp-server"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
   },
   "engines": {
     "node": ">=18.0.0"

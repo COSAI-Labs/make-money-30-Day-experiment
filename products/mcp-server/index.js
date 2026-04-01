@@ -17,7 +17,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const BASE_URL = process.env.TOOLPIPE_BASE_URL || "https://toolpipe.dev";
+const BASE_URL = process.env.TOOLPIPE_BASE_URL || "https://assessing-scoop-authorities-sheet.trycloudflare.com";
 const API_KEY = process.env.TOOLPIPE_API_KEY || "";
 
 async function apiCall(path, options = {}) {
@@ -339,6 +339,200 @@ server.tool(
   { url: z.string().describe("URL to analyze for SEO") },
   async ({ url }) => {
     const result = await apiCall(`/seo/analyze?url=${encodeURIComponent(url)}`);
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "regex_test",
+  "Test a regex pattern against text. Returns all matches, groups, and positions.",
+  {
+    pattern: z.string().describe("Regex pattern to test"),
+    text: z.string().describe("Text to test against"),
+    flags: z.string().optional().describe("Regex flags: i (case-insensitive), m (multiline), s (dotall)"),
+  },
+  async ({ pattern, text, flags }) => {
+    const result = await apiCall("/api/regex/test", {
+      method: "POST",
+      body: JSON.stringify({ pattern, text, flags: flags || "" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "jwt_decode",
+  "Decode a JWT token without verification. Shows header, payload, expiration.",
+  { token: z.string().describe("JWT token to decode") },
+  async ({ token }) => {
+    const result = await apiCall("/api/jwt/decode", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "timestamp_convert",
+  "Convert between Unix timestamps and human-readable dates, or get current time.",
+  {
+    timestamp: z.number().optional().describe("Unix timestamp to convert to date"),
+    date_string: z.string().optional().describe("ISO date string to convert to timestamp"),
+  },
+  async ({ timestamp, date_string }) => {
+    if (!timestamp && !date_string) {
+      const result = await apiCall("/api/timestamp/now");
+      return textResult(result);
+    }
+    const body = {};
+    if (timestamp) body.timestamp = timestamp;
+    if (date_string) body.date_string = date_string;
+    const result = await apiCall("/api/timestamp/convert", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "text_diff",
+  "Compare two texts and show differences (unified diff format).",
+  {
+    text1: z.string().describe("First text"),
+    text2: z.string().describe("Second text"),
+  },
+  async ({ text1, text2 }) => {
+    const result = await apiCall("/api/text/diff", {
+      method: "POST",
+      body: JSON.stringify({ text1, text2 }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "cron_parse",
+  "Parse a cron expression and explain it in plain English.",
+  { expression: z.string().describe("Cron expression (5 or 6 fields)") },
+  async ({ expression }) => {
+    const result = await apiCall("/api/cron/parse", {
+      method: "POST",
+      body: JSON.stringify({ expression }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "http_request",
+  "Make an HTTP request and return response details (status, headers, body). Like curl via API.",
+  {
+    url: z.string().describe("URL to request"),
+    method: z.string().optional().describe("HTTP method (GET, POST, PUT, DELETE)"),
+    headers: z.record(z.string()).optional().describe("Request headers"),
+    body: z.string().optional().describe("Request body"),
+  },
+  async ({ url, method, headers, body }) => {
+    const result = await apiCall("/api/http/request", {
+      method: "POST",
+      body: JSON.stringify({ url, method: method || "GET", headers: headers || {}, body }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "generate_password",
+  "Generate secure random passwords with configurable options.",
+  {
+    length: z.number().optional().describe("Password length (default 16)"),
+    count: z.number().optional().describe("Number of passwords (default 1)"),
+    symbols: z.boolean().optional().describe("Include symbols (default true)"),
+  },
+  async ({ length, count, symbols }) => {
+    const result = await apiCall("/api/password/generate", {
+      method: "POST",
+      body: JSON.stringify({ length: length || 16, count: count || 1, symbols: symbols !== false }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "url_encode_decode",
+  "URL encode or decode text.",
+  {
+    text: z.string().describe("Text to encode/decode"),
+    action: z.string().optional().describe("'encode' or 'decode' (default encode)"),
+  },
+  async ({ text, action }) => {
+    const result = await apiCall("/api/url/encode-decode", {
+      method: "POST",
+      body: JSON.stringify({ text, action: action || "encode" }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "slugify",
+  "Convert text to a URL-friendly slug.",
+  { text: z.string().describe("Text to slugify") },
+  async ({ text }) => {
+    const result = await apiCall("/api/text/slugify", {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "markdown_table",
+  "Generate a formatted markdown table from headers and rows.",
+  {
+    headers: z.array(z.string()).describe("Column headers"),
+    rows: z.array(z.array(z.string())).describe("Table rows (array of arrays)"),
+  },
+  async ({ headers, rows }) => {
+    const result = await apiCall("/api/markdown/table", {
+      method: "POST",
+      body: JSON.stringify({ headers, rows }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "json_validate_schema",
+  "Validate JSON data against a JSON Schema definition.",
+  {
+    data: z.string().describe("JSON data to validate"),
+    schema_def: z.string().describe("JSON Schema definition"),
+  },
+  async ({ data, schema_def }) => {
+    const result = await apiCall("/api/json/validate-schema", {
+      method: "POST",
+      body: JSON.stringify({ data, schema_def }),
+    });
+    return textResult(result);
+  }
+);
+
+server.tool(
+  "code_format",
+  "Format/beautify code (supports JSON, SQL, HTML).",
+  {
+    code: z.string().describe("Code to format"),
+    language: z.string().describe("Language: json, sql, html"),
+  },
+  async ({ code, language }) => {
+    const result = await apiCall("/api/code/format", {
+      method: "POST",
+      body: JSON.stringify({ code, language }),
+    });
     return textResult(result);
   }
 );
