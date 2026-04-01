@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Online Text Diff Tool - Compare Text Side by Side | ToolPipe</title>
+    <meta name="description" content="Compare two texts and see differences highlighted. Free online diff tool with side-by-side and inline views. No signup required.">
+    <meta name="keywords" content="text diff, compare text, diff checker, text comparison, online diff tool, side by side diff">
+    <link rel="canonical" href="https://toolpipe.dev/text-diff">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Text Diff","url":"https://toolpipe.dev/text-diff","description":"Compare two texts and highlight differences.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .inputs label { font-weight: 600; display: block; margin-bottom: 4px; font-size: 0.9rem; }
+        textarea { width: 100%; min-height: 180px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.9rem; resize: vertical; }
+        .btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+        .btn { padding: 10px 24px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn:hover { background: #5a52e0; }
+        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
+        .diff-output { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 16px; min-height: 100px; font-family: monospace; font-size: 0.9rem; line-height: 1.6; overflow-x: auto; }
+        .diff-line { padding: 2px 8px; white-space: pre-wrap; word-break: break-word; }
+        .diff-add { background: #d4edda; color: #155724; }
+        .diff-del { background: #f8d7da; color: #721c24; text-decoration: line-through; }
+        .diff-same { color: #555; }
+        .stats { display: flex; gap: 16px; margin-top: 12px; font-size: 0.9rem; }
+        .stat { padding: 6px 14px; border-radius: 6px; font-weight: 600; }
+        .stat-add { background: #d4edda; color: #155724; }
+        .stat-del { background: #f8d7da; color: #721c24; }
+        .stat-same { background: #f0f0f0; color: #555; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+        @media (max-width: 600px) { .inputs { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Text Diff Tool</h1>
+        <p>Compare two texts side by side and see exactly what changed. Additions, deletions, and unchanged lines highlighted.</p>
+    </div>
+    <div class="container">
+        <div class="tool-card">
+            <div class="inputs">
+                <div><label>Original Text</label><textarea id="text1">The quick brown fox jumps over the lazy dog.
+This line is the same.
+This line will be removed.
+Another same line here.</textarea></div>
+                <div><label>Modified Text</label><textarea id="text2">The quick brown cat jumps over the lazy dog.
+This line is the same.
+This is a new line.
+Another same line here.
+And one more added line.</textarea></div>
+            </div>
+            <div class="btn-row">
+                <button class="btn" onclick="compare()">Compare</button>
+                <button class="btn btn-outline" onclick="swapTexts()">Swap</button>
+                <button class="btn btn-outline" onclick="clearAll()">Clear</button>
+            </div>
+            <div class="diff-output" id="diffOutput"></div>
+            <div class="stats" id="stats"></div>
+        </div>
+        <div class="info">
+            <h2>How Text Diff Works</h2>
+            <p>This tool compares two blocks of text line by line and highlights the differences. Lines present only in the original are shown in red (deletions), lines present only in the modified version are shown in green (additions), and unchanged lines are shown in gray.</p>
+            <h2 style="margin-top:24px">Use Cases</h2>
+            <p><strong>Code review:</strong> Compare two versions of code to see what changed.</p>
+            <p><strong>Document editing:</strong> Track changes between document revisions.</p>
+            <p><strong>Configuration files:</strong> Spot differences between config files across environments.</p>
+            <p><strong>Data validation:</strong> Compare expected vs actual output in testing.</p>
+        </div>
+    </div>
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/json-formatter">JSON Formatter</a> | <a href="/regex-tester">Regex Tester</a> | <a href="/markdown-preview">Markdown Editor</a></p>
+    </footer>
+    <script>
+    function lcs(a, b) {
+        const m = a.length, n = b.length;
+        const dp = Array.from({length: m+1}, () => Array(n+1).fill(0));
+        for (let i = 1; i <= m; i++)
+            for (let j = 1; j <= n; j++)
+                dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+        const result = [];
+        let i = m, j = n;
+        while (i > 0 && j > 0) {
+            if (a[i-1] === b[j-1]) { result.unshift({type:'same',text:a[i-1]}); i--; j--; }
+            else if (dp[i-1][j] > dp[i][j-1]) { result.unshift({type:'del',text:a[i-1]}); i--; }
+            else { result.unshift({type:'add',text:b[j-1]}); j--; }
+        }
+        while (i > 0) { result.unshift({type:'del',text:a[i-1]}); i--; }
+        while (j > 0) { result.unshift({type:'add',text:b[j-1]}); j--; }
+        return result;
+    }
+
+    function compare() {
+        const lines1 = document.getElementById('text1').value.split('\n');
+        const lines2 = document.getElementById('text2').value.split('\n');
+        const diff = lcs(lines1, lines2);
+        let html = '', adds = 0, dels = 0, same = 0;
+        diff.forEach(d => {
+            const escaped = d.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            if (d.type === 'add') { html += `<div class="diff-line diff-add">+ ${escaped}</div>`; adds++; }
+            else if (d.type === 'del') { html += `<div class="diff-line diff-del">- ${escaped}</div>`; dels++; }
+            else { html += `<div class="diff-line diff-same">  ${escaped}</div>`; same++; }
+        });
+        document.getElementById('diffOutput').innerHTML = html || '<div class="diff-line diff-same">No differences found</div>';
+        document.getElementById('stats').innerHTML =
+            `<span class="stat stat-add">+${adds} added</span>` +
+            `<span class="stat stat-del">-${dels} removed</span>` +
+            `<span class="stat stat-same">${same} unchanged</span>`;
+    }
+
+    function swapTexts() {
+        const a = document.getElementById('text1'), b = document.getElementById('text2');
+        const t = a.value; a.value = b.value; b.value = t;
+        compare();
+    }
+    function clearAll() {
+        document.getElementById('text1').value = '';
+        document.getElementById('text2').value = '';
+        document.getElementById('diffOutput').innerHTML = '';
+        document.getElementById('stats').innerHTML = '';
+    }
+    compare();
+    </script>
+</body>
+</html>

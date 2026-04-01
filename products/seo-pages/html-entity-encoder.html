@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free HTML Entity Encoder/Decoder Online | ToolPipe</title>
+    <meta name="description" content="Encode and decode HTML entities instantly. Convert special characters to HTML entities and back. Free online tool, no signup.">
+    <meta name="keywords" content="html entity encoder, html entity decoder, html escape, html entities, special characters html">
+    <link rel="canonical" href="https://toolpipe.dev/html-entity-encoder">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"HTML Entity Encoder","url":"https://toolpipe.dev/html-entity-encoder","description":"Encode and decode HTML entities instantly.","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .hero p { opacity: 0.85; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .tool-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        textarea { width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.95rem; resize: vertical; margin-bottom: 8px; }
+        .btn-row { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .btn { padding: 8px 20px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn:hover { background: #5a52e0; }
+        .btn-outline { background: white; color: #6c63ff; border: 2px solid #6c63ff; }
+        h3 { color: #302b63; margin-bottom: 8px; }
+        .ref-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        .ref-table th, .ref-table td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; font-size: 0.9rem; }
+        .ref-table th { background: #f5f5f5; }
+        .ref-table code { background: #f0f0ff; padding: 1px 4px; border-radius: 3px; }
+        .info { margin-top: 40px; }
+        .info h2 { font-size: 1.5rem; margin-bottom: 16px; color: #302b63; }
+        .info p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+        footer { text-align: center; padding: 40px 20px; color: #888; font-size: 0.9rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>HTML Entity Encoder/Decoder</h1>
+        <p>Convert special characters to HTML entities and decode them back. Supports named and numeric entities.</p>
+    </div>
+    <div class="container">
+        <div class="tool-card">
+            <h3>Input</h3>
+            <textarea id="input" placeholder='Enter text like: <div class="hello">&amp; "world"'>Hello <div class="test"> & "world" &amp; 'single' quotes</textarea>
+            <div class="btn-row">
+                <button class="btn" onclick="encodeHtml()">Encode</button>
+                <button class="btn" onclick="decodeHtml()">Decode</button>
+                <button class="btn btn-outline" onclick="copy('input')">Copy Input</button>
+            </div>
+            <h3>Output</h3>
+            <textarea id="output" placeholder="Result will appear here..." readonly></textarea>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="copy('output')">Copy Output</button>
+                <button class="btn btn-outline" onclick="swap()">Swap</button>
+            </div>
+        </div>
+        <div class="info">
+            <h2>Common HTML Entities</h2>
+            <table class="ref-table">
+                <tr><th>Character</th><th>Entity</th><th>Numeric</th><th>Description</th></tr>
+                <tr><td>&amp;</td><td><code>&amp;amp;</code></td><td><code>&amp;#38;</code></td><td>Ampersand</td></tr>
+                <tr><td>&lt;</td><td><code>&amp;lt;</code></td><td><code>&amp;#60;</code></td><td>Less than</td></tr>
+                <tr><td>&gt;</td><td><code>&amp;gt;</code></td><td><code>&amp;#62;</code></td><td>Greater than</td></tr>
+                <tr><td>&quot;</td><td><code>&amp;quot;</code></td><td><code>&amp;#34;</code></td><td>Double quote</td></tr>
+                <tr><td>&#39;</td><td><code>&amp;apos;</code></td><td><code>&amp;#39;</code></td><td>Single quote</td></tr>
+                <tr><td>&nbsp;</td><td><code>&amp;nbsp;</code></td><td><code>&amp;#160;</code></td><td>Non-breaking space</td></tr>
+                <tr><td>&copy;</td><td><code>&amp;copy;</code></td><td><code>&amp;#169;</code></td><td>Copyright</td></tr>
+                <tr><td>&reg;</td><td><code>&amp;reg;</code></td><td><code>&amp;#174;</code></td><td>Registered</td></tr>
+                <tr><td>&trade;</td><td><code>&amp;trade;</code></td><td><code>&amp;#8482;</code></td><td>Trademark</td></tr>
+            </table>
+        </div>
+    </div>
+    <footer>
+        <p><a href="/">ToolPipe</a> | <a href="/tools">Dev Tools</a> | <a href="/url-encoder">URL Encoder</a> | <a href="/base64-encoder">Base64 Encoder</a> | <a href="/json-formatter">JSON Formatter</a></p>
+    </footer>
+    <script>
+    function encodeHtml() {
+        const input = document.getElementById('input').value;
+        const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+        document.getElementById('output').value = input.replace(/[&<>"']/g, c => map[c] || c);
+    }
+    function decodeHtml() {
+        const el = document.createElement('textarea');
+        el.innerHTML = document.getElementById('input').value;
+        document.getElementById('output').value = el.value;
+    }
+    function copy(id) { navigator.clipboard.writeText(document.getElementById(id).value); }
+    function swap() {
+        const a = document.getElementById('input'), b = document.getElementById('output');
+        const t = a.value; a.value = b.value; b.value = t;
+    }
+    encodeHtml();
+    </script>
+</body>
+</html>
