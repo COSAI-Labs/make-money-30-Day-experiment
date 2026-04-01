@@ -211,6 +211,27 @@ function tpCapture(e){
   return false;
 }
 </script>
+<div style="background:#1a1a2e;padding:24px 20px;font-family:-apple-system,sans-serif;margin-top:40px;">
+<div style="max-width:900px;margin:0 auto;text-align:center;font-size:13px;line-height:2;">
+<a href="/" style="color:#6c63ff;text-decoration:none;margin:0 8px;">ToolPipe</a>
+<a href="/json-formatter" style="color:#94a3b8;text-decoration:none;margin:0 8px;">JSON Formatter</a>
+<a href="/css-minifier" style="color:#94a3b8;text-decoration:none;margin:0 8px;">CSS Minifier</a>
+<a href="/javascript-minifier" style="color:#94a3b8;text-decoration:none;margin:0 8px;">JS Minifier</a>
+<a href="/uuid-generator" style="color:#94a3b8;text-decoration:none;margin:0 8px;">UUID Generator</a>
+<a href="/regex-tester" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Regex Tester</a>
+<a href="/jwt-decoder" style="color:#94a3b8;text-decoration:none;margin:0 8px;">JWT Decoder</a>
+<a href="/password-generator" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Password Generator</a>
+<a href="/hash-generator" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Hash Generator</a>
+<a href="/base64-encoder" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Base64</a>
+<a href="/json-to-yaml" style="color:#94a3b8;text-decoration:none;margin:0 8px;">JSON to YAML</a>
+<a href="/qr-code-generator" style="color:#94a3b8;text-decoration:none;margin:0 8px;">QR Generator</a>
+<a href="/merge-pdf" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Merge PDF</a>
+<a href="/image-to-base64" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Image to Base64</a>
+<a href="/color-picker" style="color:#94a3b8;text-decoration:none;margin:0 8px;">Color Picker</a>
+<a href="/whats-my-ip" style="color:#94a3b8;text-decoration:none;margin:0 8px;">My IP</a>
+<a href="/api-keys" style="color:#6c63ff;text-decoration:none;margin:0 8px;">Free API Key</a>
+<br><span style="color:#475569;">Free developer tools by ToolPipe. No signup, no tracking.</span>
+</div></div>
 """
 
 
