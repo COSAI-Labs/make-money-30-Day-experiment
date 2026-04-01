@@ -772,6 +772,29 @@ async def analyze_seo(url: str = Query(...)):
     }
 
 
+# --- Sitemap ---
+
+@app.get("/sitemap.xml")
+async def sitemap():
+    base = "http://187.77.213.192:8081"
+    urls = [
+        "/", "/tools", "/seo", "/invoice", "/monitor", "/docs",
+        "/qr-code-generator", "/json-formatter", "/base64-encoder",
+    ]
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for url in urls:
+        xml += f'  <url><loc>{base}{url}</loc><changefreq>weekly</changefreq></url>\n'
+    xml += '</urlset>'
+    return Response(content=xml, media_type="application/xml")
+
+
+@app.get("/robots.txt")
+async def robots():
+    content = f"User-agent: *\nAllow: /\nSitemap: http://187.77.213.192:8081/sitemap.xml\n"
+    return Response(content=content, media_type="text/plain")
+
+
 # --- SEO Pages (catch-all for static content pages) ---
 
 @app.get("/{page_name}", response_class=HTMLResponse)
