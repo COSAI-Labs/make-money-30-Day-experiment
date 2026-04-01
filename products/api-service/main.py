@@ -490,7 +490,38 @@ async def root():
 
 @app.get("/tools", response_class=HTMLResponse)
 async def tools_page():
-    return serve_html(TOOLS_HTML)
+    # Auto-generate tools listing from SEO pages
+    tools = []
+    if SEO_PAGES_DIR.exists():
+        for p in sorted(SEO_PAGES_DIR.glob("*.html")):
+            slug = p.stem
+            # Extract title from the file
+            content = p.read_text()
+            import re as _re
+            title_match = _re.search(r'<title>(.*?)</title>', content)
+            title = title_match.group(1).split(' - ')[0].split(' | ')[0] if title_match else slug.replace('-', ' ').title()
+            if slug in ('pricing', 'polymarket-dashboard', 'blog-free-developer-tools', 'api-consulting', 'ai-automation-consulting', 'api-reference-cheat-sheet'):
+                continue  # Skip non-tool pages
+            tools.append((slug, title))
+
+    tool_cards = ""
+    for slug, title in tools:
+        tool_cards += f'<a href="/{slug}" style="display:block;padding:16px;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06);text-decoration:none;color:#333;transition:transform 0.2s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'none\'"><strong style="color:#1a1a2e">{title}</strong></a>\n'
+
+    html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>100+ Free Developer Tools - ToolPipe</title>
+<meta name="description" content="100+ free online developer tools: JSON formatter, regex tester, QR generator, PDF tools, hash generator, UUID, DNS lookup, and more. No signup needed.">
+<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;color:#333}}nav{{background:#1a1a2e;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;font-size:.9rem}}nav a{{color:#6c63ff;text-decoration:none}}.container{{max-width:1100px;margin:0 auto;padding:20px}}h1{{font-size:2.5rem;text-align:center;margin:40px 0 8px}}p.sub{{text-align:center;color:#666;margin-bottom:40px;font-size:1.1rem}}.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}}footer{{text-align:center;padding:40px;color:#999;font-size:.85rem}}footer a{{color:#6c63ff;text-decoration:none;margin:0 8px}}input{{width:100%;max-width:400px;margin:0 auto 32px;display:block;padding:14px 20px;border:2px solid #ddd;border-radius:10px;font-size:1rem}}input:focus{{outline:none;border-color:#6c63ff}}</style></head><body>
+<nav><a href="/">ToolPipe</a><div><a href="/docs">API Docs</a> | <a href="/pricing">Pricing</a> | <a href="/api-keys">Get API Key</a></div></nav>
+<div class="container">
+<h1>{len(tools)}+ Free Developer Tools</h1>
+<p class="sub">All tools run in your browser. No signup required. Also available as REST APIs.</p>
+<input type="text" id="search" placeholder="Search tools..." oninput="filter()">
+<div class="grid" id="grid">{tool_cards}</div>
+</div>
+<footer><a href="/">Home</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pricing</a> | <a href="/api-keys">Get API Key</a></footer>
+<script>function filter(){{const q=document.getElementById('search').value.toLowerCase();document.querySelectorAll('#grid > a').forEach(a=>{{a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'}})}}</script></body></html>"""
+    return HTMLResponse(inject_snippet(html))
 
 
 @app.get("/invoice", response_class=HTMLResponse)
