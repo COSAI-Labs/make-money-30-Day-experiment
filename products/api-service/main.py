@@ -1074,7 +1074,7 @@ async def sitemap():
         "/html-entity-encoder", "/text-diff", "/word-counter",
         "/api-consulting", "/api-keys",
         "/css-minifier", "/javascript-minifier", "/json-to-yaml", "/image-to-base64",
-        "/blog-free-developer-tools",
+        "/blog-free-developer-tools", "/polymarket",
     ]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -1855,6 +1855,71 @@ async def join_waitlist(req: WaitlistRequest):
         with open(wl_file, "a") as f:
             f.write(f"{email},{datetime.now(timezone.utc).isoformat()}\n")
     return {"joined": True, "position": len(waitlist_emails)}
+
+
+# --- Polymarket Analysis Dashboard ---
+
+@app.get("/api/polymarket/markets")
+async def polymarket_markets():
+    """Fetch and analyze current Polymarket markets."""
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(f"https://gamma-api.polymarket.com/markets", params={
+                "active": "true", "closed": "false", "limit": 50
+            })
+            resp.raise_for_status()
+            markets = resp.json()
+
+        results = []
+        for m in markets:
+            vol = 0
+            try:
+                vol = float(m.get("volume", 0) or 0)
+            except (ValueError, TypeError):
+                pass
+            if vol < 5000:
+                continue
+
+            outcome_prices = m.get("outcomePrices", "")
+            if isinstance(outcome_prices, str):
+                try:
+                    outcome_prices = json.loads(outcome_prices)
+                except (json.JSONDecodeError, TypeError):
+                    outcome_prices = []
+
+            outcomes = m.get("outcomes", "")
+            if isinstance(outcomes, str):
+                try:
+                    outcomes = json.loads(outcomes)
+                except (json.JSONDecodeError, TypeError):
+                    outcomes = ["Yes", "No"]
+
+            tokens = []
+            for i, price in enumerate(outcome_prices):
+                tokens.append({
+                    "outcome": outcomes[i] if i < len(outcomes) else f"Outcome {i}",
+                    "price": float(price) if price else None,
+                })
+
+            results.append({
+                "question": m.get("question", ""),
+                "volume": vol,
+                "liquidity": float(m.get("liquidity", 0) or 0),
+                "end_date": m.get("endDate", ""),
+                "category": m.get("category", ""),
+                "slug": m.get("slug", ""),
+                "tokens": tokens,
+            })
+
+        results.sort(key=lambda x: x["volume"], reverse=True)
+        return {"markets": results[:30], "total_scanned": len(markets)}
+    except Exception as e:
+        return {"error": str(e), "markets": []}
+
+
+@app.get("/polymarket", response_class=HTMLResponse)
+async def polymarket_dashboard():
+    return HTMLResponse(inject_snippet(Path(Path(__file__).parent.parent / "seo-pages" / "polymarket-dashboard.html").read_text()) if (Path(__file__).parent.parent / "seo-pages" / "polymarket-dashboard.html").exists() else "<h1>Coming soon</h1>")
 
 
 # --- Analytics Endpoints ---

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymarket Analysis Dashboard - Live Market Odds & Predictions</title>
+    <meta name="description" content="Free Polymarket analysis dashboard. Live prediction market odds, volume analysis, and opportunity detection for 500+ markets. Updated every 2 hours.">
+    <meta name="keywords" content="polymarket, prediction markets, market analysis, odds, predictions, betting markets, polymarket dashboard">
+    <link rel="canonical" href="/polymarket">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Polymarket Analysis Dashboard","description":"Live prediction market analysis and opportunity detection","applicationCategory":"FinanceApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 40px 20px; text-align: center; }
+        .header h1 { font-size: 2rem; color: #fff; margin-bottom: 8px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
+        .stats-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .stat-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 16px 20px; flex: 1; min-width: 150px; }
+        .stat-card .label { color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .value { color: #fff; font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+        .filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: #94a3b8; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .filter-btn.active { background: #6c63ff; color: white; border-color: #6c63ff; }
+        .market-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 20px; margin-bottom: 12px; transition: border-color 0.2s; }
+        .market-card:hover { border-color: #3b82f6; }
+        .market-card h3 { color: #fff; font-size: 1rem; margin-bottom: 10px; line-height: 1.4; }
+        .market-meta { display: flex; gap: 16px; margin-bottom: 10px; font-size: 0.8rem; color: #64748b; flex-wrap: wrap; }
+        .outcomes { display: flex; gap: 8px; flex-wrap: wrap; }
+        .outcome { padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; }
+        .outcome.yes { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .outcome.no { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .outcome.neutral { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .bar { height: 4px; background: #2a2a2a; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #3b82f6); border-radius: 2px; }
+        .loading { text-align: center; padding: 60px 20px; color: #64748b; }
+        .cta-box { background: linear-gradient(135deg, #302b63, #24243e); border-radius: 12px; padding: 32px; text-align: center; margin: 32px 0; }
+        .cta-box h2 { color: white; margin-bottom: 8px; font-size: 1.3rem; }
+        .cta-box p { color: #c7d2fe; margin-bottom: 16px; }
+        .cta-box a { display: inline-block; background: #6c63ff; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+        .premium-badge { background: #6c63ff; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; }
+        .refresh-btn { background: #6c63ff; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        footer { text-align: center; padding: 40px; color: #475569; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Polymarket Analysis Dashboard</h1>
+    <p>Live prediction market analysis. Track odds, volume, and opportunities across 500+ markets. Updated every 2 hours.</p>
+</div>
+<div class="container">
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="label">Markets Tracked</div>
+            <div class="value" id="total-markets">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Volume</div>
+            <div class="value" id="total-volume">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Last Updated</div>
+            <div class="value" id="last-updated" style="font-size:1rem">--</div>
+        </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterMarkets('all')">All Markets</button>
+            <button class="filter-btn" onclick="filterMarkets('extreme')">High Confidence</button>
+            <button class="filter-btn" onclick="filterMarkets('balanced')">Balanced (50/50)</button>
+        </div>
+        <button class="refresh-btn" onclick="loadMarkets()">Refresh</button>
+    </div>
+
+    <div id="markets-container">
+        <div class="loading">Loading live market data...</div>
+    </div>
+
+    <div class="cta-box">
+        <h2>Want Premium Analysis?</h2>
+        <p>Get AI-powered deep analysis, alerts for mispriced markets, historical accuracy tracking, and early edge detection.</p>
+        <a href="mailto:toolpipe-project@sharebot.net?subject=Polymarket Pro">Contact for Pro Access ($29/mo)</a>
+    </div>
+</div>
+
+<footer>
+    <a href="/">ToolPipe</a> | <a href="/api-keys">Free API Key</a> | <a href="/blog-free-developer-tools">Developer Tools</a>
+    <br>Data sourced from Polymarket public API. Not financial advice.
+</footer>
+
+<script>
+let allMarkets = [];
+
+async function loadMarkets() {
+    const container = document.getElementById('markets-container');
+    container.innerHTML = '<div class="loading">Loading live market data...</div>';
+
+    try {
+        const resp = await fetch('/api/polymarket/markets');
+        const data = await resp.json();
+        allMarkets = data.markets || [];
+
+        document.getElementById('total-markets').textContent = data.total_scanned || allMarkets.length;
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+
+        let totalVol = 0;
+        allMarkets.forEach(m => totalVol += m.volume);
+        document.getElementById('total-volume').textContent = '$' + (totalVol / 1e6).toFixed(1) + 'M';
+
+        renderMarkets(allMarkets);
+    } catch (e) {
+        container.innerHTML = '<div class="loading">Error loading data. Try refreshing.</div>';
+    }
+}
+
+function filterMarkets(type) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    if (type === 'extreme') {
+        renderMarkets(allMarkets.filter(m => m.tokens.some(t => t.price && (t.price < 0.10 || t.price > 0.90))));
+    } else if (type === 'balanced') {
+        renderMarkets(allMarkets.filter(m => m.tokens.some(t => t.price && t.price >= 0.40 && t.price <= 0.60)));
+    } else {
+        renderMarkets(allMarkets);
+    }
+}
+
+function renderMarkets(markets) {
+    const container = document.getElementById('markets-container');
+    if (!markets.length) {
+        container.innerHTML = '<div class="loading">No markets match this filter.</div>';
+        return;
+    }
+
+    container.innerHTML = markets.map(m => {
+        const yesToken = m.tokens.find(t => t.outcome === 'Yes') || m.tokens[0];
+        const noToken = m.tokens.find(t => t.outcome === 'No') || m.tokens[1];
+        const yesPrice = yesToken ? yesToken.price : null;
+        const noPrice = noToken ? noToken.price : null;
+        const barWidth = yesPrice ? Math.round(yesPrice * 100) : 50;
+
+        const endDate = m.end_date ? new Date(m.end_date).toLocaleDateString() : 'N/A';
+        const volume = m.volume >= 1e6 ? '$' + (m.volume / 1e6).toFixed(1) + 'M' : '$' + (m.volume / 1e3).toFixed(0) + 'K';
+
+        let outcomeHtml = '';
+        m.tokens.forEach(t => {
+            if (t.price === null) return;
+            const pct = Math.round(t.price * 100);
+            const cls = pct > 60 ? 'yes' : pct < 40 ? 'no' : 'neutral';
+            outcomeHtml += '<span class="outcome ' + cls + '">' + t.outcome + ': ' + pct + '%</span>';
+        });
+
+        return '<div class="market-card">' +
+            '<h3>' + m.question + '</h3>' +
+            '<div class="market-meta">' +
+            '<span>Volume: ' + volume + '</span>' +
+            '<span>Ends: ' + endDate + '</span>' +
+            (m.category ? '<span>' + m.category + '</span>' : '') +
+            '</div>' +
+            '<div class="outcomes">' + outcomeHtml + '</div>' +
+            '<div class="bar"><div class="bar-fill" style="width:' + barWidth + '%"></div></div>' +
+            '</div>';
+    }).join('');
+}
+
+loadMarkets();
+</script>
+</body>
+</html>
