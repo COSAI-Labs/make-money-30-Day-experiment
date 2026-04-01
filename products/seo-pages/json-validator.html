@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Validator - Free Online JSON Syntax Checker</title>
+    <meta name="description" content="Validate JSON online for free. Check JSON syntax, find errors with line numbers, and fix malformed JSON instantly. No signup required.">
+    <meta property="og:title" content="Free JSON Validator - Check JSON Syntax Online">
+    <link rel="canonical" href="/json-validator">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        textarea { width: 100%; min-height: 250px; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical; }
+        textarea:focus { outline: none; border-color: #6c63ff; }
+        .btns { display: flex; gap: 8px; margin: 16px 0; justify-content: center; flex-wrap: wrap; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-primary { background: #6c63ff; color: white; }
+        .btn-secondary { background: #22c55e; color: white; }
+        .btn-copy { background: #eee; color: #333; }
+        .result { margin: 16px 0; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; display: none; }
+        .result.valid { background: #f0fdf4; border: 1px solid #22c55e; color: #166534; }
+        .result.invalid { background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .content pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; }
+        footer { text-align: center; padding: 32px; color: #999; font-size: 0.85rem; margin-top: 48px; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">ToolPipe</a>
+        <div>
+            <a href="/tools">All Tools</a> |
+            <a href="/json-formatter">JSON Formatter</a> |
+            <a href="/docs">API</a> |
+            <a href="/pricing">Pro Plans</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>JSON Validator</h1>
+        <p class="subtitle">Paste your JSON below to validate syntax and find errors with exact line numbers.</p>
+        <div class="tool-box">
+            <textarea id="input" placeholder='Paste your JSON here...
+{
+  "name": "example",
+  "valid": true
+}'></textarea>
+            <div class="btns">
+                <button class="btn btn-primary" onclick="validateJSON()">Validate JSON</button>
+                <button class="btn btn-secondary" onclick="formatJSON()">Format & Validate</button>
+                <button class="btn btn-copy" onclick="copyResult()">Copy Result</button>
+                <button class="btn btn-copy" onclick="clearAll()">Clear</button>
+            </div>
+            <div id="result" class="result"></div>
+            <textarea id="output" style="display:none;min-height:200px;background:#f8fdf8;border-color:#22c55e"></textarea>
+        </div>
+
+        <div class="content">
+            <h2>What is JSON Validation?</h2>
+            <p>JSON (JavaScript Object Notation) validation checks whether a string is valid JSON according to the RFC 8259 specification. Valid JSON must have properly matched braces, quoted string keys, and correct value types.</p>
+
+            <h2>Common JSON Errors</h2>
+            <p>The most frequent JSON syntax errors include:</p>
+            <ul style="margin:12px 0 12px 24px;color:#555">
+                <li>Trailing commas after the last element: <code>{"a": 1,}</code></li>
+                <li>Single quotes instead of double: <code>{'key': 'value'}</code></li>
+                <li>Unquoted keys: <code>{key: "value"}</code></li>
+                <li>Missing commas between elements: <code>{"a": 1 "b": 2}</code></li>
+                <li>Comments in JSON: <code>{"a": 1 // comment}</code></li>
+            </ul>
+
+            <h2>JSON Validation API</h2>
+            <p>Validate JSON programmatically with our free API:</p>
+            <pre>curl -X POST /api/json/validate \
+  -H "Content-Type: application/json" \
+  -d '{"json": "{\"valid\": true}"}'</pre>
+            <p>Returns: <code>{"valid": true, "formatted": "..."}</code> or <code>{"valid": false, "error": "...", "line": 3}</code></p>
+
+            <h2>Related Tools</h2>
+            <p><a href="/json-formatter" style="color:#6c63ff">JSON Formatter</a> | <a href="/json-to-yaml" style="color:#6c63ff">JSON to YAML</a> | <a href="/json-to-csv" style="color:#6c63ff">JSON to CSV</a> | <a href="/json-path-tester" style="color:#6c63ff">JSONPath Tester</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <a href="/">ToolPipe</a> | <a href="/tools">All Tools</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pro Plans</a> | <a href="/donate">Support Us</a>
+        <p style="margin-top:8px">Free developer tools. No signup, no tracking.</p>
+    </footer>
+
+    <script>
+    function validateJSON() {
+        const input = document.getElementById('input').value.trim();
+        const result = document.getElementById('result');
+        const output = document.getElementById('output');
+        if (!input) { result.style.display = 'none'; output.style.display = 'none'; return; }
+        try {
+            const parsed = JSON.parse(input);
+            result.className = 'result valid';
+            result.innerHTML = 'Valid JSON. ' + (Array.isArray(parsed) ? 'Array with ' + parsed.length + ' elements.' : typeof parsed === 'object' && parsed !== null ? 'Object with ' + Object.keys(parsed).length + ' keys.' : 'Type: ' + typeof parsed);
+            result.style.display = 'block';
+            output.style.display = 'none';
+        } catch (e) {
+            result.className = 'result invalid';
+            result.innerHTML = 'Invalid JSON: ' + e.message;
+            result.style.display = 'block';
+            output.style.display = 'none';
+        }
+    }
+    function formatJSON() {
+        const input = document.getElementById('input').value.trim();
+        const result = document.getElementById('result');
+        const output = document.getElementById('output');
+        if (!input) return;
+        try {
+            const parsed = JSON.parse(input);
+            const formatted = JSON.stringify(parsed, null, 2);
+            result.className = 'result valid';
+            result.innerHTML = 'Valid JSON. Formatted below.';
+            result.style.display = 'block';
+            output.value = formatted;
+            output.style.display = 'block';
+        } catch (e) {
+            result.className = 'result invalid';
+            result.innerHTML = 'Invalid JSON: ' + e.message;
+            result.style.display = 'block';
+            output.style.display = 'none';
+        }
+    }
+    function copyResult() {
+        const output = document.getElementById('output');
+        if (output.style.display !== 'none' && output.value) {
+            navigator.clipboard.writeText(output.value);
+        }
+    }
+    function clearAll() {
+        document.getElementById('input').value = '';
+        document.getElementById('output').value = '';
+        document.getElementById('output').style.display = 'none';
+        document.getElementById('result').style.display = 'none';
+    }
+    </script>
+</body>
+</html>
