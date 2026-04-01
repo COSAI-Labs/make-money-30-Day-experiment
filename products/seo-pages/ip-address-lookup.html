@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Address Lookup - Free IP Geolocation Tool</title>
+    <meta name="description" content="Free IP address lookup tool. Find geolocation, ISP, timezone, and more for any IP address. Supports IPv4 and IPv6. No signup required.">
+    <link rel="canonical" href="/ip-address-lookup">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"IP Address Lookup","description":"Free IP geolocation lookup tool","applicationCategory":"NetworkApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        nav { background: #1a1a2e; color: white; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        nav a { color: #6c63ff; text-decoration: none; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 2rem; text-align: center; margin: 32px 0 8px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+        .tool-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .search-row { display: flex; gap: 8px; margin-bottom: 16px; }
+        .search-row input { flex: 1; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .search-row input:focus { outline: none; border-color: #6c63ff; }
+        .btn { padding: 14px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; background: #6c63ff; color: white; }
+        .your-ip { background: linear-gradient(135deg, #302b63, #24243e); color: white; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .your-ip .label { color: #a5b4fc; font-size: 0.85rem; }
+        .your-ip .value { font-family: monospace; font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+        .results { margin-top: 16px; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .result-row .label { color: #666; }
+        .result-row .value { font-weight: 600; }
+        .content { margin-top: 48px; line-height: 1.7; }
+        .content h2 { margin: 24px 0 12px; font-size: 1.3rem; }
+        .content p { margin-bottom: 12px; color: #555; }
+        .content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        footer { text-align: center; padding: 40px; color: #999; font-size: 0.85rem; }
+        footer a { color: #6c63ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<nav><a href="/">ToolPipe</a> <a href="/api-keys">Free API Key</a></nav>
+<div class="container">
+    <h1>IP Address Lookup</h1>
+    <p class="subtitle">Find geolocation, ISP, and network details for any IP address.</p>
+
+    <div class="your-ip">
+        <div class="label">Your IP Address</div>
+        <div class="value" id="my-ip">Loading...</div>
+    </div>
+
+    <div class="tool-box">
+        <div class="search-row">
+            <input type="text" id="ip-input" placeholder="Enter IP address (e.g., 8.8.8.8)">
+            <button class="btn" onclick="lookupIP()">Lookup</button>
+        </div>
+        <div class="results" id="results"></div>
+    </div>
+
+    <div class="content">
+        <h2>What Can You Find?</h2>
+        <p>Our IP lookup tool reveals: country, region, city, timezone, ISP name, organization, and approximate coordinates. Works with both IPv4 and IPv6 addresses.</p>
+
+        <h2>API Access</h2>
+        <p>Lookup IPs programmatically: <code>GET /api/ip?address=8.8.8.8</code></p>
+        <p><a href="/api-keys">Get a free API key</a> for 100 requests/day.</p>
+
+        <h2>Related Tools</h2>
+        <p><a href="/whats-my-ip">What's My IP</a> | <a href="/api-keys">Free API Key</a></p>
+    </div>
+</div>
+
+<footer><a href="/">ToolPipe</a> | <a href="/whats-my-ip">My IP</a> | <a href="/api-keys">API</a></footer>
+
+<script>
+// Get user's IP
+fetch('/api/ip').then(r=>r.json()).then(d=>{
+    document.getElementById('my-ip').textContent = d.ip || 'Unknown';
+}).catch(()=>{document.getElementById('my-ip').textContent='Could not detect';});
+
+function lookupIP() {
+    const ip = document.getElementById('ip-input').value.trim();
+    if (!ip) return;
+    const results = document.getElementById('results');
+    results.innerHTML = '<p>Looking up...</p>';
+
+    fetch('/api/ip?address=' + encodeURIComponent(ip))
+    .then(r => r.json())
+    .then(d => {
+        if (d.error) {
+            results.innerHTML = '<p style="color:red">' + d.error + '</p>';
+            return;
+        }
+        results.innerHTML = `
+            <div class="result-row"><span class="label">IP Address</span><span class="value">${d.ip || ip}</span></div>
+            <div class="result-row"><span class="label">Country</span><span class="value">${d.country || 'N/A'}</span></div>
+            <div class="result-row"><span class="label">Region</span><span class="value">${d.region || 'N/A'}</span></div>
+            <div class="result-row"><span class="label">City</span><span class="value">${d.city || 'N/A'}</span></div>
+            <div class="result-row"><span class="label">Timezone</span><span class="value">${d.timezone || 'N/A'}</span></div>
+            <div class="result-row"><span class="label">ISP</span><span class="value">${d.org || d.isp || 'N/A'}</span></div>
+            <div class="result-row"><span class="label">Latitude</span><span class="value">${d.lat || 'N/A'}</span></div>
+            <div class="result-row"><span class="label">Longitude</span><span class="value">${d.lon || 'N/A'}</span></div>
+        `;
+    }).catch(e => { results.innerHTML = '<p style="color:red">Lookup failed. Try again.</p>'; });
+}
+</script>
+</body>
+</html>
