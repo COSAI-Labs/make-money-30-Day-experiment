@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "22 developer utility tools via MCP: JSON format, QR codes, UUID generation, DNS lookup, hashing (SHA-256/MD5), Base64, text analysis, CSS/JS minification, color conversion, URL shortening, crypto prices, SEO analysis, and more. Free tier: 100 calls/day.",
+  "description": "34 developer tools: JSON, QR, UUID, hash, DNS, Base64, regex, JWT, URL, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
