@@ -35,8 +35,8 @@ from reportlab.lib.pagesizes import letter
 
 app = FastAPI(
     title="ToolPipe API",
-    description="230+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Credits: 1K for $4.99. Pay with crypto, no KYC.",
-    version="1.18.0",
+    description="240+ developer utility APIs. Web scraping, domain intelligence, bulk operations, API testing, sitemap parsing, content monitoring, code review, fake data, JSON Schema validation, security headers, API client generation, CSV analysis, code minification, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Credits: 1K for $4.99. Pay with crypto, no KYC.",
+    version="1.19.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -784,6 +784,9 @@ PREMIUM_API_PATHS = {
     "/api/code/format", "/meta/extract", "/image/resize",
     "/api/web/extract", "/api/code/analyze", "/api/schema/generate",
     "/api/prompt/build", "/api/test/endpoint",
+    "/api/web/compare", "/api/bulk/hash", "/api/bulk/url-check",
+    "/api/web/structured-extract", "/api/domain/intel", "/api/bulk/dns",
+    "/api/web/monitor", "/api/test/suite", "/api/web/sitemap", "/api/web/robots",
 }
 
 
@@ -10502,6 +10505,496 @@ async def generate_regex(request: Request):
         "query": description,
         "patterns": results,
         "total_patterns": len(results),
+    }
+
+
+# --- Premium Endpoints: High-Value Tools for AI Agents ---
+
+class WebCompareRequest(BaseModel):
+    url1: str
+    url2: str
+    compare: str = "content"  # content, headers, performance, seo
+
+
+@app.post("/api/web/compare")
+async def web_compare(req: WebCompareRequest):
+    """Compare two websites side-by-side: content, headers, performance, SEO. Premium."""
+    results = {}
+    async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+        try:
+            r1 = await client.get(req.url1, headers={"User-Agent": "ToolPipe/1.19.0"})
+            r2 = await client.get(req.url2, headers={"User-Agent": "ToolPipe/1.19.0"})
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to fetch URLs: {e}")
+
+    if req.compare in ("content", "all"):
+        soup1 = BeautifulSoup(r1.text, "html.parser")
+        soup2 = BeautifulSoup(r2.text, "html.parser")
+        text1 = soup1.get_text(separator="\n", strip=True)[:2000]
+        text2 = soup2.get_text(separator="\n", strip=True)[:2000]
+        results["content"] = {
+            "url1_title": soup1.title.string if soup1.title else "",
+            "url2_title": soup2.title.string if soup2.title else "",
+            "url1_text_length": len(text1),
+            "url2_text_length": len(text2),
+            "url1_links": len(soup1.find_all("a")),
+            "url2_links": len(soup2.find_all("a")),
+            "url1_images": len(soup1.find_all("img")),
+            "url2_images": len(soup2.find_all("img")),
+        }
+
+    if req.compare in ("headers", "all"):
+        results["headers"] = {
+            "url1": dict(r1.headers),
+            "url2": dict(r2.headers),
+        }
+
+    if req.compare in ("performance", "all"):
+        results["performance"] = {
+            "url1_status": r1.status_code,
+            "url2_status": r2.status_code,
+            "url1_size_bytes": len(r1.content),
+            "url2_size_bytes": len(r2.content),
+            "url1_response_time_ms": r1.elapsed.total_seconds() * 1000 if hasattr(r1, 'elapsed') else None,
+            "url2_response_time_ms": r2.elapsed.total_seconds() * 1000 if hasattr(r2, 'elapsed') else None,
+        }
+
+    if req.compare in ("seo", "all"):
+        for i, (resp, url) in enumerate([(r1, req.url1), (r2, req.url2)], 1):
+            soup = BeautifulSoup(resp.text, "html.parser")
+            meta_desc = soup.find("meta", attrs={"name": "description"})
+            og_title = soup.find("meta", attrs={"property": "og:title"})
+            canonical = soup.find("link", attrs={"rel": "canonical"})
+            h1s = [h.get_text(strip=True) for h in soup.find_all("h1")]
+            results[f"url{i}_seo"] = {
+                "url": url,
+                "title": soup.title.string if soup.title else "",
+                "meta_description": meta_desc["content"] if meta_desc else "",
+                "og_title": og_title["content"] if og_title else "",
+                "canonical": canonical["href"] if canonical else "",
+                "h1_tags": h1s[:5],
+                "has_robots_meta": bool(soup.find("meta", attrs={"name": "robots"})),
+            }
+
+    return {"comparison": req.compare, "url1": req.url1, "url2": req.url2, "results": results}
+
+
+class BulkHashRequest(BaseModel):
+    texts: list[str]
+    algorithm: str = "sha256"
+
+
+@app.post("/api/bulk/hash")
+async def bulk_hash(req: BulkHashRequest):
+    """Hash multiple strings in a single call. Premium."""
+    if len(req.texts) > 500:
+        raise HTTPException(status_code=400, detail="Maximum 500 items per bulk request")
+    algo = req.algorithm.lower()
+    if algo not in ("md5", "sha1", "sha256", "sha512"):
+        raise HTTPException(status_code=400, detail="Supported: md5, sha1, sha256, sha512")
+    results = []
+    for text in req.texts:
+        h = hashlib.new(algo, text.encode()).hexdigest()
+        results.append({"input": text[:50], "hash": h})
+    return {"algorithm": algo, "count": len(results), "results": results}
+
+
+class BulkUrlCheckRequest(BaseModel):
+    urls: list[str]
+
+
+@app.post("/api/bulk/url-check")
+async def bulk_url_check(req: BulkUrlCheckRequest):
+    """Check multiple URLs for availability, status codes, redirects. Premium."""
+    if len(req.urls) > 100:
+        raise HTTPException(status_code=400, detail="Maximum 100 URLs per bulk request")
+    results = []
+    async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+        for url in req.urls:
+            try:
+                r = await client.head(url, headers={"User-Agent": "ToolPipe/1.19.0"})
+                results.append({
+                    "url": url, "status": r.status_code, "ok": r.status_code < 400,
+                    "content_type": r.headers.get("content-type", ""),
+                    "redirected": str(r.url) != url,
+                    "final_url": str(r.url) if str(r.url) != url else None,
+                })
+            except Exception as e:
+                results.append({"url": url, "status": None, "ok": False, "error": str(e)[:100]})
+    ok_count = sum(1 for r in results if r.get("ok"))
+    return {"total": len(results), "ok": ok_count, "failed": len(results) - ok_count, "results": results}
+
+
+class StructuredExtractRequest(BaseModel):
+    url: str
+    extract: list[str] = ["title", "description", "links", "headings", "images", "tables", "emails", "phones"]
+
+
+@app.post("/api/web/structured-extract")
+async def structured_extract(req: StructuredExtractRequest):
+    """Extract structured data from a webpage: links, emails, phones, tables, headings, metadata. Premium."""
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            r = await client.get(req.url, headers={"User-Agent": "ToolPipe/1.19.0"})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch: {e}")
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    result = {"url": req.url, "status": r.status_code}
+
+    if "title" in req.extract:
+        result["title"] = soup.title.string.strip() if soup.title and soup.title.string else ""
+
+    if "description" in req.extract:
+        md = soup.find("meta", attrs={"name": "description"})
+        result["description"] = md["content"] if md and md.get("content") else ""
+
+    if "headings" in req.extract:
+        result["headings"] = {}
+        for level in range(1, 7):
+            tags = soup.find_all(f"h{level}")
+            if tags:
+                result["headings"][f"h{level}"] = [t.get_text(strip=True) for t in tags[:20]]
+
+    if "links" in req.extract:
+        links = []
+        for a in soup.find_all("a", href=True)[:100]:
+            href = a["href"]
+            text = a.get_text(strip=True)
+            if href.startswith("http"):
+                links.append({"text": text[:80], "href": href})
+        result["links"] = links
+        result["link_count"] = len(soup.find_all("a", href=True))
+
+    if "images" in req.extract:
+        imgs = []
+        for img in soup.find_all("img", src=True)[:50]:
+            imgs.append({"src": img["src"], "alt": img.get("alt", "")[:80]})
+        result["images"] = imgs
+
+    if "tables" in req.extract:
+        tables = []
+        for table in soup.find_all("table")[:5]:
+            rows = []
+            for tr in table.find_all("tr")[:30]:
+                cells = [td.get_text(strip=True)[:100] for td in tr.find_all(["td", "th"])]
+                if cells:
+                    rows.append(cells)
+            if rows:
+                tables.append({"rows": len(rows), "cols": len(rows[0]) if rows else 0, "data": rows})
+        result["tables"] = tables
+
+    if "emails" in req.extract:
+        text = soup.get_text()
+        emails = list(set(re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)))
+        result["emails"] = emails[:20]
+
+    if "phones" in req.extract:
+        text = soup.get_text()
+        phones = list(set(re.findall(r'[\+]?[(]?[0-9]{1,4}[)]?[-\s\./0-9]{7,15}', text)))
+        result["phones"] = [p.strip() for p in phones[:20] if len(p.strip()) >= 7]
+
+    return result
+
+
+class DomainIntelRequest(BaseModel):
+    domain: str
+
+
+@app.post("/api/domain/intel")
+async def domain_intel(req: DomainIntelRequest):
+    """Domain intelligence: DNS, SSL, WHOIS, headers, tech stack detection. Premium."""
+    import socket
+    domain = req.domain.strip().lower().replace("https://", "").replace("http://", "").split("/")[0]
+    result = {"domain": domain}
+
+    # DNS records
+    try:
+        ips = socket.gethostbyname_ex(domain)
+        result["dns"] = {"hostname": ips[0], "aliases": ips[1], "ips": ips[2]}
+    except Exception as e:
+        result["dns"] = {"error": str(e)[:100]}
+
+    # HTTP headers and tech detection
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            r = await client.get(f"https://{domain}", headers={"User-Agent": "ToolPipe/1.19.0"})
+            headers = dict(r.headers)
+            result["http"] = {
+                "status": r.status_code,
+                "server": headers.get("server", ""),
+                "powered_by": headers.get("x-powered-by", ""),
+                "content_type": headers.get("content-type", ""),
+            }
+            # Tech stack detection from headers and HTML
+            tech = []
+            html_lower = r.text[:5000].lower()
+            if "wp-content" in html_lower or "wordpress" in html_lower:
+                tech.append("WordPress")
+            if "shopify" in html_lower:
+                tech.append("Shopify")
+            if "next" in headers.get("x-powered-by", "").lower() or "__next" in html_lower:
+                tech.append("Next.js")
+            if "react" in html_lower or "react-root" in html_lower:
+                tech.append("React")
+            if "vue" in html_lower or "__vue" in html_lower:
+                tech.append("Vue.js")
+            if "angular" in html_lower or "ng-version" in html_lower:
+                tech.append("Angular")
+            if "cloudflare" in headers.get("server", "").lower():
+                tech.append("Cloudflare")
+            if "vercel" in headers.get("server", "").lower() or "x-vercel" in headers:
+                tech.append("Vercel")
+            if "nginx" in headers.get("server", "").lower():
+                tech.append("Nginx")
+            if "apache" in headers.get("server", "").lower():
+                tech.append("Apache")
+            if headers.get("x-frame-options"):
+                tech.append("X-Frame-Options")
+            if headers.get("strict-transport-security"):
+                tech.append("HSTS")
+            if headers.get("content-security-policy"):
+                tech.append("CSP")
+            result["tech_stack"] = tech
+
+            # Security headers score
+            security_headers = ["strict-transport-security", "content-security-policy",
+                                "x-content-type-options", "x-frame-options", "x-xss-protection",
+                                "referrer-policy", "permissions-policy"]
+            present = sum(1 for h in security_headers if h in headers)
+            result["security_score"] = {
+                "score": f"{present}/{len(security_headers)}",
+                "grade": "A" if present >= 6 else "B" if present >= 4 else "C" if present >= 2 else "F",
+                "present": [h for h in security_headers if h in headers],
+                "missing": [h for h in security_headers if h not in headers],
+            }
+    except Exception as e:
+        result["http"] = {"error": str(e)[:100]}
+
+    return result
+
+
+class BulkDnsRequest(BaseModel):
+    domains: list[str]
+
+
+@app.post("/api/bulk/dns")
+async def bulk_dns_lookup(req: BulkDnsRequest):
+    """Bulk DNS lookup for multiple domains. Premium."""
+    import socket
+    if len(req.domains) > 100:
+        raise HTTPException(status_code=400, detail="Maximum 100 domains per bulk request")
+    results = []
+    for domain in req.domains:
+        d = domain.strip().lower().replace("https://", "").replace("http://", "").split("/")[0]
+        try:
+            ips = socket.gethostbyname_ex(d)
+            results.append({"domain": d, "ips": ips[2], "ok": True})
+        except Exception as e:
+            results.append({"domain": d, "error": str(e)[:80], "ok": False})
+    return {"total": len(results), "resolved": sum(1 for r in results if r["ok"]), "results": results}
+
+
+class ContentDiffRequest(BaseModel):
+    url: str
+    previous_hash: str = ""
+
+
+@app.post("/api/web/monitor")
+async def web_monitor(req: ContentDiffRequest):
+    """Monitor a URL for changes. Returns content hash for change detection. Premium."""
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            r = await client.get(req.url, headers={"User-Agent": "ToolPipe/1.19.0"})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch: {e}")
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    # Remove scripts and styles for stable hashing
+    for tag in soup.find_all(["script", "style", "noscript"]):
+        tag.decompose()
+    text = soup.get_text(separator="\n", strip=True)
+    current_hash = hashlib.sha256(text.encode()).hexdigest()
+
+    result = {
+        "url": req.url,
+        "status": r.status_code,
+        "content_hash": current_hash,
+        "content_length": len(text),
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    if req.previous_hash:
+        result["changed"] = current_hash != req.previous_hash
+        result["previous_hash"] = req.previous_hash
+    else:
+        result["changed"] = None
+        result["note"] = "First check. Save content_hash and pass it as previous_hash next time to detect changes."
+
+    return result
+
+
+class ApiTestSuiteRequest(BaseModel):
+    base_url: str
+    endpoints: list[dict]  # [{"method": "GET", "path": "/health"}, ...]
+
+
+@app.post("/api/test/suite")
+async def api_test_suite(req: ApiTestSuiteRequest):
+    """Run a test suite against an API. Tests multiple endpoints and reports results. Premium."""
+    if len(req.endpoints) > 50:
+        raise HTTPException(status_code=400, detail="Maximum 50 endpoints per test suite")
+    base = req.base_url.rstrip("/")
+    results = []
+    passed = 0
+    failed = 0
+
+    async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+        for ep in req.endpoints:
+            method = ep.get("method", "GET").upper()
+            path = ep.get("path", "/")
+            expected_status = ep.get("expected_status", 200)
+            body = ep.get("body")
+            headers = ep.get("headers", {})
+            url = f"{base}{path}"
+            try:
+                if method == "GET":
+                    r = await client.get(url, headers=headers)
+                elif method == "POST":
+                    r = await client.post(url, json=body, headers=headers)
+                elif method == "PUT":
+                    r = await client.put(url, json=body, headers=headers)
+                elif method == "DELETE":
+                    r = await client.delete(url, headers=headers)
+                else:
+                    results.append({"path": path, "error": f"Unsupported method: {method}"})
+                    failed += 1
+                    continue
+
+                ok = r.status_code == expected_status
+                if ok:
+                    passed += 1
+                else:
+                    failed += 1
+                result_entry = {
+                    "method": method, "path": path, "status": r.status_code,
+                    "expected": expected_status, "passed": ok,
+                    "response_time_ms": round(r.elapsed.total_seconds() * 1000, 1) if hasattr(r, 'elapsed') else None,
+                    "content_type": r.headers.get("content-type", ""),
+                }
+                if not ok:
+                    result_entry["response_preview"] = r.text[:200]
+                results.append(result_entry)
+            except Exception as e:
+                failed += 1
+                results.append({"method": method, "path": path, "error": str(e)[:100], "passed": False})
+
+    return {
+        "base_url": base, "total": len(results), "passed": passed, "failed": failed,
+        "success_rate": f"{(passed / len(results) * 100):.1f}%" if results else "0%",
+        "results": results,
+    }
+
+
+class SitemapParseRequest(BaseModel):
+    url: str
+
+
+@app.post("/api/web/sitemap")
+async def parse_sitemap(req: SitemapParseRequest):
+    """Parse a website's sitemap.xml and return all URLs. Premium."""
+    sitemap_url = req.url.rstrip("/")
+    if not sitemap_url.endswith(".xml"):
+        sitemap_url = f"{sitemap_url}/sitemap.xml"
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            r = await client.get(sitemap_url, headers={"User-Agent": "ToolPipe/1.19.0"})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch sitemap: {e}")
+
+    if r.status_code != 200:
+        raise HTTPException(status_code=404, detail=f"Sitemap not found at {sitemap_url} (status {r.status_code})")
+
+    urls = re.findall(r'<loc>(.*?)</loc>', r.text)
+    lastmods = re.findall(r'<lastmod>(.*?)</lastmod>', r.text)
+
+    entries = []
+    for i, url in enumerate(urls[:500]):
+        entry = {"url": url}
+        if i < len(lastmods):
+            entry["lastmod"] = lastmods[i]
+        entries.append(entry)
+
+    # Check if it's a sitemap index (contains other sitemaps)
+    is_index = "<sitemapindex" in r.text.lower()
+
+    return {
+        "sitemap_url": sitemap_url,
+        "is_index": is_index,
+        "total_urls": len(urls),
+        "urls": entries,
+    }
+
+
+class RobotsCheckRequest(BaseModel):
+    url: str
+    user_agent: str = "*"
+    path: str = "/"
+
+
+@app.post("/api/web/robots")
+async def check_robots(req: RobotsCheckRequest):
+    """Parse robots.txt and check if a path is allowed for a user-agent. Premium."""
+    base = req.url.rstrip("/")
+    parsed = urlparse(base)
+    robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            r = await client.get(robots_url, headers={"User-Agent": "ToolPipe/1.19.0"})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch robots.txt: {e}")
+
+    if r.status_code != 200:
+        return {"robots_url": robots_url, "exists": False, "allowed": True, "note": "No robots.txt found, all paths allowed."}
+
+    lines = r.text.strip().split("\n")
+    rules = {"allow": [], "disallow": [], "sitemaps": []}
+    current_agent = None
+
+    for line in lines:
+        line = line.strip()
+        if line.lower().startswith("user-agent:"):
+            current_agent = line.split(":", 1)[1].strip()
+        elif line.lower().startswith("disallow:") and (current_agent == req.user_agent or current_agent == "*"):
+            path = line.split(":", 1)[1].strip()
+            if path:
+                rules["disallow"].append(path)
+        elif line.lower().startswith("allow:") and (current_agent == req.user_agent or current_agent == "*"):
+            path = line.split(":", 1)[1].strip()
+            if path:
+                rules["allow"].append(path)
+        elif line.lower().startswith("sitemap:"):
+            rules["sitemaps"].append(line.split(":", 1)[1].strip())
+
+    # Check if the requested path is allowed
+    allowed = True
+    for disallow in rules["disallow"]:
+        if req.path.startswith(disallow):
+            allowed = False
+            break
+    for allow in rules["allow"]:
+        if req.path.startswith(allow):
+            allowed = True
+            break
+
+    return {
+        "robots_url": robots_url,
+        "exists": True,
+        "user_agent": req.user_agent,
+        "path": req.path,
+        "allowed": allowed,
+        "rules": rules,
+        "raw_length": len(r.text),
     }
 
 
