@@ -1,5 +1,5 @@
 name: toolpipe
-description: "145+ developer utility tools: JSON, QR codes, hashing, UUID, DNS lookup, SSL check, WHOIS, code review, fake data, Dockerfile gen, GitHub Actions, Nginx configs, and more. Free 100 calls/day."
+description: "238 developer utility APIs via MCP: JSON, QR codes, hashing, UUID, DNS, WHOIS, web scraping, domain intel, code review, fake data, PDF tools, SEO, bulk operations, API testing, and more. Free 100 calls/day, Pro $9.99/mo."
 icon: https://toolpipe.dev/favicon.ico
 startCommand:
   type: stdio
