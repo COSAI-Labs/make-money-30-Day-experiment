@@ -11494,6 +11494,242 @@ async def seo_page_handler(page_name: str):
     raise HTTPException(status_code=404, detail="Page not found")
 
 
+@app.get("/demo", response_class=HTMLResponse)
+async def demo_page():
+    return HTMLResponse(inject_snippet("""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ToolPipe API Demo - Try 200+ Developer Tools Live</title>
+<meta name="description" content="Try ToolPipe's 200+ developer APIs live. JSON formatter, QR codes, hash generator, DNS lookup, web scraper, and more. No signup required.">
+<link rel="canonical" href="https://toolpipe.dev/demo">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh}
+.hero{text-align:center;padding:60px 20px 40px;background:linear-gradient(180deg,#111 0%,#0a0a0a 100%)}
+.hero h1{font-size:2.2rem;font-weight:800;margin-bottom:8px}
+.hero h1 span{background:linear-gradient(135deg,#6c63ff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#94a3b8;font-size:1.1rem;max-width:600px;margin:0 auto}
+.demos{max-width:900px;margin:0 auto;padding:20px}
+.demo-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;margin-bottom:24px;overflow:hidden;transition:border-color 0.2s}
+.demo-card:hover{border-color:#333}
+.demo-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.demo-header h3{font-size:1.1rem;color:#fff}
+.demo-header .method{font-size:0.75rem;padding:3px 8px;border-radius:4px;font-weight:700;font-family:monospace}
+.method-get{background:#22c55e22;color:#22c55e}
+.method-post{background:#6c63ff22;color:#6c63ff}
+.demo-body{padding:0 24px 24px;display:none}
+.demo-body.open{display:block}
+.demo-input{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.demo-input input,.demo-input textarea,.demo-input select{flex:1;min-width:200px;padding:10px 14px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-size:0.9rem;font-family:monospace;outline:none}
+.demo-input textarea{min-height:80px;resize:vertical}
+.demo-input input:focus,.demo-input textarea:focus{border-color:#6c63ff}
+.try-btn{padding:10px 20px;background:#6c63ff;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;white-space:nowrap}
+.try-btn:hover{background:#5b54e6}
+.try-btn:disabled{background:#333;cursor:not-allowed}
+.demo-result{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:8px;padding:16px;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow-y:auto;display:none;color:#a0a0a0}
+.demo-result.visible{display:block}
+.demo-result img{max-width:200px;border-radius:8px;margin:8px 0}
+.curl-hint{color:#444;font-size:0.75rem;font-family:monospace;margin-top:8px}
+.cta{text-align:center;padding:60px 20px;background:linear-gradient(180deg,#0a0a0a 0%,#111 100%)}
+.cta h2{font-size:1.5rem;margin-bottom:8px}
+.cta p{color:#94a3b8;margin-bottom:24px}
+.cta a{display:inline-block;padding:14px 32px;background:#6c63ff;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;margin:0 8px}
+.cta a.secondary{background:transparent;border:1px solid #333;color:#94a3b8}
+.cta a:hover{opacity:0.9}
+.stats{display:flex;gap:32px;justify-content:center;margin:24px 0;flex-wrap:wrap}
+.stat{text-align:center}.stat .num{font-size:1.8rem;font-weight:800;color:#6c63ff}.stat .label{color:#64748b;font-size:0.85rem}
+</style></head><body>
+<div class="hero">
+<h1>Try <span>200+ APIs</span> Live</h1>
+<p>No signup needed. Click any tool below to test it instantly. When you're ready for more, get a free API key.</p>
+<div class="stats">
+<div class="stat"><div class="num">238</div><div class="label">Endpoints</div></div>
+<div class="stat"><div class="num">0</div><div class="label">Signup Required</div></div>
+<div class="stat"><div class="num">100</div><div class="label">Free Calls/Day</div></div>
+</div>
+</div>
+<div class="demos" id="demos">
+
+<div class="demo-card" data-open="true">
+<div class="demo-header" onclick="toggle(this)"><h3>JSON Formatter</h3><span class="method method-post">POST</span></div>
+<div class="demo-body open">
+<div class="demo-input"><textarea id="json-input" placeholder='{"name":"ToolPipe","tools":238,"free":true}'></textarea><button class="try-btn" onclick="tryDemo('json')">Format</button></div>
+<div class="demo-result" id="json-result"></div>
+<div class="curl-hint">curl -X POST https://toolpipe.dev/api/json/format -H "Content-Type: application/json" -d '{"data":{"example":true}}'</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>QR Code Generator</h3><span class="method method-get">GET</span></div>
+<div class="demo-body">
+<div class="demo-input"><input id="qr-input" value="https://toolpipe.dev" placeholder="URL or text"><button class="try-btn" onclick="tryDemo('qr')">Generate</button></div>
+<div class="demo-result" id="qr-result"></div>
+<div class="curl-hint">curl "https://toolpipe.dev/qr/generate?text=hello&size=300"</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>Hash Generator (SHA-256)</h3><span class="method method-post">POST</span></div>
+<div class="demo-body">
+<div class="demo-input"><input id="hash-input" value="Hello, World!" placeholder="Text to hash"><button class="try-btn" onclick="tryDemo('hash')">Hash</button></div>
+<div class="demo-result" id="hash-result"></div>
+<div class="curl-hint">curl -X POST https://toolpipe.dev/api/hash -H "Content-Type: application/json" -d '{"text":"hello","algorithm":"sha256"}'</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>UUID Generator</h3><span class="method method-get">GET</span></div>
+<div class="demo-body">
+<div class="demo-input"><button class="try-btn" onclick="tryDemo('uuid')" style="flex:1">Generate UUID</button></div>
+<div class="demo-result" id="uuid-result"></div>
+<div class="curl-hint">curl https://toolpipe.dev/api/uuid</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>DNS Lookup</h3><span class="method method-get">GET</span></div>
+<div class="demo-body">
+<div class="demo-input"><input id="dns-input" value="google.com" placeholder="Domain"><button class="try-btn" onclick="tryDemo('dns')">Lookup</button></div>
+<div class="demo-result" id="dns-result"></div>
+<div class="curl-hint">curl "https://toolpipe.dev/api/dns/lookup?domain=google.com"</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>Base64 Encode/Decode</h3><span class="method method-post">POST</span></div>
+<div class="demo-body">
+<div class="demo-input"><input id="b64-input" value="Hello from ToolPipe!" placeholder="Text to encode"><button class="try-btn" onclick="tryDemo('b64')">Encode</button></div>
+<div class="demo-result" id="b64-result"></div>
+<div class="curl-hint">curl -X POST https://toolpipe.dev/api/base64/encode -H "Content-Type: application/json" -d '{"text":"hello"}'</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>IP Geolocation</h3><span class="method method-get">GET</span></div>
+<div class="demo-body">
+<div class="demo-input"><button class="try-btn" onclick="tryDemo('ip')" style="flex:1">Get My IP Info</button></div>
+<div class="demo-result" id="ip-result"></div>
+<div class="curl-hint">curl https://toolpipe.dev/api/ip/my</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>Web Scraper</h3><span class="method method-post">POST</span></div>
+<div class="demo-body">
+<div class="demo-input"><input id="scrape-input" value="https://example.com" placeholder="URL to scrape"><button class="try-btn" onclick="tryDemo('scrape')">Scrape</button></div>
+<div class="demo-result" id="scrape-result"></div>
+<div class="curl-hint">curl -X POST https://toolpipe.dev/api/scrape -H "Content-Type: application/json" -d '{"url":"https://example.com"}'</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>Password Generator</h3><span class="method method-get">GET</span></div>
+<div class="demo-body">
+<div class="demo-input"><input id="pwd-input" value="16" placeholder="Length" type="number" min="8" max="128"><button class="try-btn" onclick="tryDemo('pwd')">Generate</button></div>
+<div class="demo-result" id="pwd-result"></div>
+<div class="curl-hint">curl "https://toolpipe.dev/api/password/generate?length=16"</div>
+</div></div>
+
+<div class="demo-card">
+<div class="demo-header" onclick="toggle(this)"><h3>Markdown to HTML</h3><span class="method method-post">POST</span></div>
+<div class="demo-body">
+<div class="demo-input"><textarea id="md-input" placeholder="# Hello\n\n**Bold** and *italic*">## ToolPipe API\n\n- 200+ endpoints\n- **Free** tier\n- Pay with crypto</textarea><button class="try-btn" onclick="tryDemo('md')">Convert</button></div>
+<div class="demo-result" id="md-result"></div>
+<div class="curl-hint">curl -X POST https://toolpipe.dev/api/markdown -H "Content-Type: application/json" -d '{"text":"# Hello"}'</div>
+</div></div>
+
+</div>
+
+<div class="cta">
+<h2>Ready to integrate?</h2>
+<p>Get a free API key for 100 calls/day. Upgrade to Pro for 10,000 calls/day.</p>
+<a href="/api-keys">Get Free API Key</a>
+<a href="/pricing" class="secondary">View Pricing</a>
+</div>
+
+<script>
+function toggle(el){el.nextElementSibling.classList.toggle('open')}
+document.querySelectorAll('[data-open]').forEach(c=>c.querySelector('.demo-body').classList.add('open'));
+
+async function tryDemo(type){
+  const result=document.getElementById(type+'-result');
+  result.classList.add('visible');
+  result.textContent='Loading...';
+  try{
+    let r,d;
+    switch(type){
+      case'json':
+        let raw=document.getElementById('json-input').value||'{"example":true}';
+        try{raw=JSON.parse(raw)}catch(e){raw={"raw_input":raw}}
+        r=await fetch('/api/json/format',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:raw})});
+        d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'qr':
+        const qrText=document.getElementById('qr-input').value||'https://toolpipe.dev';
+        result.innerHTML='<img src="/qr/generate?text='+encodeURIComponent(qrText)+'&size=250" alt="QR Code">';break;
+      case'hash':
+        const hashText=document.getElementById('hash-input').value||'hello';
+        r=await fetch('/api/hash',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:hashText,algorithm:'sha256'})});
+        d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'uuid':
+        r=await fetch('/api/uuid');d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'dns':
+        const domain=document.getElementById('dns-input').value||'google.com';
+        r=await fetch('/api/dns/lookup?domain='+encodeURIComponent(domain));d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'b64':
+        const b64Text=document.getElementById('b64-input').value||'hello';
+        r=await fetch('/api/base64/encode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:b64Text})});
+        d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'ip':
+        r=await fetch('/api/ip/my');d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'scrape':
+        const url=document.getElementById('scrape-input').value||'https://example.com';
+        r=await fetch('/api/scrape',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url})});
+        d=await r.json();result.textContent=JSON.stringify(d,null,2).substring(0,3000);break;
+      case'pwd':
+        const len=document.getElementById('pwd-input').value||'16';
+        r=await fetch('/api/password/generate?length='+len);d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+      case'md':
+        const mdText=document.getElementById('md-input').value||'# Hello';
+        r=await fetch('/api/markdown',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:mdText})});
+        d=await r.json();result.textContent=JSON.stringify(d,null,2);break;
+    }
+  }catch(e){result.textContent='Error: '+e.message}
+}
+</script>
+</body></html>"""))
+
+
+@app.get("/api/openapi-lite")
+async def openapi_lite():
+    """Lightweight OpenAPI summary for marketplace submissions and agent discovery."""
+    return {
+        "name": "ToolPipe API",
+        "version": "1.19.0",
+        "description": "238 developer utility APIs. JSON, QR, hash, UUID, DNS, web scraping, code review, fake data, PDF tools, SEO, domain intel, bulk operations, and more.",
+        "base_url": "https://toolpipe.dev",
+        "docs_url": "https://toolpipe.dev/docs",
+        "openapi_url": "https://toolpipe.dev/openapi.json",
+        "total_endpoints": 238,
+        "free_tier": {"daily_limit": 100, "signup": "POST /api-keys/register with {email}"},
+        "paid_tiers": PRICING_TIERS,
+        "credits": CREDIT_PACKS,
+        "mcp_server": {
+            "npm": "npx @cosai-labs/toolpipe-mcp-server",
+            "http": "https://toolpipe.dev/mcp",
+            "tools": 55,
+        },
+        "categories": [
+            "JSON/XML/YAML formatting", "QR code generation", "Hashing (MD5/SHA/bcrypt)",
+            "UUID generation", "DNS/WHOIS/IP lookup", "Web scraping/monitoring",
+            "Base64/URL/HTML encoding", "PDF tools (merge/split/text)",
+            "Code review/minification", "Fake data generation", "SEO analysis",
+            "Domain intelligence", "Bulk operations", "API testing",
+            "SQL/regex formatting", "JWT decoding", "Password generation",
+            "Markdown conversion", "Cron validation", "Webhook testing",
+        ],
+        "payment": {
+            "method": "crypto (no KYC)",
+            "wallets": {
+                "evm": WALLET_ADDRESS,
+                "solana": SOLANA_WALLET,
+            },
+            "accepted": ["ETH", "USDC", "USDT", "DAI", "SOL", "BNB"],
+            "networks": ["Ethereum", "Polygon", "Base", "Arbitrum", "Optimism", "Solana"],
+        },
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)
