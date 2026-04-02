@@ -510,9 +510,9 @@ def check_api_key(key: str) -> dict | None:
 
 
 # --- Crypto Payment Gateway Integration ---
-# OxaPay v1 API (primary gateway)
+# OxaPay Merchant API (primary gateway)
 OXAPAY_MERCHANT_KEY = os.environ.get("OXAPAY_MERCHANT_KEY", "sandbox")
-OXAPAY_API_URL = "https://api.oxapay.com/v1/payment/invoice"
+OXAPAY_API_URL = "https://api.oxapay.com/merchants/request"
 # NOWPayments (backup gateway, no KYC)
 NOWPAYMENTS_API_KEY = os.environ.get("NOWPAYMENTS_API_KEY", "")
 PAYMENTS_DB = Path(__file__).parent / "data" / "payments.db"
@@ -582,43 +582,42 @@ async def create_payment_invoice(amount: float, email: str, tier: str, order_id:
         "Solana (SOL, USDC-SPL)": SOLANA_WALLET,
     }
 
-    # Try OxaPay v1 API first
-    if OXAPAY_MERCHANT_KEY != "sandbox":
-        try:
-            payload = {
-                "amount": amount,
-                "currency": "USD",
-                "lifetime": 60,
-                "fee_paid_by_payer": 1,
-                "callback_url": callback_url,
-                "return_url": return_url,
-                "email": email,
-                "order_id": order_id,
-                "description": f"ToolPipe {tier.title()} Plan",
-            }
-            async with httpx.AsyncClient(timeout=15) as client:
-                resp = await client.post(
-                    OXAPAY_API_URL,
-                    json=payload,
-                    headers={"merchant_api_key": OXAPAY_MERCHANT_KEY, "Content-Type": "application/json"},
-                )
-                data = resp.json()
+    # Try OxaPay Merchant API first
+    try:
+        payload = {
+            "merchant": OXAPAY_MERCHANT_KEY,
+            "amount": amount,
+            "currency": "USD",
+            "lifeTime": 60,
+            "feePaidByPayer": 1,
+            "callbackUrl": callback_url,
+            "returnUrl": return_url,
+            "email": email,
+            "orderId": order_id,
+            "description": f"ToolPipe {tier.title()} Plan",
+        }
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                OXAPAY_API_URL,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            data = resp.json()
 
-            if data.get("status") == 200 and data.get("data"):
-                d = data["data"]
-                track_id = d.get("track_id", "")
-                payment_url = d.get("payment_url", "")
-                with _payments_lock:
-                    conn = sqlite3.connect(str(PAYMENTS_DB))
-                    conn.execute(
-                        "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, payment_url, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
-                        (track_id, order_id, email, tier, amount, payment_url, now)
-                    )
-                    conn.commit()
-                    conn.close()
-                return {"success": True, "gateway": "oxapay", "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
-        except Exception:
-            pass
+        if data.get("result") == 100 and data.get("payLink"):
+            track_id = str(data.get("trackId", ""))
+            payment_url = data.get("payLink", "")
+            with _payments_lock:
+                conn = sqlite3.connect(str(PAYMENTS_DB))
+                conn.execute(
+                    "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, payment_url, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
+                    (track_id, order_id, email, tier, amount, payment_url, now)
+                )
+                conn.commit()
+                conn.close()
+            return {"success": True, "gateway": "oxapay", "payment_url": payment_url, "track_id": track_id, "order_id": order_id}
+    except Exception:
+        pass
 
     # Try NOWPayments as backup
     np_result = await create_nowpayments_invoice(amount, email, tier, order_id, callback_url, return_url)

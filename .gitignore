@@ -17,3 +17,4 @@ products/mcp-server/mcp-publisher
 products/mcp-server/.mcpregistry_*
 mcp-publisher
 secrets/
+products/mcp-server-package/.mcpregistry_*
