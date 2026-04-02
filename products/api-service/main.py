@@ -11271,7 +11271,7 @@ async def a2a_discovery():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe",
-        "description": "Developer utility API service with 230+ endpoints and 156 MCP tools.",
+        "description": "Developer utility API service with 240+ endpoints and 166 MCP tools.",
         "version": "1.18.0",
         "protocol": "a2a",
         "capabilities": [
@@ -11310,7 +11310,7 @@ async def mcp_server_card():
         "serverInfo": {
             "name": "ToolPipe",
             "version": "1.18.0",
-            "description": "230+ developer utility APIs and 156 MCP tools. JSON formatting, QR codes, hashing, code review, DNS lookup, web scraping, and more.",
+            "description": "240+ developer utility APIs and 55 MCP tools. JSON formatting, QR codes, hashing, code review, DNS lookup, web scraping, domain intel, bulk operations, web monitoring, and more.",
         },
         "authentication": {
             "required": False,
@@ -11348,6 +11348,16 @@ async def mcp_server_card():
             {"name": "screenshot_take", "description": "Take website screenshots"},
             {"name": "commit_message_generate", "description": "Generate git commit messages"},
             {"name": "prompt_engineer", "description": "Improve AI prompts automatically"},
+            {"name": "domain_intel", "description": "Domain intelligence: DNS, tech stack, security score (Premium)"},
+            {"name": "web_structured_extract", "description": "Extract structured data from webpages (Premium)"},
+            {"name": "web_compare", "description": "Compare two websites side-by-side (Premium)"},
+            {"name": "bulk_url_check", "description": "Check multiple URLs for availability (Premium)"},
+            {"name": "web_monitor", "description": "Monitor URLs for content changes (Premium)"},
+            {"name": "api_test_suite", "description": "Run API test suites with pass/fail reporting (Premium)"},
+            {"name": "sitemap_parse", "description": "Parse sitemaps and extract all URLs (Premium)"},
+            {"name": "robots_check", "description": "Parse robots.txt and check path access (Premium)"},
+            {"name": "bulk_dns_lookup", "description": "Bulk DNS lookup for multiple domains (Premium)"},
+            {"name": "bulk_hash", "description": "Hash multiple strings in one call (Premium)"},
         ],
         "resources": [],
         "prompts": [],

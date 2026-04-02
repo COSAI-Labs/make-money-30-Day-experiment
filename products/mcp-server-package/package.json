@@ -1,8 +1,8 @@
 {
   "name": "@cosai-labs/toolpipe-mcp-server",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "mcpName": "io.github.cosai-labs/toolpipe",
-  "description": "MCP server for ToolPipe: 45 developer utility APIs (JSON, QR, hash, UUID, code review, fake data, Dockerfile gen, regex gen, WHOIS, IP lookup, crypto prices, screenshots, SEO analysis, HTTP proxy, and more) accessible to AI agents via Model Context Protocol",
+  "description": "MCP server for ToolPipe: 55 developer utility APIs (JSON, QR, hash, UUID, code review, fake data, Dockerfile gen, regex gen, WHOIS, IP lookup, domain intel, bulk operations, web monitoring, API testing, sitemap parsing, SEO analysis, and more) accessible to AI agents via Model Context Protocol",
   "type": "module",
   "main": "index.js",
   "bin": {

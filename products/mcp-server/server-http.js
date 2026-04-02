@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.18.0" },
+    { name: "toolpipe", version: "1.19.0" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 220+ developer utility APIs as 120+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT, SQL formatting, XML/YAML, text stats, code review, code explain, fake data generation, OpenAPI spec generation, security header checking, API client generation, CSV analysis, JSON Schema validation, code minification, and more. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99).",
@@ -220,6 +220,18 @@ function createServer() {
   server.tool("generate_license", "Generate a license file (MIT, Apache-2.0, GPL-3.0, BSD-3, ISC).", { type: z.string(), name: z.string().optional(), year: z.string().optional() }, async ({ type, name, year }) => textResult(await apiCall("/api/license/generate", { method: "POST", body: JSON.stringify({ type, name, year }) })));
   server.tool("api_spec_compare", "Compare two OpenAPI specs for breaking changes.", { spec1: z.string(), spec2: z.string() }, async ({ spec1, spec2 }) => textResult(await apiCall("/api/api-spec/compare", { method: "POST", body: JSON.stringify({ spec1: JSON.parse(spec1), spec2: JSON.parse(spec2) }) })));
 
+  // Premium tools (require Pro API key)
+  server.tool("domain_intel", "Domain intelligence: DNS, tech stack, security headers. Premium.", { domain: z.string() }, async ({ domain }) => textResult(await apiCall("/api/domain/intel", { method: "POST", body: JSON.stringify({ domain }) })));
+  server.tool("web_structured_extract", "Extract structured data from webpage: links, emails, tables, headings. Premium.", { url: z.string(), extract: z.array(z.string()).optional() }, async ({ url, extract }) => textResult(await apiCall("/api/web/structured-extract", { method: "POST", body: JSON.stringify({ url, extract }) })));
+  server.tool("web_compare", "Compare two websites: content, headers, performance, SEO. Premium.", { url1: z.string(), url2: z.string(), compare: z.string().optional() }, async ({ url1, url2, compare }) => textResult(await apiCall("/api/web/compare", { method: "POST", body: JSON.stringify({ url1, url2, compare: compare || "all" }) })));
+  server.tool("bulk_url_check", "Check multiple URLs for availability. Up to 100. Premium.", { urls: z.array(z.string()) }, async ({ urls }) => textResult(await apiCall("/api/bulk/url-check", { method: "POST", body: JSON.stringify({ urls }) })));
+  server.tool("web_monitor", "Monitor URL for content changes. Returns hash for change detection. Premium.", { url: z.string(), previous_hash: z.string().optional() }, async ({ url, previous_hash }) => textResult(await apiCall("/api/web/monitor", { method: "POST", body: JSON.stringify({ url, previous_hash }) })));
+  server.tool("api_test_suite", "Run test suite against an API. Premium.", { base_url: z.string(), endpoints: z.array(z.object({ method: z.string(), path: z.string(), expected_status: z.number().optional() })) }, async ({ base_url, endpoints }) => textResult(await apiCall("/api/test/suite", { method: "POST", body: JSON.stringify({ base_url, endpoints }) })));
+  server.tool("sitemap_parse", "Parse sitemap.xml and return all URLs. Premium.", { url: z.string() }, async ({ url }) => textResult(await apiCall("/api/web/sitemap", { method: "POST", body: JSON.stringify({ url }) })));
+  server.tool("robots_check", "Parse robots.txt and check path access. Premium.", { url: z.string(), user_agent: z.string().optional(), path: z.string().optional() }, async ({ url, user_agent, path }) => textResult(await apiCall("/api/web/robots", { method: "POST", body: JSON.stringify({ url, user_agent, path }) })));
+  server.tool("bulk_dns_lookup", "Bulk DNS lookup for multiple domains. Up to 100. Premium.", { domains: z.array(z.string()) }, async ({ domains }) => textResult(await apiCall("/api/bulk/dns", { method: "POST", body: JSON.stringify({ domains }) })));
+  server.tool("bulk_hash", "Hash multiple strings in one call. Up to 500. Premium.", { texts: z.array(z.string()), algorithm: z.string().optional() }, async ({ texts, algorithm }) => textResult(await apiCall("/api/bulk/hash", { method: "POST", body: JSON.stringify({ texts, algorithm }) })));
+
   return server;
 }
 
@@ -240,10 +252,10 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     name: "ToolPipe MCP Server",
-    version: "1.16.0",
+    version: "1.19.0",
     protocol: "MCP (Model Context Protocol)",
     transport: "Streamable HTTP",
-    tools: 126,
+    tools: 136,
     endpoint: "/mcp",
     docs: "https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server",
   });
@@ -274,5 +286,5 @@ app.delete("/mcp", (req, res) => res.status(405).json({ jsonrpc: "2.0", error: {
 
 app.listen(PORT, () => {
   console.log(`ToolPipe MCP Server (HTTP) running on http://0.0.0.0:${PORT}/mcp`);
-  console.log(`127 tools available. API backend: ${API_BASE}`);
+  console.log(`136 tools available. API backend: ${API_BASE}`);
 });

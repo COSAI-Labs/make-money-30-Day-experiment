@@ -3,7 +3,7 @@
 /**
  * ToolPipe MCP Server
  *
- * Exposes 20 essential developer utility tools via Model Context Protocol.
+ * Exposes 55 developer utility tools via Model Context Protocol.
  * AI agents can discover and use these tools for JSON formatting,
  * QR code generation, hashing, UUID generation, DNS lookup, and more.
  *
@@ -1040,6 +1040,218 @@ server.tool(
   async ({ url }) => {
     try {
       const data = await get(`/api/down?url=${encodeURIComponent(url)}`);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 46. Domain Intelligence (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "domain_intel",
+  "Get domain intelligence: DNS, tech stack, security headers, HTTP info. Premium - requires Pro plan.",
+  {
+    domain: z.string().describe("Domain to analyze (e.g. example.com)"),
+  },
+  async ({ domain }) => {
+    try {
+      const data = await post("/api/domain/intel", { domain });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 47. Structured Web Extract (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "web_structured_extract",
+  "Extract structured data from a webpage: links, emails, phones, tables, headings, metadata. Premium.",
+  {
+    url: z.string().describe("URL to extract data from"),
+    extract: z.array(z.string()).optional().describe("What to extract: title, description, links, headings, images, tables, emails, phones"),
+  },
+  async ({ url, extract }) => {
+    try {
+      const body = { url };
+      if (extract) body.extract = extract;
+      const data = await post("/api/web/structured-extract", body);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 48. Web Compare (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "web_compare",
+  "Compare two websites side-by-side: content, headers, performance, SEO. Premium.",
+  {
+    url1: z.string().describe("First URL"),
+    url2: z.string().describe("Second URL"),
+    compare: z.string().optional().describe("What to compare: content, headers, performance, seo, all"),
+  },
+  async ({ url1, url2, compare }) => {
+    try {
+      const data = await post("/api/web/compare", { url1, url2, compare: compare || "all" });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 49. Bulk URL Check (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "bulk_url_check",
+  "Check multiple URLs for availability, status codes, redirects. Up to 100 URLs. Premium.",
+  {
+    urls: z.array(z.string()).describe("List of URLs to check"),
+  },
+  async ({ urls }) => {
+    try {
+      const data = await post("/api/bulk/url-check", { urls });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 50. Web Monitor (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "web_monitor",
+  "Monitor a URL for content changes. Returns content hash for change detection. Premium.",
+  {
+    url: z.string().describe("URL to monitor"),
+    previous_hash: z.string().optional().describe("Previous content hash to compare against"),
+  },
+  async ({ url, previous_hash }) => {
+    try {
+      const body = { url };
+      if (previous_hash) body.previous_hash = previous_hash;
+      const data = await post("/api/web/monitor", body);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 51. API Test Suite (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "api_test_suite",
+  "Run a test suite against an API. Tests multiple endpoints and reports pass/fail results. Premium.",
+  {
+    base_url: z.string().describe("Base URL of the API to test"),
+    endpoints: z.array(z.object({
+      method: z.string().describe("HTTP method: GET, POST, PUT, DELETE"),
+      path: z.string().describe("Endpoint path"),
+      expected_status: z.number().optional().describe("Expected HTTP status code (default 200)"),
+      body: z.any().optional().describe("Request body for POST/PUT"),
+    })).describe("List of endpoints to test"),
+  },
+  async ({ base_url, endpoints }) => {
+    try {
+      const data = await post("/api/test/suite", { base_url, endpoints });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 52. Sitemap Parser (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "sitemap_parse",
+  "Parse a website's sitemap.xml and return all URLs with metadata. Premium.",
+  {
+    url: z.string().describe("Website URL or direct sitemap URL"),
+  },
+  async ({ url }) => {
+    try {
+      const data = await post("/api/web/sitemap", { url });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 53. Robots.txt Checker (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "robots_check",
+  "Parse robots.txt and check if a path is allowed for a user-agent. Premium.",
+  {
+    url: z.string().describe("Website URL"),
+    user_agent: z.string().optional().describe("User-agent to check (default: *)"),
+    path: z.string().optional().describe("Path to check (default: /)"),
+  },
+  async ({ url, user_agent, path }) => {
+    try {
+      const body = { url };
+      if (user_agent) body.user_agent = user_agent;
+      if (path) body.path = path;
+      const data = await post("/api/web/robots", body);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 54. Bulk DNS Lookup (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "bulk_dns_lookup",
+  "Bulk DNS lookup for multiple domains. Up to 100 domains. Premium.",
+  {
+    domains: z.array(z.string()).describe("List of domains to resolve"),
+  },
+  async ({ domains }) => {
+    try {
+      const data = await post("/api/bulk/dns", { domains });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 55. Bulk Hash (Premium)
+// ---------------------------------------------------------------------------
+server.tool(
+  "bulk_hash",
+  "Hash multiple strings in a single call. Up to 500 items. Premium.",
+  {
+    texts: z.array(z.string()).describe("List of strings to hash"),
+    algorithm: z.string().optional().describe("Hash algorithm: md5, sha1, sha256, sha512 (default: sha256)"),
+  },
+  async ({ texts, algorithm }) => {
+    try {
+      const body = { texts };
+      if (algorithm) body.algorithm = algorithm;
+      const data = await post("/api/bulk/hash", body);
       return ok(data);
     } catch (e) {
       return err(e.message);
