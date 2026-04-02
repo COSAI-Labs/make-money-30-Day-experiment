@@ -44,14 +44,23 @@ Parallel agents sent to explore and submit to:
 6. Product Hunt + AlternativeTo
 7. free-apis.github.io
 
-### 5. GitHub PR Batch Script - QUEUED
-- Script at /tmp/create-prs-batch3.sh polling for rate limit reset (12:26 UTC)
+### 5. SkillsIndex.dev - SUBMITTED (SUCCESS)
+- POST to https://skillsindex.dev/api/submit-tool/ returned `{"success":true}`
+- Fields: name, url, description, category (code-execution), ecosystem (mcp_server), email
+- Also submitted via Puppeteer form (HTTP 200 on POST)
+- Review within 48 hours, scored on security/utility/maintenance/uniqueness
+
+### 6. GitHub PR Batch Script - QUEUED (sleeps until 12:27 UTC)
+- Script at /tmp/create-prs-final.sh (PID 2111338) sleeping until rate limit resets
 - Will create:
   - Cline MCP Marketplace issue (cline/mcp-marketplace)
   - mcp-get/community-servers PR
   - awesomelistsio/awesome-apis PR
 
-### 6. Previous Session PR Status
+### 7. Additional MCP Directory Agents (batch 2)
+- Agent dispatched to submit to: AIAgentsList, MCPServerFinder, MCPServer.directory, AIxploria
+
+### 8. Previous Session PR Status
 From session 90, these were confirmed:
 - toolsdk-ai/toolsdk-mcp-registry issue #242: CREATED
 - docker/mcp-registry, nborwankar/awesome-mcp-servers-2, raoufchebri/awesome-mcp: PRs already existed
@@ -77,6 +86,7 @@ From session 90, these were confirmed:
 | npm | v1.19.0 published | @cosai-labs/toolpipe-mcp-server |
 | mcp.directory | Submitted, pending review | 24hr review cycle |
 | mcpservers.org | Submitted (ID: 867) | Pending approval |
+| SkillsIndex.dev | Submitted via API | 48hr review, scored |
 
 ### Open GitHub PRs/Issues (10+)
 1. public-apis/public-apis #5744
