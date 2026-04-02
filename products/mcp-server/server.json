@@ -9,11 +9,11 @@
     "subfolder": "products/mcp-server"
   },
   "version": "1.21.0",
-  "websiteUrl": "https://toolpipe.dev",
+  "websiteUrl": "https://github.com/COSAI-Labs/toolpipe-mcp-server",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://toolpipe.dev/mcp"
+      "url": "https://troops-submission-what-stays.trycloudflare.com/mcp"
     }
   ]
 }
