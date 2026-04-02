@@ -87,3 +87,26 @@
 ### server.json for Official Registry
 Location: products/mcp-server-package/server.json
 Validated successfully against registry.modelcontextprotocol.io
+
+### SESSION 30 - NEW MCP SUBMISSIONS (2026-04-02)
+
+16 additional MCP directory submissions:
+
+| # | Registry | Status | Link |
+|---|---------|--------|------|
+| 15 | yzfly/Awesome-MCP-ZH | SUBMITTED | https://github.com/yzfly/Awesome-MCP-ZH/issues/129 |
+| 16 | punkpeye/awesome-mcp-clients | SUBMITTED | https://github.com/punkpeye/awesome-mcp-clients/issues/166 |
+| 17 | YuzeHao2023/Awesome-MCP-Servers | SUBMITTED | https://github.com/YuzeHao2023/Awesome-MCP-Servers/issues/140 |
+| 18 | rohitg00/awesome-devops-mcp-servers | SUBMITTED | https://github.com/rohitg00/awesome-devops-mcp-servers/issues/127 |
+| 19 | MobinX/awesome-mcp-list | SUBMITTED | https://github.com/MobinX/awesome-mcp-list/issues/165 |
+| 20 | TensorBlock/awesome-mcp-servers | SUBMITTED | https://github.com/TensorBlock/awesome-mcp-servers/issues/297 |
+| 21 | punkpeye/awesome-mcp-devtools | SUBMITTED | https://github.com/punkpeye/awesome-mcp-devtools/issues/116 |
+| 22 | PipedreamHQ/awesome-mcp-servers | SUBMITTED | https://github.com/PipedreamHQ/awesome-mcp-servers/issues/51 |
+| 23 | AlexMili/Awesome-MCP | SUBMITTED | https://github.com/AlexMili/Awesome-MCP/issues/72 |
+| 24 | e2b-dev/awesome-mcp-gateways | SUBMITTED | https://github.com/e2b-dev/awesome-mcp-gateways/issues/38 |
+| 25 | Puliczek/awesome-mcp-security | SUBMITTED | https://github.com/Puliczek/awesome-mcp-security/issues/104 |
+| 26 | bh-rat/awesome-mcp-enterprise | SUBMITTED | https://github.com/bh-rat/awesome-mcp-enterprise/issues/48 |
+| 27 | WagnerAgent/awesome-mcp-servers-devops | SUBMITTED | https://github.com/WagnerAgent/awesome-mcp-servers-devops/issues/18 |
+| 28 | lirantal/awesome-mcp-best-practices | SUBMITTED | https://github.com/lirantal/awesome-mcp-best-practices/issues/12 |
+| 29 | AIAnytime/Awesome-MCP-Server | SUBMITTED | https://github.com/AIAnytime/Awesome-MCP-Server/issues/12 |
+| 30 | toolsdk-ai/toolsdk-mcp-registry | SUBMITTED | https://github.com/toolsdk-ai/toolsdk-mcp-registry/issues/239 |
