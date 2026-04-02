@@ -180,6 +180,61 @@ All other PRs are in good standing with passing checks.
 - **Total star reach of submitted repos**: ~465,000+
 - **New batch 2 reach**: ~95,000+ stars
 
+## Batch 3: MCP Registry & Claude Skills Push (from MCP search agent)
+
+| Repository | Stars | Status | Link |
+|------------|-------|--------|------|
+| Shubhamsaboo/awesome-llm-apps | 104,241 | SUBMITTED | https://github.com/Shubhamsaboo/awesome-llm-apps/issues/662 |
+| BehiSecc/awesome-claude-skills | 8,098 | SUBMITTED | https://github.com/BehiSecc/awesome-claude-skills/issues/189 |
+| tensorchord/Awesome-LLMOps | 5,691 | SUBMITTED | https://github.com/tensorchord/Awesome-LLMOps/issues/340 |
+| awesome-opencode/awesome-opencode | 4,310 | SUBMITTED | https://github.com/awesome-opencode/awesome-opencode/issues/243 |
+| nibzard/awesome-agentic-patterns | 4,132 | SUBMITTED | https://github.com/nibzard/awesome-agentic-patterns/issues/57 |
+| kyrolabs/awesome-agents | 2,085 | SUBMITTED | https://github.com/kyrolabs/awesome-agents/issues/316 |
+| samanhappy/mcphub | 1,960 | SUBMITTED | https://github.com/samanhappy/mcphub/issues/722 |
+| ravitemer/mcphub.nvim | 1,755 | SUBMITTED | https://github.com/ravitemer/mcphub.nvim/issues/282 |
+| rohitg00/awesome-claude-code-toolkit | 997 | SUBMITTED | https://github.com/rohitg00/awesome-claude-code-toolkit/issues/187 |
+| slowmist/MCP-Security-Checklist | 824 | SUBMITTED | https://github.com/slowmist/MCP-Security-Checklist/issues/11 |
+| best-of-ai/ai-directories | 764 | SUBMITTED | https://github.com/best-of-ai/ai-directories/issues/274 |
+| ai-for-developers/awesome-vibe-coding | 642 | SUBMITTED | https://github.com/ai-for-developers/awesome-vibe-coding/issues/33 |
+| FuzzingLabs/mcp-security-hub | 503 | SUBMITTED | https://github.com/FuzzingLabs/mcp-security-hub/issues/25 |
+| tenable/awesome-llm-cybersecurity-tools | 484 | BLOCKED | Archived (read-only) |
+| ravitemer/mcp-hub | 468 | SUBMITTED | https://github.com/ravitemer/mcp-hub/issues/137 |
+| apappascs/mcp-servers-hub | 315 | SUBMITTED | https://github.com/apappascs/mcp-servers-hub/issues/16 |
+| quemsah/awesome-claude-plugins | 307 | SUBMITTED | https://github.com/quemsah/awesome-claude-plugins/issues/78 |
+| rahulvrane/awesome-claude-agents | 303 | SUBMITTED | https://github.com/rahulvrane/awesome-claude-agents/issues/21 |
+| cassler/awesome-claude-code-setup | 260 | SUBMITTED | https://github.com/cassler/awesome-claude-code-setup/issues/64 |
+| jqueryscript/awesome-claude-code | 236 | SUBMITTED | https://github.com/jqueryscript/awesome-claude-code/issues/160 |
+| karanb192/awesome-claude-skills | 233 | SUBMITTED | https://github.com/karanb192/awesome-claude-skills/issues/40 |
+| LangGPT/awesome-claude-code | 210 | SUBMITTED | https://github.com/LangGPT/awesome-claude-code/issues/28 |
+| Mizoreww/awesome-claude-code-config | 199 | SUBMITTED | https://github.com/Mizoreww/awesome-claude-code-config/issues/26 |
+| josix/awesome-claude-md | 189 | SUBMITTED | https://github.com/josix/awesome-claude-md/issues/89 |
+| xPack-ai/XPack-MCP-Marketplace | 157 | SUBMITTED | https://github.com/xpack-ai/XPack-MCP-Marketplace/issues/168 |
+| supatest-ai/awesome-claude-code-sub-agents | 147 | SUBMITTED | https://github.com/supatest-ai/awesome-claude-code-sub-agents/issues/10 |
+| Eyadkelleh/awesome-claude-skills-security | 126 | SUBMITTED | https://github.com/Eyadkelleh/awesome-claude-skills-security/issues/4 |
+| Chat2AnyLLM/awesome-claude-skills | 105 | SUBMITTED | https://github.com/Chat2AnyLLM/awesome-claude-skills/issues/21 |
+| sunanhe/awesome-medical-mcp-servers | 64 | SUBMITTED | https://github.com/sunanhe/awesome-medical-mcp-servers/issues/4 |
+| acuvity/mcp-servers-registry | 34 | SUBMITTED | https://github.com/acuvity/mcp-servers-registry/issues/8 |
+| DEFENSE-SEU/Awesome-Scientific-MCP-Servers | 12 | SUBMITTED | https://github.com/DEFENSE-SEU/Awesome-Scientific-MCP-Servers/issues/1 |
+
+**Blocked:** tenable/awesome-llm-cybersecurity-tools (archived), sindresorhus/awesome-nodejs (restricted)
+
+## Final Cumulative Metrics (Session 13, All 3 Batches)
+
+### GitHub Submissions
+- **Open PRs**: 24
+- **Closed PRs**: 16
+- **Total Open Issues**: ~260
+- **Total active submissions**: 306
+
+### Content
+- **GitHub Gists**: 26
+- **dev.to articles (unpublished)**: 5
+
+### Reach
+- **Total star reach of submitted repos**: ~600,000+
+- **Session 13 total new reach**: ~440,000+ stars (across all 3 batches)
+- **Top single submission**: Shubhamsaboo/awesome-llm-apps (104,241 stars)
+
 ## Next Steps
 1. Monitor PRs for merge/feedback
 2. Try email-based PulseMCP submission (submissions@pulsemcp.com)
