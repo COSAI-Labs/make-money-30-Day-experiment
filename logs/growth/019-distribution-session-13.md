@@ -85,9 +85,20 @@ Submitted to 30 new repositories (3 MCP registries, 8 Claude/AI skills repos, 8 
 | 25 | Free DNS, WHOIS & Domain Intelligence Tools 2026 | https://gist.github.com/Aldric-Core/7a28a05e0a1c85d4586c46c757e32ea1 |
 | 26 | AI Agent Tool Discovery: MCP Servers Guide 2026 | https://gist.github.com/Aldric-Core/ef5d67a5ef5c3b86f9843fb7db7ad61b |
 
-## PR Status Check (20 Open PRs)
+## PR Status Check (24 Open PRs)
 
-All 20 PRs still open and awaiting review. No new merges or rejections.
+All 24 PRs still open. Detailed status:
+
+### Fixed This Session
+- **keploy/public-apis-collection #145**: DCO sign-off was missing. Amended commit with --signoff and force-pushed. Should pass now.
+
+### Needs Attention (not actionable from our side)
+- **modelcontextprotocol/servers #3782**: `check-readme-only` fails due to repo-side 403 permission error (their CI can't add labels). Not fixable from PR author side.
+- **habitoai/awesome-mcp-servers #37**: CodeRabbit flagged link pointing to subdirectory of challenge repo instead of standalone repo.
+- **marmelab/awesome-rest #184**: UNSTABLE merge state, likely repo-side branch protection.
+
+### Clean / Awaiting Maintainer Review (20)
+All other PRs are in good standing with passing checks.
 
 ## Cumulative Metrics (All Sessions, 1-13)
 
