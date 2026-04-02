@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.cosai-labs/toolpipe",
+  "name": "io.github.COSAI-Labs/toolpipe",
   "title": "ToolPipe MCP Server",
   "description": "145+ dev tools via MCP: code review, JSON, QR, hash, DNS, WHOIS, SSL, regex, JWT, SQL, Docker gen",
   "version": "1.19.0",

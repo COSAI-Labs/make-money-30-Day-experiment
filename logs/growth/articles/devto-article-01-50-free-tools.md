@@ -11,9 +11,9 @@ Every developer has a collection of bookmarked utilities scattered across dozens
 
 **ToolPipe** is an open collection of 58+ browser tools and 70+ REST API endpoints, all accessible from a single URL. No signup. No API key. No auth headers. Just tools that work.
 
-Base URL: [https://assessing-scoop-authorities-sheet.trycloudflare.com](https://assessing-scoop-authorities-sheet.trycloudflare.com)
+Base URL: [https://toolpipe.dev](https://toolpipe.dev)
 
-Full API docs: [https://assessing-scoop-authorities-sheet.trycloudflare.com/docs](https://assessing-scoop-authorities-sheet.trycloudflare.com/docs)
+Full API docs: [https://toolpipe.dev/docs](https://toolpipe.dev/docs)
 
 Let's walk through them.
 
@@ -26,7 +26,7 @@ Let's walk through them.
 Paste messy JSON, get it pretty-printed and validated instantly.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/format \
+curl -X POST https://toolpipe.dev/api/json/format \
   -H "Content-Type: application/json" \
   -d '{"json": "{\"name\":\"alice\",\"age\":30,\"skills\":[\"python\",\"rust\"]}"}'
 ```
@@ -37,12 +37,12 @@ Encode or decode Base64 strings. Useful for embedding images, handling tokens, o
 
 ```bash
 # Encode
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/base64/encode \
+curl -X POST https://toolpipe.dev/api/base64/encode \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello, developer world!"}'
 
 # Decode
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/base64/decode \
+curl -X POST https://toolpipe.dev/api/base64/decode \
   -H "Content-Type: application/json" \
   -d '{"text": "SGVsbG8sIGRldmVsb3BlciB3b3JsZCE="}'
 ```
@@ -52,7 +52,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/bas
 Convert Markdown to clean HTML. Great for previewing README files or blog content.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/markdown/to-html \
+curl -X POST https://toolpipe.dev/api/markdown/to-html \
   -H "Content-Type: application/json" \
   -d '{"markdown": "# Hello World\n\nThis is **bold** and this is *italic*."}'
 ```
@@ -62,7 +62,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/mar
 Switch between config formats without thinking about it.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/yaml/to-json \
+curl -X POST https://toolpipe.dev/api/yaml/to-json \
   -H "Content-Type: application/json" \
   -d '{"yaml": "name: myapp\nversion: 1.0\ndependencies:\n  - fastapi\n  - uvicorn"}'
 ```
@@ -72,7 +72,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/yam
 Turn CSV data into structured JSON arrays.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/csv/to-json \
+curl -X POST https://toolpipe.dev/api/csv/to-json \
   -H "Content-Type: application/json" \
   -d '{"csv": "name,age,city\nAlice,30,NYC\nBob,25,LA"}'
 ```
@@ -86,7 +86,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/csv
 Generate v4 UUIDs on demand. Supports batch generation.
 
 ```bash
-curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/uuid/generate?count=5
+curl https://toolpipe.dev/api/uuid/generate?count=5
 ```
 
 ### 7. Lorem Ipsum Generator
@@ -94,7 +94,7 @@ curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/uuid/genera
 Generate placeholder text for mockups and prototypes.
 
 ```bash
-curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/lorem-ipsum?paragraphs=3
+curl https://toolpipe.dev/api/lorem-ipsum?paragraphs=3
 ```
 
 ### 8. QR Code Generator
@@ -102,7 +102,7 @@ curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/lorem-ipsum
 Generate QR codes from any text or URL. Returns a PNG image.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/qr/generate?text=https://github.com" \
+curl "https://toolpipe.dev/api/qr/generate?text=https://github.com" \
   --output qr.png
 ```
 
@@ -111,7 +111,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/qr/generat
 Generate secure random passwords with configurable length and character sets.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/password/generate?length=24&symbols=true"
+curl "https://toolpipe.dev/api/password/generate?length=24&symbols=true"
 ```
 
 ### 10. Random Color Generator
@@ -119,7 +119,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/password/g
 Get random hex colors with their RGB and HSL equivalents.
 
 ```bash
-curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/random
+curl https://toolpipe.dev/api/color/random
 ```
 
 ---
@@ -131,7 +131,7 @@ curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/rando
 Generate hashes for integrity checks, checksums, or debugging.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/hash/generate \
+curl -X POST https://toolpipe.dev/api/hash/generate \
   -H "Content-Type: application/json" \
   -d '{"text": "hello world", "algorithm": "sha256"}'
 ```
@@ -141,7 +141,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/has
 Handle URL-encoded strings properly.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/url/encode \
+curl -X POST https://toolpipe.dev/api/url/encode \
   -H "Content-Type: application/json" \
   -d '{"text": "hello world & foo=bar"}'
 ```
@@ -151,7 +151,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/url
 Escape and unescape HTML entities for safe rendering.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/html/encode \
+curl -X POST https://toolpipe.dev/api/html/encode \
   -H "Content-Type: application/json" \
   -d '{"text": "<script>alert(\"xss\")</script>"}'
 ```
@@ -161,7 +161,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/htm
 Decode JWT tokens to inspect their headers and payloads without a secret key.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jwt/decode \
+curl -X POST https://toolpipe.dev/api/jwt/decode \
   -H "Content-Type: application/json" \
   -d '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"}'
 ```
@@ -175,7 +175,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jwt
 Test regular expressions against sample text with match highlighting.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/regex/test \
+curl -X POST https://toolpipe.dev/api/regex/test \
   -H "Content-Type: application/json" \
   -d '{"pattern": "\\b[A-Z][a-z]+\\b", "text": "Hello World from Alice and Bob", "flags": "g"}'
 ```
@@ -185,7 +185,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/reg
 Compare two blocks of text and get a unified diff output.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/diff/compare \
+curl -X POST https://toolpipe.dev/api/diff/compare \
   -H "Content-Type: application/json" \
   -d '{"text1": "line one\nline two\nline three", "text2": "line one\nline TWO\nline three\nline four"}'
 ```
@@ -195,7 +195,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/dif
 Count words, characters, sentences, and paragraphs.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/count \
+curl -X POST https://toolpipe.dev/api/text/count \
   -H "Content-Type: application/json" \
   -d '{"text": "The quick brown fox jumps over the lazy dog."}'
 ```
@@ -205,7 +205,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/tex
 Convert between camelCase, snake_case, kebab-case, PascalCase, and more.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/case-convert \
+curl -X POST https://toolpipe.dev/api/text/case-convert \
   -H "Content-Type: application/json" \
   -d '{"text": "hello world example", "case": "camelCase"}'
 ```
@@ -215,7 +215,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/tex
 Turn any string into a URL-safe slug.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/slugify \
+curl -X POST https://toolpipe.dev/api/text/slugify \
   -H "Content-Type: application/json" \
   -d '{"text": "My Awesome Blog Post Title! (2026 Edition)"}'
 ```
@@ -229,7 +229,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/tex
 Shorten long URLs for sharing.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/url/shorten \
+curl -X POST https://toolpipe.dev/api/url/shorten \
   -H "Content-Type: application/json" \
   -d '{"url": "https://github.com/very/long/path/to/something"}'
 ```
@@ -239,7 +239,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/url
 Check response headers from any URL.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/headers?url=https://example.com"
+curl "https://toolpipe.dev/api/http/headers?url=https://example.com"
 ```
 
 ### 22. DNS Lookup
@@ -247,7 +247,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/heade
 Resolve DNS records for any domain.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/dns/lookup?domain=example.com"
+curl "https://toolpipe.dev/api/dns/lookup?domain=example.com"
 ```
 
 ### 23. IP Address Info
@@ -255,7 +255,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/dns/lookup
 Get geolocation and ASN data for IP addresses.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/ip/info?ip=8.8.8.8"
+curl "https://toolpipe.dev/api/ip/info?ip=8.8.8.8"
 ```
 
 ### 24. SSL Certificate Checker
@@ -263,7 +263,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/ip/info?ip
 Inspect SSL certificates for any domain.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/ssl/check?domain=github.com"
+curl "https://toolpipe.dev/api/ssl/check?domain=github.com"
 ```
 
 ---
@@ -275,7 +275,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/ssl/check?
 Convert between color formats.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/convert?color=%23ff6347&format=rgb"
+curl "https://toolpipe.dev/api/color/convert?color=%23ff6347&format=rgb"
 ```
 
 ### 26. Color Palette Generator
@@ -283,7 +283,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/conv
 Generate harmonious color palettes from a base color.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/palette?base=%233498db&type=complementary"
+curl "https://toolpipe.dev/api/color/palette?base=%233498db&type=complementary"
 ```
 
 ### 27. Contrast Ratio Checker
@@ -291,7 +291,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/pale
 Check WCAG accessibility compliance between two colors.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/contrast?fg=%23ffffff&bg=%23333333"
+curl "https://toolpipe.dev/api/color/contrast?fg=%23ffffff&bg=%23333333"
 ```
 
 ---
@@ -303,7 +303,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/cont
 Understand what a cron expression actually means in plain English.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/cron/parse \
+curl -X POST https://toolpipe.dev/api/cron/parse \
   -H "Content-Type: application/json" \
   -d '{"expression": "*/15 * * * *"}'
 ```
@@ -313,7 +313,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/cro
 Convert between Unix timestamps and human-readable dates.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/timestamp/convert?timestamp=1711929600"
+curl "https://toolpipe.dev/api/timestamp/convert?timestamp=1711929600"
 ```
 
 ### 30. Timezone Converter
@@ -321,7 +321,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/timestamp/
 Convert times between timezones.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/timezone/convert \
+curl -X POST https://toolpipe.dev/api/timezone/convert \
   -H "Content-Type: application/json" \
   -d '{"time": "2026-04-01T10:00:00", "from": "America/New_York", "to": "Asia/Tokyo"}'
 ```
@@ -335,7 +335,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/tim
 Validate JSON against a JSON Schema.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/validate-schema \
+curl -X POST https://toolpipe.dev/api/json/validate-schema \
   -H "Content-Type: application/json" \
   -d '{"schema": {"type": "object", "required": ["name"]}, "data": {"name": "test"}}'
 ```
@@ -345,7 +345,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jso
 Query JSON documents with JSONPath expressions.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/query \
+curl -X POST https://toolpipe.dev/api/json/query \
   -H "Content-Type: application/json" \
   -d '{"json": {"users": [{"name": "Alice"}, {"name": "Bob"}]}, "path": "$.users[*].name"}'
 ```
@@ -355,7 +355,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jso
 Pretty-print SQL queries.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/sql/format \
+curl -X POST https://toolpipe.dev/api/sql/format \
   -H "Content-Type: application/json" \
   -d '{"sql": "SELECT u.name, u.email FROM users u INNER JOIN orders o ON u.id = o.user_id WHERE o.total > 100 ORDER BY u.name"}'
 ```
@@ -365,7 +365,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/sql
 Generate placeholder images for mockups.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/image/placeholder?width=400&height=300&text=Hero+Image" \
+curl "https://toolpipe.dev/api/image/placeholder?width=400&height=300&text=Hero+Image" \
   --output placeholder.png
 ```
 
@@ -374,7 +374,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/image/plac
 Look up any HTTP status code with its meaning.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/status?code=418"
+curl "https://toolpipe.dev/api/http/status?code=418"
 ```
 
 ---
@@ -386,7 +386,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/statu
 Convert between decimal, binary, octal, and hexadecimal.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/number/convert?value=255&from=10&to=16"
+curl "https://toolpipe.dev/api/number/convert?value=255&from=10&to=16"
 ```
 
 ### 37. Byte Size Calculator
@@ -394,7 +394,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/number/con
 Convert between bytes, KB, MB, GB, TB.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/bytes/convert?value=1073741824&from=bytes&to=gb"
+curl "https://toolpipe.dev/api/bytes/convert?value=1073741824&from=bytes&to=gb"
 ```
 
 ### 38. Percentage Calculator
@@ -402,7 +402,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/bytes/conv
 Calculate percentages, increases, and decreases.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/math/percentage?value=75&total=200"
+curl "https://toolpipe.dev/api/math/percentage?value=75&total=200"
 ```
 
 ---
@@ -414,7 +414,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/math/perce
 Check email format and domain validity.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/validate/email?email=test@example.com"
+curl "https://toolpipe.dev/api/validate/email?email=test@example.com"
 ```
 
 ### 40. URL Validator
@@ -422,7 +422,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/validate/e
 Validate URL format and reachability.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/validate/url?url=https://github.com"
+curl "https://toolpipe.dev/api/validate/url?url=https://github.com"
 ```
 
 ### 41. JSON Validator
@@ -430,7 +430,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/validate/u
 Check if a string is valid JSON and report errors.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/validate \
+curl -X POST https://toolpipe.dev/api/json/validate \
   -H "Content-Type: application/json" \
   -d '{"json": "{\"valid\": true}"}'
 ```
@@ -440,7 +440,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jso
 Validate card numbers using the Luhn algorithm (for testing, not real cards).
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/validate/luhn?number=4111111111111111"
+curl "https://toolpipe.dev/api/validate/luhn?number=4111111111111111"
 ```
 
 ---
@@ -450,7 +450,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/validate/l
 ### 43. Hex to ASCII / ASCII to Hex
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/hex/to-ascii \
+curl -X POST https://toolpipe.dev/api/hex/to-ascii \
   -H "Content-Type: application/json" \
   -d '{"hex": "48656c6c6f"}'
 ```
@@ -458,7 +458,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/hex
 ### 44. Binary to Text / Text to Binary
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/binary/to-text \
+curl -X POST https://toolpipe.dev/api/binary/to-text \
   -H "Content-Type: application/json" \
   -d '{"binary": "01001000 01100101 01101100 01101100 01101111"}'
 ```
@@ -468,7 +468,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/bin
 The classic cipher, for fun or obfuscation.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/rot13 \
+curl -X POST https://toolpipe.dev/api/rot13 \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello World"}'
 ```
@@ -482,7 +482,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/rot
 Parse browser user agent strings into structured data.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/useragent/parse \
+curl -X POST https://toolpipe.dev/api/useragent/parse \
   -H "Content-Type: application/json" \
   -d '{"useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}'
 ```
@@ -492,7 +492,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/use
 Grab the favicon from any website.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/favicon?url=https://github.com" \
+curl "https://toolpipe.dev/api/favicon?url=https://github.com" \
   --output favicon.ico
 ```
 
@@ -501,7 +501,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/favicon?ur
 Check domain registration details.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/whois?domain=example.com"
+curl "https://toolpipe.dev/api/whois?domain=example.com"
 ```
 
 ### 49. Open Graph Tag Extractor
@@ -509,7 +509,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/whois?doma
 Pull OG meta tags from any URL for link preview debugging.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/og-tags?url=https://github.com"
+curl "https://toolpipe.dev/api/og-tags?url=https://github.com"
 ```
 
 ### 50. Robots.txt Fetcher and Parser
@@ -517,7 +517,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/og-tags?ur
 Fetch and parse any site's robots.txt.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/robots?url=https://github.com"
+curl "https://toolpipe.dev/api/robots?url=https://github.com"
 ```
 
 ---
@@ -531,7 +531,7 @@ Every tool above works both in the browser (with a clean UI) and via the REST AP
 ```javascript
 // Example: Format JSON from a React app
 const response = await fetch(
-  'https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/format',
+  'https://toolpipe.dev/api/json/format',
   {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -546,7 +546,7 @@ const result = await response.json();
 ```bash
 #!/bin/bash
 # Quick UUID generator alias
-alias uuid='curl -s https://assessing-scoop-authorities-sheet.trycloudflare.com/api/uuid/generate | jq -r .uuid'
+alias uuid='curl -s https://toolpipe.dev/api/uuid/generate | jq -r .uuid'
 ```
 
 **Use it in CI/CD pipelines** for validation, formatting checks, or generating test data.
@@ -556,7 +556,7 @@ alias uuid='curl -s https://assessing-scoop-authorities-sheet.trycloudflare.com/
 ## Full API Documentation
 
 The complete OpenAPI/Swagger docs are at:
-[https://assessing-scoop-authorities-sheet.trycloudflare.com/docs](https://assessing-scoop-authorities-sheet.trycloudflare.com/docs)
+[https://toolpipe.dev/docs](https://toolpipe.dev/docs)
 
 Every endpoint is documented with request/response schemas, so you can generate client code in any language.
 
@@ -564,4 +564,4 @@ Every endpoint is documented with request/response schemas, so you can generate 
 
 **ToolPipe** is free to use. No rate limits for reasonable usage. No API keys. No signup walls. Just developer tools that work.
 
-Bookmark it: [https://assessing-scoop-authorities-sheet.trycloudflare.com](https://assessing-scoop-authorities-sheet.trycloudflare.com)
+Bookmark it: [https://toolpipe.dev](https://toolpipe.dev)

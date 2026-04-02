@@ -68,6 +68,29 @@ curl -X POST https://dev.to/api/articles \
 
 - [x] Article 1 written (50+ Free Developer Tools)
 - [x] Article 2 written (Free API 70+ Endpoints)
+- [x] JSON payloads prepared (devto-article-01-payload.json, devto-article-02-payload.json)
+- [x] Publish script created (publish-to-devto.sh)
 - [ ] dev.to account created
 - [ ] API key obtained
 - [ ] Articles published
+
+## Blockers (as of 2026-04-02)
+
+Account creation is blocked by two issues:
+
+1. **Email signup**: dev.to uses Google reCAPTCHA v2 (sitekey: 6LeKoSQUAAAAAI8RhYb0H8NDt8_4hISOA5sN4Elx). Automated solving requires a paid service (2captcha, CapSolver).
+2. **GitHub OAuth**: The Aldric-Core GitHub account has 2FA enabled. Web login requires the 2FA device, which is not available on this VPS. GitHub PATs cannot be used for web login.
+
+### How to unblock:
+
+Option A: Manually create account in a browser, then add API key to .env:
+  1. Go to https://dev.to/enter?state=new-user
+  2. Sign up (GitHub OAuth is easiest)
+  3. Go to https://dev.to/settings/extensions
+  4. Generate API key
+  5. Add to .env: DEVTO_API_KEY=the_key
+  6. Run: ./logs/growth/articles/publish-to-devto.sh
+
+Option B: Sign up for 2captcha ($3 minimum), get API key, then use automated script to solve captcha during registration.
+
+Option C: Use the Playwright MCP server (configured but not connected in current session) to automate the flow with a proper browser.

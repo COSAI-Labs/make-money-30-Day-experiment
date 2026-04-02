@@ -11,8 +11,8 @@ I got tired of juggling a dozen browser tabs for basic dev tasks. JSON formattin
 
 So I built **ToolPipe**: a single FastAPI service with 70+ REST endpoints covering the tasks developers do every day. It is completely free, requires no authentication, and has CORS enabled so you can call it from anywhere.
 
-**Base URL:** `https://assessing-scoop-authorities-sheet.trycloudflare.com`
-**Swagger Docs:** `https://assessing-scoop-authorities-sheet.trycloudflare.com/docs`
+**Base URL:** `https://toolpipe.dev`
+**Swagger Docs:** `https://toolpipe.dev/docs`
 
 This article walks through the API by category with real `curl` examples you can copy and run right now.
 
@@ -26,7 +26,7 @@ No API key. No OAuth. No signup. Just make the request.
 
 ```bash
 # Health check
-curl https://assessing-scoop-authorities-sheet.trycloudflare.com/api/health
+curl https://toolpipe.dev/api/health
 ```
 
 Response:
@@ -47,7 +47,7 @@ These are probably the endpoints you will reach for most often.
 ### Format / Pretty-Print JSON
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/format \
+curl -X POST https://toolpipe.dev/api/json/format \
   -H "Content-Type: application/json" \
   -d '{"json": "{\"users\":[{\"id\":1,\"name\":\"Alice\"},{\"id\":2,\"name\":\"Bob\"}]}"}'
 ```
@@ -63,7 +63,7 @@ Response:
 ### Validate JSON
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/validate \
+curl -X POST https://toolpipe.dev/api/json/validate \
   -H "Content-Type: application/json" \
   -d '{"json": "{\"missing\": \"closing bracket\""}'
 ```
@@ -79,7 +79,7 @@ Response:
 ### Validate Against JSON Schema
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/validate-schema \
+curl -X POST https://toolpipe.dev/api/json/validate-schema \
   -H "Content-Type: application/json" \
   -d '{
     "schema": {
@@ -107,7 +107,7 @@ Response:
 Extract nested data without writing code.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/query \
+curl -X POST https://toolpipe.dev/api/json/query \
   -H "Content-Type: application/json" \
   -d '{
     "json": {
@@ -137,7 +137,7 @@ Response:
 
 ```bash
 # Encode
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/base64/encode \
+curl -X POST https://toolpipe.dev/api/base64/encode \
   -H "Content-Type: application/json" \
   -d '{"text": "secret-api-key:12345"}'
 ```
@@ -151,7 +151,7 @@ Response:
 
 ```bash
 # Decode
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/base64/decode \
+curl -X POST https://toolpipe.dev/api/base64/decode \
   -H "Content-Type: application/json" \
   -d '{"text": "c2VjcmV0LWFwaS1rZXk6MTIzNDU="}'
 ```
@@ -159,7 +159,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/bas
 ### URL Encoding
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/url/encode \
+curl -X POST https://toolpipe.dev/api/url/encode \
   -H "Content-Type: application/json" \
   -d '{"text": "name=John Doe&city=New York&q=hello world"}'
 ```
@@ -174,7 +174,7 @@ Response:
 ### HTML Entities
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/html/encode \
+curl -X POST https://toolpipe.dev/api/html/encode \
   -H "Content-Type: application/json" \
   -d '{"text": "<div class=\"alert\">User input: 5 > 3 & 2 < 4</div>"}'
 ```
@@ -191,7 +191,7 @@ Response:
 Inspect tokens without a verification secret.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jwt/decode \
+curl -X POST https://toolpipe.dev/api/jwt/decode \
   -H "Content-Type: application/json" \
   -d '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"}'
 ```
@@ -214,7 +214,7 @@ Response:
 Supports MD5, SHA-1, SHA-256, and SHA-512.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/hash/generate \
+curl -X POST https://toolpipe.dev/api/hash/generate \
   -H "Content-Type: application/json" \
   -d '{"text": "password123", "algorithm": "sha256"}'
 ```
@@ -230,7 +230,7 @@ Response:
 ### Password Generator
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/password/generate?length=32&symbols=true&numbers=true&uppercase=true"
+curl "https://toolpipe.dev/api/password/generate?length=32&symbols=true&numbers=true&uppercase=true"
 ```
 
 Response:
@@ -251,7 +251,7 @@ Response:
 Test patterns and get match details without spinning up a REPL.
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/regex/test \
+curl -X POST https://toolpipe.dev/api/regex/test \
   -H "Content-Type: application/json" \
   -d '{
     "pattern": "(\\d{4})-(\\d{2})-(\\d{2})",
@@ -282,7 +282,7 @@ Response:
 ### Diff Checker
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/diff/compare \
+curl -X POST https://toolpipe.dev/api/diff/compare \
   -H "Content-Type: application/json" \
   -d '{
     "text1": "function hello() {\n  return \"hello\";\n}",
@@ -293,7 +293,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/dif
 ### Case Converter
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/case-convert \
+curl -X POST https://toolpipe.dev/api/text/case-convert \
   -H "Content-Type: application/json" \
   -d '{"text": "user profile settings page", "case": "camelCase"}'
 ```
@@ -312,7 +312,7 @@ Supported cases: `camelCase`, `PascalCase`, `snake_case`, `kebab-case`, `SCREAMI
 ### Slugify
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/slugify \
+curl -X POST https://toolpipe.dev/api/text/slugify \
   -H "Content-Type: application/json" \
   -d '{"text": "How to Build a REST API in 2026 (Complete Guide)"}'
 ```
@@ -331,13 +331,13 @@ Response:
 ### DNS Lookup
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/dns/lookup?domain=dev.to&type=A"
+curl "https://toolpipe.dev/api/dns/lookup?domain=dev.to&type=A"
 ```
 
 ### SSL Certificate Check
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/ssl/check?domain=github.com"
+curl "https://toolpipe.dev/api/ssl/check?domain=github.com"
 ```
 
 Response:
@@ -355,7 +355,7 @@ Response:
 ### HTTP Header Inspector
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/headers?url=https://dev.to"
+curl "https://toolpipe.dev/api/http/headers?url=https://dev.to"
 ```
 
 ### Open Graph Tags
@@ -363,7 +363,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/heade
 Debug link previews by extracting OG meta tags.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/og-tags?url=https://dev.to"
+curl "https://toolpipe.dev/api/og-tags?url=https://dev.to"
 ```
 
 Response:
@@ -383,7 +383,7 @@ Response:
 ### Convert Colors
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/convert?color=%233498db&format=rgb"
+curl "https://toolpipe.dev/api/color/convert?color=%233498db&format=rgb"
 ```
 
 Response:
@@ -399,7 +399,7 @@ Response:
 ### Contrast Ratio (WCAG)
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/contrast?fg=%23ffffff&bg=%23003366"
+curl "https://toolpipe.dev/api/color/contrast?fg=%23ffffff&bg=%23003366"
 ```
 
 Response:
@@ -416,7 +416,7 @@ Response:
 ### Palette Generator
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/palette?base=%23e74c3c&type=analogous"
+curl "https://toolpipe.dev/api/color/palette?base=%23e74c3c&type=analogous"
 ```
 
 ---
@@ -426,7 +426,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/color/pale
 ### Cron Parser
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/cron/parse \
+curl -X POST https://toolpipe.dev/api/cron/parse \
   -H "Content-Type: application/json" \
   -d '{"expression": "0 9 * * 1-5"}'
 ```
@@ -446,7 +446,7 @@ Response:
 ### Timestamp Converter
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/timestamp/convert?timestamp=1711929600"
+curl "https://toolpipe.dev/api/timestamp/convert?timestamp=1711929600"
 ```
 
 Response:
@@ -466,7 +466,7 @@ Response:
 ### UUID
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/uuid/generate?count=3"
+curl "https://toolpipe.dev/api/uuid/generate?count=3"
 ```
 
 Response:
@@ -485,20 +485,20 @@ Response:
 Returns a PNG image.
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/qr/generate?text=https://dev.to&size=300" \
+curl "https://toolpipe.dev/api/qr/generate?text=https://dev.to&size=300" \
   --output qr-devto.png
 ```
 
 ### Lorem Ipsum
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/lorem-ipsum?paragraphs=2&format=text"
+curl "https://toolpipe.dev/api/lorem-ipsum?paragraphs=2&format=text"
 ```
 
 ### Placeholder Images
 
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/image/placeholder?width=800&height=400&text=Banner&bg=3498db&fg=ffffff" \
+curl "https://toolpipe.dev/api/image/placeholder?width=800&height=400&text=Banner&bg=3498db&fg=ffffff" \
   --output banner.png
 ```
 
@@ -509,7 +509,7 @@ curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/image/plac
 ### Markdown to HTML
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/markdown/to-html \
+curl -X POST https://toolpipe.dev/api/markdown/to-html \
   -H "Content-Type: application/json" \
   -d '{"markdown": "## Features\n\n- Fast\n- Free\n- **No auth**\n\n```python\nprint(\"hello\")\n```"}'
 ```
@@ -517,7 +517,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/mar
 ### YAML to JSON
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/yaml/to-json \
+curl -X POST https://toolpipe.dev/api/yaml/to-json \
   -H "Content-Type: application/json" \
   -d '{"yaml": "apiVersion: v1\nkind: Service\nmetadata:\n  name: my-service\nspec:\n  ports:\n    - port: 80"}'
 ```
@@ -525,7 +525,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/yam
 ### CSV to JSON
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/csv/to-json \
+curl -X POST https://toolpipe.dev/api/csv/to-json \
   -H "Content-Type: application/json" \
   -d '{"csv": "endpoint,method,description\n/api/json/format,POST,Format JSON\n/api/uuid/generate,GET,Generate UUIDs"}'
 ```
@@ -533,7 +533,7 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/csv
 ### SQL Formatter
 
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/sql/format \
+curl -X POST https://toolpipe.dev/api/sql/format \
   -H "Content-Type: application/json" \
   -d '{"sql": "SELECT u.id, u.name, COUNT(o.id) as order_count FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE u.active = true GROUP BY u.id, u.name HAVING COUNT(o.id) > 5 ORDER BY order_count DESC LIMIT 10"}'
 ```
@@ -549,7 +549,7 @@ CORS is enabled, so browser calls work directly.
 ```javascript
 async function formatJSON(messy) {
   const res = await fetch(
-    'https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/format',
+    'https://toolpipe.dev/api/json/format',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -567,7 +567,7 @@ import requests
 
 def generate_uuid(count=1):
     r = requests.get(
-        f"https://assessing-scoop-authorities-sheet.trycloudflare.com/api/uuid/generate",
+        f"https://toolpipe.dev/api/uuid/generate",
         params={"count": count}
     )
     return r.json()["uuids"]
@@ -578,9 +578,9 @@ def generate_uuid(count=1):
 Add these to your `.bashrc` or `.zshrc`:
 
 ```bash
-alias json-format='curl -s -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/format -H "Content-Type: application/json" -d'
-alias uuid='curl -s https://assessing-scoop-authorities-sheet.trycloudflare.com/api/uuid/generate | jq -r ".uuids[0]"'
-alias qr='f(){ curl -s "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/qr/generate?text=$1" -o qr.png && open qr.png; }; f'
+alias json-format='curl -s -X POST https://toolpipe.dev/api/json/format -H "Content-Type: application/json" -d'
+alias uuid='curl -s https://toolpipe.dev/api/uuid/generate | jq -r ".uuids[0]"'
+alias qr='f(){ curl -s "https://toolpipe.dev/api/qr/generate?text=$1" -o qr.png && open qr.png; }; f'
 ```
 
 ### In CI/CD Pipelines
@@ -589,7 +589,7 @@ alias qr='f(){ curl -s "https://assessing-scoop-authorities-sheet.trycloudflare.
 # GitHub Actions example
 - name: Validate API response schema
   run: |
-    curl -s -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/validate-schema \
+    curl -s -X POST https://toolpipe.dev/api/json/validate-schema \
       -H "Content-Type: application/json" \
       -d "{\"schema\": $(cat schema.json), \"data\": $(curl -s $API_URL)}" \
       | jq -e '.valid == true'
@@ -614,7 +614,7 @@ Fair question. Here is why ToolPipe is different:
 
 The complete Swagger/OpenAPI docs are interactive. You can test every endpoint in your browser:
 
-[https://assessing-scoop-authorities-sheet.trycloudflare.com/docs](https://assessing-scoop-authorities-sheet.trycloudflare.com/docs)
+[https://toolpipe.dev/docs](https://toolpipe.dev/docs)
 
 ---
 
@@ -623,4 +623,4 @@ The complete Swagger/OpenAPI docs are interactive. You can test every endpoint i
 More endpoints are being added regularly. If you have a tool you'd use daily, drop a comment. The ones most requested get built first.
 
 Bookmark the base URL:
-[https://assessing-scoop-authorities-sheet.trycloudflare.com](https://assessing-scoop-authorities-sheet.trycloudflare.com)
+[https://toolpipe.dev](https://toolpipe.dev)
