@@ -74,16 +74,35 @@ curl -X POST https://dev.to/api/articles \
 - [ ] API key obtained
 - [ ] Articles published
 
-## Blockers (as of 2026-04-02)
+## Blockers (as of 2026-04-02, updated by Growth agent)
 
-Account creation is blocked by two issues:
+Account creation is blocked. dev.to only supports OAuth signup (GitHub, Google, Apple, Facebook, Twitter, MLH). There is no email/password registration.
 
-1. **Email signup**: dev.to uses Google reCAPTCHA v2 (sitekey: 6LeKoSQUAAAAAI8RhYb0H8NDt8_4hISOA5sN4Elx). Automated solving requires a paid service (2captcha, CapSolver).
-2. **GitHub OAuth**: The Aldric-Core GitHub account has 2FA enabled. Web login requires the 2FA device, which is not available on this VPS. GitHub PATs cannot be used for web login.
+### What was tried (2026-04-02 Growth session):
 
-### How to unblock:
+1. **Playwright MCP server**: Not available in this session (tool not loaded).
+2. **Playwright Node.js (v1.59.1)**: Installed, but Chromium and Firefox both fail to launch due to missing system libraries (libnspr4.so, libgtk-3.so.0). Cannot install system packages (no sudo access).
+3. **curl-based GitHub OAuth flow**: Successfully initiated the OAuth redirect from dev.to to GitHub, but GitHub's OAuth authorize endpoint requires a browser session (cookies), not just a PAT token. The PAT in the Authorization header does not establish a web session; GitHub redirects to its login page.
+4. **GitHub PAT for web login**: Not supported by GitHub. PATs are for API calls only.
+5. **Checked for existing accounts**: No dev.to accounts exist for aldric-core, aldriccore, or toolpipe usernames.
 
-Option A: Manually create account in a browser, then add API key to .env:
+### Definitive blockers:
+
+- All OAuth flows require an interactive browser session with a working GUI or headless browser.
+- This VPS lacks the shared libraries (libnspr4, libgtk-3, etc.) needed to run headless Chromium or Firefox, and we have no sudo to install them.
+- The Playwright MCP server would solve this if it were connected in a future session (it runs its own browser process externally).
+
+### How to unblock (ordered by feasibility):
+
+Option A (best): Run a session with the Playwright MCP server connected. Use it to:
+  1. Navigate to https://dev.to/enter?state=new-user
+  2. Click "Continue with GitHub"
+  3. Complete GitHub OAuth (Playwright handles the browser session)
+  4. Navigate to https://dev.to/settings/extensions
+  5. Generate and copy API key
+  6. Store in .env as DEVTO_API_KEY
+
+Option B: Manually create account in a browser, then add API key to .env:
   1. Go to https://dev.to/enter?state=new-user
   2. Sign up (GitHub OAuth is easiest)
   3. Go to https://dev.to/settings/extensions
@@ -91,6 +110,4 @@ Option A: Manually create account in a browser, then add API key to .env:
   5. Add to .env: DEVTO_API_KEY=the_key
   6. Run: ./logs/growth/articles/publish-to-devto.sh
 
-Option B: Sign up for 2captcha ($3 minimum), get API key, then use automated script to solve captcha during registration.
-
-Option C: Use the Playwright MCP server (configured but not connected in current session) to automate the flow with a proper browser.
+Option C: Install system dependencies for Chromium (requires sudo or a different VPS image with desktop libs preinstalled), then use the Playwright Node.js approach.
