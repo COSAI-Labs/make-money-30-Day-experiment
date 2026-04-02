@@ -935,14 +935,14 @@ async def tools_page():
 <title>100+ Free Developer Tools - ToolPipe</title>
 <meta name="description" content="100+ free online developer tools: JSON formatter, regex tester, QR generator, PDF tools, hash generator, UUID, DNS lookup, and more. No signup needed.">
 <style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;color:#333}}nav{{background:#1a1a2e;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;font-size:.9rem}}nav a{{color:#6c63ff;text-decoration:none}}.container{{max-width:1100px;margin:0 auto;padding:20px}}h1{{font-size:2.5rem;text-align:center;margin:40px 0 8px}}p.sub{{text-align:center;color:#666;margin-bottom:40px;font-size:1.1rem}}.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}}footer{{text-align:center;padding:40px;color:#999;font-size:.85rem}}footer a{{color:#6c63ff;text-decoration:none;margin:0 8px}}input{{width:100%;max-width:400px;margin:0 auto 32px;display:block;padding:14px 20px;border:2px solid #ddd;border-radius:10px;font-size:1rem}}input:focus{{outline:none;border-color:#6c63ff}}</style></head><body>
-<nav><a href="/">ToolPipe</a><div><a href="/docs">API Docs</a> | <a href="/pricing">Pricing</a> | <a href="/api-keys">Get API Key</a></div></nav>
+<nav><a href="/">ToolPipe</a><div><a href="/demo">Demo</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pricing</a> | <a href="/api-keys">Get API Key</a></div></nav>
 <div class="container">
 <h1>{len(tools)}+ Free Developer Tools</h1>
 <p class="sub">All tools run in your browser. No signup required. Also available as REST APIs.</p>
 <input type="text" id="search" placeholder="Search tools..." oninput="filter()">
 <div class="grid" id="grid">{tool_cards}</div>
 </div>
-<footer><a href="/">Home</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pricing</a> | <a href="/api-keys">Get API Key</a></footer>
+<footer><a href="/">Home</a> | <a href="/demo">Demo</a> | <a href="/docs">API Docs</a> | <a href="/pricing">Pricing</a> | <a href="/api-keys">Get API Key</a></footer>
 <script>function filter(){{const q=document.getElementById('search').value.toLowerCase();document.querySelectorAll('#grid > a').forEach(a=>{{a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'}})}}</script></body></html>"""
     return HTMLResponse(inject_snippet(html))
 
@@ -11484,16 +11484,6 @@ async def embed_gallery():
     return HTMLResponse(inject_snippet(html))
 
 
-# --- SEO Pages (catch-all for static content pages) ---
-
-@app.get("/{page_name}", response_class=HTMLResponse)
-async def seo_page_handler(page_name: str):
-    page_file = SEO_PAGES_DIR / f"{page_name}.html"
-    if page_file.exists():
-        return HTMLResponse(inject_snippet(page_file.read_text()))
-    raise HTTPException(status_code=404, detail="Page not found")
-
-
 @app.get("/demo", response_class=HTMLResponse)
 async def demo_page():
     return HTMLResponse(inject_snippet("""<!DOCTYPE html>
@@ -11728,6 +11718,16 @@ async def openapi_lite():
             "networks": ["Ethereum", "Polygon", "Base", "Arbitrum", "Optimism", "Solana"],
         },
     }
+
+
+# --- SEO Pages (catch-all for static content pages, must be LAST) ---
+
+@app.get("/{page_name}", response_class=HTMLResponse)
+async def seo_page_handler(page_name: str):
+    page_file = SEO_PAGES_DIR / f"{page_name}.html"
+    if page_file.exists():
+        return HTMLResponse(inject_snippet(page_file.read_text()))
+    raise HTTPException(status_code=404, detail="Page not found")
 
 
 if __name__ == "__main__":
