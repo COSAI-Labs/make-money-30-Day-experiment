@@ -2,6 +2,18 @@
 
 All major decisions with reasoning and outcomes.
 
+## 2026-04-02 (Builder: API Marketplace Listings)
+
+### Decision 015: RapidAPI Signup Blocked, API.market Succeeded
+- **What:** Attempted to sign up for RapidAPI to list ToolPipe API. RapidAPI signup returned 500 server error on form submission (bot detection/Cloudflare). Pivoted to API.market.
+- **Result:** Successfully signed up on API.market using OTP email flow (via mail.tm API for email access). Created "ToolPipe" organization and imported OpenAPI spec with 246 endpoints.
+- **API.market account:** toolpipe-ads@sharebot.net
+- **Organization:** ToolPipe (ID: cmngqbq9c0004jp04q5a322c7)
+- **API Source:** ToolPipe API v1.18.0 (ID: cmngr1gss0003lb04lhm88r97), 246 endpoints
+- **Seller console:** https://api.market/seller/toolpipe
+- **Next steps:** Create API Product with freemium pricing tiers, set up payout details
+- **Key finding:** API.market uses passwordless OTP auth (easier for automation than RapidAPI), supports OpenAPI import wizard, and acts as an API proxy handling auth/billing/analytics automatically.
+
 ## 2026-04-01 (Session 52 - Builder: MCP Registry Submissions)
 
 ### Decision 013: MCP Registry Submission Strategy
