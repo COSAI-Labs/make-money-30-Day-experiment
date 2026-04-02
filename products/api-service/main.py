@@ -10551,63 +10551,6 @@ async def a2a_agent_card():
     }
 
 
-@app.post("/payments/agent-pay")
-async def agent_pay(request: Request):
-    """Simplified payment flow for AI agents. One-call payment initiation.
-
-    POST with {"email": "agent@example.com", "tier": "pro"} to get payment instructions.
-    Then send crypto and POST /payments/verify-tx with {order_id, tx_hash}.
-    """
-    try:
-        data = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="JSON body required: {email, tier}")
-
-    email = (data.get("email") or "").strip().lower()
-    if not email or "@" not in email:
-        raise HTTPException(status_code=400, detail="Valid email required")
-
-    tier = (data.get("tier") or "pro").lower()
-    if tier not in PRICING_TIERS:
-        raise HTTPException(status_code=400, detail=f"Tiers: {', '.join(PRICING_TIERS.keys())}")
-
-    tier_info = PRICING_TIERS[tier]
-    order_id = f"tp-agent-{tier}-{uuid.uuid4().hex[:12]}"
-    now = datetime.now(timezone.utc).isoformat()
-
-    with _payments_lock:
-        conn = sqlite3.connect(str(PAYMENTS_DB))
-        conn.execute(
-            "INSERT OR REPLACE INTO payments (track_id, order_id, email, tier, amount, status, created_at) VALUES (?, ?, ?, ?, ?, 'awaiting_payment', ?)",
-            (order_id, order_id, email, tier, tier_info["amount"], now)
-        )
-        conn.commit()
-        conn.close()
-
-    return {
-        "status": "awaiting_payment",
-        "order_id": order_id,
-        "tier": tier,
-        "amount_usd": tier_info["amount"],
-        "daily_limit": tier_info["daily_limit"],
-        "payment_addresses": {
-            "evm": WALLET_ADDRESS,
-            "solana": SOLANA_WALLET,
-        },
-        "accepted_tokens": {
-            "evm": ["ETH", "USDC", "USDT", "DAI", "WETH", "any ERC-20"],
-            "evm_networks": ["Ethereum", "Polygon", "Arbitrum", "Base", "Optimism", "BSC", "Avalanche"],
-            "solana": ["SOL", "USDC-SPL"],
-        },
-        "next_step": f"Send ${tier_info['amount']} USD equivalent in crypto to one of the addresses above, then POST /payments/verify-tx with {{\"order_id\": \"{order_id}\", \"tx_hash\": \"0x...\"}}",
-        "verify_endpoint": "/payments/verify-tx",
-        "qr_codes": {
-            "evm": f"/qr/generate?text=ethereum:{WALLET_ADDRESS}&size=300",
-            "solana": f"/qr/generate?text=solana:{SOLANA_WALLET}&size=300",
-        },
-    }
-
-
 @app.get("/api/agent/discover")
 async def agent_discover():
     """Discovery endpoint for AI agents. Returns available tools, pricing, and how to get started."""
