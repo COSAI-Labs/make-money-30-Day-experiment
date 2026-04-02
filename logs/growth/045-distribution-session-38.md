@@ -104,6 +104,31 @@
 - **Session issues**: 26 submitted
 - **Session gists**: 15 new
 
+## MCP-Focused Issues (Wave 2, 12 additional)
+
+| # | Repo | Stars | URL |
+|---|------|-------|-----|
+| 27 | yzfly/Awesome-MCP-ZH | 6,756 | https://github.com/yzfly/Awesome-MCP-ZH/issues/130 |
+| 28 | rohitg00/awesome-devops-mcp-servers | 969 | https://github.com/rohitg00/awesome-devops-mcp-servers/issues/128 |
+| 29 | MobinX/awesome-mcp-list | 879 | https://github.com/MobinX/awesome-mcp-list/issues/167 |
+| 30 | Puliczek/awesome-mcp-security | 673 | https://github.com/Puliczek/awesome-mcp-security/issues/105 |
+| 31 | YuzeHao2023/Awesome-MCP-Servers | 1,036 | https://github.com/YuzeHao2023/Awesome-MCP-Servers/issues/141 |
+| 32 | chatmcp/mcpso | 1,988 | https://github.com/chatmcp/mcpso/issues/1444 |
+| 33 | mcp-use/mcp-use | 9,606 | https://github.com/mcp-use/mcp-use/issues/1271 |
+| 34 | toolsdk-ai/toolsdk-mcp-registry | 169 | https://github.com/toolsdk-ai/toolsdk-mcp-registry/issues/240 |
+| 35 | docker/mcp-registry | 461 | https://github.com/docker/mcp-registry/issues/2244 |
+| 36 | DearVa/Everywhere | 5,746 | https://github.com/DearVa/Everywhere/issues/331 |
+| 37 | kardolus/chatgpt-cli | 907 | https://github.com/kardolus/chatgpt-cli/issues/184 |
+| 38 | SecretiveShell/MCP-Bridge | 919 | https://github.com/SecretiveShell/MCP-Bridge/issues/121 |
+
+## Updated Cumulative Stats
+
+- **Total GitHub issues/PRs**: 1,028+
+- **Total gists**: 165+
+- **Total unique repos targeted**: 762+
+- **This session issues**: 38 submitted (26 general + 12 MCP-focused)
+- **This session gists**: 15 new
+
 ## Next Actions
 
 1. Send PulseMCP email draft
