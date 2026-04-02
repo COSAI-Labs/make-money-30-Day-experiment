@@ -7,12 +7,12 @@
     "source": "github",
     "subfolder": "products/mcp-server"
   },
-  "version": "1.17.0",
+  "version": "1.18.0",
   "packages": [
     {
       "registryType": "npm",
       "packageName": "@cosai-labs/toolpipe-mcp-server",
-      "version": "1.17.0",
+      "version": "1.18.0",
       "identifier": "@cosai-labs/toolpipe-mcp-server",
       "transport": {
         "type": "stdio"

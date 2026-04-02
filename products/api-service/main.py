@@ -36,7 +36,7 @@ from reportlab.lib.pagesizes import letter
 app = FastAPI(
     title="ToolPipe API",
     description="230+ developer utility APIs. Code review, fake data generation, JSON Schema validation, security headers check, API client generation, OpenAPI spec generation, CSV analysis, code minification, JSON formatting, QR codes, PDF tools, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML, text stats, and more. Free tier: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo). Credits: 1K for $4.99. Pay with crypto, no KYC.",
-    version="1.17.0",
+    version="1.18.0",
     contact={"name": "ToolPipe", "url": "https://toolpipe.dev", "email": "toolpipe-ads@sharebot.net"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     servers=[{"url": "https://toolpipe.dev", "description": "Production"}],
@@ -5181,7 +5181,7 @@ async def mcp_info():
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe MCP Server",
-        "version": "1.17.0",
+        "version": "1.18.0",
         "protocol": "MCP (Model Context Protocol)",
         "transport": "Streamable HTTP",
         "tools": 156,
@@ -5261,13 +5261,25 @@ async def ai_plugin_manifest():
     }
 
 
+@app.get("/postman")
+async def postman_collection():
+    """Download Postman collection for all ToolPipe API endpoints."""
+    postman_file = Path(__file__).parent / "postman-collection.json"
+    if postman_file.exists():
+        return JSONResponse(
+            json.loads(postman_file.read_text()),
+            headers={"Content-Disposition": "attachment; filename=toolpipe-postman-collection.json"}
+        )
+    return JSONResponse({"error": "Collection not found"}, status_code=404)
+
+
 @app.get("/api/info")
 async def api_info():
     """Complete API information and endpoint catalog."""
     base = _get_tunnel_url()
     return {
         "name": "ToolPipe API",
-        "version": "1.17.0",
+        "version": "1.18.0",
         "base_url": base,
         "total_endpoints": 230,
         "mcp_server": f"{base}/mcp",
@@ -10603,7 +10615,7 @@ async def agent_discover():
     return {
         "service": "ToolPipe",
         "tagline": "230+ developer APIs for AI agents and developers",
-        "version": "1.17.0",
+        "version": "1.18.0",
         "total_endpoints": 230,
         "mcp_tools": 156,
         "free_tier": {
@@ -10825,7 +10837,7 @@ async def a2a_discovery():
     return {
         "name": "ToolPipe",
         "description": "Developer utility API service with 230+ endpoints and 156 MCP tools.",
-        "version": "1.17.0",
+        "version": "1.18.0",
         "protocol": "a2a",
         "capabilities": [
             "json-formatting", "qr-code-generation", "hashing", "uuid-generation",
@@ -10862,7 +10874,7 @@ async def mcp_server_card():
     return {
         "serverInfo": {
             "name": "ToolPipe",
-            "version": "1.17.0",
+            "version": "1.18.0",
             "description": "230+ developer utility APIs and 156 MCP tools. JSON formatting, QR codes, hashing, code review, DNS lookup, web scraping, and more.",
         },
         "authentication": {

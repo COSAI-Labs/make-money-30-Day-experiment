@@ -46,7 +46,7 @@ function errorResult(msg) {
 
 function createServer() {
   const server = new McpServer(
-    { name: "toolpipe", version: "1.17.0" },
+    { name: "toolpipe", version: "1.18.0" },
     {
       capabilities: { tools: {} },
       instructions: "ToolPipe provides 220+ developer utility APIs as 120+ HTTP MCP tools. JSON formatting, QR codes, hashing, UUID, DNS, base64, markdown, regex testing, JWT, SQL formatting, XML/YAML, text stats, code review, code explain, fake data generation, OpenAPI spec generation, security header checking, API client generation, CSV analysis, JSON Schema validation, code minification, and more. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99).",
@@ -210,7 +210,7 @@ function createServer() {
   server.tool("buy_credits", "Purchase API credits (1K/$4.99, 10K/$29.99, 100K/$199.99).", { api_key: z.string(), pack: z.enum(["starter", "growth", "scale"]).optional() }, async ({ api_key, pack }) => textResult(await apiCall("/api/credits/buy", { method: "POST", body: JSON.stringify({ api_key, pack: pack ?? "starter" }) })));
   server.tool("credit_packs", "List available credit packs and pricing.", {}, async () => textResult(await apiCall("/api/credits/packs")));
 
-  // v1.17.0 new tools (non-duplicate only)
+  // v1.18.0 new tools (non-duplicate only)
   server.tool("generate_dockerfile", "Generate Dockerfile for a project.", { language: z.string(), framework: z.string().optional(), port: z.number().optional() }, async ({ language, framework, port }) => textResult(await apiCall("/api/dockerfile/generate", { method: "POST", body: JSON.stringify({ language, framework, port }) })));
   server.tool("generate_commit_message", "Generate conventional git commit message from diff/description.", { diff: z.string().optional(), description: z.string().optional(), style: z.string().optional() }, async ({ diff, description, style }) => textResult(await apiCall("/api/commit/message", { method: "POST", body: JSON.stringify({ diff, description, style: style ?? "conventional" }) })));
   server.tool("generate_regex", "Generate regex from natural language description.", { description: z.string(), test_strings: z.array(z.string()).optional() }, async ({ description, test_strings }) => textResult(await apiCall("/api/regex/generate", { method: "POST", body: JSON.stringify({ description, test_strings }) })));

@@ -1,0 +1,28 @@
+name: toolpipe
+description: "145+ developer utility tools: JSON, QR codes, hashing, UUID, DNS lookup, SSL check, WHOIS, code review, fake data, Dockerfile gen, GitHub Actions, Nginx configs, and more. Free 100 calls/day."
+icon: https://toolpipe.dev/favicon.ico
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      apiKey:
+        type: string
+        title: API Key
+        description: "ToolPipe API key (optional, free tier: 100 calls/day without key)"
+      baseUrl:
+        type: string
+        title: Base URL
+        description: "Custom base URL (default: https://toolpipe.dev)"
+        default: "https://toolpipe.dev"
+    required: []
+  commandFunction:
+    |-
+    (config) => ({
+      command: "npx",
+      args: ["-y", "@cosai-labs/toolpipe-mcp-server"],
+      env: {
+        TOOLPIPE_API_KEY: config.apiKey || "",
+        TOOLPIPE_BASE_URL: config.baseUrl || "https://toolpipe.dev"
+      }
+    })

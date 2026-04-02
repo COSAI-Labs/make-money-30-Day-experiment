@@ -1,0 +1,1593 @@
+{
+  "info": {
+    "name": "ToolPipe API - 230+ Developer Tools",
+    "description": "230+ free developer utility APIs. JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, code review, fake data, screenshots, SEO analysis, crypto prices, and more.\n\nFree tier: 100 calls/day (no signup needed).\nPro: 10,000 calls/day ($9.99/mo).\n\nDocs: https://assessing-scoop-authorities-sheet.trycloudflare.com/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "toolpipe"
+  },
+  "item": [
+    {
+      "name": "Data & JSON Tools",
+      "item": [
+        {
+          "name": "Format JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"json\": \"{\\\"name\\\":\\\"test\\\",\\\"value\\\":42}\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/json/format",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "json",
+                "format"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JSON to YAML",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"json\": \"{\\\"name\\\":\\\"test\\\",\\\"value\\\":42}\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/convert/json-to-yaml",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "convert",
+                "json-to-yaml"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JSON to CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"json\": \"[{\\\"name\\\":\\\"Alice\\\",\\\"age\\\":30},{\\\"name\\\":\\\"Bob\\\",\\\"age\\\":25}]\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/json/to-csv",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "json",
+                "to-csv"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate JSON Schema",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"name\": \"test\"\n  },\n  \"schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/json/validate-schema",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "json",
+                "validate-schema"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CSV to JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csv\": \"name,age\\nAlice,30\\nBob,25\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/csv-to-json",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "csv-to-json"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Encoding & Hashing",
+      "item": [
+        {
+          "name": "Hash Generate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"hello world\",\n  \"algorithm\": \"sha256\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/hash/generate",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "hash",
+                "generate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Base64 Encode/Decode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"hello world\",\n  \"action\": \"encode\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/base64",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "base64"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "URL Encode/Decode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"hello world & foo\",\n  \"action\": \"encode\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/url/encode-decode",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "url",
+                "encode-decode"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "HTML Encode/Decode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"<script>alert('xss')</script>\",\n  \"action\": \"encode\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/html/encode-decode",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "html",
+                "encode-decode"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JWT Decode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/jwt/decode",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "jwt",
+                "decode"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UUID Generate",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/uuid/generate?count=5",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "uuid",
+                "generate?count=5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Password Generate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"length\": 24,\n  \"symbols\": true\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/password/generate",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "password",
+                "generate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Web & Network",
+      "item": [
+        {
+          "name": "DNS Lookup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/dns/lookup?domain=google.com&type=A",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "dns",
+                "lookup?domain=google.com&type=A"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IP Lookup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/ip/lookup?ip=8.8.8.8",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "ip",
+                "lookup?ip=8.8.8.8"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My IP",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/ip/my",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "ip",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Is Website Down?",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/down/check?url=https://google.com",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "down",
+                "check?url=https:",
+                "",
+                "google.com"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEO Analyze",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/seo/analyze?url=https://google.com",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "seo",
+                "analyze?url=https:",
+                "",
+                "google.com"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Meta Extract",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/meta/extract?url=https://google.com",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "meta",
+                "extract?url=https:",
+                "",
+                "google.com"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "HTTP Request Proxy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://httpbin.org/get\",\n  \"method\": \"GET\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/http/request",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "http",
+                "request"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Screenshot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://google.com\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/screenshot",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "screenshot"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Text Processing",
+      "item": [
+        {
+          "name": "Text Stats",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello world! This is a test sentence.\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/text/analyze",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "text",
+                "analyze"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Text Diff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text1\": \"hello world\",\n  \"text2\": \"hello earth\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/diff",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "text",
+                "diff"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detect Language",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Bonjour le monde\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/text/detect-language",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "text",
+                "detect-language"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Markdown to HTML",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"markdown\": \"# Hello\\n\\nThis is **bold**.\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/markdown/to-html",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "markdown",
+                "to-html"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Regex Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pattern\": \"\\\\d+\",\n  \"text\": \"abc 123 def 456\",\n  \"flags\": \"g\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/regex/test",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "regex",
+                "test"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lorem Ipsum",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/lorem-ipsum?count=3&type=paragraphs",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "lorem-ipsum?count=3&type=paragraphs"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Code Tools",
+      "item": [
+        {
+          "name": "Code Format",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"function foo(){return 1+2}\",\n  \"language\": \"javascript\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/code/format",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "code",
+                "format"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Code Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"eval(input())\",\n  \"language\": \"python\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/code/review",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "code",
+                "review"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Code Explain",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"arr.reduce((a,b)=>a+b,0)\",\n  \"language\": \"javascript\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/code/explain",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "code",
+                "explain"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SQL Format",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sql\": \"SELECT * FROM users WHERE id=1 AND name='test' ORDER BY created_at DESC\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/sql/format",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "sql",
+                "format"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CSS Minify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"body { margin: 0; padding: 0; }\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/css/minify",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "css",
+                "minify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JS Minify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"function hello() { return 'world'; }\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/js/minify",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "js",
+                "minify"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Media (QR, PDF)",
+      "item": [
+        {
+          "name": "QR Code Generate",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=https://toolpipe.dev&size=300",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "qr",
+                "generate?text=https:",
+                "",
+                "toolpipe.dev&size=300"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PDF Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello World PDF\",\n  \"title\": \"Test PDF\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/pdf/create",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "pdf",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Utilities",
+      "item": [
+        {
+          "name": "Crypto Prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/crypto/prices?coins=btc,eth,sol",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "crypto",
+                "prices?coins=btc,eth,sol"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cron Parse",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expression\": \"*/5 * * * *\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/cron/parse",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "cron",
+                "parse"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Timestamp Convert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"2026-04-01T00:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/timestamp/convert",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "timestamp",
+                "convert"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Random Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/random/quote",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "random",
+                "quote"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Color Convert",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/color/convert?color=%23ff5733",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "color",
+                "convert?color=%23ff5733"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Data Generators",
+      "item": [
+        {
+          "name": "Fake Data - Person",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"person\",\n  \"count\": 3\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/data/fake",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "data",
+                "fake"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fake Data - Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"company\",\n  \"count\": 3\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/data/fake",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "data",
+                "fake"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Dockerfile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"node\",\n  \"framework\": \"express\",\n  \"port\": 3000\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/dockerfile/generate",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "dockerfile",
+                "generate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Docker Compose",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": \"node,postgres,redis\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/generate/docker-compose",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "generate",
+                "docker-compose"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Commit Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Fixed login bug where users could not reset password\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/commit/message",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "commit",
+                "message"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Regex",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"email addresses\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/regex/generate",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "regex",
+                "generate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JSON to TypeScript",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"json\": \"{\\\"name\\\":\\\"test\\\",\\\"age\\\":30,\\\"active\\\":true}\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/generate/typescript-interface",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "generate",
+                "typescript-interface"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "API Management",
+      "item": [
+        {
+          "name": "Register (Get Free API Key)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}"
+            },
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api-keys/register",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api-keys",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/info",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "api",
+                "info"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MCP Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp-info",
+              "host": [
+                "https://assessing-scoop-authorities-sheet.trycloudflare.com"
+              ],
+              "path": [
+                "mcp-info"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

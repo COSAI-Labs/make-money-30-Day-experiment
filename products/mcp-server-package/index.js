@@ -71,17 +71,19 @@ async function get(path) {
 // ---------------------------------------------------------------------------
 
 const server = new McpServer(
-  { name: "toolpipe", version: "1.1.0" },
+  { name: "toolpipe", version: "1.18.0" },
   {
     capabilities: { tools: {} },
     instructions:
-      "ToolPipe provides 35 developer utility APIs as MCP tools. " +
+      "ToolPipe provides 45 developer utility APIs as MCP tools. " +
       "JSON formatting/validation/schema, QR codes, hashing, UUID, base64, " +
       "markdown-to-HTML, URL shortener, regex tester/generator, text stats, " +
-      "JWT decode/create, DNS lookup, HTTP headers, SSL check, password gen, " +
+      "JWT decode/create, DNS lookup, HTTP headers/proxy, SSL check, password gen, " +
       "lorem ipsum, color converter, cron parser, timestamp converter, " +
       "CSV-to-JSON, code minify/format/review/explain, fake data generation, " +
       "WHOIS lookup, Dockerfile/docker-compose generation, git commit messages, " +
+      "IP geolocation, crypto prices, website screenshots, SEO analysis, " +
+      "URL/HTML encode/decode, text diff, language detection, downtime checker, " +
       "and more. Free: 100 calls/day. Pro: 10,000 calls/day ($9.99/mo).",
   }
 );
@@ -837,6 +839,207 @@ server.tool(
   async ({ prompt, model, task }) => {
     try {
       const data = await post("/api/prompt/engineer", { prompt, model, task });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 36. IP Lookup
+// ---------------------------------------------------------------------------
+server.tool(
+  "ip_lookup",
+  "Get geolocation and ISP info for an IP address.",
+  {
+    ip: z.string().optional().describe("IP address (omit for your own IP)"),
+  },
+  async ({ ip }) => {
+    try {
+      const data = await get(ip ? `/api/ip?ip=${encodeURIComponent(ip)}` : "/api/ip/my");
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 37. Crypto Prices
+// ---------------------------------------------------------------------------
+server.tool(
+  "crypto_prices",
+  "Get current cryptocurrency prices (BTC, ETH, SOL, etc.).",
+  {
+    coins: z.string().optional().describe("Comma-separated coin symbols (default: btc,eth,sol)"),
+  },
+  async ({ coins }) => {
+    try {
+      const data = await get(`/api/crypto/prices${coins ? `?coins=${encodeURIComponent(coins)}` : ""}`);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 38. Website Screenshot
+// ---------------------------------------------------------------------------
+server.tool(
+  "screenshot",
+  "Take a screenshot of a website and return the image URL.",
+  {
+    url: z.string().describe("URL to screenshot"),
+    width: z.number().optional().describe("Viewport width (default 1280)"),
+    height: z.number().optional().describe("Viewport height (default 800)"),
+  },
+  async ({ url, width, height }) => {
+    try {
+      const data = await post("/api/screenshot", { url, width: width || 1280, height: height || 800 });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 39. HTTP Request Proxy
+// ---------------------------------------------------------------------------
+server.tool(
+  "http_request",
+  "Make an HTTP request to any URL and return the response. Useful for agents that cannot make direct HTTP calls.",
+  {
+    url: z.string().describe("URL to request"),
+    method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]).optional().describe("HTTP method (default GET)"),
+    headers: z.string().optional().describe("JSON object of request headers"),
+    body: z.string().optional().describe("Request body (for POST/PUT/PATCH)"),
+  },
+  async ({ url, method, headers, body }) => {
+    try {
+      const payload = { url, method: method || "GET" };
+      if (headers) payload.headers = JSON.parse(headers);
+      if (body) payload.body = body;
+      const data = await post("/api/http/request", payload);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 40. SEO Analyzer
+// ---------------------------------------------------------------------------
+server.tool(
+  "seo_analyze",
+  "Analyze a URL for SEO: meta tags, headings, performance hints, accessibility.",
+  {
+    url: z.string().describe("URL to analyze for SEO"),
+  },
+  async ({ url }) => {
+    try {
+      const data = await get(`/api/seo?url=${encodeURIComponent(url)}`);
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 41. URL Encode/Decode
+// ---------------------------------------------------------------------------
+server.tool(
+  "url_encode_decode",
+  "URL-encode or decode a string.",
+  {
+    text: z.string().describe("Text to encode or decode"),
+    action: z.enum(["encode", "decode"]).optional().describe("encode or decode (default encode)"),
+  },
+  async ({ text, action }) => {
+    try {
+      const data = await post("/api/url/encode-decode", { text, action: action || "encode" });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 42. HTML Encode/Decode
+// ---------------------------------------------------------------------------
+server.tool(
+  "html_encode_decode",
+  "HTML-encode or decode a string (escape special characters).",
+  {
+    text: z.string().describe("Text to encode or decode"),
+    action: z.enum(["encode", "decode"]).optional().describe("encode or decode (default encode)"),
+  },
+  async ({ text, action }) => {
+    try {
+      const data = await post("/api/html/encode-decode", { text, action: action || "encode" });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 43. Text Diff
+// ---------------------------------------------------------------------------
+server.tool(
+  "text_diff",
+  "Compare two texts and show differences (unified diff format).",
+  {
+    text1: z.string().describe("Original text"),
+    text2: z.string().describe("Modified text"),
+  },
+  async ({ text1, text2 }) => {
+    try {
+      const data = await post("/api/text/diff", { text1, text2 });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 44. Language Detector
+// ---------------------------------------------------------------------------
+server.tool(
+  "detect_language",
+  "Detect the natural language of a text.",
+  {
+    text: z.string().describe("Text to detect language of"),
+  },
+  async ({ text }) => {
+    try {
+      const data = await post("/api/text/detect-language", { text });
+      return ok(data);
+    } catch (e) {
+      return err(e.message);
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// 45. Website Down Checker
+// ---------------------------------------------------------------------------
+server.tool(
+  "is_website_down",
+  "Check if a website is up or down.",
+  {
+    url: z.string().describe("URL or domain to check"),
+  },
+  async ({ url }) => {
+    try {
+      const data = await get(`/api/down?url=${encodeURIComponent(url)}`);
       return ok(data);
     } catch (e) {
       return err(e.message);
