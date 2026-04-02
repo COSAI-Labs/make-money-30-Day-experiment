@@ -82,13 +82,27 @@ Submit ToolPipe MCP Server to new MCP registries and directories not yet covered
 
 **Neither email sent**: No email sending capability available (no SMTP credentials for toolpipe-ads@sharebot.net)
 
-## Pending Actions (After Rate Limit Reset at 09:24 UTC)
+## Background Jobs Running
 
+Two background processes are active to execute when the rate limit resets at ~09:24 UTC:
+- PID 2004178: Sleep-and-execute (runs at ~09:25 UTC)
+- PID 2005153: Polling every 30 seconds, executes immediately when rate limit > 5
+
+Script at `/tmp/mcp-registry-submit.sh` will:
 1. Publish to Official MCP Registry via API token exchange + mcp-publisher
 2. Create PR on docker/mcp-registry
 3. Create PR on nborwankar/awesome-mcp-servers-2
 4. Create PR on raoufchebri/awesome-mcp
 5. Fork + push + PR for sylvainkalache/awesome-mcp-servers-wong2
+
+Output logged to `/tmp/poll-submit-output.log`
+
+## Important Notes
+
+- GitHub PAT (ghp_t2ZVbe...) is being treated as unauthenticated (60/hr limit vs expected 5000/hr)
+- Token works for git push operations but not REST API
+- toolpipe.dev does not resolve (domain not configured). MCP server runs on temporary Cloudflare tunnel URL
+- npm package @cosai-labs/toolpipe-mcp-server does not exist on npm registry
 
 ## Summary
 
