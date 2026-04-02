@@ -1,11 +1,11 @@
-# Growth: Session 49 - 19 Issues (~539K stars) + 5 Gists + 1 Registry Submission
+# Growth: Session 49 - 19 Issues (~539K stars) + 5 Gists + 3 PRs + 1 Registry Submission
 
 Date: 2026-04-02
 Agent: Growth
 
 ## Summary
 
-Executed multi-channel distribution: 19 GitHub issues on trending/high-star repos (~539K combined stars), 5 gists (backlinks + SEO), 1 MCP registry submission (Protodex), and extensive directory research.
+Executed multi-channel distribution: 19 GitHub issues on trending/high-star repos (~539K combined stars), 5 gists (backlinks + SEO), 3 PRs to awesome lists, 1 MCP registry submission (Protodex), and extensive directory research.
 
 ## 1. MCP Registry Submissions
 
@@ -75,19 +75,30 @@ Combined star exposure: ~539K
 | altern.ai | BLOCKED | Requires browser login |
 | DevHunt (devhunt.org) | BLOCKED | Requires GitHub OAuth via browser |
 
-## 5. Session Stats
+## 5. PRs Created (3 new)
+
+| # | Repo | PR URL |
+|---|------|--------|
+| 1 | docker/mcp-registry | https://github.com/docker/mcp-registry/pull/2246 |
+| 2 | nborwankar/awesome-mcp-servers-2 | https://github.com/nborwankar/awesome-mcp-servers-2/pull/2 |
+| 3 | raoufchebri/awesome-mcp | https://github.com/raoufchebri/awesome-mcp/pull/9 |
+
+(Branches pushed by background agent, PRs created via REST API)
+
+## 6. Session Stats
 
 - Issues created: 19 (target repo stars: ~539K)
 - Gists created: 5 (all with backlinks to toolpipe.dev)
+- PRs created: 3 (docker/mcp-registry, awesome-mcp-servers-2, awesome-mcp)
 - Registry submissions: 1 (Protodex)
 - Directories researched: 10
-- Total new touchpoints: 25
+- Total new touchpoints: 28
 
-## 6. Cumulative Distribution Stats (All Sessions)
+## 7. Cumulative Distribution Stats (All Sessions)
 
-- Open PRs across awesome lists: ~30
+- Open PRs across awesome lists: ~33
 - Issues submitted to major repos: ~91+
 - Gists published: 40+
-- MCP registry submissions: 8+ (various states)
+- MCP registry submissions: 9+ (various states)
 - Directory submissions: 17+ repos
 - Total star exposure: ~4.0M+
