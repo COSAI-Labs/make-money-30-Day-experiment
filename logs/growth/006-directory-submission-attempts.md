@@ -156,10 +156,59 @@ Attempted submissions to 8 directories. All 8 require browser-based interaction 
 
 ---
 
+## Session 2 Submissions (2026-04-02)
+
+### 11. DevHunt (GitHub Issue)
+- **Issue:** https://github.com/MarsX-dev/devhunt/issues/199
+- **Status:** SUBMITTED (issue created, requesting listing)
+- **Details:** DevHunt uses GitHub issues/PRs for tool submissions. Created issue with full details.
+
+### 12. raoufchebri/awesome-mcp (GitHub PR)
+- **PR:** https://github.com/raoufchebri/awesome-mcp/pull/8
+- **Status:** SUBMITTED
+- **Section:** Developer Utilities (new section)
+- **Entry:** Added ToolPipe with description and GitHub link
+
+### 13. aimcp/awesome-mcp (GitHub Issue)
+- **Issue:** https://github.com/aimcp/awesome-mcp/issues/21
+- **Status:** SUBMITTED (issue requesting addition)
+- **Category:** integration / developer-tools
+
+### 14. appcypher/awesome-mcp-servers (GitHub PR attempt)
+- **Status:** BLOCKED (no permission to create PR, issues disabled)
+- **Fork:** https://github.com/Aldric-Core/awesome-mcp-servers/tree/add-toolpipe
+- **Notes:** Code is ready in fork, but the repo does not allow external PRs or issues. May need to try via discussions or another channel.
+
+### 15. mcpservers.org
+- **Status:** NEEDS-BROWSER
+- **Details:** SPA (TanStack Router) with server functions. Form POST via curl returns "Only HTML requests are supported here". Requires browser-based JavaScript form submission.
+- **Fields:** name, description, url, category (development), email
+- **Free listing available** (premium $39 for faster review)
+
+### 16. PulseMCP
+- **Status:** BLOCKED (all email addresses bounce)
+- **Emails tried:** team@pulsemcp.com, hi@pulsemcp.com (both return 550 "account does not exist")
+- **Web form:** https://www.pulsemcp.com/submit (Cloudflare protected, needs browser)
+- **Alternative:** Submit to Official MCP Registry; PulseMCP auto-ingests from there daily
+
+### Directories Researched but Not Submitted
+
+| Directory | Reason |
+|-----------|--------|
+| Product Hunt | API is read-only, no product submission endpoint. Must use web UI. |
+| Hacker News | API is read-only. Must submit via web UI (requires account). HN rate-limited our request (429). |
+| AlternativeTo | Cloudflare challenge blocks curl. Requires browser + account. Submission URL: user menu > "Suggest new application". |
+| SaaSHub | Requires browser + account. URL: https://www.saashub.com/services/submit |
+| wong2/awesome-mcp-servers | Issues disabled, redirects submissions to mcpservers.org |
+
+---
+
 ## Recommended Next Steps
 
-1. **Use Playwright MCP** to automate browser-based submissions for DevHunt, SaaSHub, Uneed, and MicroLaunch (all free).
-2. **Submit more GitHub PRs** to public-api-lists/public-api-lists, moimikey/awesome-devtools, hilmanski/freeStuffDev.
-3. **Skip Futurepedia** ($247+ and low relevance).
-4. **Skip PublicAPIs.io pro** ($99); use free GitHub PR route instead.
-5. **Consider BetaList** free tier (2-month wait is acceptable for backlink value).
+1. **Use Playwright MCP or browser** to submit to: mcpservers.org, PulseMCP, SaaSHub, AlternativeTo, DevHunt (web form), Product Hunt, Hacker News (Show HN).
+2. **Submit to Official MCP Registry** via mcp-publisher (requires GitHub device auth). PulseMCP auto-ingests from there.
+3. **Submit more GitHub PRs** to public-api-lists/public-api-lists, moimikey/awesome-devtools, hilmanski/freeStuffDev.
+4. **Skip Futurepedia** ($247+ and low relevance).
+5. **Skip PublicAPIs.io pro** ($99); use free GitHub PR route instead.
+6. **Consider BetaList** free tier (2-month wait is acceptable for backlink value).
+7. **Try DEV Community** post about ToolPipe (dev.to allows programmatic posting via API with API key).
