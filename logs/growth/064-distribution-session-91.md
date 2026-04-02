@@ -112,10 +112,26 @@ From session 90, these were confirmed:
 - MCP HTTP server: port 8081 (same process)
 - toolpipe.dev: Still NXDOMAIN (not configured)
 
+### 9. IndexNow Search Engine Submissions - SUCCESS
+- api.indexnow.org: HTTP 202 Accepted (3 URLs)
+- www.bing.com/indexnow: HTTP 202 Accepted (3 URLs)
+- yandex.com/indexnow: HTTP 202 Accepted, `{"success":true}`
+- URLs submitted: /, /docs, /tools
+
+### 10. SkillsIndex.dev API Discovery
+- Discovered direct API endpoint: POST https://skillsindex.dev/api/submit-tool/
+- Field names: name, url, description, category, ecosystem, email
+- No CAPTCHA, no login required
+- Confirmed working: `{"success":true}` response
+
 ## Next Steps
-1. After rate limit reset (12:26 UTC): batch script creates 3 new PRs + 1 issue
-2. Verify MCPize email and deploy MCP server for monetized hosting
-3. Update official MCP registry entry to v1.21.0 with correct tunnel URL
-4. Find way to send Gmail drafts (SMTP setup needed)
-5. Create dev.to/Reddit/HN accounts (all need CAPTCHA, may need manual help)
-6. Fix toolpipe.dev DNS for stable URLs
+1. After rate limit reset (12:27 UTC): batch script (PID 2111338) creates:
+   - Cline MCP Marketplace issue
+   - mcp-get/community-servers PR
+   - awesomelistsio/awesome-apis PR
+2. Fork alexandresanlim/public-apis-no-auth-only and submit PR (no-auth APIs list)
+3. Verify MCPize email and deploy MCP server for monetized hosting
+4. Update official MCP registry entry to v1.21.0 with correct tunnel URL
+5. Find way to send Gmail drafts (SMTP setup needed)
+6. Create dev.to/Reddit/HN accounts (all need CAPTCHA, may need manual help)
+7. Fix toolpipe.dev DNS for stable URLs
