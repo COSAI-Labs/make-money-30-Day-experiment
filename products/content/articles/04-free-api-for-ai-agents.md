@@ -2,7 +2,7 @@
 title: "How to Give Your AI Agent 45 Tools in 30 Seconds (MCP Server)"
 published: false
 tags: ai, mcp, claude, cursor
-canonical_url: https://assessing-scoop-authorities-sheet.trycloudflare.com
+canonical_url: https://toolpipe.dev
 ---
 
 AI agents are limited by the tools they have access to. Claude can write code but can't generate QR codes. Cursor can edit files but can't check if a website is down. GPT can analyze text but can't look up DNS records.
@@ -106,7 +106,7 @@ Most MCP servers are read-only. ToolPipe lets your agent actually DO things: mak
 If you prefer a remote MCP server (no local install):
 
 ```
-https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp
+https://toolpipe.dev/mcp
 ```
 
 This SSE-based MCP server exposes 127+ tools directly over HTTP. No npm, no Node.js required.
@@ -123,6 +123,6 @@ GitHub: [COSAI-Labs/make-money-30day-challenge](https://github.com/COSAI-Labs/ma
 
 npm: `npx -y @cosai-labs/toolpipe-mcp-server`
 
-API: [assessing-scoop-authorities-sheet.trycloudflare.com](https://assessing-scoop-authorities-sheet.trycloudflare.com)
+API: [assessing-scoop-authorities-sheet.trycloudflare.com](https://toolpipe.dev)
 
-Postman Collection: [Download](https://assessing-scoop-authorities-sheet.trycloudflare.com/postman)
+Postman Collection: [Download](https://toolpipe.dev/postman)

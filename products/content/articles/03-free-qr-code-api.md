@@ -2,7 +2,7 @@
 title: "The Simplest Free QR Code API for Developers"
 published: false
 tags: api, webdev, qrcode, tutorial
-canonical_url: https://assessing-scoop-authorities-sheet.trycloudflare.com
+canonical_url: https://toolpipe.dev
 ---
 
 Need to generate QR codes in your app? Here's the simplest API I've found (because I built it).
@@ -10,7 +10,7 @@ Need to generate QR codes in your app? Here's the simplest API I've found (becau
 ## One GET Request
 
 ```
-https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=https://example.com&size=300
+https://toolpipe.dev/qr/generate?text=https://example.com&size=300
 ```
 
 That's it. Returns a PNG image. No API key, no signup, no rate limit hassles (100/day free).
@@ -27,7 +27,7 @@ That's it. Returns a PNG image. No API key, no signup, no rate limit hassles (10
 
 ### HTML Image Tag
 ```html
-<img src="https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=https://mysite.com&size=200" alt="QR Code">
+<img src="https://toolpipe.dev/qr/generate?text=https://mysite.com&size=200" alt="QR Code">
 ```
 
 ### Dynamic QR in React
@@ -35,7 +35,7 @@ That's it. Returns a PNG image. No API key, no signup, no rate limit hassles (10
 function QRCode({ url, size = 200 }) {
   return (
     <img
-      src={`https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=${encodeURIComponent(url)}&size=${size}`}
+      src={`https://toolpipe.dev/qr/generate?text=${encodeURIComponent(url)}&size=${size}`}
       alt="QR Code"
       width={size}
       height={size}
@@ -46,12 +46,12 @@ function QRCode({ url, size = 200 }) {
 
 ### Generate via curl
 ```bash
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=Hello+World&size=400" -o qr.png
+curl "https://toolpipe.dev/qr/generate?text=Hello+World&size=400" -o qr.png
 ```
 
 ### POST for More Control
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate \
+curl -X POST https://toolpipe.dev/qr/generate \
   -H "Content-Type: application/json" \
   -d '{"text": "https://example.com", "size": 300}'
 ```
@@ -60,13 +60,13 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/gene
 
 Generate a QR code that connects to WiFi:
 ```
-https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=WIFI:T:WPA;S:MyNetwork;P:MyPassword;;
+https://toolpipe.dev/qr/generate?text=WIFI:T:WPA;S:MyNetwork;P:MyPassword;;
 ```
 
 ## vCard QR Codes
 
 ```
-https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=BEGIN:VCARD%0AFULL%20NAME:John%20Doe%0ATEL:555-1234%0AEND:VCARD
+https://toolpipe.dev/qr/generate?text=BEGIN:VCARD%0AFULL%20NAME:John%20Doe%0ATEL:555-1234%0AEND:VCARD
 ```
 
 ## Why Not Google Charts?
@@ -77,6 +77,6 @@ ToolPipe's QR API: no signup, no tracking, 100 free calls/day, consistent and re
 
 ## Need More?
 
-ToolPipe has 200+ other developer APIs alongside QR codes. Check out [toolpipe.dev](https://assessing-scoop-authorities-sheet.trycloudflare.com) for the full list.
+ToolPipe has 200+ other developer APIs alongside QR codes. Check out [toolpipe.dev](https://toolpipe.dev) for the full list.
 
-Free API key for higher limits: `POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api-keys/register` with `{"email": "you@example.com"}`.
+Free API key for higher limits: `POST https://toolpipe.dev/api-keys/register` with `{"email": "you@example.com"}`.

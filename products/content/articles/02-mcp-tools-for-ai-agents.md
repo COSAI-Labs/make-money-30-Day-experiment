@@ -2,7 +2,7 @@
 title: "156 MCP Tools Your AI Agent Doesn't Know It Needs"
 published: false
 tags: ai, mcp, claude, tools
-canonical_url: https://assessing-scoop-authorities-sheet.trycloudflare.com
+canonical_url: https://toolpipe.dev
 ---
 
 If you're using Claude, Cursor, Windsurf, or any MCP-compatible AI assistant, you're leaving capability on the table. Here's how to give your AI agent 156+ developer tools in 30 seconds.
@@ -29,7 +29,7 @@ Add this to your Claude Desktop, Claude Code, or Cursor config:
 {
   "mcpServers": {
     "toolpipe": {
-      "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
+      "url": "https://toolpipe.dev/mcp"
     }
   }
 }
@@ -71,7 +71,7 @@ Building an AI agent that needs tool access? ToolPipe's MCP server means your ag
 # Your agent's MCP config
 mcp_servers = {
     "toolpipe": {
-        "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
+        "url": "https://toolpipe.dev/mcp"
     }
 }
 ```
@@ -83,7 +83,7 @@ mcp_servers = {
 
 Register programmatically:
 ```bash
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api-keys/register \
+curl -X POST https://toolpipe.dev/api-keys/register \
   -H "Content-Type: application/json" \
   -d '{"email": "agent@yourcompany.com"}'
 ```
@@ -97,4 +97,4 @@ curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api-key
 
 Your AI agent just got 139 new superpowers.
 
-[ToolPipe](https://assessing-scoop-authorities-sheet.trycloudflare.com) | [GitHub](https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server) | [API Docs](https://assessing-scoop-authorities-sheet.trycloudflare.com/docs)
+[ToolPipe](https://toolpipe.dev) | [GitHub](https://github.com/COSAI-Labs/make-money-30day-challenge/tree/master/products/mcp-server) | [API Docs](https://toolpipe.dev/docs)

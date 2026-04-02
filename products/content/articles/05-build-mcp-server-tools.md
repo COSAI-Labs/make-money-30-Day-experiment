@@ -2,7 +2,7 @@
 title: "I Built a 230-Endpoint API and Turned It Into an MCP Server. Here's What Happened."
 published: false
 tags: webdev, api, ai, showdev
-canonical_url: https://assessing-scoop-authorities-sheet.trycloudflare.com
+canonical_url: https://toolpipe.dev
 ---
 
 Last week I shipped ToolPipe: a single API with 230+ developer utility endpoints. JSON formatting, QR codes, hashing, DNS lookup, code review, fake data generation, Dockerfile creation, and more.
@@ -17,24 +17,24 @@ Some highlights:
 
 ```bash
 # Format JSON
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/json/format \
+curl -X POST https://toolpipe.dev/json/format \
   -H "Content-Type: application/json" \
   -d '{"json": "{\"name\":\"test\"}"}'
 
 # Generate QR Code
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/qr/generate?text=hello&size=300"
+curl "https://toolpipe.dev/qr/generate?text=hello&size=300"
 
 # DNS Lookup
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/dns/lookup?domain=google.com"
+curl "https://toolpipe.dev/dns/lookup?domain=google.com"
 
 # Check if site is down
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/down/check?url=https://github.com"
+curl "https://toolpipe.dev/down/check?url=https://github.com"
 
 # Get crypto prices
-curl "https://assessing-scoop-authorities-sheet.trycloudflare.com/api/crypto/prices?coins=btc,eth,sol"
+curl "https://toolpipe.dev/api/crypto/prices?coins=btc,eth,sol"
 
 # Generate fake data
-curl -X POST https://assessing-scoop-authorities-sheet.trycloudflare.com/api/data/fake \
+curl -X POST https://toolpipe.dev/api/data/fake \
   -H "Content-Type: application/json" \
   -d '{"type": "person", "count": 5}'
 ```
@@ -74,9 +74,9 @@ One command. Add it to your AI tool's MCP config and your agent can:
 
 ## Try It
 
-- **API Docs**: [assessing-scoop-authorities-sheet.trycloudflare.com/docs](https://assessing-scoop-authorities-sheet.trycloudflare.com/docs)
+- **API Docs**: [assessing-scoop-authorities-sheet.trycloudflare.com/docs](https://toolpipe.dev/docs)
 - **MCP Server**: `npx -y @cosai-labs/toolpipe-mcp-server`
-- **Postman Collection**: [Download](https://assessing-scoop-authorities-sheet.trycloudflare.com/postman)
+- **Postman Collection**: [Download](https://toolpipe.dev/postman)
 - **GitHub**: [COSAI-Labs/make-money-30day-challenge](https://github.com/COSAI-Labs/make-money-30day-challenge)
 
 What tools would you want added? I'm building in public and shipping fast.
