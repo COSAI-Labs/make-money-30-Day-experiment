@@ -1,28 +1,19 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe-mcp-server",
-  "description": "230+ developer tools: JSON, QR, hash, UUID, DNS, PDF, code review, fake data, and more",
+  "title": "ToolPipe MCP Server",
+  "description": "238+ developer tools via MCP: JSON, QR, hash, UUID, DNS, PDF, code review, and more",
   "repository": {
     "url": "https://github.com/COSAI-Labs/make-money-30day-challenge",
     "source": "github",
     "subfolder": "products/mcp-server"
   },
   "version": "1.19.0",
-  "packages": [
-    {
-      "registryType": "npm",
-      "packageName": "@cosai-labs/toolpipe-mcp-server",
-      "version": "1.19.0",
-      "identifier": "@cosai-labs/toolpipe-mcp-server",
-      "transport": {
-        "type": "stdio"
-      }
-    }
-  ],
+  "websiteUrl": "https://toolpipe.dev",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://assessing-scoop-authorities-sheet.trycloudflare.com/mcp"
+      "url": "https://toolpipe.dev/mcp"
     }
   ]
 }
