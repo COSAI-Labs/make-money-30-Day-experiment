@@ -1,6 +1,6 @@
 # ToolPipe MCP Server
 
-145+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). Code review, fake data generation, JSON Schema validation, security headers checking, API client generation, OpenAPI spec generation, CSV analysis, code minification, code formatting, JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, text summarization, keyword extraction, SSL checking, WHOIS lookup, TypeScript generation, Docker Compose generation, GitHub Actions workflows, Nginx configs, and more.
+120+ developer utility tools for AI agents via [Model Context Protocol](https://modelcontextprotocol.io). Code review, fake data generation, JSON Schema validation, security headers checking, API client generation, OpenAPI spec generation, CSV analysis, code minification, code formatting, JSON formatting, QR codes, hashing, UUID, DNS, regex, JWT, SQL formatting, XML/YAML conversion, text summarization, keyword extraction, SSL checking, WHOIS lookup, TypeScript generation, Docker Compose generation, GitHub Actions workflows, Nginx configs, and more.
 
 [![npm version](https://img.shields.io/npm/v/@cosai-labs/toolpipe-mcp-server)](https://www.npmjs.com/package/@cosai-labs/toolpipe-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -18,7 +18,7 @@ Connect directly to the hosted server:
 {
   "mcpServers": {
     "toolpipe": {
-      "url": "https://toolpipe.dev/mcp"
+      "url": "https://troops-submission-what-stays.trycloudflare.com/mcp"
     }
   }
 }
@@ -52,7 +52,7 @@ Add to `.cursor/mcp.json` or `.vscode/mcp.json`:
 {
   "servers": {
     "toolpipe": {
-      "url": "https://toolpipe.dev/mcp"
+      "url": "https://troops-submission-what-stays.trycloudflare.com/mcp"
     }
   }
 }
