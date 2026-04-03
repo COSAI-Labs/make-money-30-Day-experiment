@@ -40,8 +40,17 @@ Multi-channel distribution: 20+ direct GitHub issues on new repos, email submiss
 | 26 | AlexMili/Awesome-MCP | 138 | https://github.com/AlexMili/Awesome-MCP/issues/78 | SUBMITTED |
 | 27 | AIAnytime/Awesome-MCP-Server | 62 | https://github.com/AIAnytime/Awesome-MCP-Server/issues/15 | SUBMITTED |
 | 28 | darjeeling/awesome-mcp-korea | 36 | https://github.com/darjeeling/awesome-mcp-korea/issues/17 | SUBMITTED |
+| 29 | goabstract/Awesome-Design-Tools | 39,448 | https://github.com/goabstract/Awesome-Design-Tools/issues/506 | SUBMITTED |
+| 30 | Shubhamsaboo/awesome-llm-apps | 104,415 | https://github.com/Shubhamsaboo/awesome-llm-apps/issues/677 | SUBMITTED |
+| 31 | 521xueweihan/HelloGitHub | 148,680 | https://github.com/521xueweihan/HelloGitHub/issues/3206 | SUBMITTED |
+| 32 | f/prompts.chat | 157,147 | https://github.com/f/prompts.chat/issues/1134 | SUBMITTED |
+| 33 | awesomedata/awesome-public-datasets | 73,808 | https://github.com/awesomedata/awesome-public-datasets/issues/506 | SUBMITTED |
+| 34 | PlexPt/awesome-chatgpt-prompts-zh | 58,878 | https://github.com/PlexPt/awesome-chatgpt-prompts-zh/issues/538 | SUBMITTED |
+| 35 | MunGell/awesome-for-beginners | 84,140 | https://github.com/MunGell/awesome-for-beginners/issues/1979 | SUBMITTED |
+| 36 | docker/awesome-compose | 44,691 | https://github.com/docker/awesome-compose/issues/723 | SUBMITTED |
+| 37 | fighting41love/funNLP | 79,774 | https://github.com/fighting41love/funNLP/issues/472 | SUBMITTED |
 
-### Total Stars of New Repos Reached: ~47,000+
+### Total Stars of New Repos Reached: ~837,000+
 
 ### Email Submissions
 | Directory | Email | Status |
@@ -70,6 +79,7 @@ Multi-channel distribution: 20+ direct GitHub issues on new repos, email submiss
 | TonnyL/Awesome_APIs | 12,892 | Archived (read-only) |
 | pmuens/awesome-serverless | 2,152 | Issues disabled |
 | wong2/awesome-mcp-servers | 3,858 | Issues disabled |
+| trimstray/the-book-of-secret-knowledge | 213,172 | Issues disabled |
 
 ## Background Agents (3 launched)
 1. **PR Submitter** - Creating PRs to public-apis/public-apis, ripienaar/free-for-dev, burningtree/awesome-json
@@ -89,9 +99,9 @@ Multi-channel distribution: 20+ direct GitHub issues on new repos, email submiss
 (pending)
 
 ## Cumulative Distribution Stats (All Sessions)
-- GitHub Issues: 139+ (28 new this session direct, more from background agents)
+- GitHub Issues: 148+ (37 new this session direct, more from background agents)
 - GitHub PRs: 12+ (more from background PR agent)
 - Telegraph Articles: 24+ (more from background article agent)
 - Email Submissions: 3 new (PulseMCP, Futurepedia, AlternativeTo)
-- IndexNow Submissions: 121+ URLs (44 new this session)
-- Total Stars of repos reached: 1,145,000+
+- IndexNow Submissions: 130+ URLs (53 new this session)
+- Total Stars of repos reached: 1,937,000+
