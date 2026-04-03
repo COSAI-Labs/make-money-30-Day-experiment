@@ -25,6 +25,6 @@ Resource usage is surprisingly low. FastAPI handles the routing efficiently and 
 
 The whole project is open source: https://github.com/COSAI-Labs/make-money-30day-challenge
 
-Live instance: https://troops-submission-what-stays.trycloudflare.com
+Live instance: https://toolpipe.dev
 
 If anyone wants to self-host it, the FastAPI server and all endpoints are in the repo. Happy to help with setup questions.

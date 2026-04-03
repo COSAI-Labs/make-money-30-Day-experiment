@@ -3,7 +3,7 @@ title: "50+ Free Developer Tools You Can Use Right Now (No Signup Required)"
 published: false
 description: "A curated collection of 50+ developer utility APIs you can use directly from your terminal. No signup, no API key needed."
 tags: webdev, api, tools, productivity
-canonical_url: https://troops-submission-what-stays.trycloudflare.com
+canonical_url: https://toolpipe.dev
 ---
 
 # 50+ Free Developer Tools You Can Use Right Now
@@ -18,7 +18,7 @@ What if all those tools were just a curl command away?
 
 ```bash
 # Format messy JSON
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/json/format \
+curl -X POST https://toolpipe.dev/api/json/format \
   -H "Content-Type: application/json" \
   -d '{"json_string": "{\"name\":\"dev\",\"tools\":[1,2,3]}"}'
 ```
@@ -120,7 +120,7 @@ curl "/api/lorem?paragraphs=3"
 
 All 220+ endpoints are documented with interactive Swagger UI:
 
-[ToolPipe API Docs](https://troops-submission-what-stays.trycloudflare.com/docs)
+[ToolPipe API Docs](https://toolpipe.dev/docs)
 
 ## For AI Agents (MCP Server)
 

@@ -14,18 +14,18 @@ Some examples:
 
 ```bash
 # Format messy JSON
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/json/format \
+curl -X POST https://toolpipe.dev/api/json/format \
   -H "Content-Type: application/json" \
   -d '{"json_string": "{\"a\":1,\"b\":[2,3]}"}'
 
 # Generate a QR code (returns PNG)
-curl "https://troops-submission-what-stays.trycloudflare.com/qr/generate?data=https://reddit.com&size=300" -o qr.png
+curl "https://toolpipe.dev/qr/generate?data=https://reddit.com&size=300" -o qr.png
 
 # Quick DNS lookup
-curl "https://troops-submission-what-stays.trycloudflare.com/api/dns/lookup?domain=reddit.com"
+curl "https://toolpipe.dev/api/dns/lookup?domain=reddit.com"
 
 # SHA256 hash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/hash/sha256 \
+curl -X POST https://toolpipe.dev/api/hash/sha256 \
   -H "Content-Type: application/json" -d '{"text": "hello"}'
 ```
 
@@ -38,7 +38,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/hash/sha
 - Data: Fake users, addresses, lorem ipsum
 - SEO: Page analyzer, keyword density
 
-Interactive docs: https://troops-submission-what-stays.trycloudflare.com/docs
+Interactive docs: https://toolpipe.dev/docs
 
 It's also available as an MCP server for AI agents (Claude, etc.): `npx @cosai-labs/toolpipe-mcp-server`
 

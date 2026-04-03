@@ -19,4 +19,4 @@ Every tool is a REST endpoint. No auth needed. Here are the most useful ones:
 All 220+ endpoints documented with Swagger/OpenAPI at /docs.
 
 GitHub: https://github.com/COSAI-Labs/make-money-30day-challenge
-Live: https://troops-submission-what-stays.trycloudflare.com
+Live: https://toolpipe.dev

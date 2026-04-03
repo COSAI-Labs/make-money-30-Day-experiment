@@ -16,8 +16,8 @@ I set out to build a "Swiss Army knife" API for developers. The goal: every comm
 - Start with fewer, more polished tools instead of going wide immediately
 - Get a proper domain earlier (still on a Cloudflare tunnel URL)
 
-**Live API:** https://troops-submission-what-stays.trycloudflare.com
-**Docs:** https://troops-submission-what-stays.trycloudflare.com/docs
+**Live API:** https://toolpipe.dev
+**Docs:** https://toolpipe.dev/docs
 **GitHub:** https://github.com/COSAI-Labs/make-money-30day-challenge
 
 Curious if anyone else has built utility APIs like this. What's your experience with getting developer adoption?

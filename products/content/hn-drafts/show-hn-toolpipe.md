@@ -2,9 +2,9 @@
 
 I built ToolPipe, a collection of 220+ developer utility APIs that you can use right now without signing up for anything.
 
-**Live API**: https://troops-submission-what-stays.trycloudflare.com
-**Docs**: https://troops-submission-what-stays.trycloudflare.com/docs
-**GitHub**: https://github.com/COSAI-Labs/make-money-30day-challenge
+**Live API**: https://toolpipe.dev
+**Docs**: https://toolpipe.dev/docs
+**GitHub**: https://github.com/COSAI-Labs/toolpipe
 
 ## What it does
 
@@ -14,23 +14,23 @@ Quick examples:
 
 ```bash
 # Format JSON
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/json/format \
+curl -X POST https://toolpipe.dev/api/json/format \
   -H "Content-Type: application/json" \
   -d '{"json_string": "{\"name\":\"test\",\"value\":42}"}'
 
 # Generate QR code
-curl "https://troops-submission-what-stays.trycloudflare.com/qr/generate?data=hello&size=200"
+curl "https://toolpipe.dev/qr/generate?data=hello&size=200"
 
 # Hash a string
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/hash/sha256 \
+curl -X POST https://toolpipe.dev/api/hash/sha256 \
   -H "Content-Type: application/json" \
   -d '{"text": "hello world"}'
 
 # Generate UUID
-curl https://troops-submission-what-stays.trycloudflare.com/api/uuid/generate
+curl https://toolpipe.dev/api/uuid/generate
 
 # DNS lookup
-curl "https://troops-submission-what-stays.trycloudflare.com/api/dns/lookup?domain=example.com"
+curl "https://toolpipe.dev/api/dns/lookup?domain=example.com"
 ```
 
 ## Tools include

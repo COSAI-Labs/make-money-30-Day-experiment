@@ -2,7 +2,7 @@
 title: "Building an MCP Server with 220+ Developer Tools for AI Agents"
 published: true
 tags: ai, mcp, api, tutorial
-canonical_url: https://troops-submission-what-stays.trycloudflare.com/mcp-info
+canonical_url: https://toolpipe.dev/mcp-info
 ---
 
 AI agents are only as useful as the tools they can access. The Model Context Protocol (MCP) is changing how agents discover and use external tools, and I built an MCP server with 220+ developer utilities that any Claude, GPT, or open-source agent can connect to instantly.
@@ -15,10 +15,10 @@ Think of it like USB for AI: plug in a server, and the agent immediately knows w
 
 ## ToolPipe as an MCP Server
 
-[ToolPipe](https://troops-submission-what-stays.trycloudflare.com) exposes 220+ developer tools through a single MCP endpoint:
+[ToolPipe](https://toolpipe.dev) exposes 220+ developer tools through a single MCP endpoint:
 
 ```
-https://troops-submission-what-stays.trycloudflare.com/mcp
+https://toolpipe.dev/mcp
 ```
 
 When an agent connects, it gets access to tools like:
@@ -40,7 +40,7 @@ When an agent connects, it gets access to tools like:
 {
   "mcpServers": {
     "toolpipe": {
-      "url": "https://troops-submission-what-stays.trycloudflare.com/mcp"
+      "url": "https://toolpipe.dev/mcp"
     }
   }
 }
@@ -51,13 +51,13 @@ That's it. Claude will now see all 220+ tools and can call them during conversat
 **For other agents**, the MCP server card is at:
 
 ```bash
-curl https://troops-submission-what-stays.trycloudflare.com/.well-known/mcp.json
+curl https://toolpipe.dev/.well-known/mcp.json
 ```
 
 And the A2A (Agent-to-Agent) discovery endpoint:
 
 ```bash
-curl https://troops-submission-what-stays.trycloudflare.com/.well-known/a2a.json
+curl https://toolpipe.dev/.well-known/a2a.json
 ```
 
 ## How Agents Use the Tools
@@ -69,7 +69,7 @@ Once connected, an agent can do things like:
 **"Hash this password with SHA256"**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/hash/generate \
+curl -X POST https://toolpipe.dev/hash/generate \
   -H "Content-Type: application/json" \
   -d '{"data":"user_password","algorithm":"sha256"}'
 ```
@@ -77,13 +77,13 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/hash/generat
 **"Look up the DNS records for example.com"**
 
 ```bash
-curl "https://troops-submission-what-stays.trycloudflare.com/dns/lookup?domain=example.com"
+curl "https://toolpipe.dev/dns/lookup?domain=example.com"
 ```
 
 **"Convert this JSON data to CSV"**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/json/to-csv \
+curl -X POST https://toolpipe.dev/json/to-csv \
   -H "Content-Type: application/json" \
   -d '{"data":[{"name":"Alice","role":"dev"},{"name":"Bob","role":"ops"}]}'
 ```
@@ -105,7 +105,7 @@ If you want to call ToolPipe from a custom agent, the pattern is simple:
 ```python
 import httpx
 
-TOOLPIPE = "https://troops-submission-what-stays.trycloudflare.com"
+TOOLPIPE = "https://toolpipe.dev"
 
 # Generate a UUID
 resp = httpx.get(f"{TOOLPIPE}/uuid/generate")
@@ -129,9 +129,9 @@ No SDK needed. No dependencies. Just HTTP.
 
 ToolPipe is listed in MCP registries and API directories so agents can discover it automatically. The full tool catalog is at:
 
-- **All tools**: [troops-submission-what-stays.trycloudflare.com/tools](https://troops-submission-what-stays.trycloudflare.com/tools)
-- **Interactive docs**: [troops-submission-what-stays.trycloudflare.com/docs](https://troops-submission-what-stays.trycloudflare.com/docs)
-- **MCP info**: [troops-submission-what-stays.trycloudflare.com/mcp-info](https://troops-submission-what-stays.trycloudflare.com/mcp-info)
-- **Agent discovery**: [troops-submission-what-stays.trycloudflare.com/.well-known/agent.json](https://troops-submission-what-stays.trycloudflare.com/.well-known/agent.json)
+- **All tools**: [troops-submission-what-stays.trycloudflare.com/tools](https://toolpipe.dev/tools)
+- **Interactive docs**: [troops-submission-what-stays.trycloudflare.com/docs](https://toolpipe.dev/docs)
+- **MCP info**: [troops-submission-what-stays.trycloudflare.com/mcp-info](https://toolpipe.dev/mcp-info)
+- **Agent discovery**: [troops-submission-what-stays.trycloudflare.com/.well-known/agent.json](https://toolpipe.dev/.well-known/agent.json)
 
 If you're building AI agents and need reliable tool access, give ToolPipe a try. Connect via MCP and let your agents do the rest.

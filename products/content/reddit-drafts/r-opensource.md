@@ -27,6 +27,6 @@ No API key needed for the free tier. All CORS-enabled.
 Also includes an MCP server for AI coding agents.
 
 GitHub: https://github.com/COSAI-Labs/make-money-30day-challenge
-Live instance: https://troops-submission-what-stays.trycloudflare.com
+Live instance: https://toolpipe.dev
 
 PRs and issues welcome. The codebase is straightforward FastAPI, easy to add new tools.

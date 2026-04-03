@@ -2,12 +2,12 @@
 title: "50+ Free Developer Tools You Can Use Right Now (No Signup Required)"
 published: true
 tags: webdev, api, tools, productivity
-canonical_url: https://troops-submission-what-stays.trycloudflare.com
+canonical_url: https://toolpipe.dev
 ---
 
 You need to generate a UUID. Or hash a string. Or convert JSON to CSV. So you open a browser, find some sketchy site plastered with ads, accept 47 cookies, and pray they aren't logging your data.
 
-There's a better way. [ToolPipe](https://troops-submission-what-stays.trycloudflare.com) gives you 220+ developer utility APIs. No signup, no API key, no ads. Just `curl` and go.
+There's a better way. [ToolPipe](https://toolpipe.dev) gives you 220+ developer utility APIs. No signup, no API key, no ads. Just `curl` and go.
 
 Here are the tools I reach for most.
 
@@ -16,7 +16,7 @@ Here are the tools I reach for most.
 **Generate UUIDs**
 
 ```bash
-curl https://troops-submission-what-stays.trycloudflare.com/uuid/generate
+curl https://toolpipe.dev/uuid/generate
 ```
 ```json
 {"uuids":["82c49754-8298-4df1-b171-78afc983b158"],"version":4,"count":1}
@@ -25,7 +25,7 @@ curl https://troops-submission-what-stays.trycloudflare.com/uuid/generate
 **Hash any string (MD5, SHA256)**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/hash/generate \
+curl -X POST https://toolpipe.dev/hash/generate \
   -H "Content-Type: application/json" \
   -d '{"data":"hello world","algorithm":"sha256"}'
 ```
@@ -36,7 +36,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/hash/generat
 **Base64 encode/decode**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/base64 \
+curl -X POST https://toolpipe.dev/base64 \
   -H "Content-Type: application/json" \
   -d '{"data":"Hello World","action":"encode"}'
 ```
@@ -47,7 +47,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/base64 \
 **JSON to CSV conversion**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/json/to-csv \
+curl -X POST https://toolpipe.dev/json/to-csv \
   -H "Content-Type: application/json" \
   -d '{"data":[{"name":"Alice","age":30},{"name":"Bob","age":25}]}'
 ```
@@ -60,7 +60,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/json/to-csv 
 **DNS lookup**
 
 ```bash
-curl "https://troops-submission-what-stays.trycloudflare.com/dns/lookup?domain=google.com"
+curl "https://toolpipe.dev/dns/lookup?domain=google.com"
 ```
 ```json
 {"domain":"google.com","addresses":["142.250.68.206"],"count":1}
@@ -69,7 +69,7 @@ curl "https://troops-submission-what-stays.trycloudflare.com/dns/lookup?domain=g
 **Get your public IP**
 
 ```bash
-curl https://troops-submission-what-stays.trycloudflare.com/ip/my
+curl https://toolpipe.dev/ip/my
 ```
 
 ## Security Tools
@@ -77,7 +77,7 @@ curl https://troops-submission-what-stays.trycloudflare.com/ip/my
 **Generate strong passwords**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/password/generate \
+curl -X POST https://toolpipe.dev/api/password/generate \
   -H "Content-Type: application/json" \
   -d '{"length":20}'
 ```
@@ -85,7 +85,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/password
 **Check password strength**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/password/check \
+curl -X POST https://toolpipe.dev/api/password/check \
   -H "Content-Type: application/json" \
   -d '{"password":"MyP@ssw0rd!"}'
 ```
@@ -95,7 +95,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/password
 **Format SQL**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/sql/format \
+curl -X POST https://toolpipe.dev/api/sql/format \
   -H "Content-Type: application/json" \
   -d '{"sql":"SELECT * FROM users WHERE age > 25 ORDER BY name"}'
 ```
@@ -103,7 +103,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/sql/form
 **Generate .gitignore files**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/gitignore/generate \
+curl -X POST https://toolpipe.dev/api/gitignore/generate \
   -H "Content-Type: application/json" \
   -d '{"languages":["python","node"]}'
 ```
@@ -111,7 +111,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/gitignor
 **Generate Dockerfiles**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/dockerfile/generate \
+curl -X POST https://toolpipe.dev/api/dockerfile/generate \
   -H "Content-Type: application/json" \
   -d '{"language":"python","framework":"fastapi"}'
 ```
@@ -121,7 +121,7 @@ curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/dockerfi
 **Get a random dev quote**
 
 ```bash
-curl https://troops-submission-what-stays.trycloudflare.com/api/random/quote
+curl https://toolpipe.dev/api/random/quote
 ```
 ```json
 {"quote":"Talk is cheap. Show me the code.","author":"Linus Torvalds"}
@@ -130,7 +130,7 @@ curl https://troops-submission-what-stays.trycloudflare.com/api/random/quote
 **Analyze text readability**
 
 ```bash
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/text/readability \
+curl -X POST https://toolpipe.dev/api/text/readability \
   -H "Content-Type: application/json" \
   -d '{"text":"Your paragraph here."}'
 ```
@@ -165,10 +165,10 @@ No signup needed for the free tier. If you need more, API keys are available.
 - **Free**: 100 calls/day, no key needed
 - **Pro**: Unlimited calls with an API key
 
-Browse all tools: [troops-submission-what-stays.trycloudflare.com/tools](https://troops-submission-what-stays.trycloudflare.com/tools)
+Browse all tools: [troops-submission-what-stays.trycloudflare.com/tools](https://toolpipe.dev/tools)
 
-Interactive docs: [troops-submission-what-stays.trycloudflare.com/docs](https://troops-submission-what-stays.trycloudflare.com/docs)
+Interactive docs: [troops-submission-what-stays.trycloudflare.com/docs](https://toolpipe.dev/docs)
 
-Try the playground: [troops-submission-what-stays.trycloudflare.com/playground](https://troops-submission-what-stays.trycloudflare.com/playground)
+Try the playground: [troops-submission-what-stays.trycloudflare.com/playground](https://toolpipe.dev/playground)
 
 If you build something with ToolPipe, I'd love to hear about it in the comments.
