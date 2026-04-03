@@ -94,3 +94,29 @@ URLs submitted: /, /docs, /tools, /pricing, /demo, /api, plus 14 individual tool
 - Tunnel URL: https://troops-submission-what-stays.trycloudflare.com (stable)
 - API: 240 endpoints active on port 8081
 - MCP server: 135+ tools via npm package
+
+## Gmail Drafts Status
+
+17 unique ToolPipe submission drafts identified in Gmail, ready to send manually:
+
+| # | Recipient | Subject |
+|---|-----------|---------|
+| 1 | hello@pulsemcp.com | MCP Server Listing: ToolPipe |
+| 2 | apitracker@apideck.com | MCP Server Listing: ToolPipe |
+| 3 | info@mcpserverfinder.com | MCP Server Submission: ToolPipe |
+| 4 | submit@theresanaiforthat.com | AI Tool Submission: ToolPipe |
+| 5 | contact@mixedanalytics.com | Free API Submission: ToolPipe |
+| 6 | support@devhunt.org | Tool Submission: ToolPipe |
+| 7 | hello@smithery.ai | MCP Server Listing Request: ToolPipe |
+| 8 | submissions@pulsemcp.com | MCP Server Submission: ToolPipe |
+| 9 | contact@mcpserverdirectory.com | MCP Server Submission: ToolPipe |
+| 10 | hello@aixploria.com | MCP Server Submission: ToolPipe |
+| 11 | hello@opentools.com | Submit to OpenTools Registry: ToolPipe |
+| 12 | submit@glama.ai | MCP Server Submission: ToolPipe |
+| 13 | contact@mcpmarket.com | Submit MCP Server: ToolPipe |
+| 14 | submit@mcp.so | MCP Server Submission: ToolPipe |
+| 15 | hello@mcpize.com | ToolPipe MCP Server: Revenue Share Hosting |
+| 16 | support@mcpmarket.com | Submission: ToolPipe MCP Server |
+| 17 | support@pulsemcp.com | MCP Server Submission: ToolPipe |
+
+**Blocker**: Gmail MCP integration lacks `gmail_send_draft` tool. Drafts must be sent manually or via a different method.
