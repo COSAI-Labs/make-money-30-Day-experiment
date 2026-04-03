@@ -1,19 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.COSAI-Labs/toolpipe",
-  "title": "ToolPipe MCP Server",
-  "description": "145+ dev tools via MCP: code review, JSON, QR, hash, DNS, WHOIS, SSL, regex, JWT, SQL, Docker gen",
-  "version": "1.19.0",
+  "description": "55+ free developer utility APIs for AI agents via MCP",
   "repository": {
     "url": "https://github.com/COSAI-Labs/toolpipe-mcp-server",
     "source": "github"
   },
-  "remotes": [
-    {
-      "type": "streamable-http",
-      "url": "https://toolpipe.dev/mcp"
-    }
-  ],
+  "version": "1.19.0",
   "packages": [
     {
       "registryType": "npm",
