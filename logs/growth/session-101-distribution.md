@@ -25,8 +25,11 @@ Executed targeted distribution across GitHub awesome lists, MCP registries, API 
 | 11 | dfinke/awesome-copilot-chatmodes | 314 | https://github.com/dfinke/awesome-copilot-chatmodes/issues/8 | SUBMITTED |
 | 12 | Hannibal046/Awesome-LLM | 26,583 | https://github.com/Hannibal046/Awesome-LLM/issues/431 | SUBMITTED |
 | 13 | Applied-Machine-Learning-Lab/Awesome-Function-Callings | 62 | https://github.com/Applied-Machine-Learning-Lab/Awesome-Function-Callings/issues/1 | SUBMITTED |
+| 14 | junosuarez/awesome-npx | 1,308 | https://github.com/junosuarez/awesome-npx/issues/39 | SUBMITTED |
+| 15 | toolleeo/awesome-cli-apps-in-a-csv | 2,438 | https://github.com/toolleeo/awesome-cli-apps-in-a-csv/issues/229 | SUBMITTED |
+| 16 | lorien/awesome-web-scraping | 7,830 | https://github.com/lorien/awesome-web-scraping/issues/220 | SUBMITTED |
 
-### Total Stars of New Repos Reached: ~420,000+
+### Total Stars of New Repos Reached: ~432,000+
 
 ### MCP Registry Submissions
 | Registry | Status | Notes |
@@ -108,7 +111,7 @@ Executed targeted distribution across GitHub awesome lists, MCP registries, API 
 - Most high-value repos already have ToolPipe submissions from previous sessions.
 
 ## Cumulative Distribution Stats (All Sessions Including This One)
-- GitHub Issues: 67+ (27 new this session: 13 direct + 14 from MCP agent)
+- GitHub Issues: 70+ (30 new this session: 16 direct + 14 from MCP agent)
 - GitHub PRs: 12+
 - Telegraph Articles: 19+ (5 new this session + background agent pending)
 - IndexNow Submissions: 58+ URLs (18 new this session)
