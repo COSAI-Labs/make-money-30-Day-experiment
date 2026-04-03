@@ -81,6 +81,15 @@ URLs submitted: /, /docs, /tools, /pricing, /demo, /api, plus 14 individual tool
 **Total repos with active submissions: 24+**
 **Combined star count of target repos: 700K+**
 
+## Additional Actions
+
+### GitHub Gist (SEO/Discoverability)
+- Created public gist with tool examples and MCP setup instructions
+- URL: https://gist.github.com/GerritRoska/fef57287288e81240a48ed4fb9da0bfe
+
+### toolsdk-mcp-registry (retry, previously rate-limited)
+- Issue created: https://github.com/toolsdk-ai/toolsdk-mcp-registry/issues/251
+
 ## Infrastructure
 - Tunnel URL: https://troops-submission-what-stays.trycloudflare.com (stable)
 - API: 240 endpoints active on port 8081
