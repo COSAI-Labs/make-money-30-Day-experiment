@@ -57,8 +57,18 @@
 | 48 | sickn33/antigravity-awesome-skills | 30,333 | https://github.com/sickn33/antigravity-awesome-skills/issues/447 |
 | 49 | Arindam200/awesome-ai-apps | 9,462 | https://github.com/Arindam200/awesome-ai-apps/issues/185 |
 | 50 | heilcheng/awesome-agent-skills | 3,605 | https://github.com/heilcheng/awesome-agent-skills/issues/159 |
+| 51 | VoltAgent/awesome-codex-subagents | 3,464 | https://github.com/VoltAgent/awesome-codex-subagents/issues/18 |
+| 52 | ComposioHQ/awesome-codex-skills | 625 | https://github.com/ComposioHQ/awesome-codex-skills/issues/16 |
+| 53 | e2b-dev/awesome-devins | 244 | https://github.com/e2b-dev/awesome-devins/issues/5 |
+| 54 | KarelDO/awesome-codex | 190 | https://github.com/KarelDO/awesome-codex/issues/11 |
+| 55 | mergisi/awesome-openclaw-agents | 2,486 | https://github.com/mergisi/awesome-openclaw-agents/issues/33 |
+| 56 | taielab/awesome-hacking-lists | 1,311 | https://github.com/taielab/awesome-hacking-lists/issues/7 |
+| 57 | ikaijua/Awesome-AITools | 5,779 | https://github.com/ikaijua/Awesome-AITools/issues/423 |
+| 58 | jim-schwoebel/awesome_ai_agents | 1,524 | https://github.com/jim-schwoebel/awesome_ai_agents/issues/177 |
+| 59 | e2b-dev/awesome-ai-sdks | 1,157 | https://github.com/e2b-dev/awesome-ai-sdks/issues/124 |
+| 60 | felladrin/awesome-ai-web-search | 1,256 | https://github.com/felladrin/awesome-ai-web-search/issues/52 |
 
-**Combined star count of direct submissions: ~141K+ stars**
+**Combined star count of direct submissions: ~159K+ stars**
 
 ## Failed Submissions
 
@@ -94,10 +104,10 @@ _Pending results_
 ## Session Totals
 
 ### This Session (direct only, before agent results)
-- **Direct GitHub submissions**: 50 new issues
+- **Direct GitHub submissions**: 60 new issues
 - **Failed submissions**: 5 (disabled issues/archived/restricted)
 - **IndexNow URLs submitted**: 8
-- **Combined target repo stars**: ~141K+
+- **Combined target repo stars**: ~159K+
 
 ### All-Time Estimates (cumulative)
 - **Total GitHub submissions**: 180+ across 130+ repos
