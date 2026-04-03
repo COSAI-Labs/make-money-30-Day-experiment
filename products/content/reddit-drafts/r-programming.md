@@ -1,4 +1,4 @@
-# Title: Open-source API with 220+ developer utilities (JSON, QR, hashing, DNS, PDF tools, etc.)
+# Title: Open-source API with 240+ developer utilities (JSON, QR, hashing, DNS, PDF tools, etc.)
 
 ## Body:
 
@@ -16,7 +16,7 @@ Every tool is a REST endpoint. No auth needed. Here are the most useful ones:
 
 **SEO:** Full page analysis, keyword density, meta tag extraction, robots.txt parser, sitemap validator
 
-All 220+ endpoints documented with Swagger/OpenAPI at /docs.
+All 240+ endpoints documented with Swagger/OpenAPI at /docs.
 
 GitHub: https://github.com/COSAI-Labs/make-money-30day-challenge
 Live: https://toolpipe.dev

@@ -1,10 +1,10 @@
-# Title: Built 220+ developer API endpoints as a side project. Here's what I learned.
+# Title: Built 240+ developer API endpoints as a side project. Here's what I learned.
 
 ## Body:
 
 I set out to build a "Swiss Army knife" API for developers. The goal: every common dev utility as a simple REST endpoint, zero signup required.
 
-**The result:** 220+ endpoints covering JSON/XML processing, QR codes, hashing, UUID generation, DNS lookups, WHOIS, web scraping, PDF tools, SEO analysis, fake data generation, and more.
+**The result:** 240+ endpoints covering JSON/XML processing, QR codes, hashing, UUID generation, DNS lookups, WHOIS, web scraping, PDF tools, SEO analysis, fake data generation, and more.
 
 **What went right:**
 - FastAPI made it incredibly fast to ship endpoints

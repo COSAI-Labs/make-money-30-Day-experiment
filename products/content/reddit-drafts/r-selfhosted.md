@@ -5,11 +5,11 @@
 
 ---
 
-**Title:** Self-hosted developer utility API: 145+ tools on a single VPS behind Cloudflare Tunnel
+**Title:** Self-hosted developer utility API: 240+ tools on a single VPS behind Cloudflare Tunnel
 
 **Body:**
 
-I built a self-hosted developer toolkit that runs 145+ utility tools on a single Debian VPS. Everything goes through a Cloudflare Tunnel for HTTPS, no port forwarding needed.
+I built a self-hosted developer toolkit that runs 240+ utility tools on a single Debian VPS. Everything goes through a Cloudflare Tunnel for HTTPS, no port forwarding needed.
 
 Stack:
 - Python/FastAPI serving all API endpoints

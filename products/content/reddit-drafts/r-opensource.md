@@ -5,11 +5,11 @@
 
 ---
 
-**Title:** Open source collection of 145+ developer utility APIs (FastAPI, no auth required)
+**Title:** Open source collection of 240+ developer utility APIs (FastAPI, no auth required)
 
 **Body:**
 
-Released an open source developer toolkit with 145+ utility endpoints built on FastAPI.
+Released an open source developer toolkit with 240+ utility endpoints built on FastAPI.
 
 The idea: consolidate all those little dev utility sites (JSON formatter, Base64 encoder, hash generator, UUID generator) into a single API and web app.
 

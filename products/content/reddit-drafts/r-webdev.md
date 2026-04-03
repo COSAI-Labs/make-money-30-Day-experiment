@@ -1,4 +1,4 @@
-# Title: I built 220+ free developer APIs you can use from any project (no signup, no API key)
+# Title: I built 240+ free developer APIs you can use from any project (no signup, no API key)
 
 ## Body:
 
@@ -6,7 +6,7 @@ Hey r/webdev,
 
 I've been building a collection of developer utility APIs that I wanted to share. The idea was simple: every tool a dev might need, as a REST endpoint, with zero friction.
 
-**What it is:** 220+ endpoints covering common dev tasks.
+**What it is:** 240+ endpoints covering common dev tasks.
 
 **What makes it different:** No signup. No API key needed. Just curl it.
 
