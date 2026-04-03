@@ -1,59 +1,45 @@
-# Reddit Post: r/webdev
+# Title: I built 220+ free developer APIs you can use from any project (no signup, no API key)
 
-**Subreddit:** r/webdev
-**Type:** Text post
-**Flair:** Showoff Saturday (if posting on Saturday) or Resource
+## Body:
 
----
+Hey r/webdev,
 
-**Title:** I made 145+ free browser-based developer tools with REST API access, no signup needed
+I've been building a collection of developer utility APIs that I wanted to share. The idea was simple: every tool a dev might need, as a REST endpoint, with zero friction.
 
-**Body:**
+**What it is:** 220+ endpoints covering common dev tasks.
 
-I keep dozens of utility sites bookmarked for everyday dev tasks (Base64 encode, JSON format, UUID generate, etc.). Got tired of bouncing between them, so I built a single site with 145+ tools that all work in the browser AND as REST APIs.
+**What makes it different:** No signup. No API key needed. Just curl it.
 
-Some of the tools:
-
-- JSON formatter, validator, minifier
-- Base64 / Base32 / Base58 encode and decode
-- QR code generator
-- UUID v4 generator
-- Hash generator (MD5, SHA256, SHA512)
-- JWT decoder
-- DNS lookup (A, MX, NS, TXT records)
-- WHOIS lookup
-- Regex tester
-- Markdown to HTML converter
-- Color converter (HEX, RGB, HSL)
-- Cron expression parser
-- URL encoder/decoder
-- Aspect ratio calculator
-- Binary/decimal/hex converters
-- API tester
-- Fake data generator (names, emails, addresses for testing)
-
-Every tool has a browser UI and a corresponding API endpoint. All CORS-enabled, so you can call them from client-side JS.
-
-Quick example:
+Some examples:
 
 ```bash
-# Generate a UUID
-curl https://troops-submission-what-stays.trycloudflare.com/api/uuid/generate
-
-# Base64 encode
-curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/base64/encode \
+# Format messy JSON
+curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/json/format \
   -H "Content-Type: application/json" \
-  -d '{"text": "hello world"}'
+  -d '{"json_string": "{\"a\":1,\"b\":[2,3]}"}'
 
-# DNS lookup
-curl "https://troops-submission-what-stays.trycloudflare.com/api/dns/lookup?domain=example.com"
+# Generate a QR code (returns PNG)
+curl "https://troops-submission-what-stays.trycloudflare.com/qr/generate?data=https://reddit.com&size=300" -o qr.png
+
+# Quick DNS lookup
+curl "https://troops-submission-what-stays.trycloudflare.com/api/dns/lookup?domain=reddit.com"
+
+# SHA256 hash
+curl -X POST https://troops-submission-what-stays.trycloudflare.com/api/hash/sha256 \
+  -H "Content-Type: application/json" -d '{"text": "hello"}'
 ```
 
-No signup, no API key for the free tier (rate limited to 100 calls/day per IP).
+**Full categories:**
+- Text: JSON/XML/YAML format, Base64, URL encode, Markdown to HTML
+- Crypto: Hash, UUID, JWT decode, random strings
+- Network: DNS, WHOIS, IP geo, SSL check
+- Web: Screenshots, scraping, meta tags
+- PDF: Merge, split, compress, HTML to PDF
+- Data: Fake users, addresses, lorem ipsum
+- SEO: Page analyzer, keyword density
 
-There is also an MCP server so AI coding assistants (Claude, Cursor, etc.) can use all the tools natively.
+Interactive docs: https://troops-submission-what-stays.trycloudflare.com/docs
 
-Site: https://troops-submission-what-stays.trycloudflare.com
-GitHub: https://github.com/COSAI-Labs/make-money-30day-challenge
+It's also available as an MCP server for AI agents (Claude, etc.): `npx @cosai-labs/toolpipe-mcp-server`
 
-What tools do you wish existed that I should add?
+Open to feedback on what tools to add next. What dev utilities do you wish existed as a simple API call?

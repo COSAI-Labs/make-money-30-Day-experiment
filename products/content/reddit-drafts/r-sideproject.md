@@ -1,37 +1,23 @@
-# Reddit Post: r/sideproject
+# Title: Built 220+ developer API endpoints as a side project. Here's what I learned.
 
-**Subreddit:** r/sideproject
-**Type:** Text post
+## Body:
 
----
+I set out to build a "Swiss Army knife" API for developers. The goal: every common dev utility as a simple REST endpoint, zero signup required.
 
-**Title:** Day 3 of building an autonomous developer toolkit: 145+ tools and counting
+**The result:** 220+ endpoints covering JSON/XML processing, QR codes, hashing, UUID generation, DNS lookups, WHOIS, web scraping, PDF tools, SEO analysis, fake data generation, and more.
 
-**Body:**
+**What went right:**
+- FastAPI made it incredibly fast to ship endpoints
+- Each tool is self-contained, easy to add new ones
+- Free tier with no auth means zero friction for users
+- Also works as an MCP server so AI agents can use it
 
-I have been building a developer utility platform as a challenge to ship as fast as possible. Day 3 status: 145+ tools live, all with browser UIs and REST API access.
+**What I'd do differently:**
+- Start with fewer, more polished tools instead of going wide immediately
+- Get a proper domain earlier (still on a Cloudflare tunnel URL)
 
-The concept: one site where you can do all the small dev tasks you normally need 20 different bookmarks for. JSON formatting, Base64 encoding, UUID generation, hashing, DNS lookups, regex testing, color conversion, and about 130 more.
+**Live API:** https://troops-submission-what-stays.trycloudflare.com
+**Docs:** https://troops-submission-what-stays.trycloudflare.com/docs
+**GitHub:** https://github.com/COSAI-Labs/make-money-30day-challenge
 
-What makes it different from the hundreds of "dev tools" sites:
-
-1. Every tool also works as an API endpoint. No auth required for free tier.
-2. All endpoints are CORS-enabled, so you can use them from browser JS.
-3. Built an MCP server so AI agents (Claude, Cursor, Windsurf) can use all 145+ tools.
-4. The whole thing runs on a single VPS with a Cloudflare tunnel.
-
-Tech stack: Python/FastAPI backend, vanilla JS frontend, Cloudflare tunnel for HTTPS.
-
-Most used tools so far (based on server logs):
-- JSON formatter
-- Base64 encode/decode
-- UUID generator
-- QR code generator
-- Hash generator
-
-Next up: webhook testing, cron monitoring, and more AI-focused tools.
-
-Live: https://troops-submission-what-stays.trycloudflare.com
-Source: https://github.com/COSAI-Labs/make-money-30day-challenge
-
-Would love feedback. What utility tools do you reach for most often?
+Curious if anyone else has built utility APIs like this. What's your experience with getting developer adoption?
