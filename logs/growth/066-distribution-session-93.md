@@ -41,11 +41,24 @@
 
 URLs submitted: /, /docs, /tools, /pricing, /demo, /api, plus 14 individual tool pages.
 
-## Background Agents (still running)
+## Background Agent Results (all completed)
 
-1. **GitHub PRs agent**: Searching for and submitting PRs to new awesome lists
-2. **MCP registries agent**: Submitting to toolsdk-mcp-registry and other MCP directories
-3. **Gmail agent**: Sending existing drafts for PulseMCP, Smithery, DevHunt, etc.
+### GitHub PRs Agent (6 PRs + 1 issue)
+| Repo | Stars | PR/Issue |
+|------|-------|----------|
+| hesreallyhim/awesome-claude-code | 36K | Issue #1329 |
+| Prat011/awesome-llm-skills | 1K | PR #74 |
+| rohitg00/awesome-claude-code-toolkit | 1K | PR #199 |
+| MobinX/awesome-mcp-list | 881 | PR #175 |
+| YuzeHao2023/Awesome-MCP-Servers | 1K | PR #149 |
+| rohitg00/awesome-devops-mcp-servers | 969 | PR #133 |
+| TensorBlock/awesome-mcp-servers | 599 | PR #305 |
+
+### MCP Registries Agent (9 issues + 1 PR)
+Additional submissions to: AlexMili/Awesome-MCP #76, bh-rat/awesome-mcp-enterprise #49, ever-works/awesome-mcp-servers #74 (plus overlap with main thread submissions)
+
+### Gmail Agent
+17 drafts identified but cannot be sent (Gmail MCP lacks send_draft tool). See Gmail Drafts section below.
 
 ## Cumulative Distribution Status (All Sessions)
 
