@@ -45,8 +45,20 @@
 | 36 | futantan/agent-skills.md | 147 | https://github.com/futantan/agent-skills.md/issues/11 |
 | 37 | ai-boost/awesome-a2a | 549 | https://github.com/ai-boost/awesome-a2a/issues/68 |
 | 38 | pab1it0/awesome-a2a | 163 | https://github.com/pab1it0/awesome-a2a/issues/40 |
+| 39 | mahseema/awesome-ai-tools | 4,712 | https://github.com/mahseema/awesome-ai-tools/issues/1008 |
+| 40 | pingan8787/awesome-ai-tools | 353 | https://github.com/pingan8787/awesome-ai-tools/issues/75 |
+| 41 | tankvn/awesome-ai-tools | 303 | https://github.com/tankvn/awesome-ai-tools/issues/85 |
+| 42 | eudk/awesome-ai-tools | 213 | https://github.com/eudk/awesome-ai-tools/issues/149 |
+| 43 | BehiSecc/awesome-claude-skills | 8,150 | https://github.com/BehiSecc/awesome-claude-skills/issues/199 |
+| 44 | vijaythecoder/awesome-claude-agents | 4,117 | https://github.com/vijaythecoder/awesome-claude-agents/issues/65 |
+| 45 | ComposioHQ/awesome-claude-plugins | 1,191 | https://github.com/ComposioHQ/awesome-claude-plugins/issues/119 |
+| 46 | quemsah/awesome-claude-plugins | 319 | https://github.com/quemsah/awesome-claude-plugins/issues/83 |
+| 47 | sanjeed5/awesome-cursor-rules-mdc | 3,430 | https://github.com/sanjeed5/awesome-cursor-rules-mdc/issues/37 |
+| 48 | sickn33/antigravity-awesome-skills | 30,333 | https://github.com/sickn33/antigravity-awesome-skills/issues/447 |
+| 49 | Arindam200/awesome-ai-apps | 9,462 | https://github.com/Arindam200/awesome-ai-apps/issues/185 |
+| 50 | heilcheng/awesome-agent-skills | 3,605 | https://github.com/heilcheng/awesome-agent-skills/issues/159 |
 
-**Combined star count of direct submissions: ~74K+ stars**
+**Combined star count of direct submissions: ~141K+ stars**
 
 ## Failed Submissions
 
@@ -82,10 +94,10 @@ _Pending results_
 ## Session Totals
 
 ### This Session (direct only, before agent results)
-- **Direct GitHub submissions**: 38 new issues
+- **Direct GitHub submissions**: 50 new issues
 - **Failed submissions**: 5 (disabled issues/archived/restricted)
 - **IndexNow URLs submitted**: 8
-- **Combined target repo stars**: ~74K+
+- **Combined target repo stars**: ~141K+
 
 ### All-Time Estimates (cumulative)
 - **Total GitHub submissions**: 180+ across 130+ repos
