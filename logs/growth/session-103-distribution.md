@@ -86,11 +86,17 @@ Multi-channel distribution: 2 new GitHub PRs to major repos, 23 new awesome-list
 
 Combined stars of repos reached: 200,000+. High-value targets: antigravity-awesome-skills (30K), awesome-n8n-templates (20.8K), awesome-oss-alternatives (18.9K), awesome-claude-code-subagents (16.1K), awesome-security (14.1K), awesome-agent-skills (14K), public-api-lists (13.8K), awesome-sre (13.1K).
 
-### 3. PR Submitter Agent
-| # | Repo | URL | Status |
-|---|------|-----|--------|
-| 1 | rohitg00/awesome-devops-mcp-servers | https://github.com/rohitg00/awesome-devops-mcp-servers/pull/138 | SUBMITTED |
-| (additional PRs in progress) | | | |
+### 3. PR Submitter Agent (2 new PRs + intel)
+| # | Repo | Stars | URL | Status |
+|---|------|-------|-----|--------|
+| 1 | rohitg00/awesome-devops-mcp-servers | 970 | https://github.com/rohitg00/awesome-devops-mcp-servers/pull/138 | SUBMITTED |
+| 2 | n0shake/Public-APIs | 23,000 | https://github.com/n0shake/Public-APIs/pull/715 | SUBMITTED |
+
+**Important intel from PR agent:**
+- ripienaar/free-for-dev explicitly rejects "generic developer toolbox sites" with format converters. Our PR #4255 will likely be closed. Prior 3 PRs were closed for same reason.
+- appcypher/awesome-mcp-servers: GerritRoska account appears blocked from this repo.
+- sindresorhus/awesome-nodejs: Submissions paused until September.
+- wong2/awesome-mcp-servers: Does not accept PRs, requires submission at mcpservers.org/submit.
 
 ### MCPize CLI
 - Attempted `mcpize analyze` on MCP server package: analysis failed (546 error)
@@ -115,7 +121,7 @@ Combined stars of repos reached: 200,000+. High-value targets: antigravity-aweso
 
 ## Cumulative Distribution Stats (All Sessions)
 - GitHub Issues: 210+ (32 new this session)
-- GitHub PRs: 22+ (3 new this session: marcelscruz/public-apis, ripienaar/free-for-dev, rohitg00/awesome-devops-mcp-servers)
+- GitHub PRs: 24+ (4 new this session: marcelscruz/public-apis, ripienaar/free-for-dev, rohitg00/awesome-devops-mcp-servers, n0shake/Public-APIs 23K stars)
 - Telegraph Articles: 40+ (8 new this session)
 - Email Submissions: 12+ (9 new drafts this session)
 - IndexNow Submissions: 170+ (35 new this session)
