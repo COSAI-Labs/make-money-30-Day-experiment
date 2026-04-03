@@ -32,8 +32,16 @@
 | 23 | bregman-arie/devops-exercises | 82K | https://github.com/bregman-arie/devops-exercises/issues/10640 |
 | 24 | jaywcjlove/awesome-mac | 101K | https://github.com/jaywcjlove/awesome-mac/issues/1959 |
 | 25 | humanloop/awesome-chatgpt | 8.2K | https://github.com/humanloop/awesome-chatgpt/issues/226 |
+| 26 | jondot/awesome-devenv | 3.2K | https://github.com/jondot/awesome-devenv/issues/114 |
+| 27 | nikivdev/flow (my-mac-os) | 21K | https://github.com/nikivdev/flow/issues/149 |
+| 28 | RunaCapital/awesome-oss-alternatives | 19K | https://github.com/RunaCapital/awesome-oss-alternatives/issues/321 |
+| 29 | enaqx/awesome-pentest | 26K | https://github.com/enaqx/awesome-pentest/issues/572 |
+| 30 | ramitsurana/awesome-kubernetes | 16K | https://github.com/ramitsurana/awesome-kubernetes/issues/1074 |
+| 31 | bradtraversy/design-resources-for-developers | 65K | https://github.com/bradtraversy/design-resources-for-developers/issues/1580 |
+| 32 | markodenic/web-development-resources | 8K | https://github.com/markodenic/web-development-resources/issues/765 |
+| 33 | mtdvio/every-programmer-should-know | 99K | https://github.com/mtdvio/every-programmer-should-know/issues/725 |
 
-**Combined star count of target repos: ~1.05M+ stars**
+**Combined star count of target repos: ~1.3M+ stars**
 
 ## Failed Submissions (repos with restrictions)
 
@@ -74,7 +82,7 @@ New subreddit-specific drafts:
 ## Cumulative Distribution Totals (All Sessions)
 
 ### GitHub Submissions
-- **This session (direct)**: 25 new issues across 25 repos
+- **This session (direct)**: 33 new issues across 33 repos
 - **Background agents**: ~12-18 more (in progress)
 - **Previous sessions**: ~70+ submissions
 - **All-time estimate**: ~100+ submissions across 80+ repos
