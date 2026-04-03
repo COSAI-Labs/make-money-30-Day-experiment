@@ -59,11 +59,33 @@
 | sindresorhus/awesome-nodejs | 65K | Issues restricted to prior contributors |
 | Kikobeats/awesome-api | 2.9K | Issues disabled |
 
-## Background Agents (running in parallel)
+## Background Agents (completed)
 
-1. **MCP Registry Submitter**: Targeting wong2/awesome-mcp-servers, appcypher/awesome-mcp-servers, TensorBlock/awesome-mcp-servers, rohitg00/awesome-devops-mcp-servers, MobinX/awesome-mcp-list, tolkonepiu/best-of-mcp-servers
-2. **DevTool Submitter**: Targeting whizkydee/Awesome-APIs, TonnyL/Awesome_APIs, agamm/awesome-developer-first, t18n/awesome-dev-tools, ripienaar/free-for-dev, lavie/Awesome-APIs
-3. **Registry Email Submitter**: PulseMCP form, official MCP registry PR, Gmail drafts for mcpize, mcpmarket, mcp.so
+### MCP Registry Submitter
+| Repo | Result |
+|------|--------|
+| appcypher/awesome-mcp-servers | Already listed in README (merged!) |
+| tolkonepiu/best-of-mcp-servers | Issue #109 created |
+| wong2/awesome-mcp-servers | Fork branch created, PRs restricted |
+| TensorBlock, rohitg00, MobinX | Already submitted prior sessions |
+
+### DevTool Directory Submitter
+| Repo | Stars | Type | URL |
+|------|-------|------|-----|
+| ripienaar/free-for-dev | 90K | PR | https://github.com/ripienaar/free-for-dev/pull/4252 |
+| whizkydee/Awesome-APIs | 2.5K | PR | https://github.com/whizkydee/Awesome-APIs/pull/18 |
+| Kikobeats/awesome-api | 2.9K | PR | https://github.com/Kikobeats/awesome-api/pull/78 |
+| agamm/awesome-developer-first | 3K | Issue | https://github.com/agamm/awesome-developer-first/issues/331 |
+| mailtoharshit/Awesome-Api-Management-Tools | 500 | Issue | https://github.com/mailtoharshit/Awesome-Api-Management-Tools/issues/16 |
+
+### Registry Email Submitter
+| Action | Result |
+|--------|--------|
+| PulseMCP | Requires browser form. Gmail draft to support@pulsemcp.com exists |
+| Official MCP Registry | mcp-publisher JWT expired. Needs browser GitHub device flow |
+| hello@mcpize.com | Gmail draft created (partnership inquiry) |
+| contact@mcpmarket.com | Gmail draft created (server submission) |
+| submit@mcp.so | Gmail draft created (server submission) |
 
 ## IndexNow SEO Submissions
 
