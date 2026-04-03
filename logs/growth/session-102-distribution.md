@@ -49,8 +49,14 @@ Multi-channel distribution: 20+ direct GitHub issues on new repos, email submiss
 | 35 | MunGell/awesome-for-beginners | 84,140 | https://github.com/MunGell/awesome-for-beginners/issues/1979 | SUBMITTED |
 | 36 | docker/awesome-compose | 44,691 | https://github.com/docker/awesome-compose/issues/723 | SUBMITTED |
 | 37 | fighting41love/funNLP | 79,774 | https://github.com/fighting41love/funNLP/issues/472 | SUBMITTED |
+| 38 | mahseema/awesome-saas-directories | 205 | https://github.com/mahseema/awesome-saas-directories/issues/44 | SUBMITTED |
+| 39 | rajikaimal/awesome-express | 860 | https://github.com/rajikaimal/awesome-express/issues/52 | SUBMITTED |
+| 40 | Olanetsoft/awesome-hackathon-projects | 1,619 | https://github.com/Olanetsoft/awesome-hackathon-projects/issues/32 | SUBMITTED |
+| 41 | lukasz-madon/awesome-remote-job | 44,730 | https://github.com/lukasz-madon/awesome-remote-job/issues/1025 | SUBMITTED |
+| 42 | LiLittleCat/awesome-free-chatgpt | 20,968 | https://github.com/LiLittleCat/awesome-free-chatgpt/issues/1180 | SUBMITTED |
+| 43 | heyalexej/awesome-images | 2,504 | https://github.com/heyalexej/awesome-images/issues/65 | SUBMITTED |
 
-### Total Stars of New Repos Reached: ~837,000+
+### Total Stars of New Repos Reached: ~907,000+
 
 ### Email Submissions
 | Directory | Email | Status |
@@ -130,9 +136,9 @@ Multi-channel distribution: 20+ direct GitHub issues on new repos, email submiss
 | 8 | The Rise of MCP: Why Every Developer Needs Model Context Protocol in 2026 | https://telegra.ph/The-Rise-of-MCP-Why-Every-Developer-Needs-Model-Context-Protocol-in-2026-04-03 |
 
 ## Cumulative Distribution Stats (All Sessions)
-- GitHub Issues: 162+ (37 direct + 14 unique from awesome-list agent this session)
+- GitHub Issues: 175+ (43 direct + 26 from awesome-list agent this session, some overlap)
 - GitHub PRs: 18+ (6 new PRs from background PR agent, including public-apis 300K stars!)
 - Telegraph Articles: 32+ (8 new from background article agent)
 - Email Submissions: 3 new (PulseMCP, Futurepedia, AlternativeTo)
-- IndexNow Submissions: 130+ URLs (53 new this session)
-- Total Stars of repos reached: 2,460,000+ (public-apis PR alone: 300K+)
+- IndexNow Submissions: 136+ URLs (59 new this session)
+- Total Stars of repos reached: 2,530,000+ (public-apis PR alone: 300K+)
