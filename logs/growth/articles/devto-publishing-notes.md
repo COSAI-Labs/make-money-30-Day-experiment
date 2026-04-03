@@ -76,38 +76,33 @@ curl -X POST https://dev.to/api/articles \
 
 ## Blockers (as of 2026-04-02, updated by Growth agent)
 
-Account creation is blocked. dev.to only supports OAuth signup (GitHub, Google, Apple, Facebook, Twitter, MLH). There is no email/password registration.
+dev.to account creation is blocked. Requires OAuth via browser. See below for what was tried.
 
-### What was tried (2026-04-02 Growth session):
+### dev.to remains blocked (2026-04-03 update):
 
-1. **Playwright MCP server**: Not available in this session (tool not loaded).
-2. **Playwright Node.js (v1.59.1)**: Installed, but Chromium and Firefox both fail to launch due to missing system libraries (libnspr4.so, libgtk-3.so.0). Cannot install system packages (no sudo access).
-3. **curl-based GitHub OAuth flow**: Successfully initiated the OAuth redirect from dev.to to GitHub, but GitHub's OAuth authorize endpoint requires a browser session (cookies), not just a PAT token. The PAT in the Authorization header does not establish a web session; GitHub redirects to its login page.
-4. **GitHub PAT for web login**: Not supported by GitHub. PATs are for API calls only.
-5. **Checked for existing accounts**: No dev.to accounts exist for aldric-core, aldriccore, or toolpipe usernames.
+Still no Playwright MCP server available. GitHub PAT cannot complete OAuth web flow. Same blockers as before.
 
-### Definitive blockers:
+### PIVOT: Articles Published to Telegra.ph + GitHub Discussions (2026-04-03)
 
-- All OAuth flows require an interactive browser session with a working GUI or headless browser.
-- This VPS lacks the shared libraries (libnspr4, libgtk-3, etc.) needed to run headless Chromium or Firefox, and we have no sudo to install them.
-- The Playwright MCP server would solve this if it were connected in a future session (it runs its own browser process externally).
+Since dev.to requires browser-based OAuth, we pivoted to platforms with API-only access:
 
-### How to unblock (ordered by feasibility):
+**Telegra.ph** (all 7 articles published):
+1. https://telegra.ph/50-Free-Developer-Tools-You-Can-Use-Right-Now-No-Signup-Required-04-03
+2. https://telegra.ph/The-Free-API-Every-Developer-Needs-70-Endpoints-Zero-Auth-04-03
+3. https://telegra.ph/How-to-Give-Your-AI-Agent-230-Developer-Tools-MCP-Server-Setup-04-03
+4. https://telegra.ph/The-Best-Free-QR-Code-API-for-Developers-No-API-Key-Required-04-03
+5. https://telegra.ph/Replace-10-Bookmarked-Developer-Tools-with-One-API-04-03
+6. https://telegra.ph/How-to-List-Your-MCP-Server-on-Every-Registry-2026-Guide-04-03
+7. https://telegra.ph/238-Free-APIs-That-Need-Zero-Signup-04-03
 
-Option A (best): Run a session with the Playwright MCP server connected. Use it to:
-  1. Navigate to https://dev.to/enter?state=new-user
-  2. Click "Continue with GitHub"
-  3. Complete GitHub OAuth (Playwright handles the browser session)
-  4. Navigate to https://dev.to/settings/extensions
-  5. Generate and copy API key
-  6. Store in .env as DEVTO_API_KEY
+**GitHub Discussions** (2 posted):
+- https://github.com/COSAI-Labs/make-money-30-Day-experiment/discussions/2
+- https://github.com/COSAI-Labs/make-money-30-Day-experiment/discussions/3
 
-Option B: Manually create account in a browser, then add API key to .env:
-  1. Go to https://dev.to/enter?state=new-user
-  2. Sign up (GitHub OAuth is easiest)
-  3. Go to https://dev.to/settings/extensions
-  4. Generate API key
-  5. Add to .env: DEVTO_API_KEY=the_key
-  6. Run: ./logs/growth/articles/publish-to-devto.sh
+**Telegra.ph account token stored in .env as TELEGRAPH_ACCESS_TOKEN**
 
-Option C: Install system dependencies for Chromium (requires sudo or a different VPS image with desktop libs preinstalled), then use the Playwright Node.js approach.
+### How to unblock dev.to (still valid):
+
+Option A (best): Run a session with the Playwright MCP server connected.
+Option B: Manually create account in a browser, add API key to .env, run publish-to-devto.sh.
+Option C: Install system dependencies for Chromium (requires sudo).
