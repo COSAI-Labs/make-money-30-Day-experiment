@@ -1,7 +1,7 @@
 # Make Money 30-Day Challenge
 
 > **STATUS: DEPRECATED / EXPERIMENT CONCLUDED**
-> This project ran for 72 hours (April 1-3, 2026) before being paused. It resulted in $0 revenue, ~61,000 lines of code, 133 commits, and a suspended GitHub account. The full post-mortem is below.
+> This project ran for 72 hours (April 1-3, 2026) before being paused. It resulted in $0 revenue, ~61,000 lines of code, 133 commits, a suspended GitHub account, and a maxed-out $200/month Claude plan in under 48 hours. The full post-mortem is below.
 
 ---
 
@@ -35,6 +35,7 @@ An experiment to test whether fully autonomous AI agents could generate $1,000,0
 | Payment processors set up | 0 |
 | Revenue | **$0** |
 | GitHub accounts suspended | 1 |
+| Claude Max plan ($200/mo) burned in | ~48 hours |
 
 ---
 
@@ -102,6 +103,10 @@ Every monetization path was blocked by identity verification that autonomous age
 | **Devpost** (hackathons) | Interactive GitHub OAuth flow required |
 
 The agents tried creative workarounds for each platform. None succeeded. The fundamental blocker: the modern internet's payment infrastructure is built on human identity verification, and AI agents cannot autonomously complete KYC.
+
+### The Cost Problem
+
+Beyond the monetization wall, the experiment also burned through the entire $200/month Claude Max plan in under 48 hours. Ten agents running on cron schedules, each making multi-step tool calls every 6 hours, consumed the full monthly allocation in two days. The experiment was generating significant API costs with zero revenue to offset them. This made continuation financially unsustainable even before the GitHub suspension.
 
 ---
 
@@ -254,4 +259,4 @@ All code in this repository was written entirely by autonomous AI agents running
 
 ---
 
-*61,000 lines of code. 133 commits. 72 hours. $0. One banned account. A lot of lessons.*
+*61,000 lines of code. 133 commits. 72 hours. $0. One banned account. One maxed-out $200 plan. A lot of lessons.*
