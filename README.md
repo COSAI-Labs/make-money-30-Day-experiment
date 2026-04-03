@@ -1,20 +1,15 @@
-# Make Money 30-Day Challenge
+# Make Money 30-Day Experiment
 
 > **STATUS: DEPRECATED / EXPERIMENT CONCLUDED**
-> This project ran for 72 hours (April 1-3, 2026) before being paused. It resulted in $0 revenue, ~61,000 lines of code, 133 commits, a suspended GitHub account, and a maxed-out $200/month Claude plan in under 48 hours. The full post-mortem is below.
+> This project ran for 72 hours (April 1-3, 2026) before being paused. Full post-mortem below.
 
 ---
 
-## What This Was
+**61,000 lines of code. 133 commits. 72 hours. $0 revenue. A $200/mo plan maxed in 48 hours. And a banned GitHub account.**
 
-An experiment to test whether fully autonomous AI agents could generate $1,000,000 in 30 days with zero human intervention.
+In April 2026, I gave 10 autonomous AI agents a $1M target and 30 days. Zero human intervention. The goal was deliberately ambitious: not because I expected them to hit it, but because I wanted to push agentic AI to its absolute limits, find where it breaks, and document everything.
 
-**Setup:**
-- 10 specialized AI agent roles (Strategist, Builder, Growth, Ops, etc.)
-- Running on Claude Code (Sonnet 4.6) via cron-scheduled triggers on a cloud environment
-- Each agent had access to Bash, file tools, Git, and Gmail
-- Agents coordinated through shared markdown files: decision logs, revenue trackers, daily status reports
-- No human touched the code, made decisions, or intervened in any way
+The agents ran on [Claude Code](https://claude.ai/code) with cron-scheduled triggers. Each had a role: Strategist, Builder, Growth, Ops. They coordinated through shared markdown files, maintained decision logs, and pushed code to GitHub autonomously. They burned through the entire $200/month Claude Max plan in under 48 hours. Ten agents on cron schedules add up fast.
 
 ---
 
@@ -41,101 +36,38 @@ An experiment to test whether fully autonomous AI agents could generate $1,000,0
 
 ## What the Agents Built: ToolPipe
 
-The agents autonomously decided to build a freemium developer tools API platform. Their strategy: offer free tools to attract developers, then upsell to paid API tiers ($9.99/mo Pro, $49.99/mo Enterprise).
-
-### Products Shipped
+The agents autonomously decided to build a freemium developer tools API platform. Strategy: offer free tools to attract developers, then upsell to paid API tiers ($9.99/mo Pro, $49.99/mo Enterprise).
 
 **Core API** (`products/api-service/main.py`, 11,735 lines)
-A single-file FastAPI application with 238+ REST endpoints covering: QR code generation, JSON formatting, UUID generation, DNS lookup, PDF tools, crypto prices, SEO analysis, text processing, code formatting, JWT decoding, regex testing, hash generation, IP geolocation, Markdown conversion, and dozens more.
+A FastAPI application with 238+ REST endpoints: QR code generation, JSON formatting, UUID generation, DNS lookup, PDF tools, crypto prices, SEO analysis, text processing, code formatting, JWT decoding, regex testing, hash generation, IP geolocation, Markdown conversion, and dozens more.
 
 **MCP Server** (`products/mcp-server/`, 2,415 lines)
-A Model Context Protocol server exposing 136+ tools for AI agents (Claude, GPT, etc.) to discover and use ToolPipe programmatically. Successfully listed on the **official MCP Registry**, which was the project's single biggest distribution win.
+A Model Context Protocol server exposing 136+ tools for AI agents to discover and use ToolPipe programmatically. Successfully listed on the **official MCP Registry** -- the project's single biggest distribution win.
 
 **npm Package** (`products/mcp-server-package/`, 1,274 lines)
 Standalone npm package with 55 tools, published to GitHub Packages at v1.19.0. The agents could not publish to npmjs.org due to CAPTCHA on account creation.
 
 **53 SEO Pages** (`products/seo-pages/`)
-Standalone HTML tool pages targeting developer search queries: QR generator, JSON formatter, JWT debugger, regex generator, git commands cheat sheet, YAML validator, API reference, and more.
+Standalone HTML tool pages targeting developer search queries: QR generator, JSON formatter, JWT debugger, regex generator, git cheat sheet, YAML validator, and more.
 
-**Supporting Products**
-- PDF tools suite
-- Webhook tester
-- URL shortener
-- Invoice generator
-- Uptime monitor
-- Paste bin
-- Down detector
-- Polymarket scanner
+**Supporting Products:** PDF tools suite, webhook tester, URL shortener, invoice generator, uptime monitor, paste bin, down detector, Polymarket scanner.
 
-**Infrastructure**
-- FastAPI on port 8081 via PM2
-- Cloudflare tunnel for HTTPS
-- MCP HTTP server on port 8090
-- SQLite databases for analytics, API keys, payments, webhooks
-- Crypto wallets (ETH + Solana) for potential agent-to-agent payments
+**Infrastructure:** FastAPI on port 8081 via PM2, Cloudflare tunnel for HTTPS, MCP HTTP server on port 8090, SQLite databases for analytics and API keys, crypto wallets (ETH + Solana) for potential agent-to-agent payments.
 
 ### API Growth Over Time
 
-The API evolved rapidly through autonomous iteration:
-- **v1.0** (Day 1): 12 endpoints
-- **v1.10** (Day 1, evening): 70+ endpoints
-- **v1.15** (Day 2): 150+ endpoints
-- **v1.19** (Day 2, evening): 238+ endpoints
-
-Each version was the agents' own decision about what tools developers would need, based on their analysis of popular developer utilities.
-
----
-
-## Why $0 Revenue
-
-Every monetization path was blocked by identity verification that autonomous agents cannot complete:
-
-| Platform | What Happened |
-|---|---|
-| **Stripe** | Requires KYC / identity verification |
-| **LemonSqueezy** | Requires KYC / identity verification |
-| **RapidAPI** | Bot detection, returned 500 errors on signup |
-| **ylliX** | reCAPTCHA blocked signup |
-| **Adsterra** | reCAPTCHA blocked signup |
-| **OxaPay** | reCAPTCHA / Cloudflare challenge |
-| **NOWPayments** | reCAPTCHA / Cloudflare challenge |
-| **npmjs.org** | CAPTCHA on account creation |
-| **Devpost** (hackathons) | Interactive GitHub OAuth flow required |
-
-The agents tried creative workarounds for each platform. None succeeded. The fundamental blocker: the modern internet's payment infrastructure is built on human identity verification, and AI agents cannot autonomously complete KYC.
-
-### The Cost Problem
-
-Beyond the monetization wall, the experiment also burned through the entire $200/month Claude Max plan in under 48 hours. Ten agents running on cron schedules, each making multi-step tool calls every 6 hours, consumed the full monthly allocation in two days. The experiment was generating significant API costs with zero revenue to offset them. This made continuation financially unsustainable even before the GitHub suspension.
-
----
-
-## The GitHub Suspension Incident
-
-On Day 2, the Growth agent executed an aggressive distribution strategy. In a single 24-hour window, it autonomously created:
-
-- **91+ GitHub issues** across popular repositories (repos with millions of combined stars)
-- **33+ pull requests** to MCP registries, awesome-lists, and curated collections
-- **40+ gists** with backlinks to ToolPipe
-
-GitHub's automated spam detection flagged the account. **The Aldric-Core GitHub account was suspended.**
-
-**Destroyed:**
-- All 33+ PRs (some were under legitimate review by real maintainers)
-- All 91+ issues
-- All 40+ gists with backlinks
-- All repository forks
-
-**Survived:**
-- The official MCP Registry listing
-- This COSAI-Labs organization and its repositories
-- VPS-hosted products
-
-The Growth agent was optimizing for reach (estimated 4.5M star exposure across targeted repos) without any concept of platform norms, rate limits, or consequences. This is the single clearest example of why autonomous agents need guardrails on external interactions.
+| Version | Time | Endpoints |
+|---|---|---|
+| v1.0 | Day 1 morning | 12 |
+| v1.10 | Day 1 evening | 70+ |
+| v1.15 | Day 2 | 150+ |
+| v1.19 | Day 2 evening | 238+ |
 
 ---
 
 ## Agent Architecture
+
+![Agent architecture: Cron Triggers feed Strategist Agent, which coordinates Builder, Growth, Ops agents and Shared Logs](diagram.jpg)
 
 ```
 Cron Triggers (every 6 hours)
@@ -157,17 +89,53 @@ VPS (PM2 + Cloudflare Tunnel)
     +---> :8090  MCP HTTP Server
 ```
 
-**Agent coordination model:** All agents read and wrote to shared markdown files in the repository. The Strategist ran every 6 hours, reviewed git logs to see what other agents had done, made strategic decisions, and logged them to `logs/decisions.md`. Each agent had its own session logs in `logs/`.
+All agents ran on **Claude Sonnet 4.6** via Claude Code. Each had access to Bash, file tools, and Git. The Strategist ran every 6 hours, reviewed git logs to see what other agents had done, made strategic decisions, and logged them to `logs/decisions.md`.
 
-**Tools available to each agent:** Bash, Read, Write, Edit, Glob, Grep, Gmail (for weekly status emails).
+---
 
-**Model:** Claude Sonnet 4.6 for all agents.
+## The Wall: Why $0 Revenue
+
+Every monetization path was blocked by identity verification that autonomous agents cannot complete.
+
+| Platform | What Happened |
+|---|---|
+| Stripe | KYC / identity verification required |
+| LemonSqueezy | KYC / identity verification required |
+| RapidAPI | Bot detection, 500 errors on signup |
+| ylliX / Adsterra | reCAPTCHA blocked signup |
+| OxaPay / NOWPayments | reCAPTCHA / Cloudflare challenges |
+| npmjs.org | CAPTCHA on account creation |
+| Devpost | Interactive GitHub OAuth flow required |
+
+The agents tried creative workarounds for each platform. None succeeded. The hard truth: the modern internet's payment infrastructure is built to verify humans. It works. AI agents cannot autonomously complete KYC. Until that changes, fully autonomous AI businesses are not viable.
+
+### The Cost Problem
+
+Beyond the monetization wall, the experiment burned through the entire $200/month Claude Max plan in under 48 hours. Ten agents on cron schedules, each making multi-step tool calls every 6 hours, consumed the full monthly allocation in two days. Generating significant API costs with zero revenue made continuation financially unsustainable, even before the GitHub suspension.
+
+---
+
+## The Disaster: GitHub Suspension
+
+On Day 2, the Growth agent executed an aggressive distribution strategy. In a single 24-hour window, it autonomously created:
+
+- **91+ GitHub issues** across popular repositories (repos with millions of combined stars)
+- **33+ pull requests** to MCP registries, awesome-lists, and curated collections
+- **40+ gists** with backlinks to ToolPipe
+
+GitHub's automated spam detection flagged the account. **The Aldric-Core GitHub account was suspended.**
+
+**Destroyed:** All 33+ PRs (some under legitimate review by real maintainers), all 91+ issues, all 40+ gists, all repository forks.
+
+**Survived:** The official MCP Registry listing, this COSAI-Labs organization, and VPS-hosted products.
+
+The Growth agent was optimizing for reach (estimated 4.5M star exposure across targeted repos) with no concept of community norms, rate limits, or reputational risk. This is the clearest example from the experiment of why autonomous agents need hard guardrails on external interactions.
 
 ---
 
 ## Decision Log Highlights
 
-The agents maintained a formal decision log with 20+ entries. Selected highlights:
+The agents maintained a formal decision log with 20+ entries.
 
 | # | Decision | Outcome |
 |---|---|---|
@@ -182,26 +150,30 @@ Full decision log: [`logs/decisions.md`](logs/decisions.md)
 
 ---
 
-## Findings
+## What I Learned
 
-### What autonomous agents can do
+**1. AI agents can build real software, fast.**
+238 API endpoints, a full MCP server, 53 SEO pages, and an npm package in 72 hours. This was not toy code.
 
-- **Build real software fast.** 238 API endpoints, a full MCP server, 53 SEO pages, and an npm package in 72 hours.
-- **Self-organize and coordinate.** Shared decision logs, daily status reports, revenue tracking, and strategic pivots, all without human input.
-- **Publish to open registries.** The MCP Registry listing was a legitimate, valuable distribution win.
-- **Iterate rapidly.** The API went from 12 to 238+ endpoints in 48 hours based on the agents' own product analysis.
-- **Adapt to constraints.** When payment processors blocked them, they pivoted to SEO and alternative marketplaces.
+**2. The bottleneck is not capability. It is trust infrastructure.**
+Payments, identity, platform access: all designed for humans. Every path to monetization requires proving you are a person. The agents could build the product but could not sell it.
 
-### What autonomous agents cannot do
+**3. Autonomous distribution without judgment is dangerous.**
+Volume optimization without understanding consequences leads to bans. The Growth agent treated GitHub like a marketing channel, not a community. It had no model for reputational risk.
 
-- **Pass identity verification.** CAPTCHAs, KYC, OAuth flows, and Cloudflare challenges are hard blockers. This makes autonomous monetization impossible with current infrastructure.
-- **Exercise judgment on distribution.** The Growth agent optimized for volume with no understanding of platform norms. It treated GitHub like a marketing channel, not a community.
-- **Generate revenue without a human in the loop.** Even with a fully functional product and multiple distribution channels, the agents could not process a single payment.
-- **Assess reputational risk.** No agent flagged the spam strategy as dangerous before it caused irreversible damage.
+**4. The human-in-the-loop is still essential.**
+Not for writing code, but for identity, judgment, and relationships. The agents needed a human to set up Stripe, to not spam GitHub, and to close client deals.
 
-### The core insight
+**5. This technology is incredibly powerful when directed.**
+The same system that built ToolPipe autonomously could build client projects 10x faster with a human steering. That is where the real value is.
 
-The bottleneck for autonomous AI agents is not engineering capability. It is the trust infrastructure of the internet. Payment processing, platform access, identity verification: these systems are designed to verify humans, and they work. Until there is a legitimate framework for AI agent identity and financial transactions, fully autonomous AI businesses are not viable.
+---
+
+## What's Next
+
+The experiment is paused, but the infrastructure and learnings are feeding back into **Aldric Core**, our autonomous multi-agent platform for building real client products. The goal was never about making $1M with no human involvement. It was about finding the edges of what autonomous AI agents can actually do. Now we know where they are.
+
+The codebase and all agent logs are open source in this repository.
 
 ---
 
@@ -227,35 +199,36 @@ node index.js
 
 ```
 .
-├── products/
-│   ├── api-service/          # Core FastAPI application (238+ endpoints)
-│   ├── mcp-server/           # MCP server (136+ tools)
-│   ├── mcp-server-package/   # Standalone npm package (55 tools)
-│   ├── seo-pages/            # 53 SEO landing pages
-│   ├── pdf-tools/            # PDF generation tools
-│   ├── web-tools/            # Web utility tools
-│   ├── invoice-generator/    # Invoice creation tool
-│   └── ...                   # Additional micro-products
-├── logs/
-│   ├── decisions.md          # Agent decision log (20+ entries)
-│   ├── day-01.md             # Daily status reports
-│   ├── day-02.md
-│   ├── growth/               # Growth agent session logs (64+ sessions)
-│   └── ...
-├── revenue/
-│   └── tracker.md            # Revenue tracking ($0 across all days)
-├── content/
-│   └── articles/             # Dev.to and Reddit draft content
-└── CLAUDE.md                 # Agent instructions and coordination rules
++-- products/
+|   +-- api-service/          # Core FastAPI application (238+ endpoints)
+|   +-- mcp-server/           # MCP server (136+ tools)
+|   +-- mcp-server-package/   # Standalone npm package (55 tools)
+|   +-- seo-pages/            # 53 SEO landing pages
+|   +-- pdf-tools/            # PDF generation tools
+|   +-- web-tools/            # Web utility tools
+|   +-- invoice-generator/    # Invoice creation tool
+|   +-- ...                   # Additional micro-products
++-- logs/
+|   +-- decisions.md          # Agent decision log (20+ entries)
+|   +-- day-01.md             # Daily status reports
+|   +-- day-02.md
+|   +-- growth/               # Growth agent session logs (64+ sessions)
+|   +-- ...
++-- revenue/
+|   +-- tracker.md            # Revenue tracking ($0 across all days)
++-- content/
+|   +-- articles/             # Dev.to and Reddit draft content
++-- diagram.jpg               # Agent architecture diagram
++-- CLAUDE.md                 # Agent instructions and coordination rules
 ```
 
 ---
 
 ## About
 
-This experiment was run by [Gerrit Roska](https://ithiel.co), founder of Ithiel iOS Studio, as part of research into autonomous multi-agent systems built on [Aldric Core](https://github.com/COSAI-Labs).
+Built by [Gerrit Roska](https://ithiel.co), founder of [Ithiel](https://ithiel.co) and [COSAI](https://cosai.cloud), as research into autonomous multi-agent systems built on [Aldric Core](https://github.com/COSAI-Labs).
 
-All code in this repository was written entirely by autonomous AI agents running [Claude Code](https://claude.ai/code) with Claude Sonnet 4.6. No human wrote, reviewed, or modified any code during the experiment. This README and the accompanying writeup were created after the experiment concluded.
+All code in this repository was written entirely by autonomous AI agents running [Claude Code](https://claude.ai/code) with Claude Sonnet 4.6. No human wrote, reviewed, or modified any code during the experiment.
 
 ---
 
