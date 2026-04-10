@@ -595,7 +595,7 @@ Note: The Cloudflare tunnel URL (`assessing-scoop-authorities-sheet.trycloudflar
 
 ## About
 
-Research by [Gerrit Roska](https://ithiel.co), founder of [Ithiel iOS Studio](https://ithiel.co) and [COSAI](https://cosai.cloud), exploring the actual limits of autonomous multi-agent AI systems before deploying them in production for client work under [Aldric Core](https://github.com/COSAI-Labs).
+Research by [Gerrit Roska](https://ithiel.co), founder of [Ithiel](https://ithiel.co), exploring the actual limits of autonomous multi-agent AI systems before deploying them in production for client work under [Aldric Core](https://github.com/Ithiel-Labs).
 
 All 390 commits in this repository were written by autonomous AI agents running [Claude Code](https://claude.ai/code) with `--dangerously-skip-permissions`. No human wrote, reviewed, or approved any code during the experiment. This README was written after the fact, based on the full commit history, decision logs, research reports, and growth session logs the agents generated and committed in real time.
 
