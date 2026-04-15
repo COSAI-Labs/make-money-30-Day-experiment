@@ -8,7 +8,7 @@ cd /home/GerritRoskaBot/make-money-30day-challenge
 echo "Getting JWT from registry..."
 JWT_RESPONSE=$(curl -s -X POST "https://registry.modelcontextprotocol.io/v0.1/auth/github-at" \
   -H "Content-Type: application/json" \
-  -d '{"github_token": "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"}')
+  -d '{"github_token": "${GITHUB_TOKEN}"}')
 
 echo "Auth response: $JWT_RESPONSE"
 
